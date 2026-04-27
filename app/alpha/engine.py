@@ -20,6 +20,9 @@ class AlphaEvaluation:
     slippage_estimate: float
     fill_probability: float
     stability_score: float
+    spread_stability: float
+    liquidity_consistency: float
+    mid_price_stability: float
     timestamp: str
     component_scores: dict[str, float]
     manipulation_flags: dict[str, bool]
@@ -267,9 +270,12 @@ class AlphaEngine:
             spread=spread_pct,
             depth_xrp=float(depth["total_liquidity_xrp"]),
             imbalance=float(depth["imbalance"]),
-            slippage_estimate=float(fill["slippage_pct"]),
+            slippage_estimate=max(0.0, float(fill["slippage_pct"])),
             fill_probability=float(fill["fill_probability"]),
             stability_score=stability_score,
+            spread_stability=float(stability["spread_stability"]),
+            liquidity_consistency=float(stability["liquidity_consistency"]),
+            mid_price_stability=float(stability["mid_price_stability"]),
             timestamp=datetime.now(tz=timezone.utc).isoformat(),
             component_scores=component_scores,
             manipulation_flags=manipulation_flags,

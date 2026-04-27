@@ -93,10 +93,17 @@ class RiskEvent(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow)
 
 
+class AlphaCooldownRecord(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    token_id: int = Field(foreign_key="watchedtoken.id", index=True)
+    rejected_at: datetime = Field(default_factory=utcnow)
+
+
 class RiskDecisionRecord(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     token_id: int | None = Field(default=None, foreign_key="watchedtoken.id")
     snapshot_id: int | None = Field(default=None, foreign_key="marketsnapshot.id")
+    signal_id: int | None = Field(default=None, foreign_key="signal.id")
     decision: str
     reason: str
     score: float = 0.0
@@ -118,6 +125,11 @@ class AlphaSignal(SQLModel, table=True):
     slippage_pct: float = 0.0
     fill_probability: float = 0.0
     stability_score: float = 0.0
+    spread_stability: float = 0.0
+    liquidity_consistency: float = 0.0
+    mid_price_stability: float = 0.0
+    component_scores_json: str = "{}"
+    manipulation_flags_json: str = "{}"
     created_at: datetime = Field(default_factory=utcnow)
 
 

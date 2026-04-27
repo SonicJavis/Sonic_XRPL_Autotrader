@@ -10,6 +10,7 @@ from sqlmodel import Session, select
 from app.alpha.engine import AlphaEngine
 from app.config import BotMode, Settings
 from app.db.models import (
+    AlphaCooldownRecord,
     AlphaSignal,
     AuditEvent,
     MarketDepthLevel,
@@ -57,7 +58,6 @@ class ExecutionPipeline:
 
         executed: list[int] = []
         signals_count = 0
-        rejection_timestamps: list[datetime] = []
 
         for token in watched:
             orderbook = self._fetch_orderbook(token)
@@ -134,12 +134,13 @@ class ExecutionPipeline:
                 issuer=token.issuer,
             )
 
-            if self.alpha_engine.in_cooldown(rejection_timestamps):
+            if token.id is not None and self._token_in_cooldown(session, token.id, self.settings):
                 alpha_eval.decision = "REJECT"
                 alpha_eval.reasons = ["reject: alpha cooldown active"]
 
             if alpha_eval.decision != "APPROVE":
-                rejection_timestamps.append(datetime.now(tz=timezone.utc))
+                if token.id is not None:
+                    session.add(AlphaCooldownRecord(token_id=token.id))
                 session.add(
                     RiskEvent(
                         event_type="ALPHA_REJECT",
@@ -160,9 +161,14 @@ class ExecutionPipeline:
                     spread_pct=alpha_eval.spread,
                     depth_xrp=alpha_eval.depth_xrp,
                     imbalance=alpha_eval.imbalance,
-                    slippage_pct=alpha_eval.slippage_estimate,
+                    slippage_pct=max(0.0, alpha_eval.slippage_estimate),
                     fill_probability=alpha_eval.fill_probability,
                     stability_score=alpha_eval.stability_score,
+                    spread_stability=alpha_eval.spread_stability,
+                    liquidity_consistency=alpha_eval.liquidity_consistency,
+                    mid_price_stability=alpha_eval.mid_price_stability,
+                    component_scores_json=json.dumps(alpha_eval.component_scores),
+                    manipulation_flags_json=json.dumps(alpha_eval.manipulation_flags),
                 )
             )
             session.commit()
@@ -236,6 +242,7 @@ class ExecutionPipeline:
                     RiskDecisionRecord(
                         token_id=token.id,
                         snapshot_id=snapshot.id,
+                        signal_id=signal.id,
                         decision=risk_eval.decision.value,
                         reason=risk_eval.reason,
                         score=alpha_eval.score,
@@ -351,6 +358,18 @@ class ExecutionPipeline:
         asks = [dict(offer, side="ask") for offer in ask_book.get("offers", [])]
         bids = [dict(offer, side="bid") for offer in bid_book.get("offers", [])]
         return {"offers": bids + asks}
+
+    @staticmethod
+    def _token_in_cooldown(session: Session, token_id: int, settings: "Settings") -> bool:  # type: ignore[name-defined]
+        from datetime import timezone as _tz, timedelta as _td
+        threshold = datetime.now(tz=_tz.utc) - _td(minutes=settings.ALPHA_COOLDOWN_MINUTES)
+        recent = session.exec(
+            select(AlphaCooldownRecord)
+            .where(AlphaCooldownRecord.token_id == token_id)
+            .where(AlphaCooldownRecord.rejected_at >= threshold)
+            .order_by(AlphaCooldownRecord.rejected_at.desc())
+        ).all()
+        return len(recent) >= settings.ALPHA_COOLDOWN_FAILURES
 
     @staticmethod
     def _audit(session: Session, request_id: str, event_type: str, payload: dict[str, object]) -> None:

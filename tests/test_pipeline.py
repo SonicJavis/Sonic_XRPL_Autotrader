@@ -2,7 +2,7 @@ from sqlmodel import Session, select
 
 from app.alpha.engine import AlphaEngine
 from app.config import Settings
-from app.db.models import AlphaSignal, MarketDepthLevel, MarketSnapshot, RiskDecisionRecord, RiskEvent, Signal, WatchedToken
+from app.db.models import AlphaCooldownRecord, AlphaSignal, MarketDepthLevel, MarketSnapshot, RiskDecisionRecord, RiskEvent, Signal, WatchedToken
 from app.db.session import engine, init_db
 from app.execution.paper import PaperExecutor
 from app.execution.pipeline import ExecutionPipeline
@@ -32,6 +32,7 @@ class FakeXRPLClient:
 
 
 def reset_tables() -> None:
+    AlphaCooldownRecord.__table__.drop(engine, checkfirst=True)
     MarketDepthLevel.__table__.drop(engine, checkfirst=True)
     AlphaSignal.__table__.drop(engine, checkfirst=True)
     RiskDecisionRecord.__table__.drop(engine, checkfirst=True)

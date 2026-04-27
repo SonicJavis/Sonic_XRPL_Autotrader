@@ -1,6 +1,7 @@
 """Database package."""
 
 from app.db.models import (
+    AlphaCooldownRecord,
     AlphaSignal,
     AuditEvent,
     MarketDepthLevel,
@@ -22,6 +23,7 @@ __all__ = [
     "RiskEvent",
     "RiskDecisionRecord",
     "AlphaSignal",
+    "AlphaCooldownRecord",
     "MarketDepthLevel",
     "AuditEvent",
     "WatchedToken",
