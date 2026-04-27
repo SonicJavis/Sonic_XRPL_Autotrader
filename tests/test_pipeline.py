@@ -1,7 +1,8 @@
 from sqlmodel import Session, select
 
+from app.alpha.engine import AlphaEngine
 from app.config import Settings
-from app.db.models import MarketSnapshot, RiskEvent, Signal, WatchedToken
+from app.db.models import AlphaSignal, MarketDepthLevel, MarketSnapshot, RiskDecisionRecord, RiskEvent, Signal, WatchedToken
 from app.db.session import engine, init_db
 from app.execution.paper import PaperExecutor
 from app.execution.pipeline import ExecutionPipeline
@@ -31,6 +32,9 @@ class FakeXRPLClient:
 
 
 def reset_tables() -> None:
+    MarketDepthLevel.__table__.drop(engine, checkfirst=True)
+    AlphaSignal.__table__.drop(engine, checkfirst=True)
+    RiskDecisionRecord.__table__.drop(engine, checkfirst=True)
     Signal.__table__.drop(engine, checkfirst=True)
     RiskEvent.__table__.drop(engine, checkfirst=True)
     MarketSnapshot.__table__.drop(engine, checkfirst=True)
@@ -43,7 +47,8 @@ def build_pipeline(settings: Settings) -> ExecutionPipeline:
     strategy_registry.register(NewTokenScannerStrategy(settings=settings))
     risk_manager = RiskManager(settings, KillSwitch())
     paper_executor = PaperExecutor(settings)
-    return ExecutionPipeline(settings, FakeXRPLClient(), strategy_registry, risk_manager, paper_executor)
+    alpha_engine = AlphaEngine(settings)
+    return ExecutionPipeline(settings, FakeXRPLClient(), strategy_registry, risk_manager, paper_executor, alpha_engine)
 
 
 def test_pipeline_stores_signals() -> None:

@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from fastapi import FastAPI
 from sqlmodel import Session
 
+from app.alpha.engine import AlphaEngine
 from app.api.routes_health import router as health_router
 from app.api.routes_market import router as market_router
 from app.api.routes_mode import router as mode_router
@@ -32,12 +33,14 @@ class AppContainer:
         self.strategy_registry.register(NewTokenScannerStrategy(settings=settings))
         self.risk_manager = RiskManager(settings, self.kill_switch)
         self.paper_executor = PaperExecutor(settings)
+        self.alpha_engine = AlphaEngine(settings)
         self.pipeline = ExecutionPipeline(
             settings,
             self.xrpl_client,
             self.strategy_registry,
             self.risk_manager,
             self.paper_executor,
+            self.alpha_engine,
         )
 
     @contextmanager

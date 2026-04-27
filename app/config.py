@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     MAX_SPREAD_PCT: float = Field(default=8.0, ge=0)
     MAX_SLIPPAGE_PCT: float = Field(default=5.0, ge=0)
 
+    ALPHA_DEPTH_LEVELS: int = Field(default=8, ge=2)
+    ALPHA_STABILITY_WINDOW: int = Field(default=6, ge=3)
+    ALPHA_MIN_SCORE: float = Field(default=0.72, ge=0, le=1)
+    ALPHA_MIN_FILL_PROBABILITY: float = Field(default=0.85, ge=0, le=1)
+    ALPHA_MAX_IMBALANCE_FLIP_RATE: float = Field(default=0.5, ge=0, le=1)
+    ALPHA_COOLDOWN_FAILURES: int = Field(default=3, ge=1)
+    ALPHA_COOLDOWN_MINUTES: int = Field(default=5, ge=1)
+
     DEFAULT_STOPLOSS_PCT: float = Field(default=10.0, ge=0)
     DEFAULT_TAKE_PROFIT_PCT: float = Field(default=20.0, ge=0)
 

@@ -46,6 +46,18 @@ class MarketSnapshot(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow)
 
 
+class MarketDepthLevel(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    snapshot_id: int | None = Field(default=None, foreign_key="marketsnapshot.id")
+    side: str
+    level_index: int
+    price_xrp_per_token: float
+    token_amount: float
+    xrp_value: float
+    cumulative_xrp: float
+    created_at: datetime = Field(default_factory=utcnow)
+
+
 class Signal(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     strategy_name: str
@@ -78,6 +90,34 @@ class RiskEvent(SQLModel, table=True):
     event_type: str
     severity: str
     reason: str
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class RiskDecisionRecord(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    token_id: int | None = Field(default=None, foreign_key="watchedtoken.id")
+    snapshot_id: int | None = Field(default=None, foreign_key="marketsnapshot.id")
+    decision: str
+    reason: str
+    score: float = 0.0
+    reasons_json: str = "[]"
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class AlphaSignal(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    token_id: int | None = Field(default=None, foreign_key="watchedtoken.id")
+    snapshot_id: int | None = Field(default=None, foreign_key="marketsnapshot.id")
+    pair: str
+    score: float
+    decision: str
+    reasons_json: str
+    spread_pct: float | None = None
+    depth_xrp: float = 0.0
+    imbalance: float = 0.0
+    slippage_pct: float = 0.0
+    fill_probability: float = 0.0
+    stability_score: float = 0.0
     created_at: datetime = Field(default_factory=utcnow)
 
 

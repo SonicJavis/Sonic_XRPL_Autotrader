@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from sqlmodel import select
 
-from app.db.models import MarketSnapshot, WatchedToken
+from app.db.models import AlphaSignal, MarketDepthLevel, MarketSnapshot, RiskDecisionRecord, WatchedToken
 from app.market_data.snapshot_builder import build_snapshot_from_offers
 
 router = APIRouter()
@@ -14,6 +14,59 @@ def list_market_snapshots(request: Request) -> list[dict[str, object]]:
     container = request.app.state.container
     with container.session_factory() as session:
         rows = session.exec(select(MarketSnapshot).order_by(MarketSnapshot.id.desc()).limit(100)).all()
+    return [row.model_dump() for row in rows]
+
+
+@router.get("/signals/alpha")
+def list_alpha_signals(request: Request) -> list[dict[str, object]]:
+    container = request.app.state.container
+    with container.session_factory() as session:
+        rows = session.exec(select(AlphaSignal).order_by(AlphaSignal.id.desc()).limit(100)).all()
+    return [row.model_dump() for row in rows]
+
+
+@router.get("/risk/decisions")
+def list_risk_decisions(request: Request) -> list[dict[str, object]]:
+    container = request.app.state.container
+    with container.session_factory() as session:
+        rows = session.exec(select(RiskDecisionRecord).order_by(RiskDecisionRecord.id.desc()).limit(100)).all()
+    return [row.model_dump() for row in rows]
+
+
+@router.get("/market/depth")
+def market_depth(request: Request) -> dict[str, object]:
+    container = request.app.state.container
+    with container.session_factory() as session:
+        latest = session.exec(select(MarketSnapshot).order_by(MarketSnapshot.id.desc())).first()
+        if latest is None or latest.id is None:
+            return {"ok": False, "reason": "no market snapshots"}
+        levels = session.exec(
+            select(MarketDepthLevel).where(MarketDepthLevel.snapshot_id == latest.id).order_by(
+                MarketDepthLevel.side.asc(), MarketDepthLevel.level_index.asc()
+            )
+        ).all()
+
+    bids = [row.model_dump() for row in levels if row.side == "bid"]
+    asks = [row.model_dump() for row in levels if row.side == "ask"]
+    return {
+        "ok": True,
+        "snapshot_id": latest.id,
+        "bids": bids,
+        "asks": asks,
+    }
+
+
+@router.get("/market/history")
+def market_history(request: Request, token_id: int | None = None, limit: int = 50) -> list[dict[str, object]]:
+    container = request.app.state.container
+    safe_limit = min(max(limit, 1), 200)
+
+    with container.session_factory() as session:
+        query = select(MarketSnapshot).order_by(MarketSnapshot.id.desc())
+        if token_id is not None:
+            query = query.where(MarketSnapshot.token_id == token_id)
+        rows = session.exec(query.limit(safe_limit)).all()
+
     return [row.model_dump() for row in rows]
 
 

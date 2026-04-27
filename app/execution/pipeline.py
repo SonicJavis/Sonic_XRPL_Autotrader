@@ -1,13 +1,24 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import datetime, timezone
 import json
 import uuid
 
 from sqlmodel import Session, select
 
+from app.alpha.engine import AlphaEngine
 from app.config import BotMode, Settings
-from app.db.models import AuditEvent, MarketSnapshot, RiskEvent, Signal, WatchedToken
+from app.db.models import (
+    AlphaSignal,
+    AuditEvent,
+    MarketDepthLevel,
+    MarketSnapshot,
+    RiskDecisionRecord,
+    RiskEvent,
+    Signal,
+    WatchedToken,
+)
 from app.execution.paper import PaperExecutor
 from app.execution.scanner import build_scanner_context
 from app.market_data.metrics import MarketMetrics
@@ -28,12 +39,14 @@ class ExecutionPipeline:
         strategy_registry: StrategyRegistry,
         risk_manager: RiskManager,
         paper_executor: PaperExecutor,
+        alpha_engine: AlphaEngine,
     ) -> None:
         self.settings = settings
         self.xrpl_client = xrpl_client
         self.strategy_registry = strategy_registry
         self.risk_manager = risk_manager
         self.paper_executor = paper_executor
+        self.alpha_engine = alpha_engine
         self.logger = get_logger()
 
     def run_once(self, session: Session, current_price_xrp: float = 1.0) -> dict[str, object]:
@@ -44,6 +57,7 @@ class ExecutionPipeline:
 
         executed: list[int] = []
         signals_count = 0
+        rejection_timestamps: list[datetime] = []
 
         for token in watched:
             orderbook = self._fetch_orderbook(token)
@@ -99,6 +113,60 @@ class ExecutionPipeline:
             session.commit()
             session.refresh(snapshot)
 
+            self._store_depth_levels(session, snapshot.id, parsed)
+
+            history = session.exec(
+                select(MarketSnapshot)
+                .where(MarketSnapshot.token_id == token.id)
+                .order_by(MarketSnapshot.created_at.desc())
+                .limit(self.settings.ALPHA_STABILITY_WINDOW)
+            ).all()
+            history = list(reversed(history))
+
+            target_size_xrp = min(self.settings.MAX_TRADE_XRP, max(1.0, float(snapshot_payload["liquidity_xrp"]) / 5000.0))
+            alpha_eval = self.alpha_engine.evaluate(
+                pair=f"{token.currency}:{token.issuer or 'XRP'}",
+                spread_pct=snapshot_payload["spread_pct"],
+                bids=parsed.get("bids", []),
+                asks=parsed.get("asks", []),
+                history=history,
+                target_size_xrp=target_size_xrp,
+                issuer=token.issuer,
+            )
+
+            if self.alpha_engine.in_cooldown(rejection_timestamps):
+                alpha_eval.decision = "REJECT"
+                alpha_eval.reasons = ["reject: alpha cooldown active"]
+
+            if alpha_eval.decision != "APPROVE":
+                rejection_timestamps.append(datetime.now(tz=timezone.utc))
+                session.add(
+                    RiskEvent(
+                        event_type="ALPHA_REJECT",
+                        severity="WARN",
+                        reason="; ".join(alpha_eval.reasons),
+                    )
+                )
+                session.commit()
+
+            session.add(
+                AlphaSignal(
+                    token_id=token.id,
+                    snapshot_id=snapshot.id,
+                    pair=alpha_eval.pair,
+                    score=alpha_eval.score,
+                    decision=alpha_eval.decision,
+                    reasons_json=json.dumps(alpha_eval.reasons),
+                    spread_pct=alpha_eval.spread,
+                    depth_xrp=alpha_eval.depth_xrp,
+                    imbalance=alpha_eval.imbalance,
+                    slippage_pct=alpha_eval.slippage_estimate,
+                    fill_probability=alpha_eval.fill_probability,
+                    stability_score=alpha_eval.stability_score,
+                )
+            )
+            session.commit()
+
             context = build_scanner_context(
                 issuer=token.issuer,
                 currency=token.currency,
@@ -110,6 +178,15 @@ class ExecutionPipeline:
             )
 
             candidates = self.strategy_registry.run_all_strategies(context)
+            if alpha_eval.decision != "APPROVE":
+                for candidate in candidates:
+                    candidate.side = "HOLD"
+                    candidate.suggested_size_xrp = 0.0
+                    candidate.reason = f"alpha rejected: {'; '.join(alpha_eval.reasons)}"
+            else:
+                for candidate in candidates:
+                    if candidate.side.upper() == "BUY":
+                        candidate.reason = f"{candidate.reason}; alpha approved score={alpha_eval.score:.3f}"
 
             for candidate in candidates:
                 signals_count += 1
@@ -154,6 +231,18 @@ class ExecutionPipeline:
                         live_trading_requested=False,
                     ),
                 )
+
+                session.add(
+                    RiskDecisionRecord(
+                        token_id=token.id,
+                        snapshot_id=snapshot.id,
+                        decision=risk_eval.decision.value,
+                        reason=risk_eval.reason,
+                        score=alpha_eval.score,
+                        reasons_json=json.dumps(alpha_eval.reasons),
+                    )
+                )
+                session.commit()
 
                 if risk_eval.decision != RiskDecision.APPROVE:
                     session.add(
@@ -234,6 +323,9 @@ class ExecutionPipeline:
                         "fill_possible": bool(slippage["fill_possible"]),
                         "liquidity_bid_xrp": float(snapshot_payload["liquidity_bid_xrp"]),
                         "liquidity_ask_xrp": float(snapshot_payload["liquidity_ask_xrp"]),
+                        "alpha_score": alpha_eval.score,
+                        "alpha_decision": alpha_eval.decision,
+                        "alpha_reasons": alpha_eval.reasons,
                     },
                 )
 
@@ -263,4 +355,27 @@ class ExecutionPipeline:
     @staticmethod
     def _audit(session: Session, request_id: str, event_type: str, payload: dict[str, object]) -> None:
         session.add(AuditEvent(request_id=request_id, event_type=event_type, payload_json=json.dumps(payload, default=str)))
+        session.commit()
+
+    @staticmethod
+    def _store_depth_levels(session: Session, snapshot_id: int | None, parsed: dict[str, object]) -> None:
+        if snapshot_id is None:
+            return
+
+        for side in ("bids", "asks"):
+            cumulative = 0.0
+            for idx, level in enumerate(parsed.get(side, [])[:8]):
+                xrp_value = float(level.get("xrp_value", 0.0))
+                cumulative += xrp_value
+                session.add(
+                    MarketDepthLevel(
+                        snapshot_id=snapshot_id,
+                        side="bid" if side == "bids" else "ask",
+                        level_index=idx,
+                        price_xrp_per_token=float(level.get("price", 0.0)),
+                        token_amount=float(level.get("token_amount", 0.0)),
+                        xrp_value=xrp_value,
+                        cumulative_xrp=cumulative,
+                    )
+                )
         session.commit()
