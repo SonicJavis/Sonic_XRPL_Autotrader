@@ -101,8 +101,12 @@ class PaperTradeOutcome(SQLModel, table=True):
 
     fill_success: bool
     partial_fill: bool
+    fill_status: str = "UNFILLED"
 
     entry_time: datetime = Field(default_factory=utcnow)
+    snapshot_time: datetime = Field(default_factory=utcnow)
+    signal_time: datetime = Field(default_factory=utcnow)
+    execution_time: datetime = Field(default_factory=utcnow)
     exit_time: datetime | None = None
 
     exit_price: float | None = None
@@ -110,6 +114,10 @@ class PaperTradeOutcome(SQLModel, table=True):
 
     max_adverse_excursion_pct: float = 0.0
     max_favorable_excursion_pct: float = 0.0
+
+    execution_latency_ms: int = 0
+    snapshot_age_ms: int = 0
+    failure_reason: str | None = None
 
     reason_closed: str | None = None
     created_at: datetime = Field(default_factory=utcnow)

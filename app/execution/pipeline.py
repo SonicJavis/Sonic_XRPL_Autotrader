@@ -21,7 +21,7 @@ from app.db.models import (
     Signal,
     WatchedToken,
 )
-from app.execution.fill_simulator import simulate_fill
+from app.execution.fill_simulator import ExecutionResult, simulate_entry_buy, simulate_exit_sell, validate_orderbook
 from app.execution.paper import PaperExecutor
 from app.execution.scanner import build_scanner_context
 from app.market_data.metrics import MarketMetrics
@@ -66,14 +66,18 @@ class ExecutionPipeline:
             snapshot_payload = build_snapshot_from_offers(orderbook.get("offers", []))
             parsed = snapshot_payload["parsed"]
 
-            if not snapshot_payload["valid"]:
+            valid_book, invalid_reason = validate_orderbook(parsed)
+
+            if not snapshot_payload["valid"] or not valid_book:
+                explicit_reason = "INVALID_ORDERBOOK" if not valid_book else "INVALID_ORDERBOOK"
                 self._audit(
                     session,
                     request_id,
                     "snapshot_invalid",
                     {
                         "token_id": token.id,
-                        "invalid_reasons": snapshot_payload["invalid_reasons"],
+                        "invalid_reasons": snapshot_payload["invalid_reasons"] + ([invalid_reason] if invalid_reason else []),
+                        "reason": explicit_reason,
                         "orderbook_stats": {
                             "raw_offer_count": snapshot_payload["raw_offer_count"],
                             "filtered_offer_count": snapshot_payload["filtered_offer_count"],
@@ -297,17 +301,36 @@ class ExecutionPipeline:
                         )
                         continue
 
-                    fill = simulate_fill(parsed.get("asks", []), candidate.suggested_size_xrp)
-                    fill_success = bool(fill["fill_success"])
-                    partial_fill = bool(fill["partial_fill"])
-                    actual_slippage = float(fill["slippage_pct"])
+                    snapshot_time = self._normalize_utc(snapshot.created_at)
+                    signal_time = self._normalize_utc(signal.created_at)
+                    execution_time = signal_time + self._latency_delta()
+
+                    strict_fill = simulate_entry_buy(
+                        asks=parsed.get("asks", []),
+                        best_bid=float(parsed["best_bid"]["price"]) if parsed.get("best_bid") else 0.0,
+                        best_ask=float(parsed["best_ask"]["price"]) if parsed.get("best_ask") else 0.0,
+                        requested_size_xrp=candidate.suggested_size_xrp,
+                        snapshot_time=snapshot_time,
+                        signal_time=signal_time,
+                        execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
+                        max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
+                        liquidity_haircut_pct=self.settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+                    )
+
+                    fill_success = strict_fill.fill_success
+                    partial_fill = strict_fill.partial_fill
+                    actual_slippage = strict_fill.slippage_pct
                     expected_slippage = float(max(0.0, alpha_eval.slippage_estimate))
-                    filled_size = float(fill["filled_size_xrp"])
-                    entry_price = float(fill["avg_price"]) if filled_size > 0 else float(snapshot_payload["price_xrp"])
+                    filled_size = strict_fill.filled_size
+                    entry_price = float(strict_fill.avg_entry_price or 0.0)
 
                     reason_closed: str | None = None
-                    if not fill_success:
-                        reason_closed = "reality_filter: fill_failed"
+                    if strict_fill.failure_reason == "STALE_MARKET_DATA":
+                        reason_closed = "STALE_MARKET_DATA"
+                    elif strict_fill.failure_reason == "INVALID_ORDERBOOK":
+                        reason_closed = "INVALID_ORDERBOOK"
+                    elif strict_fill.fill_status == "UNFILLED":
+                        reason_closed = strict_fill.failure_reason or "NO_LIQUIDITY"
                     elif actual_slippage > self.settings.PERF_MAX_ACTUAL_SLIPPAGE_PCT:
                         reason_closed = "reality_filter: slippage_above_threshold"
                     else:
@@ -332,12 +355,19 @@ class ExecutionPipeline:
                         filled_size_xrp=filled_size,
                         fill_success=fill_success,
                         partial_fill=partial_fill,
-                        entry_time=datetime.now(tz=timezone.utc),
+                        fill_status=strict_fill.fill_status,
+                        entry_time=execution_time,
+                        snapshot_time=snapshot_time,
+                        signal_time=signal_time,
+                        execution_time=execution_time,
+                        execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
+                        snapshot_age_ms=strict_fill.snapshot_age_ms,
+                        failure_reason=strict_fill.failure_reason,
                     )
 
                     if reason_closed is not None:
-                        outcome.exit_time = outcome.entry_time
-                        outcome.exit_price = float(snapshot_payload["price_xrp"])
+                        outcome.exit_time = execution_time
+                        outcome.exit_price = None
                         outcome.pnl_xrp = 0.0
                         outcome.reason_closed = reason_closed
                         session.add(outcome)
@@ -349,6 +379,19 @@ class ExecutionPipeline:
                             )
                         )
                         session.commit()
+                        log_event(
+                            self.logger,
+                            {
+                                "event_type": "execution",
+                                "requested": strict_fill.requested_size,
+                                "filled": strict_fill.filled_size,
+                                "status": strict_fill.fill_status,
+                                "avg_price": strict_fill.avg_entry_price,
+                                "slippage": strict_fill.slippage_pct,
+                                "latency_ms": strict_fill.execution_latency_ms,
+                                "reason": reason_closed,
+                            },
+                        )
                         self._audit(
                             session,
                             request_id,
@@ -366,6 +409,20 @@ class ExecutionPipeline:
                     session.add(outcome)
                     session.commit()
 
+                    log_event(
+                        self.logger,
+                        {
+                            "event_type": "execution",
+                            "requested": strict_fill.requested_size,
+                            "filled": strict_fill.filled_size,
+                            "status": strict_fill.fill_status,
+                            "avg_price": strict_fill.avg_entry_price,
+                            "slippage": strict_fill.slippage_pct,
+                            "latency_ms": strict_fill.execution_latency_ms,
+                            "reason": strict_fill.failure_reason,
+                        },
+                    )
+
                     self._audit(
                         session,
                         request_id,
@@ -377,6 +434,8 @@ class ExecutionPipeline:
                             "signal_id": signal.id,
                             "expected_slippage_pct": expected_slippage,
                             "actual_slippage_pct": actual_slippage,
+                            "fill_status": strict_fill.fill_status,
+                            "snapshot_age_ms": strict_fill.snapshot_age_ms,
                         },
                     )
 
@@ -450,8 +509,73 @@ class ExecutionPipeline:
         session.add(AuditEvent(request_id=request_id, event_type=event_type, payload_json=json.dumps(payload, default=str)))
         session.commit()
 
+    def _latency_delta(self):
+        from datetime import timedelta
+        return timedelta(milliseconds=self.settings.EXECUTION_LATENCY_MS)
+
+    @staticmethod
+    def _normalize_utc(ts: datetime) -> datetime:
+        if ts.tzinfo is None:
+            return ts.replace(tzinfo=timezone.utc)
+        return ts.astimezone(timezone.utc)
+
+    def exit_liquidity_check(
+        self,
+        session: Session,
+        snapshot: MarketSnapshot,
+        requested_token_size: float,
+    ) -> tuple[bool, str | None, list[dict[str, float]], list[dict[str, float]], float, float]:
+        levels = session.exec(
+            select(MarketDepthLevel)
+            .where(MarketDepthLevel.snapshot_id == snapshot.id)
+            .order_by(MarketDepthLevel.side.asc(), MarketDepthLevel.level_index.asc())
+        ).all()
+        bids = [
+            {"price": row.price_xrp_per_token, "token_amount": row.token_amount, "xrp_value": row.xrp_value}
+            for row in levels
+            if row.side == "bid"
+        ]
+        asks = [
+            {"price": row.price_xrp_per_token, "token_amount": row.token_amount, "xrp_value": row.xrp_value}
+            for row in levels
+            if row.side == "ask"
+        ]
+
+        best_bid = float(bids[0]["price"]) if bids else 0.0
+        best_ask = float(asks[0]["price"]) if asks else 0.0
+
+        if requested_token_size <= 0:
+            return False, "NO_REQUESTED_SIZE", bids, asks, best_bid, best_ask
+        if not bids:
+            return False, "NO_BIDS", bids, asks, best_bid, best_ask
+        if best_bid <= 0 or best_ask <= 0 or best_bid >= best_ask:
+            return False, "INVALID_ORDERBOOK", bids, asks, best_bid, best_ask
+        return True, None, bids, asks, best_bid, best_ask
+
+    def partial_exit_simulation(
+        self,
+        row: PaperTradeOutcome,
+        snapshot: MarketSnapshot,
+        bids: list[dict[str, float]],
+        asks: list[dict[str, float]],
+        best_bid: float,
+        best_ask: float,
+    ) -> ExecutionResult:
+        requested_tokens = row.filled_size_xrp / row.entry_price if row.entry_price > 0 else 0.0
+        return simulate_exit_sell(
+            bids=bids,
+            best_bid=best_bid,
+            best_ask=best_ask,
+            requested_token_size=requested_tokens,
+            snapshot_time=self._normalize_utc(snapshot.created_at),
+            signal_time=datetime.now(tz=timezone.utc),
+            execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
+            max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
+            liquidity_haircut_pct=self.settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+        )
+
     def _update_open_outcomes_for_token(self, session: Session, token_id: int, snapshot: MarketSnapshot) -> None:
-        if snapshot.price_xrp is None:
+        if snapshot.id is None:
             return
 
         now = datetime.now(tz=timezone.utc)
@@ -467,7 +591,13 @@ class ExecutionPipeline:
             if row.entry_price <= 0:
                 continue
 
-            move_pct = ((float(snapshot.price_xrp) - row.entry_price) / row.entry_price) * 100.0
+            mark_bid = snapshot.best_bid
+            if mark_bid is None or mark_bid <= 0:
+                mark_bid = snapshot.price_xrp
+            if mark_bid is None or mark_bid <= 0:
+                continue
+
+            move_pct = ((float(mark_bid) - row.entry_price) / row.entry_price) * 100.0
             row.max_adverse_excursion_pct = max(row.max_adverse_excursion_pct, max(0.0, -move_pct))
             row.max_favorable_excursion_pct = max(row.max_favorable_excursion_pct, max(0.0, move_pct))
 
@@ -476,20 +606,35 @@ class ExecutionPipeline:
                 entry_time = entry_time.replace(tzinfo=timezone.utc)
             elapsed_seconds = (now - entry_time).total_seconds()
             if elapsed_seconds >= horizon_seconds:
-                self._close_outcome(row, float(snapshot.price_xrp), reason="monitor_horizon_elapsed")
+                ok, reason, bids, asks, best_bid, best_ask = self.exit_liquidity_check(
+                    session,
+                    snapshot,
+                    requested_token_size=(row.filled_size_xrp / row.entry_price) if row.entry_price > 0 else 0.0,
+                )
+                if not ok:
+                    row.exit_time = now
+                    row.failure_reason = reason
+                    row.reason_closed = "exit_failed"
+                    session.add(row)
+                    continue
+
+                exit_result = self.partial_exit_simulation(row, snapshot, bids, asks, best_bid, best_ask)
+                self._close_outcome(row, exit_result, reason="monitor_horizon_elapsed")
 
             session.add(row)
 
         session.commit()
 
     @staticmethod
-    def _close_outcome(row: PaperTradeOutcome, exit_price: float, reason: str) -> None:
+    def _close_outcome(row: PaperTradeOutcome, exit_result: ExecutionResult, reason: str) -> None:
         row.exit_time = datetime.now(tz=timezone.utc)
-        row.exit_price = float(exit_price)
-        if row.entry_price > 0 and row.filled_size_xrp > 0:
+        row.exit_price = float(exit_result.avg_exit_price) if exit_result.avg_exit_price is not None else None
+        row.fill_status = exit_result.fill_status
+        row.failure_reason = exit_result.failure_reason
+        if row.entry_price > 0 and row.filled_size_xrp > 0 and row.exit_price is not None:
             row.pnl_xrp = row.filled_size_xrp * ((row.exit_price - row.entry_price) / row.entry_price)
         else:
-            row.pnl_xrp = 0.0
+            row.pnl_xrp = None
         row.reason_closed = reason
 
     @staticmethod

@@ -49,6 +49,10 @@ class Settings(BaseSettings):
     PERF_MIN_POST_ENTRY_LIQUIDITY_XRP: float = Field(default=150.0, ge=0)
     PERF_LIQUIDITY_DISAPPEAR_SECONDS: int = Field(default=30, ge=1)
 
+    MAX_SNAPSHOT_AGE_MS: int = Field(default=1500, ge=1)
+    EXECUTION_LATENCY_MS: int = Field(default=120, ge=0)
+    EXECUTION_LIQUIDITY_HAIRCUT_PCT: float = Field(default=0.15, ge=0, le=0.95)
+
     DATABASE_URL: str = "sqlite:///./sonic_autotrader.db"
     LOG_LEVEL: str = "INFO"
 
