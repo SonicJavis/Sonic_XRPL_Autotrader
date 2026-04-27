@@ -43,6 +43,12 @@ class Settings(BaseSettings):
 
     PAPER_STARTING_BALANCE_XRP: float = Field(default=1000.0, ge=0)
 
+    PERF_MONITOR_MINUTES: int = Field(default=15, ge=1)
+    PERF_MAX_ACTUAL_SLIPPAGE_PCT: float = Field(default=8.0, ge=0)
+    PERF_BOOK_COLLAPSE_RATIO: float = Field(default=0.35, ge=0, le=1)
+    PERF_MIN_POST_ENTRY_LIQUIDITY_XRP: float = Field(default=150.0, ge=0)
+    PERF_LIQUIDITY_DISAPPEAR_SECONDS: int = Field(default=30, ge=1)
+
     DATABASE_URL: str = "sqlite:///./sonic_autotrader.db"
     LOG_LEVEL: str = "INFO"
 

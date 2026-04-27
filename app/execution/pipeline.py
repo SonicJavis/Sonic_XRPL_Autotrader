@@ -15,11 +15,13 @@ from app.db.models import (
     AuditEvent,
     MarketDepthLevel,
     MarketSnapshot,
+    PaperTradeOutcome,
     RiskDecisionRecord,
     RiskEvent,
     Signal,
     WatchedToken,
 )
+from app.execution.fill_simulator import simulate_fill
 from app.execution.paper import PaperExecutor
 from app.execution.scanner import build_scanner_context
 from app.market_data.metrics import MarketMetrics
@@ -112,6 +114,9 @@ class ExecutionPipeline:
             session.add(snapshot)
             session.commit()
             session.refresh(snapshot)
+
+            if token.id is not None:
+                self._update_open_outcomes_for_token(session, token.id, snapshot)
 
             self._store_depth_levels(session, snapshot.id, parsed)
 
@@ -292,9 +297,75 @@ class ExecutionPipeline:
                         )
                         continue
 
-                    entry = snapshot_payload["price_xrp"]
-                    trade = self.paper_executor.open_trade(session, candidate, entry_price_xrp=entry)
+                    fill = simulate_fill(parsed.get("asks", []), candidate.suggested_size_xrp)
+                    fill_success = bool(fill["fill_success"])
+                    partial_fill = bool(fill["partial_fill"])
+                    actual_slippage = float(fill["slippage_pct"])
+                    expected_slippage = float(max(0.0, alpha_eval.slippage_estimate))
+                    filled_size = float(fill["filled_size_xrp"])
+                    entry_price = float(fill["avg_price"]) if filled_size > 0 else float(snapshot_payload["price_xrp"])
+
+                    reason_closed: str | None = None
+                    if not fill_success:
+                        reason_closed = "reality_filter: fill_failed"
+                    elif actual_slippage > self.settings.PERF_MAX_ACTUAL_SLIPPAGE_PCT:
+                        reason_closed = "reality_filter: slippage_above_threshold"
+                    else:
+                        post_book = self._fetch_orderbook(token)
+                        post_snapshot = build_snapshot_from_offers(post_book.get("offers", []))
+                        post_liquidity = float(post_snapshot.get("liquidity_ask_xrp") or 0.0)
+                        base_liquidity = float(snapshot_payload.get("liquidity_ask_xrp") or 0.0)
+                        liquidity_ratio = (post_liquidity / base_liquidity) if base_liquidity > 0 else 0.0
+                        if base_liquidity > 0 and liquidity_ratio < self.settings.PERF_BOOK_COLLAPSE_RATIO:
+                            reason_closed = "reality_filter: book_collapsed_post_entry"
+                        elif post_liquidity < self.settings.PERF_MIN_POST_ENTRY_LIQUIDITY_XRP:
+                            reason_closed = "reality_filter: liquidity_disappeared"
+
+                    outcome = PaperTradeOutcome(
+                        token_id=token.id or 0,
+                        signal_id=signal.id or 0,
+                        snapshot_id=snapshot.id,
+                        entry_price=entry_price,
+                        expected_slippage_pct=expected_slippage,
+                        actual_slippage_pct=actual_slippage,
+                        target_size_xrp=candidate.suggested_size_xrp,
+                        filled_size_xrp=filled_size,
+                        fill_success=fill_success,
+                        partial_fill=partial_fill,
+                        entry_time=datetime.now(tz=timezone.utc),
+                    )
+
+                    if reason_closed is not None:
+                        outcome.exit_time = outcome.entry_time
+                        outcome.exit_price = float(snapshot_payload["price_xrp"])
+                        outcome.pnl_xrp = 0.0
+                        outcome.reason_closed = reason_closed
+                        session.add(outcome)
+                        session.add(
+                            RiskEvent(
+                                event_type="REALITY_FILTER_REJECT",
+                                severity="WARN",
+                                reason=reason_closed,
+                            )
+                        )
+                        session.commit()
+                        self._audit(
+                            session,
+                            request_id,
+                            "execution_skipped",
+                            {
+                                "signal_id": signal.id,
+                                "reason": reason_closed,
+                                "snapshot_id": snapshot.id,
+                            },
+                        )
+                        continue
+
+                    trade = self.paper_executor.open_trade(session, candidate, entry_price_xrp=entry_price)
                     executed.append(trade.id)
+                    session.add(outcome)
+                    session.commit()
+
                     self._audit(
                         session,
                         request_id,
@@ -303,6 +374,9 @@ class ExecutionPipeline:
                             "trade_id": trade.id,
                             "snapshot_id": snapshot.id,
                             "decision_reason": risk_eval.reason,
+                            "signal_id": signal.id,
+                            "expected_slippage_pct": expected_slippage,
+                            "actual_slippage_pct": actual_slippage,
                         },
                     )
 
@@ -375,6 +449,48 @@ class ExecutionPipeline:
     def _audit(session: Session, request_id: str, event_type: str, payload: dict[str, object]) -> None:
         session.add(AuditEvent(request_id=request_id, event_type=event_type, payload_json=json.dumps(payload, default=str)))
         session.commit()
+
+    def _update_open_outcomes_for_token(self, session: Session, token_id: int, snapshot: MarketSnapshot) -> None:
+        if snapshot.price_xrp is None:
+            return
+
+        now = datetime.now(tz=timezone.utc)
+        horizon_seconds = float(self.settings.PERF_MONITOR_MINUTES * 60)
+        rows = session.exec(
+            select(PaperTradeOutcome)
+            .where(PaperTradeOutcome.token_id == token_id)
+            .where(PaperTradeOutcome.exit_time == None)
+            .order_by(PaperTradeOutcome.id.asc())
+        ).all()
+
+        for row in rows:
+            if row.entry_price <= 0:
+                continue
+
+            move_pct = ((float(snapshot.price_xrp) - row.entry_price) / row.entry_price) * 100.0
+            row.max_adverse_excursion_pct = max(row.max_adverse_excursion_pct, max(0.0, -move_pct))
+            row.max_favorable_excursion_pct = max(row.max_favorable_excursion_pct, max(0.0, move_pct))
+
+            entry_time = row.entry_time
+            if entry_time.tzinfo is None:
+                entry_time = entry_time.replace(tzinfo=timezone.utc)
+            elapsed_seconds = (now - entry_time).total_seconds()
+            if elapsed_seconds >= horizon_seconds:
+                self._close_outcome(row, float(snapshot.price_xrp), reason="monitor_horizon_elapsed")
+
+            session.add(row)
+
+        session.commit()
+
+    @staticmethod
+    def _close_outcome(row: PaperTradeOutcome, exit_price: float, reason: str) -> None:
+        row.exit_time = datetime.now(tz=timezone.utc)
+        row.exit_price = float(exit_price)
+        if row.entry_price > 0 and row.filled_size_xrp > 0:
+            row.pnl_xrp = row.filled_size_xrp * ((row.exit_price - row.entry_price) / row.entry_price)
+        else:
+            row.pnl_xrp = 0.0
+        row.reason_closed = reason
 
     @staticmethod
     def _store_depth_levels(session: Session, snapshot_id: int | None, parsed: dict[str, object]) -> None:

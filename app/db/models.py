@@ -85,6 +85,36 @@ class PaperTrade(SQLModel, table=True):
     closed_at: datetime | None = None
 
 
+class PaperTradeOutcome(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    token_id: int = Field(foreign_key="watchedtoken.id", index=True)
+    signal_id: int = Field(foreign_key="signal.id", index=True)
+    snapshot_id: int | None = Field(default=None, foreign_key="marketsnapshot.id")
+
+    entry_price: float
+    expected_slippage_pct: float
+    actual_slippage_pct: float
+
+    target_size_xrp: float
+    filled_size_xrp: float
+
+    fill_success: bool
+    partial_fill: bool
+
+    entry_time: datetime = Field(default_factory=utcnow)
+    exit_time: datetime | None = None
+
+    exit_price: float | None = None
+    pnl_xrp: float | None = None
+
+    max_adverse_excursion_pct: float = 0.0
+    max_favorable_excursion_pct: float = 0.0
+
+    reason_closed: str | None = None
+    created_at: datetime = Field(default_factory=utcnow)
+
+
 class RiskEvent(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     event_type: str

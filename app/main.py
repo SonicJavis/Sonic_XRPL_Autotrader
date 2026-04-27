@@ -9,6 +9,7 @@ from app.alpha.engine import AlphaEngine
 from app.api.routes_health import router as health_router
 from app.api.routes_market import router as market_router
 from app.api.routes_mode import router as mode_router
+from app.api.routes_performance import router as performance_router
 from app.api.routes_signals import router as signals_router
 from app.api.routes_trades import router as trades_router
 from app.config import Settings
@@ -61,6 +62,7 @@ def create_app() -> FastAPI:
     app.include_router(mode_router)
     app.include_router(signals_router)
     app.include_router(trades_router)
+    app.include_router(performance_router)
     return app
 
 

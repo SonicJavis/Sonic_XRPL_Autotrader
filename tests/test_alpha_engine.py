@@ -8,6 +8,7 @@ from app.db.models import (
     AlphaCooldownRecord,
     AlphaSignal,
     MarketSnapshot,
+    PaperTradeOutcome,
     RiskDecisionRecord,
     Signal,
     WatchedToken,
@@ -206,6 +207,7 @@ def test_negative_slippage_clipped_to_zero() -> None:
 
 
 def _reset_attribution_tables() -> None:
+    PaperTradeOutcome.__table__.drop(db_engine, checkfirst=True)
     AlphaCooldownRecord.__table__.drop(db_engine, checkfirst=True)
     RiskDecisionRecord.__table__.drop(db_engine, checkfirst=True)
     AlphaSignal.__table__.drop(db_engine, checkfirst=True)
