@@ -19,6 +19,10 @@ class RiskContext:
     total_exposure_xrp: float
     daily_loss_xrp: float
     market_snapshot: MarketMetrics | None = None
+    bid_count: int = 0
+    ask_count: int = 0
+    bids: list[dict[str, float]] | None = None
+    asks: list[dict[str, float]] | None = None
     is_exit: bool = False
     live_trading_requested: bool = False
 

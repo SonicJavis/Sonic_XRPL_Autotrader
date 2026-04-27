@@ -6,7 +6,13 @@ from dataclasses import dataclass
 
 @dataclass(slots=True)
 class StrategyContext:
-    current_price_xrp: float
+    issuer: str
+    currency: str
+    current_price_xrp: float | None
+    spread_pct: float | None
+    liquidity_xrp: float
+    bid_count: int
+    ask_count: int
 
 
 @dataclass(slots=True)

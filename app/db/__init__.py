@@ -1,6 +1,6 @@
 """Database package."""
 
-from app.db.models import AuditEvent, MarketSnapshot, PaperTrade, RiskEvent, Signal, Token
+from app.db.models import AuditEvent, MarketSnapshot, PaperTrade, RiskEvent, Signal, Token, WatchedToken
 from app.db.session import get_session, init_db
 
 __all__ = [
@@ -10,6 +10,7 @@ __all__ = [
     "PaperTrade",
     "RiskEvent",
     "AuditEvent",
+    "WatchedToken",
     "get_session",
     "init_db",
 ]

@@ -8,6 +8,7 @@ class RegisteredToken:
     issuer: str
     currency: str
     symbol: str
+    is_xrp: bool = False
     source: str = "manual"
 
 

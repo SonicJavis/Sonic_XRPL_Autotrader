@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from sqlmodel import Session
 
 from app.api.routes_health import router as health_router
+from app.api.routes_market import router as market_router
 from app.api.routes_mode import router as mode_router
 from app.api.routes_signals import router as signals_router
 from app.api.routes_trades import router as trades_router
@@ -28,10 +29,16 @@ class AppContainer:
         self.token_registry = TokenRegistry()
         self.kill_switch = KillSwitch()
         self.strategy_registry = StrategyRegistry()
-        self.strategy_registry.register(NewTokenScannerStrategy(self.token_registry))
+        self.strategy_registry.register(NewTokenScannerStrategy(settings=settings))
         self.risk_manager = RiskManager(settings, self.kill_switch)
         self.paper_executor = PaperExecutor(settings)
-        self.pipeline = ExecutionPipeline(settings, self.strategy_registry, self.risk_manager, self.paper_executor)
+        self.pipeline = ExecutionPipeline(
+            settings,
+            self.xrpl_client,
+            self.strategy_registry,
+            self.risk_manager,
+            self.paper_executor,
+        )
 
     @contextmanager
     def session_factory(self):
@@ -47,6 +54,7 @@ def create_app() -> FastAPI:
     app.state.container = AppContainer(settings)
 
     app.include_router(health_router)
+    app.include_router(market_router)
     app.include_router(mode_router)
     app.include_router(signals_router)
     app.include_router(trades_router)

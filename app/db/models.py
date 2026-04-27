@@ -19,14 +19,28 @@ class Token(SQLModel, table=True):
     is_active: bool = True
 
 
+class WatchedToken(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    issuer: str = ""
+    currency: str
+    is_xrp: bool = False
+    first_seen_at: datetime = Field(default_factory=utcnow)
+    last_seen_at: datetime = Field(default_factory=utcnow)
+    is_active: bool = True
+
+
 class MarketSnapshot(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    token_id: int | None = Field(default=None, foreign_key="token.id")
+    token_id: int | None = Field(default=None, foreign_key="watchedtoken.id")
     price_xrp: float = 0.0
     liquidity_xrp: float = 0.0
     spread_pct: float = 0.0
+    best_bid: float = 0.0
+    best_ask: float = 0.0
     volume_estimate: float = 0.0
     tx_count: int = 0
+    bid_count: int = 0
+    ask_count: int = 0
     created_at: datetime = Field(default_factory=utcnow)
 
 
