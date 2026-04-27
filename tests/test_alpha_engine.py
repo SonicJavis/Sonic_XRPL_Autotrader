@@ -7,8 +7,11 @@ from app.config import Settings
 from app.db.models import (
     AlphaCooldownRecord,
     AlphaSignal,
+    ExecutionRecord,
     MarketSnapshot,
     PaperTradeOutcome,
+    Position,
+    PositionExitFill,
     RiskDecisionRecord,
     Signal,
     WatchedToken,
@@ -207,6 +210,9 @@ def test_negative_slippage_clipped_to_zero() -> None:
 
 
 def _reset_attribution_tables() -> None:
+    PositionExitFill.__table__.drop(db_engine, checkfirst=True)
+    ExecutionRecord.__table__.drop(db_engine, checkfirst=True)
+    Position.__table__.drop(db_engine, checkfirst=True)
     PaperTradeOutcome.__table__.drop(db_engine, checkfirst=True)
     AlphaCooldownRecord.__table__.drop(db_engine, checkfirst=True)
     RiskDecisionRecord.__table__.drop(db_engine, checkfirst=True)

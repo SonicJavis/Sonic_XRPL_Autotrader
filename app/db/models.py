@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import uuid
 
 from sqlmodel import Field, SQLModel
 
@@ -120,6 +121,85 @@ class PaperTradeOutcome(SQLModel, table=True):
     failure_reason: str | None = None
 
     reason_closed: str | None = None
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class Position(SQLModel, table=True):
+    position_id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+
+    issuer: str
+    currency: str
+    token_id: int = Field(foreign_key="watchedtoken.id", index=True)
+    signal_id: int = Field(foreign_key="signal.id", index=True)
+    risk_decision_id: int | None = Field(default=None, foreign_key="riskdecisionrecord.id")
+    execution_id: int | None = Field(default=None, foreign_key="executionrecord.id")
+
+    entry_time: datetime = Field(default_factory=utcnow)
+    exit_time: datetime | None = None
+
+    entry_vwap: float
+    exit_vwap: float | None = None
+
+    entry_filled_size: float
+    exit_filled_size: float = 0.0
+    remaining_size: float
+
+    entry_orderbook_snapshot_id: int = Field(foreign_key="marketsnapshot.id")
+    exit_orderbook_snapshot_id: int | None = Field(default=None, foreign_key="marketsnapshot.id")
+
+    status: str = "OPEN"
+    failure_reason: str | None = None
+
+    component_scores_json: str = "{}"
+    risk_flags_json: str = "[]"
+    execution_details_json: str = "{}"
+
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class ExecutionRecord(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    token_id: int = Field(foreign_key="watchedtoken.id", index=True)
+    signal_id: int = Field(foreign_key="signal.id", index=True)
+    risk_decision_id: int | None = Field(default=None, foreign_key="riskdecisionrecord.id")
+    snapshot_id: int = Field(foreign_key="marketsnapshot.id")
+    position_id: str | None = Field(default=None, foreign_key="position.position_id")
+
+    side: str
+    requested_size: float
+    filled_size: float
+    fill_status: str
+    avg_fill_price: float | None = None
+    fill_levels_json: str = "[]"
+    slippage_vs_mid: float = 0.0
+
+    snapshot_time: datetime = Field(default_factory=utcnow)
+    signal_time: datetime = Field(default_factory=utcnow)
+    execution_time: datetime = Field(default_factory=utcnow)
+    execution_latency_ms: int = 0
+    snapshot_age_ms: int = 0
+    holding_time_ms: int = 0
+
+    failure_reason: str | None = None
+    execution_details_json: str = "{}"
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class PositionExitFill(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    position_id: str = Field(foreign_key="position.position_id", index=True)
+    execution_id: int | None = Field(default=None, foreign_key="executionrecord.id")
+    snapshot_id: int | None = Field(default=None, foreign_key="marketsnapshot.id")
+
+    exit_time: datetime = Field(default_factory=utcnow)
+    exit_vwap: float
+    fill_size: float
+    pnl_xrp: float
+    fill_levels_json: str = "[]"
+    failure_reason: str | None = None
+
     created_at: datetime = Field(default_factory=utcnow)
 
 

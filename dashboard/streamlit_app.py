@@ -7,16 +7,20 @@ from app.alpha.performance_engine import PerformanceEngine
 from app.config import Settings
 from app.db.models import (
     AlphaSignal,
+    ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
     PaperTrade,
     PaperTradeOutcome,
+    Position,
+    PositionExitFill,
     RiskDecisionRecord,
     RiskEvent,
     Signal,
     WatchedToken,
 )
 from app.db.session import engine, init_db
+from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.risk.kill_switch import KillSwitch
 
 
@@ -42,15 +46,34 @@ def main() -> None:
         signals = session.exec(select(Signal).order_by(Signal.id.desc()).limit(50)).all()
         alpha_signals = session.exec(select(AlphaSignal).order_by(AlphaSignal.id.desc()).limit(50)).all()
         outcomes = session.exec(select(PaperTradeOutcome).order_by(PaperTradeOutcome.id.desc()).limit(200)).all()
+        positions = session.exec(select(Position).order_by(Position.entry_time.desc()).limit(200)).all()
+        executions = session.exec(select(ExecutionRecord).order_by(ExecutionRecord.id.desc()).limit(300)).all()
+        exit_fills = session.exec(select(PositionExitFill).order_by(PositionExitFill.id.desc()).limit(300)).all()
         trades = session.exec(select(PaperTrade).order_by(PaperTrade.id.desc()).limit(50)).all()
         risk_decisions = session.exec(select(RiskDecisionRecord).order_by(RiskDecisionRecord.id.desc()).limit(50)).all()
         risk_events = session.exec(select(RiskEvent).order_by(RiskEvent.id.desc()).limit(50)).all()
         perf_engine = PerformanceEngine(settings)
         perf_summary = perf_engine.summary(session)
         alpha_breakdown = perf_engine.alpha_breakdown(session)
+        pnl_engine = PnLAttributionEngine()
+        realized = pnl_engine.realized_pnl_summary(session)
+        unrealized = pnl_engine.unrealized_pnl_summary(
+            session,
+            execution_latency_ms=settings.EXECUTION_LATENCY_MS,
+            max_snapshot_age_ms=settings.MAX_SNAPSHOT_AGE_MS,
+            liquidity_haircut_pct=settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+        )
+        failures = pnl_engine.list_failures(session, limit=300)
 
-    total_pnl = sum(t.pnl_xrp for t in trades)
-    st.metric("Total Paper PnL (XRP)", f"{total_pnl:.4f}")
+    realized_pnl = float(realized.get("realized_pnl_xrp", 0.0))
+    unrealized_pnl_raw = unrealized.get("unrealized_pnl_xrp")
+    unrealized_label = "n/a" if unrealized_pnl_raw is None else f"{float(unrealized_pnl_raw):.4f}"
+    h1, h2, h3, h4 = st.columns(4)
+    h1.metric("Realized PnL (XRP)", f"{realized_pnl:.4f}")
+    h2.metric("Unrealized PnL (XRP)", unrealized_label)
+    h3.metric("Failure Count", str(len(failures)))
+    exit_success = sum(1 for row in positions if row.status == "CLOSED")
+    h4.metric("Exit Success Rate", f"{(exit_success / max(1, len(positions))) * 100:.1f}%")
 
     st.subheader("Registered Tokens")
     st.dataframe([t.model_dump() for t in tokens], use_container_width=True)
@@ -127,6 +150,33 @@ def main() -> None:
         for row in outcomes
     ]
     st.dataframe(outcome_rows, use_container_width=True)
+
+    st.subheader("Positions (Strict Attribution)")
+    st.dataframe([p.model_dump() for p in positions], use_container_width=True)
+
+    st.subheader("Execution Records")
+    execution_rows = []
+    for row in executions:
+        execution_rows.append(
+            {
+                "id": row.id,
+                "position_id": row.position_id,
+                "side": row.side,
+                "requested_size": row.requested_size,
+                "filled_size": row.filled_size,
+                "fill_status": row.fill_status,
+                "avg_fill_price": row.avg_fill_price,
+                "slippage_vs_mid": row.slippage_vs_mid,
+                "failure_reason": row.failure_reason,
+                "snapshot_age_ms": row.snapshot_age_ms,
+                "execution_latency_ms": row.execution_latency_ms,
+                "execution_time": row.execution_time,
+            }
+        )
+    st.dataframe(execution_rows, use_container_width=True)
+
+    st.subheader("Exit Fill Ledger")
+    st.dataframe([row.model_dump() for row in exit_fills], use_container_width=True)
 
     if outcome_rows:
         chronological = list(reversed(outcome_rows))

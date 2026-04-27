@@ -8,10 +8,13 @@ from app.config import Settings
 from app.db.models import (
     AlphaCooldownRecord,
     AlphaSignal,
+    ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
     PaperTrade,
     PaperTradeOutcome,
+    Position,
+    PositionExitFill,
     RiskDecisionRecord,
     RiskEvent,
     Signal,
@@ -48,6 +51,9 @@ class FakeXRPLClient:
 
 def reset_tables() -> None:
     PaperTrade.__table__.drop(engine, checkfirst=True)
+    PositionExitFill.__table__.drop(engine, checkfirst=True)
+    ExecutionRecord.__table__.drop(engine, checkfirst=True)
+    Position.__table__.drop(engine, checkfirst=True)
     PaperTradeOutcome.__table__.drop(engine, checkfirst=True)
     AlphaCooldownRecord.__table__.drop(engine, checkfirst=True)
     MarketDepthLevel.__table__.drop(engine, checkfirst=True)

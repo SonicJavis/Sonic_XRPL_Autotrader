@@ -13,9 +13,12 @@ from app.db.models import (
     AlphaCooldownRecord,
     AlphaSignal,
     AuditEvent,
+    ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
     PaperTradeOutcome,
+    Position,
+    PositionExitFill,
     RiskDecisionRecord,
     RiskEvent,
     Signal,
@@ -23,6 +26,7 @@ from app.db.models import (
 )
 from app.execution.fill_simulator import ExecutionResult, simulate_entry_buy, simulate_exit_sell, validate_orderbook
 from app.execution.paper import PaperExecutor
+from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.scanner import build_scanner_context
 from app.market_data.metrics import MarketMetrics
 from app.market_data.snapshot_builder import build_snapshot_from_offers
@@ -50,6 +54,7 @@ class ExecutionPipeline:
         self.risk_manager = risk_manager
         self.paper_executor = paper_executor
         self.alpha_engine = alpha_engine
+        self.pnl_attribution = PnLAttributionEngine()
         self.logger = get_logger()
 
     def run_once(self, session: Session, current_price_xrp: float = 1.0) -> dict[str, object]:
@@ -123,6 +128,15 @@ class ExecutionPipeline:
                 self._update_open_outcomes_for_token(session, token.id, snapshot)
 
             self._store_depth_levels(session, snapshot.id, parsed)
+            if token.id is not None:
+                self.pnl_attribution.update_positions_for_snapshot(
+                    session,
+                    token_id=token.id,
+                    snapshot=snapshot,
+                    execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
+                    max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
+                    liquidity_haircut_pct=self.settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+                )
 
             history = session.exec(
                 select(MarketSnapshot)
@@ -159,28 +173,28 @@ class ExecutionPipeline:
                 )
                 session.commit()
 
-            session.add(
-                AlphaSignal(
-                    token_id=token.id,
-                    snapshot_id=snapshot.id,
-                    pair=alpha_eval.pair,
-                    score=alpha_eval.score,
-                    decision=alpha_eval.decision,
-                    reasons_json=json.dumps(alpha_eval.reasons),
-                    spread_pct=alpha_eval.spread,
-                    depth_xrp=alpha_eval.depth_xrp,
-                    imbalance=alpha_eval.imbalance,
-                    slippage_pct=max(0.0, alpha_eval.slippage_estimate),
-                    fill_probability=alpha_eval.fill_probability,
-                    stability_score=alpha_eval.stability_score,
-                    spread_stability=alpha_eval.spread_stability,
-                    liquidity_consistency=alpha_eval.liquidity_consistency,
-                    mid_price_stability=alpha_eval.mid_price_stability,
-                    component_scores_json=json.dumps(alpha_eval.component_scores),
-                    manipulation_flags_json=json.dumps(alpha_eval.manipulation_flags),
-                )
+            alpha_signal = AlphaSignal(
+                token_id=token.id,
+                snapshot_id=snapshot.id,
+                pair=alpha_eval.pair,
+                score=alpha_eval.score,
+                decision=alpha_eval.decision,
+                reasons_json=json.dumps(alpha_eval.reasons),
+                spread_pct=alpha_eval.spread,
+                depth_xrp=alpha_eval.depth_xrp,
+                imbalance=alpha_eval.imbalance,
+                slippage_pct=max(0.0, alpha_eval.slippage_estimate),
+                fill_probability=alpha_eval.fill_probability,
+                stability_score=alpha_eval.stability_score,
+                spread_stability=alpha_eval.spread_stability,
+                liquidity_consistency=alpha_eval.liquidity_consistency,
+                mid_price_stability=alpha_eval.mid_price_stability,
+                component_scores_json=json.dumps(alpha_eval.component_scores),
+                manipulation_flags_json=json.dumps(alpha_eval.manipulation_flags),
             )
+            session.add(alpha_signal)
             session.commit()
+            session.refresh(alpha_signal)
 
             context = build_scanner_context(
                 issuer=token.issuer,
@@ -247,18 +261,18 @@ class ExecutionPipeline:
                     ),
                 )
 
-                session.add(
-                    RiskDecisionRecord(
-                        token_id=token.id,
-                        snapshot_id=snapshot.id,
-                        signal_id=signal.id,
-                        decision=risk_eval.decision.value,
-                        reason=risk_eval.reason,
-                        score=alpha_eval.score,
-                        reasons_json=json.dumps(alpha_eval.reasons),
-                    )
+                risk_record = RiskDecisionRecord(
+                    token_id=token.id,
+                    snapshot_id=snapshot.id,
+                    signal_id=signal.id,
+                    decision=risk_eval.decision.value,
+                    reason=risk_eval.reason,
+                    score=alpha_eval.score,
+                    reasons_json=json.dumps(alpha_eval.reasons),
                 )
+                session.add(risk_record)
                 session.commit()
+                session.refresh(risk_record)
 
                 if risk_eval.decision != RiskDecision.APPROVE:
                     session.add(
@@ -365,6 +379,20 @@ class ExecutionPipeline:
                         failure_reason=strict_fill.failure_reason,
                     )
 
+                    execution_record = self.pnl_attribution.create_execution_record(
+                        session,
+                        token_id=token.id or 0,
+                        signal_id=signal.id or 0,
+                        risk_decision_id=risk_record.id,
+                        snapshot_id=snapshot.id or 0,
+                        position_id=None,
+                        side="BUY",
+                        execution_result=strict_fill,
+                        snapshot_time=snapshot_time,
+                        signal_time=signal_time,
+                        execution_time=execution_time,
+                    )
+
                     if reason_closed is not None:
                         outcome.exit_time = execution_time
                         outcome.exit_price = None
@@ -406,6 +434,26 @@ class ExecutionPipeline:
 
                     trade = self.paper_executor.open_trade(session, candidate, entry_price_xrp=entry_price)
                     executed.append(trade.id)
+
+                    pos = self.pnl_attribution.create_position_from_entry(
+                        session,
+                        token_id=token.id or 0,
+                        issuer=token.issuer,
+                        currency=token.currency,
+                        signal_id=signal.id or 0,
+                        risk_decision_id=risk_record.id,
+                        execution_record_id=execution_record.id or 0,
+                        snapshot_id=snapshot.id or 0,
+                        execution_result=strict_fill,
+                        alpha_signal=alpha_signal,
+                        execution_time=execution_time,
+                    )
+                    if pos is None:
+                        outcome.reason_closed = "ENTRY_FAILED"
+                        outcome.failure_reason = outcome.failure_reason or "ENTRY_FAILED"
+                    else:
+                        outcome.reason_closed = None
+
                     session.add(outcome)
                     session.commit()
 

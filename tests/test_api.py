@@ -114,3 +114,27 @@ def test_phase45_performance_endpoints() -> None:
     body = breakdown.json()
     assert "components" in body
     assert "manipulation_flags" in body
+
+
+def test_strict_attribution_endpoints_available() -> None:
+    app = create_app()
+    client = TestClient(app)
+
+    positions = client.get("/positions")
+    assert positions.status_code == 200
+    assert isinstance(positions.json(), list)
+
+    realized = client.get("/pnl/realized")
+    assert realized.status_code == 200
+    assert "realized_pnl_xrp" in realized.json()
+
+    unrealized = client.get("/pnl/unrealized")
+    assert unrealized.status_code == 200
+    assert "positions" in unrealized.json()
+
+    failures = client.get("/failures")
+    assert failures.status_code == 200
+    assert isinstance(failures.json(), list)
+
+    missing_execution = client.get("/execution/999999")
+    assert missing_execution.status_code == 404
