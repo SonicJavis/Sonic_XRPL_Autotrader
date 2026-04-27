@@ -5,16 +5,19 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sonic-xrpl-autotrader"
 version = "0.1.0"
-description = "XRPL autotrader scaffold with app modules, dashboard, and tests"
+description = "Modular XRPL trading-system foundation with paper execution and safety controls"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Local Developer" }]
 dependencies = [
+  "fastapi>=0.115.0",
   "pydantic>=2.7.0",
   "pydantic-settings>=2.2.1",
   "python-dotenv>=1.0.1",
   "rich>=13.7.1",
+  "sqlmodel>=0.0.22",
   "streamlit>=1.35.0",
+  "uvicorn>=0.30.0",
   "xrpl-py>=2.6.0"
 ]
 
@@ -26,7 +29,7 @@ dev = [
 
 [project.scripts]
 autotrader = "app.main:main"
-dashboard = "dashboard.app:main"
+dashboard = "dashboard.streamlit_app:main"
 
 [tool.setuptools.packages.find]
 include = ["app*", "dashboard*"]

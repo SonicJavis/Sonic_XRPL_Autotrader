@@ -1,7 +1,5 @@
-"""XRPL autotrader application package."""
+"""Sonic XRPL Autotrader package."""
 
-from .config import Settings
-from .strategy import MeanReversionStrategy
-from .trader import AutoTrader
+from app.config import Settings
 
-__all__ = ["Settings", "MeanReversionStrategy", "AutoTrader"]
+__all__ = ["Settings"]

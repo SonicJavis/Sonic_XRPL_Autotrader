@@ -1,21 +1,22 @@
-from app.models import Signal
-from app.strategy import MeanReversionStrategy
+from app.market_data.token_registry import RegisteredToken, TokenRegistry
+from app.strategies.base import StrategyContext
+from app.strategies.new_token_scanner import NewTokenScannerStrategy
 
 
-def test_strategy_holds_while_warming_up() -> None:
-    strategy = MeanReversionStrategy(symbol="XRP/USD", lookback=5)
+def test_new_token_scanner_generates_buy_for_registered_token() -> None:
+    registry = TokenRegistry()
+    registry.register(RegisteredToken(issuer="rIssuer", currency="USD", symbol="TEST"))
+    strategy = NewTokenScannerStrategy(token_registry=registry)
 
-    for _ in range(4):
-        decision = strategy.update(0.5)
+    signal = strategy.generate_signal(StrategyContext(current_price_xrp=1.0))
 
-    assert decision.signal == Signal.HOLD
-    assert decision.reason == "warming up"
+    assert signal is not None
+    assert signal.side == "BUY"
 
 
-def test_strategy_emits_buy_on_drop() -> None:
-    strategy = MeanReversionStrategy(symbol="XRP/USD", lookback=5, z_buy=-0.5, z_sell=0.8)
+def test_new_token_scanner_returns_none_without_tokens() -> None:
+    strategy = NewTokenScannerStrategy(token_registry=TokenRegistry())
 
-    for px in [1.0, 1.0, 1.0, 1.0, 0.2]:
-        decision = strategy.update(px)
+    signal = strategy.generate_signal(StrategyContext(current_price_xrp=1.0))
 
-    assert decision.signal == Signal.BUY
+    assert signal is None
