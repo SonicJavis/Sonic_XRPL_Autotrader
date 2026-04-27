@@ -1,0 +1,3 @@
+[console_scripts]
+autotrader = app.main:main
+dashboard = dashboard.app:main
