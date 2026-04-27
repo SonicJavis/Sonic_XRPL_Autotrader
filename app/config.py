@@ -52,6 +52,8 @@ class Settings(BaseSettings):
     MAX_SNAPSHOT_AGE_MS: int = Field(default=1500, ge=1)
     EXECUTION_LATENCY_MS: int = Field(default=120, ge=0)
     EXECUTION_LIQUIDITY_HAIRCUT_PCT: float = Field(default=0.15, ge=0, le=0.95)
+    MIN_EXIT_RETRY_MS: int = Field(default=5000, ge=0)
+    MAX_EXIT_RETRIES: int = Field(default=5, ge=1)
 
     DATABASE_URL: str = "sqlite:///./sonic_autotrader.db"
     LOG_LEVEL: str = "INFO"

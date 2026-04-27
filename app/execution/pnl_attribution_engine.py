@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
 
@@ -22,6 +23,14 @@ def _utc(ts: datetime) -> datetime:
     return ts.astimezone(timezone.utc)
 
 
+@dataclass(slots=True)
+class ExitDecision:
+    should_exit: bool
+    reason: str
+    urgency: str
+    approved_by_risk: bool
+
+
 class PnLAttributionEngine:
     def __init__(self) -> None:
         pass
@@ -35,6 +44,39 @@ class PnLAttributionEngine:
         if remaining_size <= 1e-9:
             return "CLOSED"
         return "PARTIAL_EXIT"
+
+    @staticmethod
+    def _is_transient_exit_failure(reason: str | None) -> bool:
+        return reason in {"NO_BIDS", "NO_LIQUIDITY", "STALE_MARKET_DATA"}
+
+    @staticmethod
+    def evaluate_exit_decision(
+        *,
+        position: Position,
+        snapshot: MarketSnapshot,
+        now: datetime,
+        min_exit_retry_ms: int,
+        max_exit_retries: int,
+        approved_by_risk: bool,
+    ) -> ExitDecision:
+        if position.status in {"EXIT_FAILED_PERMANENT", "CLOSED"}:
+            return ExitDecision(False, "terminal_position_state", "LOW", approved_by_risk)
+
+        if position.exit_attempt_count >= max_exit_retries and position.status != "PARTIAL_EXIT":
+            return ExitDecision(False, "max_exit_retries_reached", "LOW", approved_by_risk)
+
+        if position.status == "OPEN":
+            return ExitDecision(False, "no_exit_signal", "LOW", approved_by_risk)
+
+        if position.status == "EXIT_FAILED_TRANSIENT" and position.last_exit_attempt_time is not None:
+            elapsed = (_utc(now) - _utc(position.last_exit_attempt_time)).total_seconds() * 1000.0
+            if elapsed < float(min_exit_retry_ms):
+                return ExitDecision(False, "retry_cooldown_active", "LOW", approved_by_risk)
+
+        if not approved_by_risk:
+            return ExitDecision(False, "risk_not_approved", "MEDIUM", approved_by_risk)
+
+        return ExitDecision(True, "exit_requested", "HIGH" if position.status == "PARTIAL_EXIT" else "MEDIUM", approved_by_risk)
 
     def create_execution_record(
         self,
@@ -52,6 +94,12 @@ class PnLAttributionEngine:
         execution_time: datetime,
         holding_time_ms: int = 0,
     ) -> ExecutionRecord:
+        s_time = _utc(snapshot_time)
+        sig_time = _utc(signal_time)
+        ex_time = _utc(execution_time)
+        if ex_time < sig_time or sig_time < s_time:
+            raise ValueError("FAILED_INVALID_TIMING")
+
         record = ExecutionRecord(
             token_id=token_id,
             signal_id=signal_id,
@@ -63,11 +111,11 @@ class PnLAttributionEngine:
             filled_size=execution_result.filled_size,
             fill_status=execution_result.fill_status,
             avg_fill_price=execution_result.avg_entry_price if side.upper() == "BUY" else execution_result.avg_exit_price,
-            fill_levels_json=json.dumps(execution_result.fill_levels),
-            slippage_vs_mid=execution_result.slippage_pct,
-            snapshot_time=_utc(snapshot_time),
-            signal_time=_utc(signal_time),
-            execution_time=_utc(execution_time),
+            fill_levels_json=execution_result.fill_levels,
+            slippage_vs_top=execution_result.slippage_pct,
+            snapshot_time=s_time,
+            signal_time=sig_time,
+            execution_time=ex_time,
             execution_latency_ms=execution_result.execution_latency_ms,
             snapshot_age_ms=execution_result.snapshot_age_ms,
             holding_time_ms=holding_time_ms,
@@ -213,6 +261,9 @@ class PnLAttributionEngine:
         execution_latency_ms: int,
         max_snapshot_age_ms: int,
         liquidity_haircut_pct: float,
+        min_exit_retry_ms: int,
+        max_exit_retries: int,
+        approve_exit_fn=None,
     ) -> None:
         if snapshot.id is None:
             return
@@ -220,12 +271,23 @@ class PnLAttributionEngine:
         open_positions = session.exec(
             select(Position)
             .where(Position.token_id == token_id)
-            .where(Position.status.in_(["OPEN", "PARTIAL_EXIT"]))
+            .where(Position.status.in_(["OPEN", "EXIT_PENDING", "PARTIAL_EXIT", "EXIT_FAILED_TRANSIENT"]))
             .order_by(Position.entry_time.asc())
         ).all()
 
         for position in open_positions:
-            # Simulated conservative exit attempt every snapshot for strict auditable lifecycle.
+            approved_by_risk = True if approve_exit_fn is None else bool(approve_exit_fn(position, snapshot))
+            decision = self.evaluate_exit_decision(
+                position=position,
+                snapshot=snapshot,
+                now=datetime.now(tz=timezone.utc),
+                min_exit_retry_ms=min_exit_retry_ms,
+                max_exit_retries=max_exit_retries,
+                approved_by_risk=approved_by_risk,
+            )
+            if not decision.should_exit:
+                continue
+
             bids, asks, best_bid, best_ask = self._depth_for_snapshot(session, snapshot.id)
             requested_tokens = position.remaining_size / position.entry_vwap if position.entry_vwap > 0 else 0.0
             exec_result = simulate_exit_sell(
@@ -256,13 +318,25 @@ class PnLAttributionEngine:
                 holding_time_ms=max(0, holding_ms),
             )
 
+            position.exit_attempt_count += 1
+            position.last_exit_attempt_time = datetime.now(tz=timezone.utc)
+
             if exec_result.filled_size <= 0 or exec_result.avg_exit_price is None:
-                position.status = "FAILED_EXIT"
-                position.failure_reason = exec_result.failure_reason or "EXIT_FAILED"
+                failure = exec_result.failure_reason or "EXIT_FAILED"
+                if self._is_transient_exit_failure(failure):
+                    position.status = "EXIT_FAILED_TRANSIENT"
+                else:
+                    position.status = "EXIT_FAILED_PERMANENT"
+                position.failure_reason = failure
+                position.exit_failure_reason = failure
                 position.exit_orderbook_snapshot_id = snapshot.id
                 session.add(position)
                 session.commit()
                 continue
+
+            proposed_exit_filled = position.exit_filled_size + exec_result.filled_size
+            if proposed_exit_filled > (position.entry_filled_size + 1e-9):
+                raise ValueError("CRITICAL_OVERFILL_DETECTED")
 
             fill_xrp = exec_result.avg_exit_price * exec_result.filled_size
             cost_xrp = position.entry_vwap * exec_result.filled_size
@@ -277,16 +351,20 @@ class PnLAttributionEngine:
                     exit_vwap=exec_result.avg_exit_price,
                     fill_size=exec_result.filled_size,
                     pnl_xrp=pnl,
-                    fill_levels_json=json.dumps(exec_result.fill_levels),
+                    fill_levels_json=exec_result.fill_levels,
                     failure_reason=exec_result.failure_reason,
                 )
             )
 
-            position.exit_filled_size += exec_result.filled_size
+            prior_remaining = position.remaining_size
+            position.exit_filled_size = proposed_exit_filled
             position.remaining_size = max(0.0, position.entry_filled_size - position.exit_filled_size)
+            if position.remaining_size > (prior_remaining + 1e-9):
+                raise ValueError("CRITICAL_SIZE_DRIFT_DETECTED")
             position.exit_vwap = exec_result.avg_exit_price
             position.exit_orderbook_snapshot_id = snapshot.id
             position.status = self._position_status(position.remaining_size)
+            position.exit_failure_reason = None
             if position.remaining_size <= 1e-9:
                 position.exit_time = datetime.now(tz=timezone.utc)
             session.add(position)
@@ -315,7 +393,7 @@ class PnLAttributionEngine:
 
         open_positions = session.exec(
             select(Position)
-            .where(Position.status.in_(["OPEN", "PARTIAL_EXIT", "FAILED_EXIT"]))
+            .where(Position.status.in_(["OPEN", "EXIT_PENDING", "PARTIAL_EXIT", "EXIT_FAILED_TRANSIENT", "EXIT_FAILED_PERMANENT"]))
             .order_by(Position.entry_time.asc())
         ).all()
         for position in open_positions:

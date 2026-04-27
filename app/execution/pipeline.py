@@ -136,6 +136,9 @@ class ExecutionPipeline:
                     execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
                     max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
                     liquidity_haircut_pct=self.settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+                    min_exit_retry_ms=self.settings.MIN_EXIT_RETRY_MS,
+                    max_exit_retries=self.settings.MAX_EXIT_RETRIES,
+                    approve_exit_fn=lambda pos, snap: self._risk_approves_exit(),
                 )
 
             history = session.exec(
@@ -379,19 +382,40 @@ class ExecutionPipeline:
                         failure_reason=strict_fill.failure_reason,
                     )
 
-                    execution_record = self.pnl_attribution.create_execution_record(
-                        session,
-                        token_id=token.id or 0,
-                        signal_id=signal.id or 0,
-                        risk_decision_id=risk_record.id,
-                        snapshot_id=snapshot.id or 0,
-                        position_id=None,
-                        side="BUY",
-                        execution_result=strict_fill,
-                        snapshot_time=snapshot_time,
-                        signal_time=signal_time,
-                        execution_time=execution_time,
-                    )
+                    try:
+                        execution_record = self.pnl_attribution.create_execution_record(
+                            session,
+                            token_id=token.id or 0,
+                            signal_id=signal.id or 0,
+                            risk_decision_id=risk_record.id,
+                            snapshot_id=snapshot.id or 0,
+                            position_id=None,
+                            side="BUY",
+                            execution_result=strict_fill,
+                            snapshot_time=snapshot_time,
+                            signal_time=signal_time,
+                            execution_time=execution_time,
+                        )
+                    except ValueError as exc:
+                        session.add(
+                            RiskEvent(
+                                event_type="EXECUTION_INVALID_TIMING",
+                                severity="ERROR",
+                                reason=str(exc),
+                            )
+                        )
+                        session.commit()
+                        self._audit(
+                            session,
+                            request_id,
+                            "execution_skipped",
+                            {
+                                "signal_id": signal.id,
+                                "reason": "FAILED_INVALID_TIMING",
+                                "snapshot_id": snapshot.id,
+                            },
+                        )
+                        continue
 
                     if reason_closed is not None:
                         outcome.exit_time = execution_time
@@ -487,6 +511,8 @@ class ExecutionPipeline:
                         },
                     )
 
+                    self._check_canonical_ledger_mismatch(session, token.id)
+
                 telemetry = TelemetryEvent(
                     request_id=request_id,
                     event_type="pipeline_signal_processed",
@@ -522,6 +548,28 @@ class ExecutionPipeline:
             "signals": signals_count,
             "paper_trades_opened": len(executed),
         }
+
+    @staticmethod
+    def _risk_approves_exit() -> bool:
+        # Exit risk gate is explicit and deterministic in this phase.
+        return True
+
+    def _check_canonical_ledger_mismatch(self, session: Session, token_id: int | None) -> None:
+        if token_id is None:
+            return
+        canonical = session.exec(select(Position).where(Position.token_id == token_id)).all()
+        legacy = session.exec(select(PaperTradeOutcome).where(PaperTradeOutcome.token_id == token_id)).all()
+        if len(legacy) < len(canonical):
+            log_event(
+                self.logger,
+                {
+                    "event_type": "canonical_ledger_mismatch",
+                    "token_id": token_id,
+                    "canonical_positions": len(canonical),
+                    "legacy_outcomes": len(legacy),
+                    "severity": "WARN",
+                },
+            )
 
     def _fetch_orderbook(self, token: WatchedToken) -> dict[str, object]:
         if token.is_xrp:

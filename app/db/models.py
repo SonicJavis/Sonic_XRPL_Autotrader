@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import uuid
 
+from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
 
 
@@ -95,7 +96,7 @@ class PaperTradeOutcome(SQLModel, table=True):
 
     entry_price: float
     expected_slippage_pct: float
-    actual_slippage_pct: float
+    actual_slippage_pct: float | None = None
 
     target_size_xrp: float
     filled_size_xrp: float
@@ -121,6 +122,7 @@ class PaperTradeOutcome(SQLModel, table=True):
     failure_reason: str | None = None
 
     reason_closed: str | None = None
+    legacy_only: bool = True
     created_at: datetime = Field(default_factory=utcnow)
 
 
@@ -149,6 +151,9 @@ class Position(SQLModel, table=True):
 
     status: str = "OPEN"
     failure_reason: str | None = None
+    exit_attempt_count: int = 0
+    last_exit_attempt_time: datetime | None = None
+    exit_failure_reason: str | None = None
 
     component_scores_json: str = "{}"
     risk_flags_json: str = "[]"
@@ -171,8 +176,8 @@ class ExecutionRecord(SQLModel, table=True):
     filled_size: float
     fill_status: str
     avg_fill_price: float | None = None
-    fill_levels_json: str = "[]"
-    slippage_vs_mid: float = 0.0
+    fill_levels_json: list[dict[str, float | int]] = Field(default_factory=list, sa_column=Column(JSON))
+    slippage_vs_top: float | None = None
 
     snapshot_time: datetime = Field(default_factory=utcnow)
     signal_time: datetime = Field(default_factory=utcnow)
@@ -197,7 +202,7 @@ class PositionExitFill(SQLModel, table=True):
     exit_vwap: float
     fill_size: float
     pnl_xrp: float
-    fill_levels_json: str = "[]"
+    fill_levels_json: list[dict[str, float | int]] = Field(default_factory=list, sa_column=Column(JSON))
     failure_reason: str | None = None
 
     created_at: datetime = Field(default_factory=utcnow)

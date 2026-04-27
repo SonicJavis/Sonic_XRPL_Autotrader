@@ -219,6 +219,9 @@ def test_partial_exit_correct_realized_pnl() -> None:
             execution_time=now,
         )
         assert pos is not None
+        pos.status = "PARTIAL_EXIT"
+        session.add(pos)
+        session.commit()
 
         # Only half of tokens can exit.
         requested_tokens = pos.remaining_size / pos.entry_vwap
@@ -236,6 +239,9 @@ def test_partial_exit_correct_realized_pnl() -> None:
             execution_latency_ms=0,
             max_snapshot_age_ms=1500,
             liquidity_haircut_pct=0.0,
+            min_exit_retry_ms=0,
+            max_exit_retries=5,
+            approve_exit_fn=lambda p, s: True,
         )
         fills = session.exec(select(PositionExitFill).where(PositionExitFill.position_id == pos.position_id)).all()
 
@@ -294,6 +300,9 @@ def test_no_bids_exit_failure() -> None:
             execution_time=now,
         )
         assert pos is not None
+        pos.status = "PARTIAL_EXIT"
+        session.add(pos)
+        session.commit()
 
         _mk_snapshot_with_depth(
             session,
@@ -309,11 +318,14 @@ def test_no_bids_exit_failure() -> None:
             execution_latency_ms=0,
             max_snapshot_age_ms=1500,
             liquidity_haircut_pct=0.0,
+            min_exit_retry_ms=0,
+            max_exit_retries=5,
+            approve_exit_fn=lambda p, s: True,
         )
         refreshed = session.get(Position, pos.position_id)
 
     assert refreshed is not None
-    assert refreshed.status == "FAILED_EXIT"
+    assert refreshed.status == "EXIT_FAILED_TRANSIENT"
 
 
 def test_pnl_uses_filled_size_only() -> None:
@@ -451,3 +463,287 @@ def test_zero_liquidity_token_behavior() -> None:
         )
 
     assert summary["unrealized_pnl_xrp"] is None
+
+
+def test_failed_exit_retry_works() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        pos = Position(
+            issuer=token.issuer,
+            currency=token.currency,
+            token_id=token.id,
+            signal_id=sig.id,
+            entry_vwap=1.0,
+            entry_filled_size=50.0,
+            exit_filled_size=0.0,
+            remaining_size=50.0,
+            entry_orderbook_snapshot_id=1,
+            status="EXIT_FAILED_TRANSIENT",
+            exit_attempt_count=1,
+            last_exit_attempt_time=now - timedelta(seconds=30),
+        )
+        session.add(pos)
+        session.commit()
+
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.1, "token_amount": 1000.0, "xrp_value": 1100.0}],
+            asks=[{"price": 1.2, "token_amount": 1000.0, "xrp_value": 1200.0}],
+        )
+        eng = PnLAttributionEngine()
+        eng.update_positions_for_snapshot(
+            session,
+            token_id=token.id,
+            snapshot=snap,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=1500,
+            liquidity_haircut_pct=0.0,
+            min_exit_retry_ms=1000,
+            max_exit_retries=5,
+            approve_exit_fn=lambda p, s: True,
+        )
+        refreshed = session.get(Position, pos.position_id)
+
+    assert refreshed is not None
+    assert refreshed.status in {"PARTIAL_EXIT", "CLOSED"}
+
+
+def test_exit_failed_permanent_not_retried() -> None:
+    reset_tables()
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        pos = Position(
+            issuer=token.issuer,
+            currency=token.currency,
+            token_id=token.id,
+            signal_id=sig.id,
+            entry_vwap=1.0,
+            entry_filled_size=50.0,
+            remaining_size=50.0,
+            entry_orderbook_snapshot_id=1,
+            status="EXIT_FAILED_PERMANENT",
+            exit_attempt_count=3,
+        )
+        session.add(pos)
+        session.commit()
+
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.2, "token_amount": 1000.0, "xrp_value": 1200.0}],
+            asks=[{"price": 1.3, "token_amount": 1000.0, "xrp_value": 1300.0}],
+        )
+        before_attempts = pos.exit_attempt_count
+        PnLAttributionEngine().update_positions_for_snapshot(
+            session,
+            token_id=token.id,
+            snapshot=snap,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=1500,
+            liquidity_haircut_pct=0.0,
+            min_exit_retry_ms=1000,
+            max_exit_retries=5,
+            approve_exit_fn=lambda p, s: True,
+        )
+        refreshed = session.get(Position, pos.position_id)
+
+    assert refreshed is not None
+    assert refreshed.exit_attempt_count == before_attempts
+    assert refreshed.status == "EXIT_FAILED_PERMANENT"
+
+
+def test_no_auto_exit_without_decision() -> None:
+    reset_tables()
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        pos = Position(
+            issuer=token.issuer,
+            currency=token.currency,
+            token_id=token.id,
+            signal_id=sig.id,
+            entry_vwap=1.0,
+            entry_filled_size=20.0,
+            remaining_size=20.0,
+            entry_orderbook_snapshot_id=1,
+            status="OPEN",
+        )
+        session.add(pos)
+        session.commit()
+
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.2, "token_amount": 1000.0, "xrp_value": 1200.0}],
+            asks=[{"price": 1.3, "token_amount": 1000.0, "xrp_value": 1300.0}],
+        )
+        PnLAttributionEngine().update_positions_for_snapshot(
+            session,
+            token_id=token.id,
+            snapshot=snap,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=1500,
+            liquidity_haircut_pct=0.0,
+            min_exit_retry_ms=1000,
+            max_exit_retries=5,
+            approve_exit_fn=lambda p, s: True,
+        )
+        refreshed = session.get(Position, pos.position_id)
+        fills = session.exec(select(PositionExitFill).where(PositionExitFill.position_id == pos.position_id)).all()
+
+    assert refreshed is not None
+    assert refreshed.status == "OPEN"
+    assert len(fills) == 0
+
+
+def test_slippage_uses_top_of_book_not_midpoint() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[
+            {"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0},
+            {"price": 1.4, "token_amount": 100.0, "xrp_value": 140.0},
+        ],
+        best_bid=0.5,
+        best_ask=1.0,
+        requested_size_xrp=200.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+    )
+    assert out.avg_entry_price is not None
+    assert out.slippage_pct == pytest.approx(((out.avg_entry_price - 1.0) / 1.0) * 100.0)
+
+
+def test_time_invariant_violation_is_rejected() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+        )
+        out = simulate_entry_buy(
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+            best_bid=1.0,
+            best_ask=1.1,
+            requested_size_xrp=10.0,
+            snapshot_time=now,
+            signal_time=now,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=1500,
+            liquidity_haircut_pct=0.0,
+        )
+        with pytest.raises(ValueError, match="FAILED_INVALID_TIMING"):
+            PnLAttributionEngine().create_execution_record(
+                session,
+                token_id=token.id,
+                signal_id=sig.id,
+                risk_decision_id=None,
+                snapshot_id=snap.id,
+                position_id=None,
+                side="BUY",
+                execution_result=out,
+                snapshot_time=now,
+                signal_time=now,
+                execution_time=now - timedelta(milliseconds=1),
+            )
+
+
+def test_overfill_prevention() -> None:
+    reset_tables()
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        pos = Position(
+            issuer=token.issuer,
+            currency=token.currency,
+            token_id=token.id,
+            signal_id=sig.id,
+            entry_vwap=1.0,
+            entry_filled_size=10.0,
+            exit_filled_size=9.5,
+            remaining_size=2.0,
+            entry_orderbook_snapshot_id=1,
+            status="PARTIAL_EXIT",
+        )
+        session.add(pos)
+        session.commit()
+
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.2, "token_amount": 5.0, "xrp_value": 6.0}],
+            asks=[{"price": 1.3, "token_amount": 100.0, "xrp_value": 130.0}],
+        )
+
+        with pytest.raises(ValueError, match="CRITICAL_OVERFILL_DETECTED"):
+            PnLAttributionEngine().update_positions_for_snapshot(
+                session,
+                token_id=token.id,
+                snapshot=snap,
+                execution_latency_ms=0,
+                max_snapshot_age_ms=1500,
+                liquidity_haircut_pct=0.0,
+                min_exit_retry_ms=0,
+                max_exit_retries=5,
+                approve_exit_fn=lambda p, s: True,
+            )
+
+
+def test_retry_uses_new_snapshot_not_old() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        pos = Position(
+            issuer=token.issuer,
+            currency=token.currency,
+            token_id=token.id,
+            signal_id=sig.id,
+            entry_vwap=1.0,
+            entry_filled_size=10.0,
+            remaining_size=10.0,
+            entry_orderbook_snapshot_id=1,
+            status="EXIT_FAILED_TRANSIENT",
+            last_exit_attempt_time=now - timedelta(seconds=10),
+            exit_attempt_count=1,
+        )
+        session.add(pos)
+        session.commit()
+
+        old_snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[],
+            asks=[{"price": 1.3, "token_amount": 100.0, "xrp_value": 130.0}],
+        )
+        new_snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+            asks=[{"price": 1.2, "token_amount": 100.0, "xrp_value": 120.0}],
+        )
+        new_snap_id = new_snap.id
+
+        eng = PnLAttributionEngine()
+        eng.update_positions_for_snapshot(
+            session,
+            token_id=token.id,
+            snapshot=new_snap,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=1500,
+            liquidity_haircut_pct=0.0,
+            min_exit_retry_ms=1000,
+            max_exit_retries=5,
+            approve_exit_fn=lambda p, s: True,
+        )
+        refreshed = session.get(Position, pos.position_id)
+
+    assert refreshed is not None
+    assert refreshed.exit_orderbook_snapshot_id == new_snap_id

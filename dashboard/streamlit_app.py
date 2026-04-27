@@ -166,7 +166,7 @@ def main() -> None:
                 "filled_size": row.filled_size,
                 "fill_status": row.fill_status,
                 "avg_fill_price": row.avg_fill_price,
-                "slippage_vs_mid": row.slippage_vs_mid,
+                "slippage_vs_top": row.slippage_vs_top,
                 "failure_reason": row.failure_reason,
                 "snapshot_age_ms": row.snapshot_age_ms,
                 "execution_latency_ms": row.execution_latency_ms,

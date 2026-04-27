@@ -17,7 +17,7 @@ class ExecutionResult:
     avg_entry_price: float | None
     avg_exit_price: float | None
     fill_status: str
-    slippage_pct: float
+    slippage_pct: float | None
     execution_latency_ms: int
     failure_reason: str | None
     snapshot_age_ms: int
@@ -32,7 +32,7 @@ class ExecutionResult:
         return self.fill_status == "PARTIAL"
 
     def to_legacy_dict(self) -> dict[str, float | bool]:
-        slippage = float(self.slippage_pct)
+        slippage = float(self.slippage_pct or 0.0)
         if self.fill_status == "UNFILLED" and slippage == 0.0:
             slippage = 100.0
         return {
@@ -94,7 +94,7 @@ def simulate_entry_buy(
             avg_entry_price=None,
             avg_exit_price=None,
             fill_status="UNFILLED",
-            slippage_pct=0.0,
+            slippage_pct=None,
             execution_latency_ms=execution_latency_ms,
             failure_reason="STALE_MARKET_DATA",
             snapshot_age_ms=age_ms,
@@ -108,7 +108,7 @@ def simulate_entry_buy(
             avg_entry_price=None,
             avg_exit_price=None,
             fill_status="UNFILLED",
-            slippage_pct=0.0,
+            slippage_pct=None,
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_REQUESTED_SIZE",
             snapshot_age_ms=age_ms,
@@ -122,7 +122,7 @@ def simulate_entry_buy(
             avg_entry_price=None,
             avg_exit_price=None,
             fill_status="UNFILLED",
-            slippage_pct=0.0,
+            slippage_pct=None,
             execution_latency_ms=execution_latency_ms,
             failure_reason="INVALID_ORDERBOOK",
             snapshot_age_ms=age_ms,
@@ -166,7 +166,7 @@ def simulate_entry_buy(
             avg_entry_price=None,
             avg_exit_price=None,
             fill_status="UNFILLED",
-            slippage_pct=0.0,
+            slippage_pct=None,
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_LIQUIDITY",
             snapshot_age_ms=age_ms,
@@ -174,8 +174,9 @@ def simulate_entry_buy(
         )
 
     avg_entry = spent_xrp / tokens_bought
-    mid = (best_bid + best_ask) / 2.0
-    slippage = abs(avg_entry - mid) / mid * 100.0 if mid > 0 else 0.0
+    slippage: float | None = None
+    if best_ask > 0:
+        slippage = max(0.0, ((avg_entry - best_ask) / best_ask) * 100.0)
     status = _fill_status(requested, spent_xrp)
     reason = None
     if status == "UNFILLED":
@@ -189,7 +190,7 @@ def simulate_entry_buy(
         avg_entry_price=avg_entry,
         avg_exit_price=None,
         fill_status=status,
-        slippage_pct=max(0.0, slippage),
+        slippage_pct=slippage,
         execution_latency_ms=execution_latency_ms,
         failure_reason=reason,
         snapshot_age_ms=age_ms,
@@ -218,7 +219,7 @@ def simulate_exit_sell(
             avg_entry_price=None,
             avg_exit_price=None,
             fill_status="UNFILLED",
-            slippage_pct=0.0,
+            slippage_pct=None,
             execution_latency_ms=execution_latency_ms,
             failure_reason="STALE_MARKET_DATA",
             snapshot_age_ms=age_ms,
@@ -232,7 +233,7 @@ def simulate_exit_sell(
             avg_entry_price=None,
             avg_exit_price=None,
             fill_status="UNFILLED",
-            slippage_pct=0.0,
+            slippage_pct=None,
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_REQUESTED_SIZE",
             snapshot_age_ms=age_ms,
@@ -246,7 +247,7 @@ def simulate_exit_sell(
             avg_entry_price=None,
             avg_exit_price=None,
             fill_status="UNFILLED",
-            slippage_pct=0.0,
+            slippage_pct=None,
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_BIDS",
             snapshot_age_ms=age_ms,
@@ -288,7 +289,7 @@ def simulate_exit_sell(
             avg_entry_price=None,
             avg_exit_price=None,
             fill_status="UNFILLED",
-            slippage_pct=0.0,
+            slippage_pct=None,
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_BIDS",
             snapshot_age_ms=age_ms,
@@ -296,8 +297,9 @@ def simulate_exit_sell(
         )
 
     avg_exit = proceeds_xrp / sold_tokens
-    mid = (best_bid + best_ask) / 2.0
-    slippage = abs(avg_exit - mid) / mid * 100.0 if mid > 0 else 0.0
+    slippage: float | None = None
+    if best_bid > 0:
+        slippage = max(0.0, ((best_bid - avg_exit) / best_bid) * 100.0)
     status = _fill_status(requested, sold_tokens)
     reason = "PARTIAL_EXIT" if status == "PARTIAL" else None
 
@@ -307,7 +309,7 @@ def simulate_exit_sell(
         avg_entry_price=None,
         avg_exit_price=avg_exit,
         fill_status=status,
-        slippage_pct=max(0.0, slippage),
+        slippage_pct=slippage,
         execution_latency_ms=execution_latency_ms,
         failure_reason=reason,
         snapshot_age_ms=age_ms,
