@@ -32,11 +32,13 @@ class WatchedToken(SQLModel, table=True):
 class MarketSnapshot(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     token_id: int | None = Field(default=None, foreign_key="watchedtoken.id")
-    price_xrp: float = 0.0
+    price_xrp: float | None = None
     liquidity_xrp: float = 0.0
-    spread_pct: float = 0.0
-    best_bid: float = 0.0
-    best_ask: float = 0.0
+    liquidity_bid_xrp: float = 0.0
+    liquidity_ask_xrp: float = 0.0
+    spread_pct: float | None = None
+    best_bid: float | None = None
+    best_ask: float | None = None
     volume_estimate: float = 0.0
     tx_count: int = 0
     bid_count: int = 0

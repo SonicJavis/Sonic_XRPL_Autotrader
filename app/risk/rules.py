@@ -23,6 +23,8 @@ class RiskContext:
     ask_count: int = 0
     bids: list[dict[str, float]] | None = None
     asks: list[dict[str, float]] | None = None
+    slippage_pct: float | None = None
+    fill_possible: bool = True
     is_exit: bool = False
     live_trading_requested: bool = False
 

@@ -16,9 +16,9 @@ class FakeXRPLClient:
         if isinstance(taker_gets, str):
             return {
                 "offers": [
-                    {"quality": 0.98, "taker_gets": 1000.0, "taker_pays": 980.0},
-                    {"quality": 0.97, "taker_gets": 1200.0, "taker_pays": 1164.0},
-                    {"quality": 0.96, "taker_gets": 700.0, "taker_pays": 672.0},
+                    {"quality": 0.98, "taker_gets": 980.0, "taker_pays": 1000.0},
+                    {"quality": 0.97, "taker_gets": 1164.0, "taker_pays": 1200.0},
+                    {"quality": 0.96, "taker_gets": 672.0, "taker_pays": 700.0},
                 ]
             }
         return {

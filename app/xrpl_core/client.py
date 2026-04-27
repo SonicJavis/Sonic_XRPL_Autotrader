@@ -6,6 +6,8 @@ from typing import Any
 from xrpl.clients import JsonRpcClient
 from xrpl.models.requests import AccountInfo, AccountLines, BookOffers, ServerState
 
+from app.market_data.normalization import normalize_amount
+
 
 class XRPLReadOnlyClient:
     def __init__(self, rpc_url: str, retries: int = 2, retry_delay_seconds: float = 0.4) -> None:
@@ -13,17 +15,6 @@ class XRPLReadOnlyClient:
         self.client = JsonRpcClient(rpc_url)
         self.retries = retries
         self.retry_delay_seconds = retry_delay_seconds
-
-    @staticmethod
-    def _normalize_amount(value: str | int | dict[str, Any]) -> float:
-        if isinstance(value, dict):
-            return float(value.get("value", 0.0))
-        if isinstance(value, int):
-            return value / 1_000_000.0
-        raw = str(value)
-        if raw.isdigit():
-            return int(raw) / 1_000_000.0
-        return float(raw)
 
     def safe_request(self, request_obj: Any, timeout_seconds: float = 10.0) -> dict[str, Any]:
         last_error: Exception | None = None
@@ -55,7 +46,7 @@ class XRPLReadOnlyClient:
                 {
                     "issuer": line.get("account", ""),
                     "currency": line.get("currency", ""),
-                    "balance": float(line.get("balance", 0.0)),
+                    "balance": normalize_amount(line.get("balance", 0.0)),
                 }
             )
         return normalized
@@ -63,7 +54,7 @@ class XRPLReadOnlyClient:
     def request_account_lines(self, account: str) -> dict[str, Any]:
         return self.safe_request(AccountLines(account=account, ledger_index="validated"))
 
-    def get_book_offers(self, taker_gets: dict[str, Any], taker_pays: dict[str, Any]) -> dict[str, Any]:
+    def get_book_offers(self, taker_gets: dict[str, Any] | str, taker_pays: dict[str, Any] | str) -> dict[str, Any]:
         result = self.safe_request(BookOffers(taker_gets=taker_gets, taker_pays=taker_pays, limit=80))
         offers_out: list[dict[str, Any]] = []
         for offer in result.get("offers", []):
@@ -73,8 +64,8 @@ class XRPLReadOnlyClient:
             offers_out.append(
                 {
                     "quality": quality,
-                    "taker_gets": self._normalize_amount(offer_gets),
-                    "taker_pays": self._normalize_amount(offer_pays),
+                    "taker_gets": normalize_amount(offer_gets),
+                    "taker_pays": normalize_amount(offer_pays),
                 }
             )
 

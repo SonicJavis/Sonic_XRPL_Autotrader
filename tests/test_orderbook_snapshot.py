@@ -47,4 +47,41 @@ def test_liquidity_calculation() -> None:
         "best_ask": {"price": 1.01},
     }
 
-    assert calculate_liquidity(parsed) == 700.0
+    liq = calculate_liquidity(parsed)
+    assert liq["total_liquidity_xrp"] == 700.0
+    assert liq["liquidity_bid_xrp"] == 300.0
+    assert liq["liquidity_ask_xrp"] == 400.0
+
+
+def test_empty_book_returns_no_quotes() -> None:
+    parsed = parse_orderbook([])
+    assert parsed["best_bid"] is None
+    assert parsed["best_ask"] is None
+
+
+def test_one_sided_book_spread_is_none() -> None:
+    parsed = parse_orderbook([
+        {"side": "ask", "taker_gets": 1000.0, "taker_pays": 1100.0, "quality": 1.1},
+    ])
+    assert calculate_spread(parsed) is None
+
+
+def test_outlier_filtering_rejects_extreme_levels() -> None:
+    parsed = parse_orderbook(
+        [
+            {"side": "bid", "taker_gets": 950.0, "taker_pays": 1000.0, "quality": 0.95},
+            {"side": "ask", "taker_gets": 1000.0, "taker_pays": 1050.0, "quality": 1.05},
+            {"side": "ask", "taker_gets": 1.0, "taker_pays": 9999.0, "quality": 9999.0},
+        ]
+    )
+    assert parsed["filtered_offer_count"] == 2
+
+
+def test_reversed_book_detection_via_negative_spread() -> None:
+    parsed = {
+        "best_bid": {"price": 1.1},
+        "best_ask": {"price": 1.0},
+        "bids": [],
+        "asks": [],
+    }
+    assert calculate_spread(parsed) is None

@@ -35,22 +35,47 @@ class RiskManager:
             return RiskEvaluation(RiskDecision.DENY, "max daily loss exceeded", 0.0)
 
         if context.market_snapshot is not None:
+            if context.market_snapshot.price_xrp is None:
+                return RiskEvaluation(RiskDecision.DENY, "missing price", 0.0)
+            if context.market_snapshot.spread_pct is None:
+                return RiskEvaluation(RiskDecision.DENY, "missing spread", 0.0)
             if context.market_snapshot.liquidity_xrp < self.settings.MIN_LIQUIDITY_XRP:
                 return RiskEvaluation(RiskDecision.DENY, "insufficient liquidity", 0.0)
             if context.market_snapshot.spread_pct is not None and context.market_snapshot.spread_pct > self.settings.MAX_SPREAD_PCT:
                 return RiskEvaluation(RiskDecision.DENY, "spread above threshold", 0.0)
+            if context.market_snapshot.liquidity_xrp <= 0:
+                return RiskEvaluation(RiskDecision.DENY, "zero liquidity", 0.0)
+
+        if context.bid_count == 0 or context.ask_count == 0:
+            return RiskEvaluation(RiskDecision.DENY, "missing orderbook side", 0.0)
 
         if context.bid_count < 2 or context.ask_count < 2:
             return RiskEvaluation(RiskDecision.DENY, "orderbook too thin", 0.0)
 
+        if (context.bid_count + context.ask_count) < 4:
+            return RiskEvaluation(RiskDecision.DENY, "orderbook depth insufficient", 0.0)
+
         if self._has_huge_order_gaps(context):
             return RiskEvaluation(RiskDecision.DENY, "orderbook integrity failed: large gaps", 0.0)
 
-        slippage_pct = self._estimate_slippage_pct(candidate.suggested_size_xrp, context.asks or [])
+        if context.slippage_pct is not None:
+            slippage_pct = context.slippage_pct
+            fill_possible = context.fill_possible
+        else:
+            slippage = self._estimate_slippage(candidate.suggested_size_xrp, context.asks or [])
+            slippage_pct = slippage["slippage_pct"]
+            fill_possible = slippage["fill_possible"]
+
+        if not fill_possible:
+            return RiskEvaluation(RiskDecision.DENY, "partial fill only: high risk", 0.0)
+
         if slippage_pct > self.settings.MAX_SLIPPAGE_PCT:
             return RiskEvaluation(RiskDecision.DENY, "estimated slippage above threshold", 0.0)
 
         return RiskEvaluation(RiskDecision.APPROVE, "approved", candidate.suggested_size_xrp)
+
+    def estimate_slippage(self, target_xrp: float, asks: list[dict[str, float]]) -> dict[str, float | bool]:
+        return self._estimate_slippage(target_xrp, asks)
 
     @staticmethod
     def _has_huge_order_gaps(context: RiskContext) -> bool:
@@ -72,11 +97,11 @@ class RiskManager:
         return False
 
     @staticmethod
-    def _estimate_slippage_pct(target_xrp: float, asks: list[dict[str, float]]) -> float:
+    def _estimate_slippage(target_xrp: float, asks: list[dict[str, float]]) -> dict[str, float | bool]:
         if target_xrp <= 0:
-            return 0.0
+            return {"slippage_pct": 0.0, "fill_possible": True}
         if not asks:
-            return 100.0
+            return {"slippage_pct": 100.0, "fill_possible": False}
 
         remaining_xrp = target_xrp
         cost_xrp = 0.0
@@ -97,10 +122,13 @@ class RiskManager:
                 break
 
         if tokens_bought <= 0 or remaining_xrp > 0:
-            return 100.0
+            return {"slippage_pct": 100.0, "fill_possible": False}
 
         vwap_price = cost_xrp / tokens_bought
         best_ask = asks[0]["price"] if asks else 0.0
         if best_ask <= 0:
-            return 100.0
-        return ((vwap_price - best_ask) / best_ask) * 100.0
+            return {"slippage_pct": 100.0, "fill_possible": False}
+        return {
+            "slippage_pct": ((vwap_price - best_ask) / best_ask) * 100.0,
+            "fill_possible": True,
+        }

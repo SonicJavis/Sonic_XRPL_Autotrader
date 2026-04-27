@@ -50,13 +50,46 @@ class ExecutionPipeline:
             snapshot_payload = build_snapshot_from_offers(orderbook.get("offers", []))
             parsed = snapshot_payload["parsed"]
 
+            if not snapshot_payload["valid"]:
+                self._audit(
+                    session,
+                    request_id,
+                    "snapshot_invalid",
+                    {
+                        "token_id": token.id,
+                        "invalid_reasons": snapshot_payload["invalid_reasons"],
+                        "orderbook_stats": {
+                            "raw_offer_count": snapshot_payload["raw_offer_count"],
+                            "filtered_offer_count": snapshot_payload["filtered_offer_count"],
+                            "rejected_orders": snapshot_payload["rejected_orders"],
+                            "price_deviation_warnings": snapshot_payload["price_deviation_warnings"],
+                        },
+                    },
+                )
+                log_event(
+                    self.logger,
+                    {
+                        "request_id": request_id,
+                        "event_type": "snapshot_invalid",
+                        "token": f"{token.currency}:{token.issuer}",
+                        "raw_offer_count": snapshot_payload["raw_offer_count"],
+                        "filtered_offer_count": snapshot_payload["filtered_offer_count"],
+                        "rejected_orders": snapshot_payload["rejected_orders"],
+                        "price_deviation_warnings": snapshot_payload["price_deviation_warnings"],
+                        "invalid_reasons": snapshot_payload["invalid_reasons"],
+                    },
+                )
+                continue
+
             snapshot = MarketSnapshot(
                 token_id=token.id,
-                price_xrp=snapshot_payload["price_xrp"] or 0.0,
+                price_xrp=snapshot_payload["price_xrp"],
                 liquidity_xrp=float(snapshot_payload["liquidity_xrp"]),
-                spread_pct=float(snapshot_payload["spread_pct"] or 0.0),
-                best_bid=float(parsed["best_bid"]["price"] if parsed.get("best_bid") else 0.0),
-                best_ask=float(parsed["best_ask"]["price"] if parsed.get("best_ask") else 0.0),
+                liquidity_bid_xrp=float(snapshot_payload["liquidity_bid_xrp"]),
+                liquidity_ask_xrp=float(snapshot_payload["liquidity_ask_xrp"]),
+                spread_pct=snapshot_payload["spread_pct"],
+                best_bid=float(parsed["best_bid"]["price"]) if parsed.get("best_bid") else None,
+                best_ask=float(parsed["best_ask"]["price"]) if parsed.get("best_ask") else None,
                 volume_estimate=0.0,
                 tx_count=int(snapshot_payload["order_count"]),
                 bid_count=int(snapshot_payload["bid_count"]),
@@ -94,6 +127,8 @@ class ExecutionPipeline:
                 session.commit()
                 session.refresh(signal)
 
+                slippage = self.risk_manager.estimate_slippage(candidate.suggested_size_xrp, parsed.get("asks", []))
+
                 risk_eval = self.risk_manager.evaluate(
                     candidate,
                     RiskContext(
@@ -113,6 +148,8 @@ class ExecutionPipeline:
                         ask_count=int(snapshot_payload["ask_count"]),
                         bids=parsed.get("bids", []),
                         asks=parsed.get("asks", []),
+                        slippage_pct=float(slippage["slippage_pct"]),
+                        fill_possible=bool(slippage["fill_possible"]),
                         is_exit=False,
                         live_trading_requested=False,
                     ),
@@ -146,7 +183,20 @@ class ExecutionPipeline:
                     continue
 
                 if self.settings.BOT_MODE == BotMode.PAPER_TRADING and candidate.side.upper() == "BUY":
-                    entry = snapshot_payload["price_xrp"] or current_price_xrp
+                    if snapshot_payload["price_xrp"] is None:
+                        self._audit(
+                            session,
+                            request_id,
+                            "execution_skipped",
+                            {
+                                "signal_id": signal.id,
+                                "reason": "missing execution price",
+                                "snapshot_id": snapshot.id,
+                            },
+                        )
+                        continue
+
+                    entry = snapshot_payload["price_xrp"]
                     trade = self.paper_executor.open_trade(session, candidate, entry_price_xrp=entry)
                     executed.append(trade.id)
                     self._audit(
@@ -169,6 +219,23 @@ class ExecutionPipeline:
                     execution_result="executed" if candidate.side.upper() == "BUY" else "skipped",
                 )
                 log_event(self.logger, asdict(telemetry))
+                log_event(
+                    self.logger,
+                    {
+                        "request_id": request_id,
+                        "event_type": "orderbook_stats",
+                        "strategy": candidate.strategy_name,
+                        "token": f"{candidate.currency}:{candidate.issuer}",
+                        "raw_offer_count": snapshot_payload["raw_offer_count"],
+                        "filtered_offer_count": snapshot_payload["filtered_offer_count"],
+                        "rejected_orders": snapshot_payload["rejected_orders"],
+                        "price_deviations": snapshot_payload["price_deviation_warnings"],
+                        "slippage_pct": float(slippage["slippage_pct"]),
+                        "fill_possible": bool(slippage["fill_possible"]),
+                        "liquidity_bid_xrp": float(snapshot_payload["liquidity_bid_xrp"]),
+                        "liquidity_ask_xrp": float(snapshot_payload["liquidity_ask_xrp"]),
+                    },
+                )
 
         return {
             "request_id": request_id,

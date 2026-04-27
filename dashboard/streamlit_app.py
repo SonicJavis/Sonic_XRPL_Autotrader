@@ -43,7 +43,8 @@ def main() -> None:
 
     if snapshot_rows:
         latest = snapshot_rows[0]
-        good_structure = latest.get("spread_pct", 999) <= settings.MAX_SPREAD_PCT and latest.get(
+        spread_val = latest.get("spread_pct")
+        good_structure = spread_val is not None and spread_val <= settings.MAX_SPREAD_PCT and latest.get(
             "liquidity_xrp", 0
         ) >= settings.MIN_LIQUIDITY_XRP and latest.get("bid_count", 0) >= 2 and latest.get("ask_count", 0) >= 2
         style = "green" if good_structure else "red"
@@ -51,11 +52,20 @@ def main() -> None:
         st.markdown(f"<h4 style='color:{style}'>{label}</h4>", unsafe_allow_html=True)
 
         m1, m2, m3, m4, m5 = st.columns(5)
-        m1.metric("Price (XRP)", f"{latest.get('price_xrp', 0):.6f}")
-        m2.metric("Spread %", f"{latest.get('spread_pct', 0):.3f}")
+        m1.metric("Price (XRP)", "n/a" if latest.get("price_xrp") is None else f"{latest.get('price_xrp', 0):.6f}")
+        m2.metric("Spread %", "n/a" if spread_val is None else f"{spread_val:.3f}")
         m3.metric("Liquidity (XRP)", f"{latest.get('liquidity_xrp', 0):.2f}")
-        m4.metric("Best Bid / Ask", f"{latest.get('best_bid', 0):.6f} / {latest.get('best_ask', 0):.6f}")
+        best_bid = latest.get("best_bid")
+        best_ask = latest.get("best_ask")
+        m4.metric(
+            "Best Bid / Ask",
+            f"{best_bid:.6f} / {best_ask:.6f}" if best_bid is not None and best_ask is not None else "n/a",
+        )
         m5.metric("Order Count", str(latest.get("tx_count", 0)))
+
+        b1, b2 = st.columns(2)
+        b1.metric("Liquidity Bid (XRP)", f"{latest.get('liquidity_bid_xrp', 0):.2f}")
+        b2.metric("Liquidity Ask (XRP)", f"{latest.get('liquidity_ask_xrp', 0):.2f}")
 
     st.subheader("Latest Signals")
     st.dataframe([s.model_dump() for s in signals], use_container_width=True)
