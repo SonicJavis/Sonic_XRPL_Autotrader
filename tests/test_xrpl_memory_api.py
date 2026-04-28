@@ -205,3 +205,57 @@ def test_memory_and_regime_api_are_deterministic(memory_client: tuple[TestClient
 
     assert client.get("/calibration/shadow/xrpl/memory").json() == client.get("/calibration/shadow/xrpl/memory").json()
     assert client.get("/calibration/shadow/xrpl/regime").json() == client.get("/calibration/shadow/xrpl/regime").json()
+
+
+def test_memory_api_limit_bounds_and_deterministic_sorting(memory_client: tuple[TestClient, FastAPI]) -> None:
+    client, app = memory_client
+    _add_shadow_execution(
+        app,
+        issuer="zIssuer",
+        currency="USD",
+        observed_possible_fill=50.0,
+        snapshot_derived_liquidity=100.0,
+    )
+    _add_shadow_execution(
+        app,
+        issuer="aIssuer",
+        currency="USD",
+        observed_possible_fill=50.0,
+        snapshot_derived_liquidity=100.0,
+    )
+
+    low_limit = client.get("/calibration/shadow/xrpl/memory?limit=0").json()
+    high_limit = client.get("/calibration/shadow/xrpl/memory?limit=999999").json()
+
+    assert low_limit["sample_count"] == 1
+    token_keys = [int(row["key"]) for row in high_limit["tokens"]]
+    issuer_keys = [row["key"] for row in high_limit["issuers"]]
+    assert token_keys == sorted(token_keys)
+    assert issuer_keys == sorted(issuer_keys)
+
+
+def test_regime_api_limit_bounds_and_deterministic_sorting(memory_client: tuple[TestClient, FastAPI]) -> None:
+    client, app = memory_client
+    _add_shadow_execution(
+        app,
+        issuer="zIssuer",
+        currency="USD",
+        observed_possible_fill=50.0,
+        snapshot_derived_liquidity=100.0,
+    )
+    _add_shadow_execution(
+        app,
+        issuer="aIssuer",
+        currency="USD",
+        observed_possible_fill=50.0,
+        snapshot_derived_liquidity=100.0,
+    )
+
+    low_limit = client.get("/calibration/shadow/xrpl/regime?limit=-10").json()
+    high_limit = client.get("/calibration/shadow/xrpl/regime?limit=999999").json()
+
+    assert low_limit["sample_count"] == 1
+    token_keys = [int(row["aggregate"]["key"]) for row in high_limit["tokens"]]
+    issuer_keys = [row["aggregate"]["key"] for row in high_limit["issuers"]]
+    assert token_keys == sorted(token_keys)
+    assert issuer_keys == sorted(issuer_keys)

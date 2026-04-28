@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from math import isfinite
+from math import exp, isfinite
 
 from app.calibration.xrpl_time_execution_model import XRPLTimeExecutionModel, build_time_execution_input_from_shadow_execution
 from app.db.models import ExecutionRecord, WatchedToken
@@ -78,6 +78,7 @@ class XRPLMemoryAggregate:
     avg_liquidity_decay: float
     avg_route_instability: float
     avg_path_complexity: float
+    avg_routes_seen_count: float
     avg_latency_seconds: float
     avg_competition_penalty: float
     avg_low_fill_bias: float
@@ -114,6 +115,7 @@ def _aggregate(scope: str, key: str, samples: list[XRPLMemorySample]) -> XRPLMem
             avg_liquidity_decay=0.0,
             avg_route_instability=0.0,
             avg_path_complexity=0.0,
+            avg_routes_seen_count=0.0,
             avg_latency_seconds=0.0,
             avg_competition_penalty=0.0,
             avg_low_fill_bias=0.0,
@@ -143,6 +145,7 @@ def _aggregate(scope: str, key: str, samples: list[XRPLMemorySample]) -> XRPLMem
     )
     avg_route_instability = avg([row.route_instability for row in samples])
     avg_path_complexity = avg([float(row.path_complexity) for row in samples])
+    avg_routes_seen_count = avg([float(row.routes_seen_count) for row in samples])
     avg_latency_seconds = avg([row.latency_seconds for row in samples])
     avg_competition_penalty = avg([row.competition_penalty for row in samples])
     avg_low_fill_bias = avg([row.low_fill_bias for row in samples])
@@ -150,14 +153,21 @@ def _aggregate(scope: str, key: str, samples: list[XRPLMemorySample]) -> XRPLMem
     avg_drift_adjusted_ev = avg([row.drift_adjusted_ev for row in samples])
     avg_effective_fill_probability = avg([row.effective_fill_probability for row in samples])
 
-    liquidity_reliability = round(_clamp_unit(avg_liquidity_decay * (1.0 - avg_phantom_penalty)), 6)
+    liquidity_reliability = round(
+        _clamp_unit(
+            avg_liquidity_decay
+            * (1.0 - avg_phantom_penalty)
+            * (1.0 - (0.1 * max(0.0, avg_path_complexity - 1.0)))
+        ),
+        6,
+    )
     execution_reliability = round(
         _clamp_unit(avg_effective_fill_probability * (1.0 - avg_low_fill_bias) * (1.0 - avg_competition_penalty)),
         6,
     )
     latency_pressure = _clamp_unit(avg_latency_seconds / 20.0)
     path_pressure = _clamp_unit(avg_path_complexity / 3.0)
-    drift_pressure = _clamp_unit(abs(avg_drift) + max(0.0, -avg_drift_adjusted_ev))
+    drift_pressure = _clamp_unit((abs(avg_drift) * (1.0 + avg_latency_seconds / 10.0)) + max(0.0, -avg_drift_adjusted_ev))
     regime_pressure_score = round(
         _clamp_unit(
             (1.0 - liquidity_reliability) * 0.25
@@ -177,6 +187,7 @@ def _aggregate(scope: str, key: str, samples: list[XRPLMemorySample]) -> XRPLMem
         avg_liquidity_decay=avg_liquidity_decay,
         avg_route_instability=avg_route_instability,
         avg_path_complexity=avg_path_complexity,
+        avg_routes_seen_count=avg_routes_seen_count,
         avg_latency_seconds=avg_latency_seconds,
         avg_competition_penalty=avg_competition_penalty,
         avg_low_fill_bias=avg_low_fill_bias,
@@ -213,9 +224,24 @@ def build_memory_samples(
         phantom_penalty = 0.0
         if data.requested_size > 0.0:
             phantom_penalty = _clamp_unit(phantom_liquidity / data.requested_size)
+        path_complexity = max(0, int(data.path_complexity))
+        phantom_penalty = _clamp_unit(
+            phantom_penalty
+            * (1.0 + (0.15 * max(0, path_complexity - 1)))
+            * (1.0 + (0.10 * max(0, routes_seen_count - 1)))
+        )
         simulated_fill_ratio = 0.0 if data.requested_size <= 0.0 else _clamp_unit(_finite_float(row.filled_size) / data.requested_size)
         observed_fill_ratio = 0.0 if data.requested_size <= 0.0 else _clamp_unit(data.observed_possible_fill / data.requested_size)
         low_fill_bias = _clamp_unit(max(0.0, simulated_fill_ratio - observed_fill_ratio))
+        competition_penalty = _clamp_unit(details.get("competition_penalty", 1.0 if low_fill_bias >= 0.30 else 0.0))
+        route_instability = _clamp_unit(details.get("route_instability", details.get("path_execution_risk", 0.0)))
+        route_instability = _clamp_unit(route_instability * (1.0 + (0.10 * max(0, routes_seen_count - 1))))
+        effective_fill_probability = _clamp_unit(
+            result.effective_fill_probability
+            * exp(-result.latency_seconds / 15.0)
+            * max(0.0, 1.0 - (0.08 * max(0, path_complexity - 1)))
+            * (1.0 - (competition_penalty * 0.5))
+        )
         samples.append(
             XRPLMemorySample(
                 token_id=token_id,
@@ -225,16 +251,16 @@ def build_memory_samples(
                 phantom_penalty=round(phantom_penalty, 6),
                 observed_possible_fill=round(data.observed_possible_fill, 6),
                 snapshot_derived_liquidity=round(data.snapshot_derived_liquidity, 6),
-                route_instability=_clamp_unit(details.get("route_instability", details.get("path_execution_risk", 0.0))),
-                path_complexity=max(0, int(data.path_complexity)),
+                route_instability=round(route_instability, 6),
+                path_complexity=path_complexity,
                 routes_seen_count=routes_seen_count,
                 ledger_delay=result.ledger_delay,
                 latency_seconds=result.latency_seconds,
-                competition_penalty=_clamp_unit(details.get("competition_penalty", 1.0 if low_fill_bias >= 0.30 else 0.0)),
+                competition_penalty=competition_penalty,
                 low_fill_bias=round(low_fill_bias, 6),
                 drift=result.price_drift,
                 drift_adjusted_ev=result.drift_adjusted_ev,
-                effective_fill_probability=result.effective_fill_probability,
+                effective_fill_probability=round(effective_fill_probability, 6),
                 observed_at=_utc(row.execution_time),
             )
         )

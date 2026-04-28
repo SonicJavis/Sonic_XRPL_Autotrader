@@ -30,6 +30,9 @@ class XRPLRegimeDetector:
 
         liquidity_illusion = aggregate.avg_phantom_penalty >= 0.45 and aggregate.avg_liquidity_decay <= 0.35
         route_unstable = aggregate.avg_route_instability >= 0.45 or aggregate.avg_path_complexity >= 2.0
+        path_failure_risk = aggregate.avg_path_complexity >= 3.0 and aggregate.avg_route_instability >= 0.5
+        liquidity_fragmentation = aggregate.avg_routes_seen_count >= 3.0 and aggregate.avg_low_fill_bias >= 0.25
+        issuer_risk_proxy = abs(aggregate.avg_drift) >= 0.08 and aggregate.execution_reliability <= 0.35
         competition_spike = aggregate.avg_competition_penalty >= 0.45 and aggregate.avg_low_fill_bias >= 0.25
         latency_dominated = aggregate.avg_latency_seconds >= 12.0
         drift_risk = aggregate.avg_drift_adjusted_ev < 0.0 and abs(aggregate.avg_drift) >= 0.05
@@ -39,6 +42,13 @@ class XRPLRegimeDetector:
             flags.append("PHANTOM_LIQUIDITY_PERSISTENT")
         if route_unstable:
             flags.append("PATHFINDING_UNSTABLE")
+        if path_failure_risk:
+            flags.append("PATH_FAILURE_RISK")
+            flags.append("ROUTING_INSTABILITY_CLUSTER")
+        if liquidity_fragmentation:
+            flags.append("LIQUIDITY_FRAGMENTATION")
+        if issuer_risk_proxy:
+            flags.append("ISSUER_RISK_PROXY")
         if competition_spike:
             flags.append("INVISIBLE_COMPETITION_SPIKE")
         if latency_dominated:
@@ -54,6 +64,9 @@ class XRPLRegimeDetector:
         elif liquidity_illusion:
             regime = "LIQUIDITY_ILLUSION"
             severity = max(severity, 0.85)
+        elif path_failure_risk:
+            regime = "ROUTE_UNSTABLE"
+            severity = max(severity, 0.82)
         elif competition_spike:
             regime = "COMPETITION_SPIKE"
             severity = max(severity, 0.80)
@@ -69,7 +82,17 @@ class XRPLRegimeDetector:
         else:
             severity = max(0.0, min(0.25, aggregate.regime_pressure_score))
 
-        severity = max(severity, aggregate.regime_pressure_score)
+        worst_case_amplification = max(
+            aggregate.regime_pressure_score,
+            aggregate.avg_phantom_penalty,
+            aggregate.avg_route_instability,
+            aggregate.avg_competition_penalty,
+            min(1.0, aggregate.avg_latency_seconds / 20.0),
+            min(1.0, aggregate.avg_path_complexity / 3.0),
+            min(1.0, abs(aggregate.avg_drift) * (1.0 + aggregate.avg_latency_seconds / 10.0)),
+            1.0 - aggregate.execution_reliability,
+        )
+        severity = max(severity, worst_case_amplification)
         return XRPLRegimeAssessment(
             regime=regime,
             severity_score=round(_clamp_unit(severity), 6),
