@@ -27,6 +27,7 @@ from app.db.models import (
     PositionExitFill,
     RiskDecisionRecord,
     RiskEvent,
+    ShadowDecisionRecord,
     Signal,
     WatchedToken,
     XRPLOrderbookSequence,
@@ -42,6 +43,7 @@ from app.calibration.xrpl_time_execution_model import XRPLTimeExecutionModel, bu
 from app.decision.xrpl_trade_gate import XRPLTradeGate
 from app.decision.xrpl_memory_weighting import XRPLMemoryWeighting, XRPLMemoryWeightingInput
 from app.feedback.feedback_aggregator import DecisionFeedbackAggregator
+from app.feedback.shadow_decision_tracker import ShadowDecisionTracker
 from app.live.dashboard_metrics import build_live_dashboard_metrics
 from app.risk.kill_switch import KillSwitch
 
@@ -77,6 +79,11 @@ def main() -> None:
         trades = session.exec(select(PaperTrade).order_by(PaperTrade.id.desc()).limit(50)).all()
         risk_decisions = session.exec(select(RiskDecisionRecord).order_by(RiskDecisionRecord.id.desc()).limit(50)).all()
         risk_events = session.exec(select(RiskEvent).order_by(RiskEvent.id.desc()).limit(50)).all()
+        shadow_decisions = session.exec(
+            select(ShadowDecisionRecord)
+            .order_by(ShadowDecisionRecord.observed_at.desc(), ShadowDecisionRecord.id.desc())
+            .limit(300)
+        ).all()
         perf_engine = PerformanceEngine(settings)
         perf_summary = perf_engine.summary(session)
         alpha_breakdown = perf_engine.alpha_breakdown(session)
@@ -260,6 +267,7 @@ def main() -> None:
         orderbook_snapshots=orderbook_snapshots,
     )
     decision_feedback = DecisionFeedbackAggregator().aggregate_from_executions(executions)
+    shadow_decision_summary = ShadowDecisionTracker().summarize(shadow_decisions)
     tokens_by_id = {int(token.id): token for token in tokens if token.id is not None}
     memory_samples = build_memory_samples(executions, tokens_by_id=tokens_by_id)
     memory_global = aggregate_global(memory_samples)
@@ -703,6 +711,51 @@ def main() -> None:
         )[:10],
         use_container_width=True,
     )
+
+    st.subheader("XRPL Continuous Shadow Loop")
+    st.warning("Shadow decisions are advisory only")
+    st.warning("No XRPL transaction is created or submitted")
+    st.warning("Observed liquidity is not executable truth")
+    st.warning("book_offers is snapshot-based only")
+    shadow_decision_rows = [
+        {
+            "id": int(row.id or 0),
+            "token_id": int(row.token_id),
+            "issuer": row.issuer,
+            "currency": row.currency,
+            "ledger_index": int(row.ledger_index),
+            "probability": float(row.memory_adjusted_probability),
+            "effective_size": float(row.memory_adjusted_effective_size),
+            "drift_adjusted_ev": float(row.drift_adjusted_ev),
+            "regime": row.regime,
+            "risk": row.advisory_risk_level,
+            "observed_at": row.observed_at,
+        }
+        for row in shadow_decisions
+    ]
+    sl1, sl2, sl3, sl4 = st.columns(4)
+    sl1.metric("Shadow Decisions", str(shadow_decision_summary.sample_count))
+    sl2.metric("Avg Memory Probability", f"{shadow_decision_summary.avg_memory_adjusted_probability:.3f}")
+    sl3.metric("Blocked Advisory Rate", f"{shadow_decision_summary.blocked_rate * 100:.1f}%")
+    sl4.metric("Avg Drift EV", f"{shadow_decision_summary.avg_drift_adjusted_ev:.3f}")
+    st.caption("Latest shadow decisions")
+    st.dataframe(shadow_decision_rows[:100], use_container_width=True)
+    if shadow_decision_rows:
+        st.line_chart(list(reversed(shadow_decision_rows[:100])), x="observed_at", y="probability", use_container_width=True)
+        st.bar_chart(
+            [{"regime": key, "count": value} for key, value in shadow_decision_summary.regime_distribution.items()],
+            x="regime",
+            y="count",
+            use_container_width=True,
+        )
+        st.bar_chart(
+            [{"risk_flag": key, "count": value} for key, value in shadow_decision_summary.risk_flag_counts.items()],
+            x="risk_flag",
+            y="count",
+            use_container_width=True,
+        )
+    else:
+        st.info("No continuous shadow decisions recorded yet.")
 
     st.subheader("XRPL Decision Quality – Ledger Aware")
     dq1, dq2, dq3, dq4 = st.columns(4)

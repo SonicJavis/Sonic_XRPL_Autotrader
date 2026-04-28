@@ -369,3 +369,28 @@ class CalibrationRecommendationSnapshot(SQLModel, table=True):
     )
     reasoning: str = ""
     created_at: datetime = Field(default_factory=utcnow)
+
+
+class ShadowDecisionRecord(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    token_id: int = Field(foreign_key="watchedtoken.id", index=True)
+    issuer: str = ""
+    currency: str = ""
+    observed_at: datetime = Field(default_factory=utcnow, index=True)
+    ledger_index: int = Field(default=0, index=True)
+
+    requested_size: float = 0.0
+    latency_path_probability: float = 0.0
+    memory_adjusted_probability: float = 0.0
+    effective_size: float = 0.0
+    memory_adjusted_effective_size: float = 0.0
+    uncertainty_adjusted_value: float = 0.0
+    drift_adjusted_ev: float = 0.0
+
+    regime: str = "STABLE_SHADOW"
+    advisory_risk_level: str = "LOW"
+    risk_flags_json: str = "[]"
+    calibration_snapshot_json: str = "{}"
+    is_shadow: bool = True
+    is_executable: bool = False
