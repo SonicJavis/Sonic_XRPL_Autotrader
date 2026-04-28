@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from sqlmodel import Session
 
 from app.alpha.engine import AlphaEngine
+from app.api.routes_calibration import router as calibration_router
 from app.api.routes_health import router as health_router
 from app.api.routes_market import router as market_router
 from app.api.routes_mode import router as mode_router
@@ -65,6 +66,7 @@ def create_app() -> FastAPI:
     app.include_router(trades_router)
     app.include_router(performance_router)
     app.include_router(positions_router)
+    app.include_router(calibration_router)
     return app
 
 
