@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
+import hashlib
 import json
 
 from sqlmodel import Session, select
@@ -74,6 +75,23 @@ class PnLAttributionEngine:
             out.append(row)
         return out
 
+    @staticmethod
+    def _slice_levels_checksum(slices: list[ExecutionFillSlice]) -> str:
+        payload = [
+            {
+                "id": int(s.id or 0),
+                "execution_id": int(s.execution_id),
+                "ledger_index": int(s.ledger_index),
+                "fill_status": str(s.fill_status),
+                "filled_size": float(s.filled_size),
+                "avg_price": (None if s.avg_price is None else float(s.avg_price)),
+                "fill_levels_json": list(s.fill_levels_json or []),
+            }
+            for s in slices
+        ]
+        encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
     def _create_fill_slices(
         self,
         session: Session,
@@ -125,10 +143,7 @@ class PnLAttributionEngine:
             remaining_fill -= slice_fill
 
             scale = 0.0 if filled_size <= 0 else max(0.0, min(1.0, slice_fill / filled_size))
-            if side.upper() == "BUY":
-                slice_price = (avg_fill_price or 0.0) * (1.0 + (0.0008 * i)) if avg_fill_price is not None else None
-            else:
-                slice_price = (avg_fill_price or 0.0) * max(0.0, 1.0 - (0.0008 * i)) if avg_fill_price is not None else None
+            slice_price = avg_fill_price
 
             slice_status = "UNFILLED" if slice_fill <= 1e-12 else ("FILLED" if is_last and remaining_fill <= 1e-12 else "PARTIAL")
             session.add(
@@ -300,6 +315,17 @@ class PnLAttributionEngine:
             inclusion_ledger=incl_ledger,
             inclusion_status=str(inclusion_status),
         )
+        session.commit()
+
+        created_slices = session.exec(
+            select(ExecutionFillSlice)
+            .where(ExecutionFillSlice.execution_id == (record.id or 0))
+            .order_by(ExecutionFillSlice.id.asc())
+        ).all()
+        details = json.loads(record.execution_details_json or "{}")
+        details["slice_levels_checksum"] = self._slice_levels_checksum(created_slices)
+        record.execution_details_json = json.dumps(details)
+        session.add(record)
         session.commit()
         session.refresh(record)
         return record
