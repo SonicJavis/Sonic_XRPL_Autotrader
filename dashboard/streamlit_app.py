@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import streamlit as st
 from sqlmodel import Session, select
 
@@ -33,6 +35,7 @@ from app.db.models import (
 from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.replay_engine import ReplayEngine
+from app.live.dashboard_metrics import build_live_dashboard_metrics
 from app.risk.kill_switch import KillSwitch
 
 
@@ -244,6 +247,25 @@ def main() -> None:
         execution_survival.append(max(0.0, min(1.0, 1.0 - compared.execution_survivability_error)))
 
     uncertainty_report = UncertaintyReportEngine().build(validation_samples)
+    live_dashboard = build_live_dashboard_metrics(executions=executions, orderbook_snapshots=orderbook_snapshots)
+    shadow_execution_rows = []
+    for row in executions:
+        try:
+            details = json.loads(str(row.execution_details_json or "{}"))
+        except json.JSONDecodeError:
+            details = {}
+        if bool(details.get("shadow")):
+            shadow_execution_rows.append(
+                {
+                    "execution_id": int(row.id or 0),
+                    "entry_ledger": int(details.get("entry_ledger", row.ledger_index_snapshot or 0)),
+                    "execution_ledger": int(row.ledger_index_execution or 0),
+                    "fill_status": row.fill_status,
+                    "filled_size": float(row.filled_size or 0.0),
+                    "disagreement_score": round(float(details.get("disagreement_score", 0.0)), 4),
+                    "path_execution_risk": round(float(details.get("path_execution_risk", 0.0)), 4),
+                }
+            )
 
     fail_in_real_rate = 0.0
     if calibration_samples:
@@ -284,10 +306,31 @@ def main() -> None:
         inclusion_uncertainty=min(1.0, max(0.0, 1.0 - avg_confidence)),
     )
 
-    st.subheader("Simulation vs Observed Disagreement")
+    st.subheader("Ledger Status")
+    ls1, ls2, ls3 = st.columns(3)
+    ls1.metric("Latest Ledger", str(live_dashboard.latest_ledger_index))
+    ls2.metric("Ledger Gaps", str(live_dashboard.ledger_gap_count))
+    ls3.metric("Path Risk", f"{live_dashboard.avg_path_execution_risk:.3f}")
+
+    st.subheader("Snapshot Age / Quality")
+    sq1, sq2 = st.columns(2)
+    sq1.metric("Snapshot Age ms", str(live_dashboard.snapshot_age_ms))
+    sq2.metric("Snapshot Quality", f"{live_dashboard.snapshot_quality_score:.3f}")
+
+    st.subheader("Shadow Executions (Ledger-Based)")
+    se1, se2 = st.columns(2)
+    se1.metric("Shadow Executions", str(live_dashboard.shadow_execution_count))
+    se2.metric("Shadow Fill Rate", f"{live_dashboard.shadow_fill_rate * 100:.1f}%")
+    st.dataframe(shadow_execution_rows[:50], use_container_width=True)
+
+    st.subheader("Disagreement Score (Live)")
     st.warning("OBSERVED LIQUIDITY MAY NOT EXECUTE")
     st.warning("SIMULATION MAY BE OVER-OPTIMISTIC")
     st.warning("NO GROUND TRUTH AVAILABLE")
+    st.warning("ORDERBOOK IS SNAPSHOT ONLY")
+    st.warning("EXECUTION OCCURS AT LEDGER CLOSE")
+    st.warning("LIQUIDITY MAY BE UNFUNDED")
+    st.warning("PATHFINDING MAY ALTER RESULTS")
 
     uncertainty_level = "HIGH"
     if uncertainty_report.disagreement_score >= 0.70:
@@ -296,7 +339,7 @@ def main() -> None:
         uncertainty_level = "MODERATE"
 
     s1, s2, s3, s4 = st.columns(4)
-    s1.metric("Disagreement Score", f"{uncertainty_report.disagreement_score:.3f}")
+    s1.metric("Disagreement Score", f"{max(uncertainty_report.disagreement_score, live_dashboard.live_disagreement_score):.3f}")
     s2.metric("Uncertainty Level", uncertainty_level)
     s3.metric("Simulator Within Bounds %", f"{uncertainty_report.simulator_within_bounds_rate * 100:.1f}%")
     s4.metric("Simulated Trades Likely To Fail (%)", f"{fail_in_real_rate * 100:.1f}%")
@@ -309,8 +352,12 @@ def main() -> None:
         "XRPL risk flags: " + ", ".join(f"{k}={v}" for k, v in sorted(xrpl_flag_counts.items(), key=lambda it: it[0]))
     )
 
-    st.caption("Execution bounds preview")
+    st.subheader("Execution Possibility Range")
     st.dataframe(execution_bounds_rows[:50], use_container_width=True)
+
+    st.subheader("XRPL Warnings")
+    st.caption("Observed liquidity is NOT guaranteed executable liquidity.")
+    st.caption("Shadow execution remains read-only and ledger-aligned.")
 
     st.subheader("Liquidity Decay Heatmap")
     heat_bins: dict[str, int] = {}
