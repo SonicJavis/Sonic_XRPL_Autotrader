@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     DEFAULT_TAKE_PROFIT_PCT: float = Field(default=20.0, ge=0)
 
     PAPER_STARTING_BALANCE_XRP: float = Field(default=1000.0, ge=0)
+    STARTING_PAPER_BALANCE_XRP: float = Field(default=1000.0, ge=0)
+    MAX_POSITION_XRP: float = Field(default=5.0, gt=0)
+    MAX_TOTAL_LOCKED_XRP: float = Field(default=20.0, gt=0)
+    MAX_CONCURRENT_POSITIONS: int = Field(default=3, ge=1)
 
     PERF_MONITOR_MINUTES: int = Field(default=15, ge=1)
     PERF_MAX_ACTUAL_SLIPPAGE_PCT: float = Field(default=8.0, ge=0)

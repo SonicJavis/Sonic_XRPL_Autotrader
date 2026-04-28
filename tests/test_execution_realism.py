@@ -9,6 +9,8 @@ from app.config import Settings
 from app.db.models import (
     AlphaCooldownRecord,
     AlphaSignal,
+    CapitalLedger,
+    CapitalReservation,
     ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
@@ -51,6 +53,8 @@ class FakeXRPLClient:
 
 
 def reset_tables() -> None:
+    CapitalReservation.__table__.drop(engine, checkfirst=True)
+    CapitalLedger.__table__.drop(engine, checkfirst=True)
     PaperTrade.__table__.drop(engine, checkfirst=True)
     PositionExitFill.__table__.drop(engine, checkfirst=True)
     ExecutionRecord.__table__.drop(engine, checkfirst=True)

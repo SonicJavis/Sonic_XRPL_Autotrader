@@ -16,6 +16,7 @@ from app.db.models import (
     ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
+    PaperTrade,
     PaperTradeOutcome,
     Position,
     PositionExitFill,
@@ -241,8 +242,10 @@ class ExecutionPipeline:
                 risk_eval = self.risk_manager.evaluate(
                     candidate,
                     RiskContext(
-                        open_positions=0,
-                        total_exposure_xrp=0.0,
+                        open_positions=len(session.exec(select(PaperTrade).where(PaperTrade.status == "OPEN")).all()),
+                        total_exposure_xrp=sum(
+                            float(t.size_xrp) for t in session.exec(select(PaperTrade).where(PaperTrade.status == "OPEN")).all()
+                        ),
                         daily_loss_xrp=0.0,
                         market_snapshot=MarketMetrics(
                             price_xrp=snapshot_payload["price_xrp"],
@@ -322,6 +325,35 @@ class ExecutionPipeline:
                     signal_time = self._normalize_utc(signal.created_at)
                     execution_time = signal_time + self._latency_delta()
 
+                    try:
+                        reservation = self.paper_executor.reserve_capital(
+                            session,
+                            signal_id=signal.id,
+                            issuer=candidate.issuer,
+                            currency=candidate.currency,
+                            requested_xrp=candidate.suggested_size_xrp,
+                        )
+                    except ValueError as exc:
+                        session.add(
+                            RiskEvent(
+                                event_type="CAPITAL_DENIAL",
+                                severity="WARN",
+                                reason=str(exc),
+                            )
+                        )
+                        session.commit()
+                        self._audit(
+                            session,
+                            request_id,
+                            "execution_skipped",
+                            {
+                                "signal_id": signal.id,
+                                "reason": str(exc),
+                                "snapshot_id": snapshot.id,
+                            },
+                        )
+                        continue
+
                     strict_fill = simulate_entry_buy(
                         asks=parsed.get("asks", []),
                         best_bid=float(parsed["best_bid"]["price"]) if parsed.get("best_bid") else 0.0,
@@ -397,6 +429,11 @@ class ExecutionPipeline:
                             execution_time=execution_time,
                         )
                     except ValueError as exc:
+                        self.paper_executor.release_reservation(
+                            session,
+                            reservation_id=reservation.id,
+                            reason="FAILED_INVALID_TIMING",
+                        )
                         session.add(
                             RiskEvent(
                                 event_type="EXECUTION_INVALID_TIMING",
@@ -418,6 +455,12 @@ class ExecutionPipeline:
                         continue
 
                     if reason_closed is not None:
+                        self.paper_executor.settle_entry_fill(
+                            session,
+                            reservation_id=reservation.id,
+                            filled_xrp=0.0,
+                            failure_reason=reason_closed,
+                        )
                         outcome.exit_time = execution_time
                         outcome.exit_price = None
                         outcome.pnl_xrp = 0.0
@@ -456,7 +499,29 @@ class ExecutionPipeline:
                         )
                         continue
 
-                    trade = self.paper_executor.open_trade(session, candidate, entry_price_xrp=entry_price)
+                    settled = self.paper_executor.settle_entry_fill(
+                        session,
+                        reservation_id=reservation.id,
+                        filled_xrp=filled_size,
+                        failure_reason=strict_fill.failure_reason,
+                    )
+
+                    if settled.deployed_xrp <= 0:
+                        outcome.reason_closed = "ENTRY_FAILED"
+                        outcome.failure_reason = outcome.failure_reason or "NO_DEPLOYED_CAPITAL"
+                        outcome.exit_time = execution_time
+                        outcome.pnl_xrp = 0.0
+                        session.add(outcome)
+                        session.commit()
+                        continue
+
+                    trade = self.paper_executor.open_trade(
+                        session,
+                        candidate,
+                        entry_price_xrp=entry_price,
+                        size_xrp=settled.deployed_xrp,
+                        reservation_id=settled.id,
+                    )
                     executed.append(trade.id)
 
                     pos = self.pnl_attribution.create_position_from_entry(

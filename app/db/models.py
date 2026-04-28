@@ -82,9 +82,34 @@ class PaperTrade(SQLModel, table=True):
     exit_price_xrp: float | None = None
     size_xrp: float
     pnl_xrp: float = 0.0
+    capital_reservation_id: int | None = Field(default=None, foreign_key="capitalreservation.id")
     status: str = "OPEN"
     opened_at: datetime = Field(default_factory=utcnow)
     closed_at: datetime | None = None
+
+
+class CapitalLedger(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    available_balance_xrp: float
+    locked_balance_xrp: float = 0.0
+    total_balance_xrp: float
+    created_at: datetime = Field(default_factory=utcnow)
+    updated_at: datetime = Field(default_factory=utcnow)
+
+
+class CapitalReservation(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    signal_id: int | None = Field(default=None, foreign_key="signal.id", index=True)
+    issuer: str
+    currency: str
+    reserved_xrp: float
+    deployed_xrp: float = 0.0
+    released_xrp: float = 0.0
+    status: str = "ACTIVE"
+    failure_reason: str | None = None
+    trade_id: int | None = Field(default=None, foreign_key="papertrade.id")
+    created_at: datetime = Field(default_factory=utcnow)
+    updated_at: datetime = Field(default_factory=utcnow)
 
 
 class PaperTradeOutcome(SQLModel, table=True):
