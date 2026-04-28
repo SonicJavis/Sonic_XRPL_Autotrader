@@ -4,6 +4,9 @@ import streamlit as st
 from sqlmodel import Session, select
 
 from app.alpha.performance_engine import PerformanceEngine
+from app.calibration.fundedness_proxy import FundednessProxy
+from app.calibration.recommendation_engine import CalibrationErrorSample, ConfidenceWeightedCalibrationEngine
+from app.calibration.temporal_comparison import compare_simulation_vs_sequence
 from app.config import Settings
 from app.db.models import (
     AlphaSignal,
@@ -19,6 +22,8 @@ from app.db.models import (
     RiskEvent,
     Signal,
     WatchedToken,
+    XRPLOrderbookSequence,
+    XRPLOrderbookSnapshot,
 )
 from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
@@ -50,6 +55,8 @@ def main() -> None:
         outcomes = session.exec(select(PaperTradeOutcome).order_by(PaperTradeOutcome.id.desc()).limit(200)).all()
         positions = session.exec(select(Position).order_by(Position.entry_time.desc()).limit(200)).all()
         executions = session.exec(select(ExecutionRecord).order_by(ExecutionRecord.id.desc()).limit(300)).all()
+        orderbook_sequences = session.exec(select(XRPLOrderbookSequence).order_by(XRPLOrderbookSequence.id.desc()).limit(300)).all()
+        orderbook_snapshots = session.exec(select(XRPLOrderbookSnapshot).order_by(XRPLOrderbookSnapshot.id.desc()).limit(1200)).all()
         fill_slices = session.exec(select(ExecutionFillSlice).order_by(ExecutionFillSlice.id.desc()).limit(800)).all()
         exit_fills = session.exec(select(PositionExitFill).order_by(PositionExitFill.id.desc()).limit(300)).all()
         trades = session.exec(select(PaperTrade).order_by(PaperTrade.id.desc()).limit(50)).all()
@@ -99,6 +106,99 @@ def main() -> None:
     h2.metric("Unrealized PnL (XRP)", unrealized_label)
     exit_success = sum(1 for row in positions if row.status == "CLOSED")
     h3.metric("Exit Success Rate", f"{(exit_success / max(1, len(positions))) * 100:.1f}%")
+
+    snapshots_by_token: dict[int, list[XRPLOrderbookSnapshot]] = {}
+    for snap in orderbook_snapshots:
+        snapshots_by_token.setdefault(int(snap.token_id), []).append(snap)
+    for token_snaps in snapshots_by_token.values():
+        token_snaps.sort(key=lambda s: int(s.ledger_index))
+
+    calibration_samples: list[CalibrationErrorSample] = []
+    execution_survival: list[float] = []
+    for row in executions:
+        token_snaps = snapshots_by_token.get(int(row.token_id), [])
+        lower = min(int(row.ledger_index_snapshot), int(row.ledger_index_inclusion))
+        upper = max(int(row.ledger_index_snapshot), int(row.ledger_index_inclusion))
+        sequence = [s for s in token_snaps if lower <= int(s.ledger_index) <= upper][:64]
+        compared = compare_simulation_vs_sequence(execution=row, sequence=sequence)
+        calibration_samples.append(
+            CalibrationErrorSample(
+                execution_survivability_error=compared.execution_survivability_error,
+                slippage_underestimation=compared.slippage_underestimation,
+                depth_overestimation=compared.depth_overestimation,
+                latency_miss_error=compared.latency_miss_error,
+            )
+        )
+        execution_survival.append(max(0.0, min(1.0, 1.0 - compared.execution_survivability_error)))
+
+    fail_in_real_rate = 0.0
+    if calibration_samples:
+        fail_in_real_rate = (
+            sum(1 for s in calibration_samples if s.execution_survivability_error >= 0.25) / len(calibration_samples)
+        )
+
+    if executions:
+        sample_snapshots = orderbook_snapshots[: min(200, len(orderbook_snapshots))]
+        fundedness = FundednessProxy().evaluate(sample_snapshots).fundedness_confidence
+    else:
+        fundedness = 0.0
+
+    avg_volatility = (
+        sum(float(seq.volatility_score) for seq in orderbook_sequences) / len(orderbook_sequences)
+        if orderbook_sequences
+        else 1.0
+    )
+    sequence_stability = max(0.0, min(1.0, 1.0 - avg_volatility))
+    recommendation = ConfidenceWeightedCalibrationEngine().recommend(
+        samples=calibration_samples,
+        fundedness_confidence=fundedness,
+        sequence_stability=sequence_stability,
+    )
+
+    st.subheader("Simulator vs Reality")
+    s1, s2, s3 = st.columns(3)
+    s1.metric("Simulated Trades Likely To Fail (%)", f"{fail_in_real_rate * 100:.1f}%")
+    s2.metric(
+        "Avg Survivability Error",
+        f"{(sum(s.execution_survivability_error for s in calibration_samples) / max(1, len(calibration_samples))):.3f}",
+    )
+    s3.metric(
+        "Avg Slippage Underestimation",
+        f"{(sum(s.slippage_underestimation for s in calibration_samples) / max(1, len(calibration_samples))):.3f}",
+    )
+
+    st.subheader("Liquidity Decay Heatmap")
+    heat_bins: dict[str, int] = {}
+    for seq in orderbook_sequences:
+        decay_bucket = min(4, int(float(seq.decay_score) * 5.0))
+        vol_bucket = min(4, int(float(seq.volatility_score) * 5.0))
+        key = f"d{decay_bucket}-v{vol_bucket}"
+        heat_bins[key] = heat_bins.get(key, 0) + 1
+    heat_rows = [{"bucket": k, "count": v} for k, v in sorted(heat_bins.items(), key=lambda it: it[0])]
+    if heat_rows:
+        st.bar_chart(heat_rows, x="bucket", y="count", use_container_width=True)
+    else:
+        st.info("No sequence data available yet.")
+
+    st.subheader("Execution Survival Rate")
+    if execution_survival:
+        st.metric("Average Survival Rate", f"{(sum(execution_survival) / len(execution_survival)) * 100:.1f}%")
+        survival_series = [{"idx": idx, "survival": val} for idx, val in enumerate(reversed(execution_survival), start=1)]
+        st.line_chart(survival_series, x="idx", y="survival", use_container_width=True)
+    else:
+        st.metric("Average Survival Rate", "0.0%")
+
+    st.subheader("Calibration Confidence")
+    if recommendation is None:
+        st.metric("Confidence Score", "LOW")
+        st.caption("Insufficient evidence for a safe conservative recommendation.")
+    else:
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Confidence Score", f"{recommendation.confidence_score:.3f}")
+        c2.metric("Queue Haircut %", f"{recommendation.queue_haircut_pct * 100:.1f}%")
+        c3.metric("Drift Haircut %", f"{recommendation.drift_haircut_pct * 100:.1f}%")
+        c4.metric("Latency ms", str(recommendation.latency_ms))
+        st.caption(recommendation.reasoning)
 
     st.subheader("Registered Tokens")
     st.dataframe([t.model_dump() for t in tokens], use_container_width=True)
