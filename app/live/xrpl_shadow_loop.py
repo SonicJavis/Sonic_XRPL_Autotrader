@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
+from datetime import datetime
 from math import isfinite
 
 from app.calibration.xrpl_memory_model import XRPLMemoryAggregate
@@ -11,6 +13,8 @@ from app.db.models import ShadowDecisionRecord
 from app.decision.xrpl_memory_weighting import XRPLMemoryWeighting, XRPLMemoryWeightingInput, XRPLMemoryWeightingResult
 from app.decision.xrpl_trade_gate import XRPLTradeGate, XRPLTradeGateDecision, XRPLTradeGateInput
 from app.live.shadow_snapshot_source import ShadowSnapshotInput, ShadowSnapshotSource
+
+logger = logging.getLogger(__name__)
 
 
 def _finite_float(raw: object, *, default: float = 0.0) -> float:
@@ -68,7 +72,25 @@ class XRPLShadowLoop:
         if snapshot is None:
             return XRPLShadowTickResult(stored=False, record=None, reason="NO_SNAPSHOT_AVAILABLE")
         record = self.build_shadow_decision(snapshot)
+        if not self._is_valid_record(record):
+            logger.info(
+                "shadow_tick_rejected token_id=%s regime=%s probability=%.6f blocked=%s",
+                record.token_id,
+                record.regime,
+                record.memory_adjusted_probability,
+                True,
+            )
+            return XRPLShadowTickResult(stored=False, record=None, reason="INVALID_SHADOW_RECORD")
         persisted = self.persist_shadow_decision(record)
+        logger.info(
+            "shadow_tick token_id=%s regime=%s probability=%.6f blocked=%s",
+            persisted.token_id,
+            persisted.regime,
+            persisted.memory_adjusted_probability,
+            persisted.memory_adjusted_probability <= 0.0
+            or persisted.memory_adjusted_effective_size <= 0.0
+            or persisted.drift_adjusted_ev <= 0.0,
+        )
         return XRPLShadowTickResult(stored=True, record=persisted, reason="STORED")
 
     def run_n_ticks(self, n: int) -> list[XRPLShadowTickResult]:
@@ -132,11 +154,30 @@ class XRPLShadowLoop:
         return self._record_from_outputs(snapshot, aggregate, regime, weighting, decision, time_result)
 
     def persist_shadow_decision(self, record: ShadowDecisionRecord) -> ShadowDecisionRecord:
+        if not self._is_valid_record(record):
+            raise ValueError("invalid shadow decision record")
         with self.session_factory() as session:
             session.add(record)
             session.commit()
             session.refresh(record)
             return record
+
+    def _is_valid_record(self, record: ShadowDecisionRecord) -> bool:
+        if int(record.token_id or 0) <= 0:
+            return False
+        if not isinstance(record.observed_at, datetime):
+            return False
+        metrics = [
+            _finite_float(record.latency_path_probability),
+            _finite_float(record.memory_adjusted_probability),
+            _finite_float(record.effective_size),
+            _finite_float(record.memory_adjusted_effective_size),
+            _finite_float(record.uncertainty_adjusted_value),
+            _finite_float(record.drift_adjusted_ev),
+        ]
+        if any(not isfinite(value) for value in metrics):
+            return False
+        return any(abs(value) > 0.0 for value in metrics)
 
     def _aggregate_from_tick(self, snapshot: ShadowSnapshotInput, time_result: XRPLTimeExecutionResult) -> XRPLMemoryAggregate:
         liquidity_decay = (
