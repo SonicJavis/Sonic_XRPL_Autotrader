@@ -5,6 +5,7 @@ from sqlmodel import Session, select
 
 from app.alpha.performance_engine import PerformanceEngine
 from app.calibration.fundedness_proxy import FundednessProxy
+from app.calibration.regime_classifier import RegimeClassificationInput, XRPLRegimeClassifier
 from app.calibration.recommendation_engine import CalibrationErrorSample, ConfidenceWeightedCalibrationEngine
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
 from app.config import Settings
@@ -115,6 +116,15 @@ def main() -> None:
 
     calibration_samples: list[CalibrationErrorSample] = []
     execution_survival: list[float] = []
+    classified_regimes: list[str] = []
+    classified_confidences: list[float] = []
+    xrpl_flag_counts: dict[str, int] = {
+        "possible_unfunded_liquidity": 0,
+        "pathfinding_risk": 0,
+        "inclusion_uncertainty": 0,
+        "depth_illusion_risk": 0,
+    }
+    regime_classifier = XRPLRegimeClassifier()
     for row in executions:
         token_snaps = snapshots_by_token.get(int(row.token_id), [])
         lower = min(int(row.ledger_index_snapshot), int(row.ledger_index_inclusion))
@@ -129,6 +139,42 @@ def main() -> None:
                 latency_miss_error=compared.latency_miss_error,
             )
         )
+
+        avg_depth = (
+            sum((float(s.bid_depth_xrp) + float(s.ask_depth_xrp)) for s in sequence) / max(1, len(sequence))
+            if sequence
+            else 0.0
+        )
+        visible_depth_score = max(0.0, min(1.0, avg_depth / 1200.0))
+        token_sequences = [seq for seq in orderbook_sequences if int(seq.token_id) == int(row.token_id)]
+        token_volatility = (
+            sum(float(seq.volatility_score) for seq in token_sequences) / max(1, len(token_sequences))
+            if token_sequences
+            else 1.0
+        )
+        token_decay = (
+            sum(float(seq.decay_score) for seq in token_sequences) / max(1, len(token_sequences))
+            if token_sequences
+            else 1.0
+        )
+        classified = regime_classifier.classify(
+            metrics=RegimeClassificationInput(
+                visible_depth_score=visible_depth_score,
+                execution_survivability_error=compared.execution_survivability_error,
+                slippage_underestimation=compared.slippage_underestimation,
+                depth_overestimation=compared.depth_overestimation,
+                volatility_score=token_volatility,
+                decay_score=token_decay,
+                wall_flicker_rate=0.0,
+                inclusion_uncertainty=max(0.0, min(1.0, compared.latency_miss_error)),
+            )
+        )
+        classified_regimes.append(classified.regime)
+        classified_confidences.append(classified.confidence)
+        for flag_name, flag_enabled in classified.xrpl_flags.items():
+            if flag_enabled:
+                xrpl_flag_counts[flag_name] = xrpl_flag_counts.get(flag_name, 0) + 1
+
         execution_survival.append(max(0.0, min(1.0, 1.0 - compared.execution_survivability_error)))
 
     fail_in_real_rate = 0.0
@@ -149,13 +195,32 @@ def main() -> None:
         else 1.0
     )
     sequence_stability = max(0.0, min(1.0, 1.0 - avg_volatility))
+
+    dominant_regime = "UNKNOWN"
+    if classified_regimes:
+        dominant_regime = max(set(classified_regimes), key=classified_regimes.count)
+    avg_confidence = 0.0 if not classified_confidences else (sum(classified_confidences) / len(classified_confidences))
+    severity = "HIGH"
+    if fail_in_real_rate >= 0.70:
+        severity = "CRITICAL"
+    elif fail_in_real_rate < 0.40:
+        severity = "MEDIUM"
+
     recommendation = ConfidenceWeightedCalibrationEngine().recommend(
         samples=calibration_samples,
         fundedness_confidence=fundedness,
         sequence_stability=sequence_stability,
+        confidence_floor_threshold=0.45,
+        regime=dominant_regime,
+        xrpl_risk_flags={k: (v > 0) for k, v in xrpl_flag_counts.items()},
+        inclusion_uncertainty=min(1.0, max(0.0, 1.0 - avg_confidence)),
     )
 
     st.subheader("Simulator vs Reality")
+    st.warning("ORDERBOOK MAY NOT BE FUNDED")
+    st.warning("DEPTH MAY BE NON-EXECUTABLE")
+    st.warning("XRPL PATHFINDING MAY DISTORT FILLS")
+
     s1, s2, s3 = st.columns(3)
     s1.metric("Simulated Trades Likely To Fail (%)", f"{fail_in_real_rate * 100:.1f}%")
     s2.metric(
@@ -165,6 +230,13 @@ def main() -> None:
     s3.metric(
         "Avg Slippage Underestimation",
         f"{(sum(s.slippage_underestimation for s in calibration_samples) / max(1, len(calibration_samples))):.3f}",
+    )
+    s4, s5, s6 = st.columns(3)
+    s4.metric("Regime", dominant_regime)
+    s5.metric("Severity", severity)
+    s6.metric("Confidence", f"{avg_confidence:.3f}")
+    st.caption(
+        "XRPL risk flags: " + ", ".join(f"{k}={v}" for k, v in sorted(xrpl_flag_counts.items(), key=lambda it: it[0]))
     )
 
     st.subheader("Liquidity Decay Heatmap")
