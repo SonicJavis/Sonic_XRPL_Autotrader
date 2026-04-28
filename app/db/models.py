@@ -342,3 +342,30 @@ class XRPLOrderbookSequence(SQLModel, table=True):
     volatility_score: float
     collapse_events: int
     created_at: datetime = Field(default_factory=utcnow)
+
+
+class CalibrationRecommendationSnapshot(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    recommendation_version: int = 1
+    regime: str = "UNKNOWN"
+    severity: str = "HIGH"
+    confidence_score: float = 0.0
+    confidence_floor_threshold: float = 0.4
+
+    queue_haircut_pct: float
+    drift_haircut_pct: float
+    latency_ms: int
+    snapshot_max_age_ms: int
+
+    xrpl_risk_flags_json: dict[str, bool] = Field(
+        default_factory=lambda: {
+            "possible_unfunded_liquidity": True,
+            "pathfinding_risk": True,
+            "inclusion_uncertainty": True,
+            "depth_illusion_risk": True,
+        },
+        sa_column=Column(JSON),
+    )
+    reasoning: str = ""
+    created_at: datetime = Field(default_factory=utcnow)
