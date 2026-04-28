@@ -36,6 +36,7 @@ from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.replay_engine import ReplayEngine
 from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
+from app.decision.xrpl_trade_gate import XRPLTradeGate
 from app.live.dashboard_metrics import build_live_dashboard_metrics
 from app.risk.kill_switch import KillSwitch
 
@@ -467,6 +468,100 @@ def main() -> None:
     st.caption(
         f"Expected slippage multiplier: {xrpl_shadow_calibration.calibration.recommendations.expected_slippage_multiplier:.3f}; "
         f"Execution probability floor: {xrpl_shadow_calibration.calibration.recommendations.execution_probability_floor:.3f}"
+    )
+
+    st.subheader("XRPL Trade Gate – Advisory Only")
+    st.warning("XRPL liquidity is not guaranteed executable")
+    st.warning("Paths may change between ledgers")
+    st.warning("Observed fill is probabilistic")
+
+    shadow_requested_default = 100.0
+    if shadow_execution_rows:
+        shadow_requested_default = float(shadow_execution_rows[0].get("filled_size", 100.0) or 100.0)
+        shadow_requested_default = max(1.0, shadow_requested_default)
+    gate_requested_size = float(
+        st.number_input("Advisory Requested Size", min_value=0.0, value=shadow_requested_default, step=10.0)
+    )
+    gate_expected_profit = float(
+        st.number_input("Advisory Expected Profit", value=max(1.0, gate_requested_size * 0.05), step=1.0)
+    )
+    gate_expected_loss = float(
+        st.number_input("Advisory Expected Loss", min_value=0.0, value=max(1.0, gate_requested_size * 0.03), step=1.0)
+    )
+
+    gate_fill_probability = max(
+        0.0,
+        min(
+            1.0,
+            xrpl_shadow_calibration.calibration.fill_reliability.lower_bound
+            * (1.0 - xrpl_shadow_calibration.route_instability_avg)
+            * (1.0 - xrpl_shadow_calibration.competition_failure_rate)
+            * (2.718281828459045 ** (-xrpl_shadow_calibration.ledger_delay_error_avg)),
+        ),
+    )
+    gate_adjusted_slippage = (
+        xrpl_shadow_calibration.calibration.recommendations.expected_slippage_multiplier
+        * (1.0 + xrpl_shadow_calibration.route_instability_avg)
+        * (1.0 + xrpl_shadow_calibration.competition_failure_rate)
+    )
+    gate_adjusted_ev = (
+        gate_fill_probability * gate_expected_profit
+        - ((1.0 - gate_fill_probability) * gate_expected_loss)
+        - (gate_adjusted_slippage * gate_requested_size * 0.01)
+    )
+    gate_decision = XRPLTradeGate().evaluate_trade(
+        requested_size=gate_requested_size,
+        effective_size=(
+            gate_requested_size
+            * (1.0 - xrpl_shadow_calibration.calibration.recommendations.liquidity_haircut)
+            * (1.0 - xrpl_shadow_calibration.phantom_penalty_avg)
+            * gate_fill_probability
+        ),
+        adjusted_execution_probability=gate_fill_probability,
+        uncertainty_adjusted_value=gate_adjusted_ev,
+        threshold=0.0,
+        slippage_multiplier=gate_adjusted_slippage,
+        liquidity_haircut=xrpl_shadow_calibration.calibration.recommendations.liquidity_haircut,
+        phantom_penalty=xrpl_shadow_calibration.phantom_penalty_avg,
+        route_instability=xrpl_shadow_calibration.route_instability_avg,
+        competition_penalty=xrpl_shadow_calibration.competition_failure_rate,
+    )
+
+    tg1, tg2, tg3, tg4 = st.columns(4)
+    tg1.metric("Allow Trade", "YES" if gate_decision.allow_trade else "NO")
+    tg2.metric("Execution Probability", f"{gate_decision.adjusted_execution_probability:.3f}")
+    tg3.metric("Effective Size", f"{gate_decision.effective_size:.3f}")
+    tg4.metric("Adjusted EV", f"{gate_decision.uncertainty_adjusted_value:.3f}")
+
+    tr1, tr2, tr3, tr4 = st.columns(4)
+    tr1.metric("Phantom Penalty", f"{xrpl_shadow_calibration.phantom_penalty_avg:.3f}")
+    tr2.metric("Route Instability", f"{xrpl_shadow_calibration.route_instability_avg:.3f}")
+    tr3.metric("Competition Penalty", f"{xrpl_shadow_calibration.competition_failure_rate:.3f}")
+    tr4.metric("Ledger Delay Error", f"{xrpl_shadow_calibration.ledger_delay_error_avg:.3f}")
+
+    st.caption("Advisory risk flags: " + (", ".join(gate_decision.risk_flags) if gate_decision.risk_flags else "none"))
+    st.progress(max(0.0, min(1.0, gate_decision.adjusted_execution_probability)))
+    st.bar_chart(
+        [
+            {"label": "requested_size", "value": gate_requested_size},
+            {"label": "effective_size", "value": gate_decision.effective_size},
+        ],
+        x="label",
+        y="value",
+        use_container_width=True,
+    )
+    gate_base_ev = (
+        xrpl_shadow_calibration.calibration.fill_reliability.lower_bound * gate_expected_profit
+        - ((1.0 - xrpl_shadow_calibration.calibration.fill_reliability.lower_bound) * gate_expected_loss)
+    )
+    st.bar_chart(
+        [
+            {"label": "ev_before_adjustment", "value": gate_base_ev},
+            {"label": "ev_after_adjustment", "value": gate_decision.uncertainty_adjusted_value},
+        ],
+        x="label",
+        y="value",
+        use_container_width=True,
     )
 
     st.subheader("Registered Tokens")
