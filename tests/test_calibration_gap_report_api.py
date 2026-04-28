@@ -47,6 +47,10 @@ def test_gap_report_empty_is_safe() -> None:
     assert body["sample_size"] == 0
     assert body["avg_execution_survivability_error"] == 0.0
     assert body["simulated_fail_in_real_rate"] == 0.0
+    assert body["depth_illusion_rate"] == 0.0
+    assert body["path_distortion_rate"] == 0.0
+    assert body["fundedness_uncertainty_score"] >= 0.0
+    assert body["ledger_delay_error"] == 0.0
 
 
 def test_gap_report_returns_aggregates() -> None:
@@ -138,3 +142,7 @@ def test_gap_report_returns_aggregates() -> None:
     assert body["avg_decay_score"] > 0.0
     assert body["avg_volatility_score"] > 0.0
     assert body["collapse_events_total"] >= 1
+    assert "depth_illusion_rate" in body
+    assert "path_distortion_rate" in body
+    assert "fundedness_uncertainty_score" in body
+    assert "ledger_delay_error" in body
