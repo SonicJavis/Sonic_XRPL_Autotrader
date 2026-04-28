@@ -9,6 +9,10 @@ from app.calibration.regime_classifier import RegimeClassificationInput, XRPLReg
 from app.calibration.recommendation_engine import CalibrationErrorSample, ConfidenceWeightedCalibrationEngine
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
 from app.config import Settings
+from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
+from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
+from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
+from app.validation.report_engine import UncertaintyReportEngine, ValidationSample
 from app.db.models import (
     AlphaSignal,
     ExecutionFillSlice,
@@ -118,6 +122,8 @@ def main() -> None:
     execution_survival: list[float] = []
     classified_regimes: list[str] = []
     classified_confidences: list[float] = []
+    validation_samples: list[ValidationSample] = []
+    execution_bounds_rows: list[dict[str, float | int | str]] = []
     xrpl_flag_counts: dict[str, int] = {
         "possible_unfunded_liquidity": 0,
         "pathfinding_risk": 0,
@@ -139,6 +145,19 @@ def main() -> None:
                 latency_miss_error=compared.latency_miss_error,
             )
         )
+
+        obs_samples = [
+            ObservationSample(
+                bid_depth_xrp=float(s.bid_depth_xrp),
+                ask_depth_xrp=float(s.ask_depth_xrp),
+                spread_pct=float(s.spread_pct),
+                best_bid=float(s.best_bid),
+                best_ask=float(s.best_ask),
+                implied_mid_price=(float(s.best_bid) + float(s.best_ask)) / 2.0,
+            )
+            for s in sequence
+        ]
+        observation = ObservationUncertaintyModel().evaluate(obs_samples)
 
         avg_depth = (
             sum((float(s.bid_depth_xrp) + float(s.ask_depth_xrp)) for s in sequence) / max(1, len(sequence))
@@ -175,7 +194,56 @@ def main() -> None:
             if flag_enabled:
                 xrpl_flag_counts[flag_name] = xrpl_flag_counts.get(flag_name, 0) + 1
 
+        bounds = ExecutionBoundsModel().compute(
+            data=ExecutionBoundsInput(
+                total_visible_depth_xrp=sum(float(s.ask_depth_xrp) for s in sequence),
+                requested_size_xrp=float(row.requested_size or 0.0),
+                depth_uncertainty=max(0.0, min(1.0, 1.0 - observation.depth_reliability_score)),
+                fundedness_uncertainty=observation.fundedness_uncertainty,
+                decay_rate=token_decay,
+                regime=classified.regime,
+            ),
+            simulator_fill_size_xrp=float(row.filled_size or 0.0),
+        )
+
+        sim_fill_ratio = (
+            0.0
+            if float(row.requested_size or 0.0) <= 0
+            else min(1.0, float(row.filled_size or 0.0) / float(row.requested_size or 1.0))
+        )
+        dual = DualErrorEngine().evaluate(
+            DualErrorInput(
+                simulator_fillable=float(row.filled_size or 0.0) > 0.0,
+                simulator_fill_ratio=sim_fill_ratio,
+                observed_depth_present=bool(sequence and any(float(s.ask_depth_xrp) > 0 for s in sequence)),
+                observation_confidence=observation.observation_confidence,
+                observed_fill_probability=bounds.fill_probability_range[1],
+            )
+        )
+
+        validation_samples.append(
+            ValidationSample(
+                token_key=f"token:{row.token_id}",
+                disagreement_score=dual.disagreement_score,
+                false_confidence_flag=dual.false_confidence_flag,
+                observation_confidence=observation.observation_confidence,
+                simulator_within_bounds=bounds.simulator_within_bounds,
+            )
+        )
+
+        execution_bounds_rows.append(
+            {
+                "execution_id": int(row.id or 0),
+                "min_fill": round(bounds.min_executable_size, 4),
+                "max_fill": round(bounds.max_possible_fill, 4),
+                "confidence": round(bounds.confidence, 4),
+                "within_bounds": "YES" if bounds.simulator_within_bounds else "NO",
+            }
+        )
+
         execution_survival.append(max(0.0, min(1.0, 1.0 - compared.execution_survivability_error)))
+
+    uncertainty_report = UncertaintyReportEngine().build(validation_samples)
 
     fail_in_real_rate = 0.0
     if calibration_samples:
@@ -216,28 +284,33 @@ def main() -> None:
         inclusion_uncertainty=min(1.0, max(0.0, 1.0 - avg_confidence)),
     )
 
-    st.subheader("Simulator vs Reality")
-    st.warning("ORDERBOOK MAY NOT BE FUNDED")
-    st.warning("DEPTH MAY BE NON-EXECUTABLE")
-    st.warning("XRPL PATHFINDING MAY DISTORT FILLS")
+    st.subheader("Simulation vs Observed Disagreement")
+    st.warning("OBSERVED LIQUIDITY MAY NOT EXECUTE")
+    st.warning("SIMULATION MAY BE OVER-OPTIMISTIC")
+    st.warning("NO GROUND TRUTH AVAILABLE")
 
-    s1, s2, s3 = st.columns(3)
-    s1.metric("Simulated Trades Likely To Fail (%)", f"{fail_in_real_rate * 100:.1f}%")
-    s2.metric(
-        "Avg Survivability Error",
-        f"{(sum(s.execution_survivability_error for s in calibration_samples) / max(1, len(calibration_samples))):.3f}",
-    )
-    s3.metric(
-        "Avg Slippage Underestimation",
-        f"{(sum(s.slippage_underestimation for s in calibration_samples) / max(1, len(calibration_samples))):.3f}",
-    )
-    s4, s5, s6 = st.columns(3)
-    s4.metric("Regime", dominant_regime)
-    s5.metric("Severity", severity)
-    s6.metric("Confidence", f"{avg_confidence:.3f}")
+    uncertainty_level = "HIGH"
+    if uncertainty_report.disagreement_score >= 0.70:
+        uncertainty_level = "SEVERE"
+    elif uncertainty_report.disagreement_score <= 0.30 and uncertainty_report.observation_confidence_avg >= 0.55:
+        uncertainty_level = "MODERATE"
+
+    s1, s2, s3, s4 = st.columns(4)
+    s1.metric("Disagreement Score", f"{uncertainty_report.disagreement_score:.3f}")
+    s2.metric("Uncertainty Level", uncertainty_level)
+    s3.metric("Simulator Within Bounds %", f"{uncertainty_report.simulator_within_bounds_rate * 100:.1f}%")
+    s4.metric("Simulated Trades Likely To Fail (%)", f"{fail_in_real_rate * 100:.1f}%")
+
+    s5, s6, s7 = st.columns(3)
+    s5.metric("Regime", dominant_regime)
+    s6.metric("Severity", severity)
+    s7.metric("Observation Confidence", f"{uncertainty_report.observation_confidence_avg:.3f}")
     st.caption(
         "XRPL risk flags: " + ", ".join(f"{k}={v}" for k, v in sorted(xrpl_flag_counts.items(), key=lambda it: it[0]))
     )
+
+    st.caption("Execution bounds preview")
+    st.dataframe(execution_bounds_rows[:50], use_container_width=True)
 
     st.subheader("Liquidity Decay Heatmap")
     heat_bins: dict[str, int] = {}
