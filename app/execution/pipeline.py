@@ -138,6 +138,10 @@ class ExecutionPipeline:
                     execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
                     max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
                     liquidity_haircut_pct=self.settings.EXECUTION_QUEUE_HAIRCUT_PCT,
+                    latency_haircut_pct=self.settings.EXECUTION_LATENCY_HAIRCUT_PCT,
+                    contention_haircut_pct=self.settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
+                    trustline_liquidity_discount_pct=self.settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
+                    ledger_drift_pct=self.settings.EXECUTION_LEDGER_DRIFT_PCT,
                     min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
                     max_levels=self.settings.EXECUTION_MAX_LEVELS,
                     min_exit_retry_ms=self.settings.MIN_EXIT_RETRY_MS,
@@ -404,6 +408,10 @@ class ExecutionPipeline:
                         execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
                         max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
                         liquidity_haircut_pct=self.settings.EXECUTION_QUEUE_HAIRCUT_PCT,
+                        latency_haircut_pct=self.settings.EXECUTION_LATENCY_HAIRCUT_PCT,
+                        contention_haircut_pct=self.settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
+                        trustline_liquidity_discount_pct=self.settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
+                        ledger_drift_pct=self.settings.EXECUTION_LEDGER_DRIFT_PCT,
                         min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
                         max_levels=self.settings.EXECUTION_MAX_LEVELS,
                     )
@@ -469,6 +477,9 @@ class ExecutionPipeline:
                             snapshot_time=snapshot_time,
                             signal_time=signal_time,
                             execution_time=execution_time,
+                            xrpl_ledger_close_ms=self.settings.XRPL_LEDGER_CLOSE_MS,
+                            min_ledger_delay=self.settings.MIN_LEDGER_DELAY,
+                            max_ledger_delay=self.settings.MAX_LEDGER_DELAY,
                         )
                     except ValueError as exc:
                         self.paper_executor.release_reservation(
@@ -815,6 +826,10 @@ class ExecutionPipeline:
             execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
             max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
             liquidity_haircut_pct=self.settings.EXECUTION_QUEUE_HAIRCUT_PCT,
+            latency_haircut_pct=self.settings.EXECUTION_LATENCY_HAIRCUT_PCT,
+            contention_haircut_pct=self.settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
+            trustline_liquidity_discount_pct=self.settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
+            ledger_drift_pct=self.settings.EXECUTION_LEDGER_DRIFT_PCT,
             min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
             max_levels=self.settings.EXECUTION_MAX_LEVELS,
         )

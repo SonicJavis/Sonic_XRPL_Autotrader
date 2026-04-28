@@ -207,6 +207,10 @@ class ExecutionRecord(SQLModel, table=True):
     snapshot_time: datetime = Field(default_factory=utcnow)
     signal_time: datetime = Field(default_factory=utcnow)
     execution_time: datetime = Field(default_factory=utcnow)
+    ledger_index_snapshot: int = 0
+    ledger_index_signal: int = 0
+    ledger_index_execution: int = 0
+    ledger_index_inclusion: int = 0
     execution_latency_ms: int = 0
     snapshot_age_ms: int = 0
     holding_time_ms: int = 0

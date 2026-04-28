@@ -50,6 +50,11 @@ class PnLAttributionEngine:
         return reason in {"NO_BIDS", "NO_LIQUIDITY", "STALE_MARKET_DATA"}
 
     @staticmethod
+    def _ledger_index_for_time(ts: datetime, ledger_close_ms: int) -> int:
+        unix_ms = int(_utc(ts).timestamp() * 1000.0)
+        return max(0, unix_ms // max(1, int(ledger_close_ms)))
+
+    @staticmethod
     def evaluate_exit_decision(
         *,
         position: Position,
@@ -92,6 +97,13 @@ class PnLAttributionEngine:
         snapshot_time: datetime,
         signal_time: datetime,
         execution_time: datetime,
+        ledger_index_snapshot: int | None = None,
+        ledger_index_signal: int | None = None,
+        ledger_index_execution: int | None = None,
+        ledger_index_inclusion: int | None = None,
+        xrpl_ledger_close_ms: int = 4000,
+        min_ledger_delay: int = 1,
+        max_ledger_delay: int = 3,
         holding_time_ms: int = 0,
     ) -> ExecutionRecord:
         s_time = _utc(snapshot_time)
@@ -99,6 +111,30 @@ class PnLAttributionEngine:
         ex_time = _utc(execution_time)
         if ex_time < sig_time or sig_time < s_time:
             raise ValueError("FAILED_INVALID_TIMING")
+
+        s_ledger = (
+            int(ledger_index_snapshot)
+            if ledger_index_snapshot is not None
+            else self._ledger_index_for_time(s_time, xrpl_ledger_close_ms)
+        )
+        sig_ledger = (
+            int(ledger_index_signal)
+            if ledger_index_signal is not None
+            else self._ledger_index_for_time(sig_time, xrpl_ledger_close_ms)
+        )
+        ex_ledger_default = max(sig_ledger, sig_ledger + max(0, int(min_ledger_delay)) - 1)
+        ex_ledger = int(ledger_index_execution) if ledger_index_execution is not None else ex_ledger_default
+        incl_ledger = (
+            int(ledger_index_inclusion)
+            if ledger_index_inclusion is not None
+            else ex_ledger + max(0, int(min_ledger_delay))
+        )
+
+        if sig_ledger < s_ledger or ex_ledger < sig_ledger or incl_ledger < ex_ledger:
+            raise ValueError("FAILED_INVALID_LEDGER_TIMING")
+        ledger_delay = incl_ledger - ex_ledger
+        if ledger_delay < max(0, int(min_ledger_delay)) or ledger_delay > max(0, int(max_ledger_delay)):
+            raise ValueError("FAILED_INVALID_LEDGER_TIMING")
 
         record = ExecutionRecord(
             token_id=token_id,
@@ -116,6 +152,10 @@ class PnLAttributionEngine:
             snapshot_time=s_time,
             signal_time=sig_time,
             execution_time=ex_time,
+            ledger_index_snapshot=s_ledger,
+            ledger_index_signal=sig_ledger,
+            ledger_index_execution=ex_ledger,
+            ledger_index_inclusion=incl_ledger,
             execution_latency_ms=execution_result.execution_latency_ms,
             snapshot_age_ms=execution_result.snapshot_age_ms,
             holding_time_ms=holding_time_ms,
@@ -216,6 +256,10 @@ class PnLAttributionEngine:
         execution_latency_ms: int,
         max_snapshot_age_ms: int,
         liquidity_haircut_pct: float,
+        latency_haircut_pct: float = 0.0,
+        contention_haircut_pct: float = 0.0,
+        trustline_liquidity_discount_pct: float = 0.0,
+        ledger_drift_pct: float = 0.0,
         min_level_xrp: float = 0.0,
         max_levels: int | None = None,
     ) -> dict[str, object]:
@@ -235,6 +279,10 @@ class PnLAttributionEngine:
             execution_latency_ms=execution_latency_ms,
             max_snapshot_age_ms=max_snapshot_age_ms,
             liquidity_haircut_pct=liquidity_haircut_pct,
+            latency_haircut_pct=latency_haircut_pct,
+            contention_haircut_pct=contention_haircut_pct,
+            trustline_liquidity_discount_pct=trustline_liquidity_discount_pct,
+            ledger_drift_pct=ledger_drift_pct,
             min_level_xrp=min_level_xrp,
             max_levels=max_levels,
         )
@@ -265,6 +313,10 @@ class PnLAttributionEngine:
         execution_latency_ms: int,
         max_snapshot_age_ms: int,
         liquidity_haircut_pct: float,
+        latency_haircut_pct: float = 0.0,
+        contention_haircut_pct: float = 0.0,
+        trustline_liquidity_discount_pct: float = 0.0,
+        ledger_drift_pct: float = 0.0,
         min_level_xrp: float = 0.0,
         max_levels: int | None = None,
         min_exit_retry_ms: int,
@@ -306,6 +358,10 @@ class PnLAttributionEngine:
                 execution_latency_ms=execution_latency_ms,
                 max_snapshot_age_ms=max_snapshot_age_ms,
                 liquidity_haircut_pct=liquidity_haircut_pct,
+                latency_haircut_pct=latency_haircut_pct,
+                contention_haircut_pct=contention_haircut_pct,
+                trustline_liquidity_discount_pct=trustline_liquidity_discount_pct,
+                ledger_drift_pct=ledger_drift_pct,
                 min_level_xrp=min_level_xrp,
                 max_levels=max_levels,
             )
@@ -394,6 +450,10 @@ class PnLAttributionEngine:
         execution_latency_ms: int,
         max_snapshot_age_ms: int,
         liquidity_haircut_pct: float,
+        latency_haircut_pct: float = 0.0,
+        contention_haircut_pct: float = 0.0,
+        trustline_liquidity_discount_pct: float = 0.0,
+        ledger_drift_pct: float = 0.0,
     ) -> dict[str, object]:
         rows: list[dict[str, object]] = []
         total = 0.0
@@ -422,6 +482,10 @@ class PnLAttributionEngine:
                 execution_latency_ms=execution_latency_ms,
                 max_snapshot_age_ms=max_snapshot_age_ms,
                 liquidity_haircut_pct=liquidity_haircut_pct,
+                latency_haircut_pct=latency_haircut_pct,
+                contention_haircut_pct=contention_haircut_pct,
+                trustline_liquidity_discount_pct=trustline_liquidity_discount_pct,
+                ledger_drift_pct=ledger_drift_pct,
             )
             rows.append({"position_id": position.position_id, **u})
             if u["unrealized_pnl"] is None:
