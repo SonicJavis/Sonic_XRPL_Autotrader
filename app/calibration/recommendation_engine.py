@@ -29,6 +29,10 @@ class ConfidenceWeightedCalibrationEngine:
         samples: list[CalibrationErrorSample],
         fundedness_confidence: float,
         sequence_stability: float,
+        confidence_floor_threshold: float = 0.4,
+        regime_transition_rate: float = 0.0,
+        drift_error: float = 0.0,
+        inclusion_uncertainty: float = 0.0,
         regime: str = "UNKNOWN",
         xrpl_risk_flags: dict[str, bool] | None = None,
         current_slippage_penalty_pct: float = 0.05,
@@ -41,16 +45,30 @@ class ConfidenceWeightedCalibrationEngine:
         if sample_count < 5:
             return None
 
-        sample_confidence = max(0.0, min(1.0, sample_count / 30.0))
+        sample_confidence = max(0.0, min(1.0, sample_count / 40.0))
         fundedness = max(0.0, min(1.0, fundedness_confidence))
         stability = max(0.0, min(1.0, sequence_stability))
+        transition_penalty = max(0.0, min(1.0, regime_transition_rate))
+        drift_penalty = max(0.0, min(1.0, drift_error))
+        inclusion_penalty = max(0.0, min(1.0, inclusion_uncertainty))
 
         if regime == "SPOOFY":
             fundedness *= 0.70
 
-        confidence = max(0.0, min(1.0, (sample_confidence * 0.45) + (fundedness * 0.30) + (stability * 0.25)))
+        confidence = max(
+            0.0,
+            min(
+                1.0,
+                (sample_confidence * 0.35)
+                + (fundedness * 0.25)
+                + (stability * 0.20)
+                + ((1.0 - transition_penalty) * 0.10)
+                + ((1.0 - drift_penalty) * 0.05)
+                + ((1.0 - inclusion_penalty) * 0.05),
+            ),
+        )
 
-        if confidence < 0.40:
+        if confidence < max(0.0, min(1.0, confidence_floor_threshold)):
             return None
 
         def _wmean(values: list[float], weight: float) -> float:

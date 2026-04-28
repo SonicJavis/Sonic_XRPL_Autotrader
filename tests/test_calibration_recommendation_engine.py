@@ -94,3 +94,28 @@ def test_engine_never_reduces_existing_penalties() -> None:
     assert out.drift_haircut_pct >= 0.35
     assert out.latency_ms >= 1800
     assert out.snapshot_max_age_ms <= 800
+
+
+def test_confidence_hardening_blocks_output_under_instability() -> None:
+    samples = [CalibrationErrorSample(0.4, 0.4, 0.4, 0.4)] * 10
+    out = ConfidenceWeightedCalibrationEngine().recommend(
+        samples=samples,
+        fundedness_confidence=0.7,
+        sequence_stability=0.7,
+        confidence_floor_threshold=0.45,
+        regime_transition_rate=0.9,
+        drift_error=0.9,
+        inclusion_uncertainty=0.9,
+    )
+    assert out is None
+
+
+def test_confidence_floor_threshold_is_enforced() -> None:
+    samples = [CalibrationErrorSample(0.3, 0.3, 0.3, 0.3)] * 20
+    out = ConfidenceWeightedCalibrationEngine().recommend(
+        samples=samples,
+        fundedness_confidence=0.7,
+        sequence_stability=0.7,
+        confidence_floor_threshold=0.8,
+    )
+    assert out is None
