@@ -56,6 +56,9 @@ class Settings(BaseSettings):
     MAX_SNAPSHOT_AGE_MS: int = Field(default=1500, ge=1)
     EXECUTION_LATENCY_MS: int = Field(default=120, ge=0)
     EXECUTION_LIQUIDITY_HAIRCUT_PCT: float = Field(default=0.15, ge=0, le=0.95)
+    EXECUTION_QUEUE_HAIRCUT_PCT: float = Field(default=0.15, ge=0, le=0.95)
+    EXECUTION_MIN_LEVEL_XRP: float = Field(default=0.1, ge=0)
+    EXECUTION_MAX_LEVELS: int = Field(default=8, ge=1)
     MIN_EXIT_RETRY_MS: int = Field(default=5000, ge=0)
     MAX_EXIT_RETRIES: int = Field(default=5, ge=1)
 

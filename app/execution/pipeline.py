@@ -136,7 +136,9 @@ class ExecutionPipeline:
                     snapshot=snapshot,
                     execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
                     max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
-                    liquidity_haircut_pct=self.settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+                    liquidity_haircut_pct=self.settings.EXECUTION_QUEUE_HAIRCUT_PCT,
+                    min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
+                    max_levels=self.settings.EXECUTION_MAX_LEVELS,
                     min_exit_retry_ms=self.settings.MIN_EXIT_RETRY_MS,
                     max_exit_retries=self.settings.MAX_EXIT_RETRIES,
                     approve_exit_fn=lambda pos, snap: self._risk_approves_exit(),
@@ -363,7 +365,9 @@ class ExecutionPipeline:
                         signal_time=signal_time,
                         execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
                         max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
-                        liquidity_haircut_pct=self.settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+                        liquidity_haircut_pct=self.settings.EXECUTION_QUEUE_HAIRCUT_PCT,
+                        min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
+                        max_levels=self.settings.EXECUTION_MAX_LEVELS,
                     )
 
                     fill_success = strict_fill.fill_success
@@ -772,7 +776,9 @@ class ExecutionPipeline:
             signal_time=datetime.now(tz=timezone.utc),
             execution_latency_ms=self.settings.EXECUTION_LATENCY_MS,
             max_snapshot_age_ms=self.settings.MAX_SNAPSHOT_AGE_MS,
-            liquidity_haircut_pct=self.settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+            liquidity_haircut_pct=self.settings.EXECUTION_QUEUE_HAIRCUT_PCT,
+            min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
+            max_levels=self.settings.EXECUTION_MAX_LEVELS,
         )
 
     def _update_open_outcomes_for_token(self, session: Session, token_id: int, snapshot: MarketSnapshot) -> None:

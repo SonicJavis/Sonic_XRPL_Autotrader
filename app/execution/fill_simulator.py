@@ -21,7 +21,9 @@ class ExecutionResult:
     execution_latency_ms: int
     failure_reason: str | None
     snapshot_age_ms: int
+    queue_haircut_pct: float
     fill_levels: list[dict[str, float | int]]
+    consumed_levels_detailed: list[dict[str, float | int]]
 
     @property
     def fill_success(self) -> bool:
@@ -84,6 +86,8 @@ def simulate_entry_buy(
     execution_latency_ms: int,
     max_snapshot_age_ms: int,
     liquidity_haircut_pct: float,
+    min_level_xrp: float = 0.0,
+    max_levels: int | None = None,
 ) -> ExecutionResult:
     requested = max(0.0, float(requested_size_xrp))
     age_ms, _ = _snapshot_age_ms(snapshot_time, signal_time, execution_latency_ms)
@@ -98,7 +102,9 @@ def simulate_entry_buy(
             execution_latency_ms=execution_latency_ms,
             failure_reason="STALE_MARKET_DATA",
             snapshot_age_ms=age_ms,
+            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
             fill_levels=[],
+            consumed_levels_detailed=[],
         )
 
     if requested <= 0:
@@ -112,7 +118,9 @@ def simulate_entry_buy(
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_REQUESTED_SIZE",
             snapshot_age_ms=age_ms,
+            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
             fill_levels=[],
+            consumed_levels_detailed=[],
         )
 
     if not asks or best_bid <= 0 or best_ask <= 0 or best_bid >= best_ask:
@@ -126,7 +134,9 @@ def simulate_entry_buy(
             execution_latency_ms=execution_latency_ms,
             failure_reason="INVALID_ORDERBOOK",
             snapshot_age_ms=age_ms,
+            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
             fill_levels=[],
+            consumed_levels_detailed=[],
         )
 
     haircut = max(0.0, min(0.95, liquidity_haircut_pct))
@@ -136,14 +146,21 @@ def simulate_entry_buy(
     levels_used: list[dict[str, float | int]] = []
 
     for idx, level in enumerate(asks):
+        if max_levels is not None and idx >= max_levels:
+            break
+
         price = float(level.get("price", 0.0))
-        xrp_value = float(level.get("xrp_value", 0.0)) * (1.0 - haircut)
-        token_amount = float(level.get("token_amount", 0.0)) * (1.0 - haircut)
-        if price <= 0 or xrp_value <= 0 or token_amount <= 0:
+        raw_xrp_value = float(level.get("xrp_value", 0.0))
+        raw_token_amount = float(level.get("token_amount", 0.0))
+        effective_xrp_value = raw_xrp_value * (1.0 - haircut)
+        effective_token_amount = raw_token_amount * (1.0 - haircut)
+        if price <= 0 or effective_xrp_value <= 0 or effective_token_amount <= 0:
+            continue
+        if effective_xrp_value < max(0.0, float(min_level_xrp)):
             continue
 
-        take_xrp = min(remaining_xrp, xrp_value)
-        token_take = (take_xrp / xrp_value) * token_amount
+        take_xrp = min(remaining_xrp, effective_xrp_value)
+        token_take = (take_xrp / effective_xrp_value) * effective_token_amount
         spent_xrp += take_xrp
         tokens_bought += token_take
         levels_used.append(
@@ -151,6 +168,10 @@ def simulate_entry_buy(
                 "level_index": idx,
                 "side": "ask",
                 "price": price,
+                "raw_liquidity_xrp": raw_xrp_value,
+                "effective_liquidity_xrp": effective_xrp_value,
+                "raw_tokens": raw_token_amount,
+                "effective_tokens": effective_token_amount,
                 "consumed_xrp": take_xrp,
                 "consumed_tokens": token_take,
             }
@@ -170,7 +191,9 @@ def simulate_entry_buy(
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_LIQUIDITY",
             snapshot_age_ms=age_ms,
+            queue_haircut_pct=haircut,
             fill_levels=[],
+            consumed_levels_detailed=[],
         )
 
     avg_entry = spent_xrp / tokens_bought
@@ -194,7 +217,9 @@ def simulate_entry_buy(
         execution_latency_ms=execution_latency_ms,
         failure_reason=reason,
         snapshot_age_ms=age_ms,
+        queue_haircut_pct=haircut,
         fill_levels=levels_used,
+        consumed_levels_detailed=levels_used,
     )
 
 
@@ -209,6 +234,8 @@ def simulate_exit_sell(
     execution_latency_ms: int,
     max_snapshot_age_ms: int,
     liquidity_haircut_pct: float,
+    min_level_xrp: float = 0.0,
+    max_levels: int | None = None,
 ) -> ExecutionResult:
     requested = max(0.0, float(requested_token_size))
     age_ms, _ = _snapshot_age_ms(snapshot_time, signal_time, execution_latency_ms)
@@ -223,7 +250,9 @@ def simulate_exit_sell(
             execution_latency_ms=execution_latency_ms,
             failure_reason="STALE_MARKET_DATA",
             snapshot_age_ms=age_ms,
+            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
             fill_levels=[],
+            consumed_levels_detailed=[],
         )
 
     if requested <= 0:
@@ -237,7 +266,9 @@ def simulate_exit_sell(
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_REQUESTED_SIZE",
             snapshot_age_ms=age_ms,
+            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
             fill_levels=[],
+            consumed_levels_detailed=[],
         )
 
     if not bids or best_bid <= 0 or best_ask <= 0 or best_bid >= best_ask:
@@ -251,7 +282,9 @@ def simulate_exit_sell(
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_BIDS",
             snapshot_age_ms=age_ms,
+            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
             fill_levels=[],
+            consumed_levels_detailed=[],
         )
 
     haircut = max(0.0, min(0.95, liquidity_haircut_pct))
@@ -261,12 +294,20 @@ def simulate_exit_sell(
     levels_used: list[dict[str, float | int]] = []
 
     for idx, level in enumerate(bids):
+        if max_levels is not None and idx >= max_levels:
+            break
+
         price = float(level.get("price", 0.0))
-        token_amount = float(level.get("token_amount", 0.0)) * (1.0 - haircut)
-        if price <= 0 or token_amount <= 0:
+        raw_token_amount = float(level.get("token_amount", 0.0))
+        effective_token_amount = raw_token_amount * (1.0 - haircut)
+        raw_liquidity_xrp = raw_token_amount * price
+        effective_liquidity_xrp = effective_token_amount * price
+        if price <= 0 or effective_token_amount <= 0:
+            continue
+        if effective_liquidity_xrp < max(0.0, float(min_level_xrp)):
             continue
 
-        take_tokens = min(remaining_tokens, token_amount)
+        take_tokens = min(remaining_tokens, effective_token_amount)
         proceeds_xrp += take_tokens * price
         sold_tokens += take_tokens
         levels_used.append(
@@ -274,6 +315,10 @@ def simulate_exit_sell(
                 "level_index": idx,
                 "side": "bid",
                 "price": price,
+                "raw_liquidity_xrp": raw_liquidity_xrp,
+                "effective_liquidity_xrp": effective_liquidity_xrp,
+                "raw_tokens": raw_token_amount,
+                "effective_tokens": effective_token_amount,
                 "consumed_tokens": take_tokens,
                 "proceeds_xrp": take_tokens * price,
             }
@@ -293,7 +338,9 @@ def simulate_exit_sell(
             execution_latency_ms=execution_latency_ms,
             failure_reason="NO_BIDS",
             snapshot_age_ms=age_ms,
+            queue_haircut_pct=haircut,
             fill_levels=[],
+            consumed_levels_detailed=[],
         )
 
     avg_exit = proceeds_xrp / sold_tokens
@@ -313,7 +360,9 @@ def simulate_exit_sell(
         execution_latency_ms=execution_latency_ms,
         failure_reason=reason,
         snapshot_age_ms=age_ms,
+        queue_haircut_pct=haircut,
         fill_levels=levels_used,
+        consumed_levels_detailed=levels_used,
     )
 
 

@@ -216,6 +216,8 @@ class PnLAttributionEngine:
         execution_latency_ms: int,
         max_snapshot_age_ms: int,
         liquidity_haircut_pct: float,
+        min_level_xrp: float = 0.0,
+        max_levels: int | None = None,
     ) -> dict[str, object]:
         if snapshot.id is None:
             return {"unrealized_pnl": None, "unrealized_exit_vwap": None, "unrealized_fillable_size": 0.0, "reason": "INVALID_ORDERBOOK"}
@@ -233,6 +235,8 @@ class PnLAttributionEngine:
             execution_latency_ms=execution_latency_ms,
             max_snapshot_age_ms=max_snapshot_age_ms,
             liquidity_haircut_pct=liquidity_haircut_pct,
+            min_level_xrp=min_level_xrp,
+            max_levels=max_levels,
         )
 
         if result.avg_exit_price is None or result.filled_size <= 0:
@@ -261,6 +265,8 @@ class PnLAttributionEngine:
         execution_latency_ms: int,
         max_snapshot_age_ms: int,
         liquidity_haircut_pct: float,
+        min_level_xrp: float = 0.0,
+        max_levels: int | None = None,
         min_exit_retry_ms: int,
         max_exit_retries: int,
         approve_exit_fn=None,
@@ -300,6 +306,8 @@ class PnLAttributionEngine:
                 execution_latency_ms=execution_latency_ms,
                 max_snapshot_age_ms=max_snapshot_age_ms,
                 liquidity_haircut_pct=liquidity_haircut_pct,
+                min_level_xrp=min_level_xrp,
+                max_levels=max_levels,
             )
 
             holding_ms = int((datetime.now(tz=timezone.utc) - _utc(position.entry_time)).total_seconds() * 1000.0)

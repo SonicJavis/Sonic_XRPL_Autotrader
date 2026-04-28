@@ -254,6 +254,100 @@ def test_pipeline_skips_stale_execution() -> None:
     assert any(o.failure_reason == "STALE_MARKET_DATA" for o in outcomes)
 
 
+def test_queue_haircut_reduces_fill_size() -> None:
+    now = datetime.now(tz=timezone.utc)
+    no_haircut = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=100.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+        min_level_xrp=0.0,
+        max_levels=8,
+    )
+    with_haircut = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=100.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.5,
+        min_level_xrp=0.0,
+        max_levels=8,
+    )
+    assert with_haircut.filled_size < no_haircut.filled_size
+
+
+def test_high_queue_haircut_causes_partial_fill() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=90.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.8,
+        min_level_xrp=0.0,
+        max_levels=8,
+    )
+    assert out.fill_status == "PARTIAL"
+    assert out.queue_haircut_pct == pytest.approx(0.8)
+
+
+def test_deep_book_cap_enforced() -> None:
+    now = datetime.now(tz=timezone.utc)
+    asks = [
+        {"price": 1.0 + (i * 0.01), "token_amount": 100.0, "xrp_value": 100.0 + i}
+        for i in range(6)
+    ]
+    out = simulate_entry_buy(
+        asks=asks,
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=500.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.1,
+        min_level_xrp=0.0,
+        max_levels=2,
+    )
+    assert len(out.consumed_levels_detailed) <= 2
+
+
+def test_dust_levels_ignored() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[
+            {"price": 1.0, "token_amount": 0.05, "xrp_value": 0.05},
+            {"price": 1.01, "token_amount": 100.0, "xrp_value": 101.0},
+        ],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=50.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+        min_level_xrp=1.0,
+        max_levels=8,
+    )
+    assert len(out.consumed_levels_detailed) >= 1
+    assert all(float(level["effective_liquidity_xrp"]) >= 1.0 for level in out.consumed_levels_detailed)
+
+
 def test_canonical_mismatch_detects_canonical_gt_legacy(monkeypatch: pytest.MonkeyPatch) -> None:
     reset_tables()
     settings = Settings(ALPHA_MIN_SCORE=0.0)
