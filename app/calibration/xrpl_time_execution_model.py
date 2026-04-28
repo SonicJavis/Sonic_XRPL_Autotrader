@@ -1,13 +1,31 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import exp
+from math import exp, isfinite
 
 from app.db.models import ExecutionRecord
 
 
 def _clamp_unit(raw: float) -> float:
-    return max(0.0, min(1.0, float(raw)))
+    value = _finite_float(raw)
+    return max(0.0, min(1.0, value))
+
+
+def _finite_float(raw: object, *, default: float = 0.0) -> float:
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return default
+    if not isfinite(value):
+        return default
+    return value
+
+
+def _finite_int(raw: object, *, default: int = 0) -> int:
+    try:
+        return int(_finite_float(raw, default=float(default)))
+    except (TypeError, ValueError, OverflowError):
+        return default
 
 
 @dataclass(slots=True)
@@ -42,11 +60,11 @@ class XRPLTimeExecutionModel:
     """Deterministic advisory model for ledger-timed XRPL shadow execution."""
 
     def evaluate(self, data: XRPLTimeExecutionInput) -> XRPLTimeExecutionResult:
-        snapshot_price = float(data.snapshot_price)
-        execution_price = float(data.execution_price)
-        snapshot_derived_liquidity = max(0.0, float(data.snapshot_derived_liquidity))
-        observed_possible_fill = max(0.0, float(data.observed_possible_fill))
-        ledger_delay = max(0, int(data.ledger_index_execution) - int(data.ledger_index_snapshot))
+        snapshot_price = _finite_float(data.snapshot_price)
+        execution_price = _finite_float(data.execution_price)
+        snapshot_derived_liquidity = max(0.0, _finite_float(data.snapshot_derived_liquidity))
+        observed_possible_fill = max(0.0, _finite_float(data.observed_possible_fill))
+        ledger_delay = max(0, _finite_int(data.ledger_index_execution) - _finite_int(data.ledger_index_snapshot))
         latency_seconds = float(ledger_delay * 4)
 
         price_ref = max(abs(snapshot_price), 1e-9)
@@ -55,11 +73,11 @@ class XRPLTimeExecutionModel:
         phantom_liquidity = max(snapshot_derived_liquidity - observed_possible_fill, 0.0)
         time_adjusted_phantom = phantom_liquidity * (1.0 + latency_seconds / 10.0)
         latency_penalty = min(latency_seconds / 20.0, 1.0)
-        path_penalty = min(max(0, int(data.path_complexity)) / 3.0, 1.0)
+        path_penalty = min(max(0, _finite_int(data.path_complexity)) / 3.0, 1.0)
         inclusion_probability = exp(-ledger_delay / 3.0)
         competition_penalty = _clamp_unit(data.competition_penalty)
         base_fill_probability = _clamp_unit(data.base_fill_probability)
-        slippage_estimate = max(0.0, float(data.slippage_estimate))
+        slippage_estimate = max(0.0, _finite_float(data.slippage_estimate))
 
         effective_fill_probability = _clamp_unit(
             base_fill_probability
@@ -90,34 +108,39 @@ class XRPLTimeExecutionModel:
 
 
 def build_time_execution_input_from_shadow_execution(execution: ExecutionRecord, details: dict[str, object]) -> XRPLTimeExecutionInput:
-    requested_size = max(0.0, float(execution.requested_size or 0.0))
-    filled_size = max(0.0, float(execution.filled_size or 0.0))
+    requested_size = max(0.0, _finite_float(execution.requested_size))
+    filled_size = max(0.0, _finite_float(execution.filled_size))
     simulated_fill_ratio = 0.0 if requested_size <= 0 else _clamp_unit(filled_size / requested_size)
-    snapshot_price = max(0.0, float(details.get("snapshot_price", execution.avg_fill_price or 0.0)))
-    execution_price = max(0.0, float(details.get("execution_price", execution.avg_fill_price or snapshot_price)))
+    snapshot_price = max(0.0, _finite_float(details.get("snapshot_price", execution.avg_fill_price)))
+    execution_price = max(0.0, _finite_float(details.get("execution_price", execution.avg_fill_price or snapshot_price), default=snapshot_price))
     observed_possible_fill = max(
         0.0,
-        float(details.get("observed_possible_fill", _clamp_unit(float(details.get("observed_fill_ratio", simulated_fill_ratio))) * requested_size)),
+        _finite_float(
+            details.get(
+                "observed_possible_fill",
+                _clamp_unit(_finite_float(details.get("observed_fill_ratio", simulated_fill_ratio))) * requested_size,
+            )
+        ),
     )
     snapshot_derived_liquidity = max(
         0.0,
-        float(details.get("snapshot_derived_liquidity", max(requested_size, observed_possible_fill))),
+        _finite_float(details.get("snapshot_derived_liquidity", max(requested_size, observed_possible_fill))),
     )
     routes_seen = details.get("routes_seen", [])
     if isinstance(routes_seen, list) and routes_seen:
         fallback_path_complexity = len({str(route) for route in routes_seen})
     else:
-        fallback_path_complexity = int(details.get("route_count", 1))
+        fallback_path_complexity = _finite_int(details.get("route_count", 1), default=1)
     return XRPLTimeExecutionInput(
         snapshot_price=snapshot_price,
         execution_price=execution_price,
         requested_size=requested_size,
         snapshot_derived_liquidity=snapshot_derived_liquidity,
         observed_possible_fill=observed_possible_fill,
-        ledger_index_snapshot=int(execution.ledger_index_snapshot or 0),
-        ledger_index_execution=int(execution.ledger_index_execution or execution.ledger_index_inclusion or 0),
-        competition_penalty=_clamp_unit(float(details.get("competition_penalty", 0.0))),
-        base_fill_probability=_clamp_unit(float(details.get("predicted_fill_probability", simulated_fill_ratio))),
-        path_complexity=max(0, int(details.get("path_complexity", fallback_path_complexity))),
-        slippage_estimate=max(0.0, float(details.get("slippage_estimate", abs(float(execution.slippage_vs_top or 0.0))))),
+        ledger_index_snapshot=_finite_int(execution.ledger_index_snapshot),
+        ledger_index_execution=_finite_int(execution.ledger_index_execution or execution.ledger_index_inclusion),
+        competition_penalty=_clamp_unit(details.get("competition_penalty", 0.0)),
+        base_fill_probability=_clamp_unit(details.get("predicted_fill_probability", simulated_fill_ratio)),
+        path_complexity=max(0, _finite_int(details.get("path_complexity", fallback_path_complexity))),
+        slippage_estimate=max(0.0, _finite_float(details.get("slippage_estimate", abs(_finite_float(execution.slippage_vs_top))))),
     )

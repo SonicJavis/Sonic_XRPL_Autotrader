@@ -1,3 +1,5 @@
+from math import isfinite
+
 from fastapi.testclient import TestClient
 
 from app.main import create_app
@@ -16,8 +18,6 @@ def _payload(**overrides):
             "route_instability": 0.1,
             "competition_penalty": 0.1,
             "ledger_delay_error": 0.1,
-            "snapshot_derived_liquidity": 100.0,
-            "observed_possible_fill": 100.0,
         },
     }
     for key, value in overrides.items():
@@ -35,6 +35,36 @@ def _assert_meta(body: dict[str, object]) -> None:
     assert "xrpl_warning" in body
 
 
+def _assert_output_invariants(body: dict[str, object]) -> None:
+    assert isinstance(body["allow_trade"], bool)
+    assert 0.0 <= body["latency_path_adjusted_probability"] <= 1.0
+    assert 0.0 <= body["adjusted_execution_probability"] <= 1.0
+    assert body["latency_path_adjusted_probability"] == body["adjusted_execution_probability"]
+    assert body["effective_size"] >= 0.0
+    for key in (
+        "effective_size",
+        "latency_path_adjusted_probability",
+        "adjusted_execution_probability",
+        "uncertainty_adjusted_value",
+        "drift_adjusted_ev",
+    ):
+        assert isfinite(float(body[key]))
+
+
+def test_trade_gate_api_phase_12_payload_stays_backward_compatible() -> None:
+    client = TestClient(create_app())
+
+    res = client.post("/trade-gate/evaluate", json=_payload())
+
+    assert res.status_code == 200
+    body = res.json()
+    _assert_meta(body)
+    _assert_output_invariants(body)
+    assert "latency_path_adjusted_probability" in body
+    assert "drift_adjusted_ev" in body
+    assert "adjusted_execution_probability" in body
+
+
 def test_trade_gate_api_low_fill_reliability_rejects() -> None:
     client = TestClient(create_app())
     res = client.post(
@@ -44,6 +74,7 @@ def test_trade_gate_api_low_fill_reliability_rejects() -> None:
     assert res.status_code == 200
     body = res.json()
     _assert_meta(body)
+    _assert_output_invariants(body)
     assert body["allow_trade"] is False
     assert "LOW_EXECUTION_PROBABILITY" in body["risk_flags"]
 
@@ -55,6 +86,8 @@ def test_trade_gate_api_high_phantom_penalty_collapses_size() -> None:
         "/trade-gate/evaluate",
         json=_payload(calibration={"phantom_penalty": 0.9}),
     ).json()
+    _assert_output_invariants(low)
+    _assert_output_invariants(high)
     assert high["effective_size"] < low["effective_size"]
 
 
@@ -65,6 +98,7 @@ def test_trade_gate_api_high_competition_rejects() -> None:
         json=_payload(calibration={"competition_penalty": 0.95}),
     ).json()
     _assert_meta(body)
+    _assert_output_invariants(body)
     assert body["allow_trade"] is False
     assert "COMPETITION_RISK_HIGH" in body["risk_flags"]
 
@@ -76,6 +110,7 @@ def test_trade_gate_api_high_route_instability_rejects() -> None:
         json=_payload(calibration={"route_instability": 0.95}),
     ).json()
     _assert_meta(body)
+    _assert_output_invariants(body)
     assert body["allow_trade"] is False
     assert "ROUTE_UNSTABLE" in body["risk_flags"]
 
@@ -85,6 +120,52 @@ def test_trade_gate_api_ledger_delay_reduces_probability() -> None:
     fast = client.post("/trade-gate/evaluate", json=_payload(calibration={"ledger_delay_error": 0.0})).json()
     slow = client.post("/trade-gate/evaluate", json=_payload(calibration={"ledger_delay_error": 1.0})).json()
     assert slow["latency_path_adjusted_probability"] < fast["latency_path_adjusted_probability"]
+
+
+def test_trade_gate_api_high_path_complexity_reduces_probability() -> None:
+    client = TestClient(create_app())
+    direct = client.post("/trade-gate/evaluate", json=_payload(calibration={"path_complexity": 0, "route_instability": 0.0})).json()
+    complex_path = client.post(
+        "/trade-gate/evaluate",
+        json=_payload(calibration={"path_complexity": 3, "route_instability": 0.0}),
+    ).json()
+
+    assert complex_path["latency_path_adjusted_probability"] < direct["latency_path_adjusted_probability"]
+
+
+def test_trade_gate_api_high_drift_reduces_ev() -> None:
+    client = TestClient(create_app())
+    no_drift = client.post(
+        "/trade-gate/evaluate",
+        json=_payload(calibration={"snapshot_price": 1.0, "execution_price": 1.0}),
+    ).json()
+    high_drift = client.post(
+        "/trade-gate/evaluate",
+        json=_payload(calibration={"snapshot_price": 1.0, "execution_price": 2.0}),
+    ).json()
+
+    assert high_drift["drift_adjusted_ev"] < no_drift["drift_adjusted_ev"]
+
+
+def test_trade_gate_api_safety_flags_trigger() -> None:
+    client = TestClient(create_app())
+    body = client.post(
+        "/trade-gate/evaluate",
+        json=_payload(
+            calibration={
+                "fill_reliability": {"lower_bound": 0.01},
+                "expected_slippage_multiplier": 2.0,
+                "snapshot_price": 1.0,
+                "execution_price": 5.0,
+                "slippage_estimate": 1.0,
+            }
+        ),
+    ).json()
+
+    _assert_output_invariants(body)
+    assert "LOW_EXECUTION_PROBABILITY" in body["risk_flags"]
+    assert "DRIFT_ADJUSTED_EV_LOW" in body["risk_flags"]
+    assert "HIGH_SLIPPAGE_ENVIRONMENT" in body["risk_flags"]
 
 
 def test_trade_gate_api_is_deterministic() -> None:
@@ -107,4 +188,5 @@ def test_trade_gate_api_is_deterministic() -> None:
     second = client.post("/trade-gate/evaluate", json=payload)
     assert first.status_code == 200
     assert second.status_code == 200
+    _assert_output_invariants(first.json())
     assert first.json() == second.json()

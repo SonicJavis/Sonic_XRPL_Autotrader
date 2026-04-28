@@ -79,6 +79,7 @@ def trade_gate_evaluate(payload: TradeGateEvaluateRequest) -> dict[str, object]:
         "allow_trade": decision.allow_trade,
         "effective_size": decision.effective_size,
         "latency_path_adjusted_probability": decision.latency_path_adjusted_probability,
+        "adjusted_execution_probability": decision.latency_path_adjusted_probability,
         "uncertainty_adjusted_value": decision.uncertainty_adjusted_value,
         "drift_adjusted_ev": decision.drift_adjusted_ev,
         "risk_flags": decision.risk_flags,

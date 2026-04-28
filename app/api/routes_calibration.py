@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from math import isfinite
 
 from fastapi import APIRouter, Request
 from sqlmodel import select
@@ -33,6 +34,7 @@ def _shadow_calibration_meta() -> dict[str, object]:
 
 
 def _stats(values: list[float]) -> dict[str, float]:
+    values = [float(value) for value in values if isfinite(float(value))]
     if not values:
         return {"min": 0.0, "max": 0.0, "avg": 0.0}
     return {
