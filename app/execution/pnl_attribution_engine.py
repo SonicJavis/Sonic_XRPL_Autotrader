@@ -271,6 +271,7 @@ class PnLAttributionEngine:
         contention_haircut_pct: float = 0.0,
         trustline_liquidity_discount_pct: float = 0.0,
         ledger_drift_pct: float = 0.0,
+        execution_window_snapshots: int = 0,
         min_level_xrp: float = 0.0,
         max_levels: int | None = None,
     ) -> dict[str, object]:
@@ -297,6 +298,7 @@ class PnLAttributionEngine:
             contention_haircut_pct=contention_haircut_pct,
             trustline_liquidity_discount_pct=trustline_liquidity_discount_pct,
             ledger_drift_pct=ledger_drift_pct,
+            execution_window_snapshots=execution_window_snapshots,
             min_level_xrp=min_level_xrp,
             max_levels=max_levels,
         )
@@ -334,6 +336,7 @@ class PnLAttributionEngine:
         contention_haircut_pct: float = 0.0,
         trustline_liquidity_discount_pct: float = 0.0,
         ledger_drift_pct: float = 0.0,
+        execution_window_snapshots: int = 0,
         min_level_xrp: float = 0.0,
         max_levels: int | None = None,
         min_exit_retry_ms: int,
@@ -382,6 +385,7 @@ class PnLAttributionEngine:
                 contention_haircut_pct=contention_haircut_pct,
                 trustline_liquidity_discount_pct=trustline_liquidity_discount_pct,
                 ledger_drift_pct=ledger_drift_pct,
+                execution_window_snapshots=execution_window_snapshots,
                 min_level_xrp=min_level_xrp,
                 max_levels=max_levels,
             )
@@ -477,6 +481,7 @@ class PnLAttributionEngine:
         contention_haircut_pct: float = 0.0,
         trustline_liquidity_discount_pct: float = 0.0,
         ledger_drift_pct: float = 0.0,
+        execution_window_snapshots: int = 0,
     ) -> dict[str, object]:
         rows: list[dict[str, object]] = []
         total = 0.0
@@ -512,6 +517,7 @@ class PnLAttributionEngine:
                 contention_haircut_pct=contention_haircut_pct,
                 trustline_liquidity_discount_pct=trustline_liquidity_discount_pct,
                 ledger_drift_pct=ledger_drift_pct,
+                execution_window_snapshots=execution_window_snapshots,
             )
             rows.append({"position_id": position.position_id, **u})
             if u["unrealized_pnl"] is None:

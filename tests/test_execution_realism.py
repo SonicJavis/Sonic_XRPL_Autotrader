@@ -225,6 +225,122 @@ def test_total_latency_equals_staged_sum() -> None:
     assert out.execution_latency_ms == 666
 
 
+def test_drift_window_reduces_fillable_liquidity() -> None:
+    now = datetime.now(tz=timezone.utc)
+    baseline = simulate_entry_buy(
+        asks=[
+            {"price": 1.0, "token_amount": 50.0, "xrp_value": 50.0},
+            {"price": 1.01, "token_amount": 50.0, "xrp_value": 50.5},
+            {"price": 1.02, "token_amount": 50.0, "xrp_value": 51.0},
+        ],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=120.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=5000,
+        liquidity_haircut_pct=0.0,
+        execution_window_snapshots=0,
+    )
+    drifted = simulate_entry_buy(
+        asks=[
+            {"price": 1.0, "token_amount": 50.0, "xrp_value": 50.0},
+            {"price": 1.01, "token_amount": 50.0, "xrp_value": 50.5},
+            {"price": 1.02, "token_amount": 50.0, "xrp_value": 51.0},
+        ],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=120.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=5000,
+        liquidity_haircut_pct=0.0,
+        execution_window_snapshots=3,
+    )
+    assert drifted.filled_size <= baseline.filled_size
+
+
+def test_drift_window_widens_spread() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=10.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=5000,
+        liquidity_haircut_pct=0.0,
+        execution_window_snapshots=3,
+    )
+    assert out.drifted_best_ask is not None
+    assert out.drifted_best_bid is not None
+    assert (out.drifted_best_ask - out.drifted_best_bid) >= (1.0 - 0.99)
+
+
+def test_drift_window_never_improves_entry_price() -> None:
+    now = datetime.now(tz=timezone.utc)
+    baseline = simulate_entry_buy(
+        asks=[
+            {"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0},
+            {"price": 1.01, "token_amount": 100.0, "xrp_value": 101.0},
+        ],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=80.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=5000,
+        liquidity_haircut_pct=0.0,
+        execution_window_snapshots=0,
+    )
+    drifted = simulate_entry_buy(
+        asks=[
+            {"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0},
+            {"price": 1.01, "token_amount": 100.0, "xrp_value": 101.0},
+        ],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=80.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=5000,
+        liquidity_haircut_pct=0.0,
+        execution_window_snapshots=3,
+    )
+    assert baseline.avg_entry_price is not None
+    assert drifted.avg_entry_price is not None
+    assert drifted.avg_entry_price >= baseline.avg_entry_price
+
+
+def test_drift_window_creates_no_hidden_liquidity() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[
+            {"price": 1.0, "token_amount": 40.0, "xrp_value": 40.0},
+            {"price": 1.01, "token_amount": 40.0, "xrp_value": 40.4},
+            {"price": 1.02, "token_amount": 40.0, "xrp_value": 40.8},
+        ],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=120.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=5000,
+        liquidity_haircut_pct=0.0,
+        execution_window_snapshots=3,
+    )
+    raw_total = sum(float(level["raw_liquidity_xrp"]) for level in out.fill_levels)
+    effective_total = sum(float(level["effective_liquidity_xrp"]) for level in out.fill_levels)
+    assert effective_total <= raw_total
+
+
 def test_depth_walk_vwap_correctness() -> None:
     now = datetime.now(tz=timezone.utc)
     out = simulate_entry_buy(

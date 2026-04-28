@@ -23,6 +23,9 @@ class ExecutionResult:
     decision_to_submission_ms: int
     submission_to_inclusion_ms: int
     total_execution_latency_ms: int
+    execution_window_snapshots: int
+    drifted_best_bid: float | None
+    drifted_best_ask: float | None
     failure_reason: str | None
     snapshot_age_ms: int
     queue_haircut_pct: float
@@ -117,6 +120,64 @@ def _dynamic_latency_haircut(base_latency_haircut_pct: float, s2d_ms: int, d2s_m
     return _clamp_pct(float(base_latency_haircut_pct) + stage_penalty + total_penalty)
 
 
+def _apply_entry_drift(asks: list[dict[str, float]], steps: int) -> list[dict[str, float]]:
+    if steps <= 0:
+        return [dict(level) for level in asks]
+
+    drifted: list[dict[str, float]] = []
+    for idx, level in enumerate(asks):
+        if idx > 0 and steps >= 2 and ((idx + steps) % 4 == 0):
+            continue
+
+        raw_price = float(level.get("price", 0.0))
+        raw_tokens = float(level.get("token_amount", 0.0))
+        raw_xrp = float(level.get("xrp_value", 0.0))
+        if raw_price <= 0 or raw_tokens <= 0 or raw_xrp <= 0:
+            continue
+
+        price_widen = 1.0 + (0.0015 * steps) + (0.0003 * idx * steps)
+        size_shrink = max(0.0, 1.0 - (0.09 * steps) - (0.015 * idx))
+        drifted_tokens = raw_tokens * size_shrink
+        drifted_xrp = raw_xrp * size_shrink
+        drifted.append(
+            {
+                "price": raw_price * price_widen,
+                "token_amount": drifted_tokens,
+                "xrp_value": drifted_xrp,
+            }
+        )
+    return drifted
+
+
+def _apply_exit_drift(bids: list[dict[str, float]], steps: int) -> list[dict[str, float]]:
+    if steps <= 0:
+        return [dict(level) for level in bids]
+
+    drifted: list[dict[str, float]] = []
+    for idx, level in enumerate(bids):
+        if idx > 0 and steps >= 2 and ((idx + steps) % 4 == 0):
+            continue
+
+        raw_price = float(level.get("price", 0.0))
+        raw_tokens = float(level.get("token_amount", 0.0))
+        raw_xrp = float(level.get("xrp_value", 0.0))
+        if raw_price <= 0 or raw_tokens <= 0 or raw_xrp <= 0:
+            continue
+
+        price_deterioration = max(0.000001, 1.0 - (0.0015 * steps) - (0.0003 * idx * steps))
+        size_shrink = max(0.0, 1.0 - (0.09 * steps) - (0.015 * idx))
+        drifted_tokens = raw_tokens * size_shrink
+        drifted_xrp = raw_xrp * size_shrink
+        drifted.append(
+            {
+                "price": raw_price * price_deterioration,
+                "token_amount": drifted_tokens,
+                "xrp_value": drifted_xrp,
+            }
+        )
+    return drifted
+
+
 def _snapshot_age_ms(snapshot_time: datetime, signal_time: datetime, execution_latency_ms: int) -> tuple[int, datetime]:
     snap = _utc(snapshot_time)
     sig = _utc(signal_time)
@@ -165,6 +226,7 @@ def simulate_entry_buy(
     contention_haircut_pct: float = 0.0,
     trustline_liquidity_discount_pct: float = 0.0,
     ledger_drift_pct: float = 0.0,
+    execution_window_snapshots: int = 0,
     min_level_xrp: float = 0.0,
     max_levels: int | None = None,
 ) -> ExecutionResult:
@@ -189,6 +251,9 @@ def simulate_entry_buy(
             decision_to_submission_ms=d2s_ms,
             submission_to_inclusion_ms=s2i_ms,
             total_execution_latency_ms=total_latency_ms,
+            execution_window_snapshots=max(0, int(execution_window_snapshots)),
+            drifted_best_bid=best_bid if best_bid > 0 else None,
+            drifted_best_ask=best_ask if best_ask > 0 else None,
             failure_reason="STALE_MARKET_DATA",
             snapshot_age_ms=age_ms,
             queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
@@ -214,6 +279,9 @@ def simulate_entry_buy(
             decision_to_submission_ms=d2s_ms,
             submission_to_inclusion_ms=s2i_ms,
             total_execution_latency_ms=total_latency_ms,
+            execution_window_snapshots=max(0, int(execution_window_snapshots)),
+            drifted_best_bid=best_bid if best_bid > 0 else None,
+            drifted_best_ask=best_ask if best_ask > 0 else None,
             failure_reason="NO_REQUESTED_SIZE",
             snapshot_age_ms=age_ms,
             queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
@@ -239,6 +307,9 @@ def simulate_entry_buy(
             decision_to_submission_ms=d2s_ms,
             submission_to_inclusion_ms=s2i_ms,
             total_execution_latency_ms=total_latency_ms,
+            execution_window_snapshots=max(0, int(execution_window_snapshots)),
+            drifted_best_bid=best_bid if best_bid > 0 else None,
+            drifted_best_ask=best_ask if best_ask > 0 else None,
             failure_reason="INVALID_ORDERBOOK",
             snapshot_age_ms=age_ms,
             queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
@@ -250,6 +321,11 @@ def simulate_entry_buy(
             fill_levels=[],
             consumed_levels_detailed=[],
         )
+
+    drift_steps = max(0, int(execution_window_snapshots))
+    drifted_asks = _apply_entry_drift(asks, drift_steps)
+    drifted_best_bid = best_bid
+    drifted_best_ask = float(drifted_asks[0].get("price", 0.0)) if drifted_asks else 0.0
 
     queue_haircut = _clamp_pct(liquidity_haircut_pct)
     latency_haircut = _dynamic_latency_haircut(latency_haircut_pct, s2d_ms, d2s_ms, s2i_ms, total_latency_ms)
@@ -263,7 +339,7 @@ def simulate_entry_buy(
     raw_total_xrp = 0.0
     effective_total_xrp = 0.0
 
-    for idx, level in enumerate(asks):
+    for idx, level in enumerate(drifted_asks):
         if max_levels is not None and idx >= max_levels:
             break
 
@@ -329,6 +405,9 @@ def simulate_entry_buy(
             decision_to_submission_ms=d2s_ms,
             submission_to_inclusion_ms=s2i_ms,
             total_execution_latency_ms=total_latency_ms,
+            execution_window_snapshots=drift_steps,
+            drifted_best_bid=drifted_best_bid if drifted_best_bid > 0 else None,
+            drifted_best_ask=drifted_best_ask if drifted_best_ask > 0 else None,
             failure_reason=reason,
             snapshot_age_ms=age_ms,
             queue_haircut_pct=queue_haircut,
@@ -364,6 +443,9 @@ def simulate_entry_buy(
         decision_to_submission_ms=d2s_ms,
         submission_to_inclusion_ms=s2i_ms,
         total_execution_latency_ms=total_latency_ms,
+        execution_window_snapshots=drift_steps,
+        drifted_best_bid=drifted_best_bid if drifted_best_bid > 0 else None,
+        drifted_best_ask=drifted_best_ask if drifted_best_ask > 0 else None,
         failure_reason=reason,
         snapshot_age_ms=age_ms,
         queue_haircut_pct=queue_haircut,
@@ -395,6 +477,7 @@ def simulate_exit_sell(
     contention_haircut_pct: float = 0.0,
     trustline_liquidity_discount_pct: float = 0.0,
     ledger_drift_pct: float = 0.0,
+    execution_window_snapshots: int = 0,
     min_level_xrp: float = 0.0,
     max_levels: int | None = None,
 ) -> ExecutionResult:
@@ -419,6 +502,9 @@ def simulate_exit_sell(
             decision_to_submission_ms=d2s_ms,
             submission_to_inclusion_ms=s2i_ms,
             total_execution_latency_ms=total_latency_ms,
+            execution_window_snapshots=max(0, int(execution_window_snapshots)),
+            drifted_best_bid=best_bid if best_bid > 0 else None,
+            drifted_best_ask=best_ask if best_ask > 0 else None,
             failure_reason="STALE_MARKET_DATA",
             snapshot_age_ms=age_ms,
             queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
@@ -444,6 +530,9 @@ def simulate_exit_sell(
             decision_to_submission_ms=d2s_ms,
             submission_to_inclusion_ms=s2i_ms,
             total_execution_latency_ms=total_latency_ms,
+            execution_window_snapshots=max(0, int(execution_window_snapshots)),
+            drifted_best_bid=best_bid if best_bid > 0 else None,
+            drifted_best_ask=best_ask if best_ask > 0 else None,
             failure_reason="NO_REQUESTED_SIZE",
             snapshot_age_ms=age_ms,
             queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
@@ -469,6 +558,9 @@ def simulate_exit_sell(
             decision_to_submission_ms=d2s_ms,
             submission_to_inclusion_ms=s2i_ms,
             total_execution_latency_ms=total_latency_ms,
+            execution_window_snapshots=max(0, int(execution_window_snapshots)),
+            drifted_best_bid=best_bid if best_bid > 0 else None,
+            drifted_best_ask=best_ask if best_ask > 0 else None,
             failure_reason="NO_BIDS",
             snapshot_age_ms=age_ms,
             queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
@@ -480,6 +572,11 @@ def simulate_exit_sell(
             fill_levels=[],
             consumed_levels_detailed=[],
         )
+
+    drift_steps = max(0, int(execution_window_snapshots))
+    drifted_bids = _apply_exit_drift(bids, drift_steps)
+    drifted_best_bid = float(drifted_bids[0].get("price", 0.0)) if drifted_bids else 0.0
+    drifted_best_ask = best_ask
 
     queue_haircut = _clamp_pct(liquidity_haircut_pct)
     latency_haircut = _dynamic_latency_haircut(latency_haircut_pct, s2d_ms, d2s_ms, s2i_ms, total_latency_ms)
@@ -493,7 +590,7 @@ def simulate_exit_sell(
     raw_total_xrp = 0.0
     effective_total_xrp = 0.0
 
-    for idx, level in enumerate(bids):
+    for idx, level in enumerate(drifted_bids):
         if max_levels is not None and idx >= max_levels:
             break
 
@@ -558,6 +655,9 @@ def simulate_exit_sell(
             decision_to_submission_ms=d2s_ms,
             submission_to_inclusion_ms=s2i_ms,
             total_execution_latency_ms=total_latency_ms,
+            execution_window_snapshots=drift_steps,
+            drifted_best_bid=drifted_best_bid if drifted_best_bid > 0 else None,
+            drifted_best_ask=drifted_best_ask if drifted_best_ask > 0 else None,
             failure_reason=reason,
             snapshot_age_ms=age_ms,
             queue_haircut_pct=queue_haircut,
@@ -589,6 +689,9 @@ def simulate_exit_sell(
         decision_to_submission_ms=d2s_ms,
         submission_to_inclusion_ms=s2i_ms,
         total_execution_latency_ms=total_latency_ms,
+        execution_window_snapshots=drift_steps,
+        drifted_best_bid=drifted_best_bid if drifted_best_bid > 0 else None,
+        drifted_best_ask=drifted_best_ask if drifted_best_ask > 0 else None,
         failure_reason=reason,
         snapshot_age_ms=age_ms,
         queue_haircut_pct=queue_haircut,

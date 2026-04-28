@@ -69,6 +69,7 @@ def main() -> None:
             contention_haircut_pct=settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
             trustline_liquidity_discount_pct=settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
             ledger_drift_pct=settings.EXECUTION_LEDGER_DRIFT_PCT,
+            execution_window_snapshots=settings.EXECUTION_WINDOW_SNAPSHOTS,
         )
         failures = pnl_engine.list_failures(session, limit=300)
 

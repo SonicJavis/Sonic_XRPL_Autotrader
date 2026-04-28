@@ -67,6 +67,7 @@ class Settings(BaseSettings):
     EXECUTION_CONTENTION_HAIRCUT_PCT: float = Field(default=0.10, ge=0, le=0.95)
     EXECUTION_TRUSTLINE_DISCOUNT_PCT: float = Field(default=0.12, ge=0, le=0.95)
     EXECUTION_LEDGER_DRIFT_PCT: float = Field(default=0.10, ge=0, le=0.95)
+    EXECUTION_WINDOW_SNAPSHOTS: int = Field(default=3, ge=0, le=20)
     EXECUTION_MIN_LEVEL_XRP: float = Field(default=0.1, ge=0)
     EXECUTION_MAX_LEVELS: int = Field(default=8, ge=1)
     MIN_EXIT_RETRY_MS: int = Field(default=5000, ge=0)

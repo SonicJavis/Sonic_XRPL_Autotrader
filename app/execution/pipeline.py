@@ -145,6 +145,7 @@ class ExecutionPipeline:
                     contention_haircut_pct=self.settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
                     trustline_liquidity_discount_pct=self.settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
                     ledger_drift_pct=self.settings.EXECUTION_LEDGER_DRIFT_PCT,
+                    execution_window_snapshots=self.settings.EXECUTION_WINDOW_SNAPSHOTS,
                     min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
                     max_levels=self.settings.EXECUTION_MAX_LEVELS,
                     min_exit_retry_ms=self.settings.MIN_EXIT_RETRY_MS,
@@ -418,6 +419,7 @@ class ExecutionPipeline:
                         contention_haircut_pct=self.settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
                         trustline_liquidity_discount_pct=self.settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
                         ledger_drift_pct=self.settings.EXECUTION_LEDGER_DRIFT_PCT,
+                        execution_window_snapshots=self.settings.EXECUTION_WINDOW_SNAPSHOTS,
                         min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
                         max_levels=self.settings.EXECUTION_MAX_LEVELS,
                     )
@@ -839,6 +841,7 @@ class ExecutionPipeline:
             contention_haircut_pct=self.settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
             trustline_liquidity_discount_pct=self.settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
             ledger_drift_pct=self.settings.EXECUTION_LEDGER_DRIFT_PCT,
+            execution_window_snapshots=self.settings.EXECUTION_WINDOW_SNAPSHOTS,
             min_level_xrp=self.settings.EXECUTION_MIN_LEVEL_XRP,
             max_levels=self.settings.EXECUTION_MAX_LEVELS,
         )

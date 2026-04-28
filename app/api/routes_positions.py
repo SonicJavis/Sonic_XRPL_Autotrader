@@ -53,6 +53,7 @@ def pnl_unrealized(request: Request) -> dict[str, object]:
             contention_haircut_pct=container.settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
             trustline_liquidity_discount_pct=container.settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
             ledger_drift_pct=container.settings.EXECUTION_LEDGER_DRIFT_PCT,
+            execution_window_snapshots=container.settings.EXECUTION_WINDOW_SNAPSHOTS,
         )
 
 
