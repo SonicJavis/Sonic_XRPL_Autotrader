@@ -314,3 +314,31 @@ class AuditEvent(SQLModel, table=True):
     event_type: str
     payload_json: str
     created_at: datetime = Field(default_factory=utcnow)
+
+
+class XRPLOrderbookSnapshot(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    token_id: int = Field(foreign_key="watchedtoken.id", index=True)
+    ledger_index: int = Field(index=True)
+    best_bid: float
+    best_ask: float
+    bid_depth_xrp: float
+    ask_depth_xrp: float
+    spread_pct: float
+    levels_json: list[dict[str, float | int | str]] = Field(default_factory=list, sa_column=Column(JSON))
+    observed_at: datetime = Field(default_factory=utcnow)
+
+
+class XRPLOrderbookSequence(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    token_id: int = Field(foreign_key="watchedtoken.id", index=True)
+    start_ledger: int
+    end_ledger: int
+    snapshot_count: int
+    duration_ms: int
+    decay_score: float
+    volatility_score: float
+    collapse_events: int
+    created_at: datetime = Field(default_factory=utcnow)
