@@ -35,6 +35,7 @@ from app.db.models import (
 from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.replay_engine import ReplayEngine
+from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
 from app.live.dashboard_metrics import build_live_dashboard_metrics
 from app.risk.kill_switch import KillSwitch
 
@@ -248,6 +249,10 @@ def main() -> None:
 
     uncertainty_report = UncertaintyReportEngine().build(validation_samples)
     live_dashboard = build_live_dashboard_metrics(executions=executions, orderbook_snapshots=orderbook_snapshots)
+    xrpl_shadow_calibration = build_xrpl_shadow_calibration_aggregate(
+        executions=executions,
+        orderbook_snapshots=orderbook_snapshots,
+    )
     shadow_execution_rows = []
     for row in executions:
         try:
@@ -391,6 +396,78 @@ def main() -> None:
         c3.metric("Drift Haircut %", f"{recommendation.drift_haircut_pct * 100:.1f}%")
         c4.metric("Latency ms", str(recommendation.latency_ms))
         st.caption(recommendation.reasoning)
+
+    st.subheader("XRPL Bayesian Shadow Calibration")
+    st.warning("XRPL liquidity is not guaranteed executable")
+    st.warning("Observed orderbook data may be stale or unfunded")
+    st.warning("Calibration is advisory only")
+
+    lower_bounds = xrpl_shadow_calibration.calibration
+    b1, b2, b3, b4, b5 = st.columns(5)
+    b1.metric("Liquidity Reliability Lower Bound", f"{lower_bounds.liquidity_reliability.lower_bound:.3f}")
+    b2.metric("Path Reliability Lower Bound", f"{lower_bounds.path_reliability.lower_bound:.3f}")
+    b3.metric("Latency Reliability Lower Bound", f"{lower_bounds.latency_reliability.lower_bound:.3f}")
+    b4.metric("Fill Reliability Lower Bound", f"{lower_bounds.fill_reliability.lower_bound:.3f}")
+    b5.metric("Competition Reliability Lower Bound", f"{lower_bounds.competition_reliability.lower_bound:.3f}")
+
+    st.caption("Reliability lower bounds only; read-only shadow calibration under execution uncertainty.")
+
+    shadow_calibration_rows = [
+        {
+            "execution_id": sample.execution_id,
+            "snapshot_derived_liquidity": sample.snapshot_derived_liquidity,
+            "observed_possible_fill": sample.observed_possible_fill,
+            "shadow_disagreement": sample.error_metrics.weighted_error,
+            "route_instability": sample.error_metrics.route_instability,
+            "ledger_delay_error": sample.ledger_delay_error,
+            "competition_penalty": sample.error_metrics.competition_penalty,
+        }
+        for sample in xrpl_shadow_calibration.samples
+    ]
+
+    st.subheader("Phantom Liquidity vs Observed Possible Fill")
+    if shadow_calibration_rows:
+        st.dataframe(shadow_calibration_rows[:50], use_container_width=True)
+        st.bar_chart(
+            shadow_calibration_rows[:50],
+            x="execution_id",
+            y=["snapshot_derived_liquidity", "observed_possible_fill"],
+            use_container_width=True,
+        )
+    else:
+        st.info("No shadow calibration samples available yet.")
+
+    st.subheader("Route Instability Heatmap")
+    if shadow_calibration_rows:
+        route_heatmap = [
+            {
+                "execution_id": row["execution_id"],
+                "route_instability": row["route_instability"],
+                "shadow_disagreement": row["shadow_disagreement"],
+            }
+            for row in shadow_calibration_rows[:50]
+        ]
+        st.dataframe(route_heatmap, use_container_width=True)
+    else:
+        st.info("No route instability samples available yet.")
+
+    st.subheader("Ledger Delay Distribution")
+    if shadow_calibration_rows:
+        st.bar_chart(
+            [{"ledger_delay_error": row["ledger_delay_error"]} for row in shadow_calibration_rows],
+            x="ledger_delay_error",
+            y="ledger_delay_error",
+            use_container_width=True,
+        )
+    else:
+        st.info("No ledger delay samples available yet.")
+
+    st.subheader("Competition Failure Rate")
+    st.metric("Competition Failure Rate", f"{xrpl_shadow_calibration.competition_failure_rate * 100:.1f}%")
+    st.caption(
+        f"Expected slippage multiplier: {xrpl_shadow_calibration.calibration.recommendations.expected_slippage_multiplier:.3f}; "
+        f"Execution probability floor: {xrpl_shadow_calibration.calibration.recommendations.execution_probability_floor:.3f}"
+    )
 
     st.subheader("Registered Tokens")
     st.dataframe([t.model_dump() for t in tokens], use_container_width=True)

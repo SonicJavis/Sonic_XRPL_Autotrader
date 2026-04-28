@@ -9,9 +9,38 @@ from app.calibration.fundedness_proxy import FundednessProxy
 from app.calibration.regime_classifier import RegimeClassificationInput, XRPLRegimeClassifier
 from app.calibration.recommendation_engine import ConfidenceWeightedCalibrationEngine, LiveCalibrationSample
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
+from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
 from app.db.models import ExecutionRecord, XRPLOrderbookSequence, XRPLOrderbookSnapshot
 
 router = APIRouter()
+
+
+def _shadow_calibration_meta() -> dict[str, object]:
+    return {
+        "is_shadow_calibration": True,
+        "is_truth": False,
+        "is_executable": False,
+        "auto_apply": False,
+        "requires_manual_review": True,
+        "xrpl_warning": "Shadow calibration is advisory only and uses snapshot-derived liquidity under execution uncertainty",
+    }
+
+
+def _build_shadow_calibration(request: Request, *, limit: int = 500, snapshot_limit: int = 2000):
+    container = request.app.state.container
+    safe_limit = min(max(limit, 1), 5000)
+    safe_snapshot_limit = min(max(snapshot_limit, 1), 5000)
+    with container.session_factory() as session:
+        executions = session.exec(
+            select(ExecutionRecord).order_by(ExecutionRecord.id.desc()).limit(safe_limit)
+        ).all()
+        snapshots = session.exec(
+            select(XRPLOrderbookSnapshot).order_by(XRPLOrderbookSnapshot.ledger_index.asc()).limit(safe_snapshot_limit)
+        ).all()
+    return build_xrpl_shadow_calibration_aggregate(
+        executions=executions,
+        orderbook_snapshots=snapshots,
+    )
 
 
 @router.get("/calibration/gap-report")
@@ -177,4 +206,70 @@ def calibration_gap_report(request: Request, limit: int = 500) -> dict[str, obje
         "avg_decay_score": round(avg_decay, 6),
         "avg_volatility_score": round(avg_volatility, 6),
         "collapse_events_total": collapse_total,
+    }
+
+
+@router.get("/calibration/shadow/xrpl/errors")
+def calibration_shadow_xrpl_errors(request: Request, limit: int = 500) -> dict[str, object]:
+    aggregate = _build_shadow_calibration(request, limit=limit)
+    return {
+        **_shadow_calibration_meta(),
+        "sample_count": aggregate.sample_count,
+        "errors": {
+            "shadow_disagreement_avg": aggregate.shadow_disagreement_avg,
+            "phantom_liquidity_avg": aggregate.phantom_liquidity_avg,
+            "phantom_penalty_avg": aggregate.phantom_penalty_avg,
+            "route_instability_avg": aggregate.route_instability_avg,
+            "competition_failure_rate": aggregate.competition_failure_rate,
+            "fill_variance_avg": aggregate.fill_variance_avg,
+            "low_fill_bias_avg": aggregate.low_fill_bias_avg,
+            "price_error_norm_avg": aggregate.price_error_norm_avg,
+            "liquidity_error_avg": aggregate.liquidity_error_avg,
+            "ledger_delay_error_avg": aggregate.ledger_delay_error_avg,
+            "path_error_avg": aggregate.path_error_avg,
+            "observation_confidence_avg": aggregate.observation_confidence_avg,
+            "snapshot_derived_liquidity_avg": aggregate.snapshot_derived_liquidity_avg,
+            "observed_possible_fill_avg": aggregate.observed_possible_fill_avg,
+        },
+    }
+
+
+@router.get("/calibration/shadow/xrpl/reliability")
+def calibration_shadow_xrpl_reliability(request: Request, limit: int = 500) -> dict[str, object]:
+    aggregate = _build_shadow_calibration(request, limit=limit)
+    calibration = aggregate.calibration
+    return {
+        **_shadow_calibration_meta(),
+        "sample_count": aggregate.sample_count,
+        "decay_half_life_seconds": calibration.decay_half_life,
+        "reliability_lower_bounds": {
+            "liquidity_reliability": calibration.liquidity_reliability.lower_bound,
+            "path_reliability": calibration.path_reliability.lower_bound,
+            "latency_reliability": calibration.latency_reliability.lower_bound,
+            "fill_reliability": calibration.fill_reliability.lower_bound,
+            "competition_reliability": calibration.competition_reliability.lower_bound,
+        },
+        "adaptive_weights": {
+            "liquidity_reliability": calibration.liquidity_reliability.adaptive_weight,
+            "path_reliability": calibration.path_reliability.adaptive_weight,
+            "latency_reliability": calibration.latency_reliability.adaptive_weight,
+            "fill_reliability": calibration.fill_reliability.adaptive_weight,
+            "competition_reliability": calibration.competition_reliability.adaptive_weight,
+        },
+    }
+
+
+@router.get("/calibration/shadow/xrpl/recommendations")
+def calibration_shadow_xrpl_recommendations(request: Request, limit: int = 500) -> dict[str, object]:
+    aggregate = _build_shadow_calibration(request, limit=limit)
+    recommendations = aggregate.calibration.recommendations
+    return {
+        **_shadow_calibration_meta(),
+        "sample_count": aggregate.sample_count,
+        "recommendations": {
+            "liquidity_haircut": recommendations.liquidity_haircut,
+            "expected_slippage_multiplier": recommendations.expected_slippage_multiplier,
+            "execution_probability_floor": recommendations.execution_probability_floor,
+            "competition_risk_multiplier": recommendations.competition_risk_multiplier,
+        },
     }
