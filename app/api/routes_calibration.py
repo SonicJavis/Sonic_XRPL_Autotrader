@@ -7,6 +7,13 @@ from fastapi import APIRouter, Request
 from sqlmodel import select
 
 from app.calibration.fundedness_proxy import FundednessProxy
+from app.calibration.xrpl_memory_model import (
+    aggregate_by_issuer,
+    aggregate_by_token,
+    aggregate_global,
+    build_memory_samples,
+)
+from app.calibration.xrpl_regime_detector import XRPLRegimeDetector
 from app.calibration.regime_classifier import RegimeClassificationInput, XRPLRegimeClassifier
 from app.calibration.recommendation_engine import ConfidenceWeightedCalibrationEngine, LiveCalibrationSample
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
@@ -15,7 +22,7 @@ from app.calibration.xrpl_time_execution_model import (
     XRPLTimeExecutionModel,
     build_time_execution_input_from_shadow_execution,
 )
-from app.db.models import ExecutionRecord, XRPLOrderbookSequence, XRPLOrderbookSnapshot
+from app.db.models import ExecutionRecord, WatchedToken, XRPLOrderbookSequence, XRPLOrderbookSnapshot
 
 router = APIRouter()
 
@@ -59,6 +66,22 @@ def _build_shadow_calibration(request: Request, *, limit: int = 500, snapshot_li
         executions=executions,
         orderbook_snapshots=snapshots,
     )
+
+
+def _build_memory_view(request: Request, *, limit: int = 500):
+    container = request.app.state.container
+    safe_limit = min(max(limit, 1), 5000)
+    with container.session_factory() as session:
+        executions = session.exec(
+            select(ExecutionRecord).order_by(ExecutionRecord.id.desc()).limit(safe_limit)
+        ).all()
+        tokens = session.exec(select(WatchedToken)).all()
+    tokens_by_id = {int(token.id): token for token in tokens if token.id is not None}
+    samples = build_memory_samples(executions, tokens_by_id=tokens_by_id)
+    global_aggregate = aggregate_global(samples)
+    token_aggregates = aggregate_by_token(samples)
+    issuer_aggregates = aggregate_by_issuer(samples)
+    return samples, global_aggregate, token_aggregates, issuer_aggregates
 
 
 @router.get("/calibration/gap-report")
@@ -363,4 +386,44 @@ def calibration_shadow_xrpl_recommendations(request: Request, limit: int = 500) 
             "execution_probability_floor": recommendations.execution_probability_floor,
             "competition_risk_multiplier": recommendations.competition_risk_multiplier,
         },
+    }
+
+
+@router.get("/calibration/shadow/xrpl/memory")
+def calibration_shadow_xrpl_memory(request: Request, limit: int = 500) -> dict[str, object]:
+    samples, global_aggregate, token_aggregates, issuer_aggregates = _build_memory_view(request, limit=limit)
+    return {
+        **_shadow_calibration_meta(),
+        "sample_count": len(samples),
+        "global": global_aggregate.to_dict(),
+        "tokens": [row.to_dict() for row in token_aggregates],
+        "issuers": [row.to_dict() for row in issuer_aggregates],
+    }
+
+
+@router.get("/calibration/shadow/xrpl/regime")
+def calibration_shadow_xrpl_regime(request: Request, limit: int = 500) -> dict[str, object]:
+    samples, global_aggregate, token_aggregates, issuer_aggregates = _build_memory_view(request, limit=limit)
+    detector = XRPLRegimeDetector()
+    return {
+        **_shadow_calibration_meta(),
+        "sample_count": len(samples),
+        "global": {
+            "aggregate": global_aggregate.to_dict(),
+            "regime": detector.assess(global_aggregate).to_dict(),
+        },
+        "tokens": [
+            {
+                "aggregate": row.to_dict(),
+                "regime": detector.assess(row).to_dict(),
+            }
+            for row in token_aggregates
+        ],
+        "issuers": [
+            {
+                "aggregate": row.to_dict(),
+                "regime": detector.assess(row).to_dict(),
+            }
+            for row in issuer_aggregates
+        ],
     }

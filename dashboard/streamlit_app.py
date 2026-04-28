@@ -36,6 +36,8 @@ from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.replay_engine import ReplayEngine
 from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
+from app.calibration.xrpl_memory_model import aggregate_by_issuer, aggregate_by_token, aggregate_global, build_memory_samples
+from app.calibration.xrpl_regime_detector import XRPLRegimeDetector
 from app.calibration.xrpl_time_execution_model import XRPLTimeExecutionModel, build_time_execution_input_from_shadow_execution
 from app.decision.xrpl_trade_gate import XRPLTradeGate
 from app.feedback.feedback_aggregator import DecisionFeedbackAggregator
@@ -257,6 +259,13 @@ def main() -> None:
         orderbook_snapshots=orderbook_snapshots,
     )
     decision_feedback = DecisionFeedbackAggregator().aggregate_from_executions(executions)
+    tokens_by_id = {int(token.id): token for token in tokens if token.id is not None}
+    memory_samples = build_memory_samples(executions, tokens_by_id=tokens_by_id)
+    memory_global = aggregate_global(memory_samples)
+    memory_tokens = aggregate_by_token(memory_samples)
+    memory_issuers = aggregate_by_issuer(memory_samples)
+    regime_detector = XRPLRegimeDetector()
+    global_regime = regime_detector.assess(memory_global)
     time_execution_model = XRPLTimeExecutionModel()
     shadow_execution_rows = []
     time_execution_rows = []
@@ -609,6 +618,59 @@ def main() -> None:
         )
     else:
         st.info("No time execution samples available yet.")
+
+    st.subheader("XRPL Memory + Regime Detection")
+    st.warning("XRPL liquidity is not guaranteed executable")
+    st.warning("Memory is derived from shadow observations")
+    st.warning("Issuer behaviour may change abruptly")
+    st.warning("Calibration is advisory only")
+    mr1, mr2, mr3 = st.columns(3)
+    mr1.metric("Global Risk Level", memory_global.advisory_risk_level)
+    mr2.metric("Current Regime", global_regime.regime)
+    mr3.metric("Regime Severity", f"{global_regime.severity_score:.3f}")
+
+    token_memory_rows = [
+        {
+            "token_id": row.key,
+            "samples": row.sample_count,
+            "risk": row.advisory_risk_level,
+            "regime": regime_detector.assess(row).regime,
+            "phantom_penalty": row.avg_phantom_penalty,
+            "liquidity_decay": row.avg_liquidity_decay,
+            "route_instability": row.avg_route_instability,
+            "fill_probability": row.avg_effective_fill_probability,
+            "pressure": row.regime_pressure_score,
+        }
+        for row in memory_tokens
+    ]
+    issuer_memory_rows = [
+        {
+            "issuer": row.key,
+            "samples": row.sample_count,
+            "risk": row.advisory_risk_level,
+            "regime": regime_detector.assess(row).regime,
+            "latency_seconds": row.avg_latency_seconds,
+            "competition_penalty": row.avg_competition_penalty,
+            "path_complexity": row.avg_path_complexity,
+            "pressure": row.regime_pressure_score,
+        }
+        for row in memory_issuers
+    ]
+    st.caption("Token-level memory")
+    st.dataframe(token_memory_rows, use_container_width=True)
+    st.caption("Issuer-level memory")
+    st.dataframe(issuer_memory_rows, use_container_width=True)
+    st.caption("Top risky tokens")
+    st.dataframe(sorted(token_memory_rows, key=lambda row: float(row["pressure"]), reverse=True)[:10], use_container_width=True)
+    st.caption("Top unstable issuers")
+    st.dataframe(
+        sorted(
+            issuer_memory_rows,
+            key=lambda row: (float(row["path_complexity"]) + float(row["competition_penalty"]) + float(row["latency_seconds"]) / 20.0),
+            reverse=True,
+        )[:10],
+        use_container_width=True,
+    )
 
     st.subheader("XRPL Decision Quality – Ledger Aware")
     dq1, dq2, dq3, dq4 = st.columns(4)
