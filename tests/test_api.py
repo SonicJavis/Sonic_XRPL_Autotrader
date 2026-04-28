@@ -127,10 +127,12 @@ def test_strict_attribution_endpoints_available() -> None:
     realized = client.get("/pnl/realized")
     assert realized.status_code == 200
     assert "realized_pnl_xrp" in realized.json()
+    assert "unrealized_pnl_xrp" not in realized.json()
 
     unrealized = client.get("/pnl/unrealized")
     assert unrealized.status_code == 200
     assert "positions" in unrealized.json()
+    assert "realized_pnl_xrp" not in unrealized.json()
 
     failures = client.get("/failures")
     assert failures.status_code == 200
@@ -138,3 +140,12 @@ def test_strict_attribution_endpoints_available() -> None:
 
     missing_execution = client.get("/execution/999999")
     assert missing_execution.status_code == 404
+
+    quality = client.get("/execution/quality")
+    assert quality.status_code == 200
+    body = quality.json()
+    assert "fill_efficiency" in body
+    assert "avg_levels_consumed" in body
+    assert "queue_impact_pct" in body
+    assert "partial_fill_rate" in body
+    assert "failure_rate_by_reason" in body

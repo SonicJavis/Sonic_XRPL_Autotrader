@@ -68,12 +68,24 @@ def main() -> None:
     realized_pnl = float(realized.get("realized_pnl_xrp", 0.0))
     unrealized_pnl_raw = unrealized.get("unrealized_pnl_xrp")
     unrealized_label = "n/a" if unrealized_pnl_raw is None else f"{float(unrealized_pnl_raw):.4f}"
-    h1, h2, h3, h4 = st.columns(4)
+    total_exec = len(executions)
+    partial_exec = sum(1 for row in executions if row.fill_status == "PARTIAL")
+    failed_exec = sum(1 for row in executions if row.failure_reason is not None or row.fill_status == "UNFILLED")
+    requested_sum = sum(float(row.requested_size or 0.0) for row in executions)
+    filled_sum = sum(float(row.filled_size or 0.0) for row in executions)
+    fill_efficiency = 0.0 if requested_sum <= 0 else (filled_sum / requested_sum)
+
+    q1, q2, q3, q4 = st.columns(4)
+    q1.metric("Failure Rate", f"{(failed_exec / max(1, total_exec)) * 100:.1f}%")
+    q2.metric("Partial Fill Rate", f"{(partial_exec / max(1, total_exec)) * 100:.1f}%")
+    q3.metric("Fill Efficiency", f"{fill_efficiency * 100:.1f}%")
+    q4.metric("Failure Count", str(len(failures)))
+
+    h1, h2, h3 = st.columns(3)
     h1.metric("Realized PnL (XRP)", f"{realized_pnl:.4f}")
     h2.metric("Unrealized PnL (XRP)", unrealized_label)
-    h3.metric("Failure Count", str(len(failures)))
     exit_success = sum(1 for row in positions if row.status == "CLOSED")
-    h4.metric("Exit Success Rate", f"{(exit_success / max(1, len(positions))) * 100:.1f}%")
+    h3.metric("Exit Success Rate", f"{(exit_success / max(1, len(positions))) * 100:.1f}%")
 
     st.subheader("Registered Tokens")
     st.dataframe([t.model_dump() for t in tokens], use_container_width=True)
@@ -129,6 +141,21 @@ def main() -> None:
     st.subheader("Paper Trades")
     st.dataframe([t.model_dump() for t in trades], use_container_width=True)
 
+    st.subheader("Execution Failures (Priority View)")
+    failed_outcomes = [
+        {
+            "signal_id": row.signal_id,
+            "fill_status": row.fill_status,
+            "failure_reason": row.failure_reason,
+            "reason_closed": row.reason_closed,
+            "entry_time": row.entry_time,
+            "exit_time": row.exit_time,
+        }
+        for row in outcomes
+        if (row.failure_reason is not None or row.fill_status == "UNFILLED")
+    ]
+    st.dataframe(failed_outcomes, use_container_width=True)
+
     st.subheader("Paper Performance Attribution")
     p1, p2, p3, p4 = st.columns(4)
     p1.metric("Win Rate", f"{float(perf_summary.get('win_rate', 0.0)) * 100:.1f}%")
@@ -149,6 +176,7 @@ def main() -> None:
         }
         for row in outcomes
     ]
+    st.caption("All outcomes (realized and unresolved are not mixed into one aggregate)")
     st.dataframe(outcome_rows, use_container_width=True)
 
     st.subheader("Positions (Strict Attribution)")
