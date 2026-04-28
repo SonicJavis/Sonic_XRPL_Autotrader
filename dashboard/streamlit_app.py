@@ -37,6 +37,7 @@ from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.replay_engine import ReplayEngine
 from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
 from app.decision.xrpl_trade_gate import XRPLTradeGate
+from app.feedback.feedback_aggregator import DecisionFeedbackAggregator
 from app.live.dashboard_metrics import build_live_dashboard_metrics
 from app.risk.kill_switch import KillSwitch
 
@@ -254,6 +255,7 @@ def main() -> None:
         executions=executions,
         orderbook_snapshots=orderbook_snapshots,
     )
+    decision_feedback = DecisionFeedbackAggregator().aggregate_from_executions(executions)
     shadow_execution_rows = []
     for row in executions:
         try:
@@ -563,6 +565,45 @@ def main() -> None:
         y="value",
         use_container_width=True,
     )
+
+    st.subheader("XRPL Decision Quality – Ledger Aware")
+    dq1, dq2, dq3, dq4 = st.columns(4)
+    dq1.metric("Avg Fill Error", f"{decision_feedback.avg_fill_error:.3f}")
+    dq2.metric("Avg EV Error", f"{decision_feedback.avg_ev_error:.3f}")
+    dq3.metric("Overconfidence Rate", f"{decision_feedback.overconfidence_rate * 100:.1f}%")
+    dq4.metric("Underconfidence Rate", f"{decision_feedback.underconfidence_rate * 100:.1f}%")
+
+    dx1, dx2, dx3 = st.columns(3)
+    dx1.metric("Ledger Delay Impact", f"{decision_feedback.avg_ledger_penalty:.3f}")
+    dx2.metric("Route Instability", f"{decision_feedback.avg_route_instability:.3f}")
+    dx3.metric("Competition Proxy Rate", f"{decision_feedback.competition_proxy_rate * 100:.1f}%")
+
+    if decision_feedback.samples:
+        st.bar_chart(
+            [{"fill_error": sample.fill_error} for sample in decision_feedback.samples],
+            x="fill_error",
+            y="fill_error",
+            use_container_width=True,
+        )
+        st.bar_chart(
+            [{"ev_error": sample.ev_error} for sample in decision_feedback.samples],
+            x="ev_error",
+            y="ev_error",
+            use_container_width=True,
+        )
+        st.bar_chart(
+            [{"ledger_penalty": sample.ledger_penalty} for sample in decision_feedback.samples],
+            x="ledger_penalty",
+            y="ledger_penalty",
+            use_container_width=True,
+        )
+        route_trend = [
+            {"decision_id": sample.decision_id, "route_instability": sample.route_instability}
+            for sample in decision_feedback.samples
+        ]
+        st.line_chart(route_trend, x="decision_id", y="route_instability", use_container_width=True)
+    else:
+        st.info("No decision feedback samples available yet.")
 
     st.subheader("Registered Tokens")
     st.dataframe([t.model_dump() for t in tokens], use_container_width=True)

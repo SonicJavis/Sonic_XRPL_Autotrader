@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from math import exp, sqrt
 
 from app.calibration.xrpl_shadow_error_model import XRPLShadowErrorInput, XRPLShadowErrorMetrics, XRPLShadowErrorModel
+from app.feedback.decision_outcome import DecisionOutcomeModel, build_decision_outcome_from_shadow_execution
 from app.db.models import ExecutionRecord, XRPLOrderbookSnapshot
 
 
@@ -83,6 +84,7 @@ class XRPLShadowCalibrationSample:
     observed_possible_fill: float
     snapshot_derived_liquidity: float
     route_confidence: float
+    route_used: str | None
     observation_confidence: float
     price_error_norm: float
     liquidity_error: float
@@ -252,6 +254,10 @@ def build_xrpl_shadow_calibration_sample(
     path_error = _clamp_unit(float(details.get("path_execution_risk", 0.0)))
     route_confidence = _clamp_unit(float(details.get("route_confidence", max(0.0, 1.0 - path_error))))
     observation_confidence = _clamp_unit(float(details.get("observation_confidence", 0.25)))
+    route_used: str | None = None
+    raw_route_used = details.get("route_used")
+    if isinstance(raw_route_used, str) and raw_route_used:
+        route_used = raw_route_used
 
     ordered_snapshots = sorted(snapshots, key=lambda row: int(row.ledger_index))
     side_is_buy = str(execution.side).upper() == "BUY"
@@ -285,6 +291,8 @@ def build_xrpl_shadow_calibration_sample(
     unique_routes_seen = 0
     total_snapshots = len(ordered_snapshots)
     if isinstance(routes_seen, list) and routes_seen:
+        if route_used is None:
+            route_used = str(routes_seen[0])
         unique_routes_seen = len({str(route) for route in routes_seen})
     else:
         route_count = details.get("route_count")
@@ -311,7 +319,7 @@ def build_xrpl_shadow_calibration_sample(
     )
     observation = XRPLBayesianObservation(
         observed_at=observed_at,
-        sample_weight=max(0.25, observation_confidence),
+        sample_weight = max(0.25, observation_confidence),
         phantom_penalty=error_metrics.phantom_penalty,
         route_instability=error_metrics.route_instability,
         competition_penalty=error_metrics.competition_penalty,
@@ -327,6 +335,7 @@ def build_xrpl_shadow_calibration_sample(
         observed_possible_fill=round(observed_possible_fill, 6),
         snapshot_derived_liquidity=round(snapshot_derived_liquidity, 6),
         route_confidence=round(route_confidence, 6),
+        route_used=route_used,
         observation_confidence=round(observation_confidence, 6),
         price_error_norm=round(price_error_norm, 6),
         liquidity_error=round(liquidity_error, 6),
@@ -351,6 +360,7 @@ def build_xrpl_shadow_calibration_aggregate(
 
     samples: list[XRPLShadowCalibrationSample] = []
     model = XRPLShadowErrorModel()
+    outcome_model = DecisionOutcomeModel()
     for execution in executions:
         if not _is_shadow_execution(execution):
             continue
@@ -358,7 +368,21 @@ def build_xrpl_shadow_calibration_aggregate(
         low_ledger = min(int(execution.ledger_index_snapshot), int(execution.ledger_index_inclusion))
         high_ledger = max(int(execution.ledger_index_snapshot), int(execution.ledger_index_inclusion))
         sequence = [row for row in token_snapshots if low_ledger <= int(row.ledger_index) <= high_ledger][:64]
-        samples.append(build_xrpl_shadow_calibration_sample(execution=execution, snapshots=sequence, error_model=model))
+        sample = build_xrpl_shadow_calibration_sample(execution=execution, snapshots=sequence, error_model=model)
+        outcome = build_decision_outcome_from_shadow_execution(execution)
+        feedback = outcome_model.evaluate(outcome)
+        sample.observation.sample_weight = max(
+            0.25,
+            sample.observation.sample_weight
+            * (1.0 + feedback.weighted_error)
+            * (1.0 + feedback.ledger_penalty)
+            * (1.0 + feedback.route_penalty),
+        )
+        sample.observation.weighted_error = round(feedback.weighted_error, 6)
+        sample.observation.ledger_delay_error = round(max(sample.observation.ledger_delay_error, feedback.ledger_penalty), 6)
+        sample.observation.route_instability = round(max(sample.observation.route_instability, feedback.route_penalty), 6)
+        sample.observation.competition_penalty = round(max(sample.observation.competition_penalty, feedback.competition_proxy), 6)
+        samples.append(sample)
 
     observations = [row.observation for row in samples]
     phantom_penalty_avg = 0.0 if not samples else sum(row.error_metrics.phantom_penalty for row in samples) / len(samples)

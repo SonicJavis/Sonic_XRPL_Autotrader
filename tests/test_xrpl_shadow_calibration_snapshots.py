@@ -117,8 +117,8 @@ def test_xrpl_shadow_calibration_reliability_snapshot() -> None:
     assert payload == {
         "liquidity_reliability": 0.0,
         "path_reliability": 0.0,
-        "latency_reliability": 0.243747,
-        "fill_reliability": 0.109601,
+        "latency_reliability": 0.222958,
+        "fill_reliability": 0.328249,
         "competition_reliability": 0.0,
     }
 
@@ -134,6 +134,6 @@ def test_xrpl_shadow_calibration_recommendation_snapshot() -> None:
     assert payload == {
         "liquidity_haircut": 1.0,
         "expected_slippage_multiplier": 2.0,
-        "execution_probability_floor": 0.109601,
+        "execution_probability_floor": 0.328249,
         "competition_risk_multiplier": 2.0,
     }

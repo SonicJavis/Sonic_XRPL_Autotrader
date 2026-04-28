@@ -8,6 +8,7 @@ from sqlmodel import Session
 from app.alpha.engine import AlphaEngine
 from app.api.routes_calibration import router as calibration_router
 from app.api.routes_health import router as health_router
+from app.api.routes_feedback import router as feedback_router
 from app.api.routes_live import router as live_router
 from app.api.routes_market import router as market_router
 from app.api.routes_mode import router as mode_router
@@ -63,6 +64,7 @@ def create_app() -> FastAPI:
     app.state.container = AppContainer(settings)
 
     app.include_router(health_router)
+    app.include_router(feedback_router)
     app.include_router(market_router)
     app.include_router(mode_router)
     app.include_router(signals_router)
