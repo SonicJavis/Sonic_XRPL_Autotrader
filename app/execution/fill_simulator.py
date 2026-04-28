@@ -75,6 +75,28 @@ def _snapshot_age_ms(snapshot_time: datetime, signal_time: datetime, execution_l
     return max(0, age_ms), execution_time
 
 
+def _fundedness_reliability_haircut(levels: list[dict[str, float]], side: str, idx: int) -> float:
+    # XRPL offers can be partially funded. Treat highly concentrated top levels as less reliable.
+    if idx != 0:
+        return 0.0
+
+    if side == "ask":
+        total_visible = sum(max(0.0, float(level.get("xrp_value", 0.0))) for level in levels)
+        top_visible = max(0.0, float(levels[0].get("xrp_value", 0.0))) if levels else 0.0
+    else:
+        total_visible = sum(max(0.0, float(level.get("token_amount", 0.0) * level.get("price", 0.0))) for level in levels)
+        top_visible = max(0.0, float(levels[0].get("token_amount", 0.0) * levels[0].get("price", 0.0))) if levels else 0.0
+
+    if total_visible <= 0:
+        return 0.0
+
+    top_share = top_visible / total_visible
+    if top_share <= 0.70:
+        return 0.0
+
+    return min(0.60, max(0.0, (top_share - 0.70) * 1.5))
+
+
 def simulate_entry_buy(
     *,
     asks: list[dict[str, float]],
@@ -152,8 +174,10 @@ def simulate_entry_buy(
         price = float(level.get("price", 0.0))
         raw_xrp_value = float(level.get("xrp_value", 0.0))
         raw_token_amount = float(level.get("token_amount", 0.0))
-        effective_xrp_value = raw_xrp_value * (1.0 - haircut)
-        effective_token_amount = raw_token_amount * (1.0 - haircut)
+        fundedness_haircut = _fundedness_reliability_haircut(asks, "ask", idx)
+        effective_haircut = min(0.95, haircut + fundedness_haircut)
+        effective_xrp_value = raw_xrp_value * (1.0 - effective_haircut)
+        effective_token_amount = raw_token_amount * (1.0 - effective_haircut)
         if price <= 0 or effective_xrp_value <= 0 or effective_token_amount <= 0:
             continue
         if effective_xrp_value < max(0.0, float(min_level_xrp)):
@@ -172,6 +196,7 @@ def simulate_entry_buy(
                 "effective_liquidity_xrp": effective_xrp_value,
                 "raw_tokens": raw_token_amount,
                 "effective_tokens": effective_token_amount,
+                "fundedness_haircut_pct": fundedness_haircut,
                 "consumed_xrp": take_xrp,
                 "consumed_tokens": token_take,
             }
@@ -299,7 +324,9 @@ def simulate_exit_sell(
 
         price = float(level.get("price", 0.0))
         raw_token_amount = float(level.get("token_amount", 0.0))
-        effective_token_amount = raw_token_amount * (1.0 - haircut)
+        fundedness_haircut = _fundedness_reliability_haircut(bids, "bid", idx)
+        effective_haircut = min(0.95, haircut + fundedness_haircut)
+        effective_token_amount = raw_token_amount * (1.0 - effective_haircut)
         raw_liquidity_xrp = raw_token_amount * price
         effective_liquidity_xrp = effective_token_amount * price
         if price <= 0 or effective_token_amount <= 0:
@@ -319,6 +346,7 @@ def simulate_exit_sell(
                 "effective_liquidity_xrp": effective_liquidity_xrp,
                 "raw_tokens": raw_token_amount,
                 "effective_tokens": effective_token_amount,
+                "fundedness_haircut_pct": fundedness_haircut,
                 "consumed_tokens": take_tokens,
                 "proceeds_xrp": take_tokens * price,
             }

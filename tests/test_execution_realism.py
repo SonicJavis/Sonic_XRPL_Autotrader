@@ -348,6 +348,66 @@ def test_dust_levels_ignored() -> None:
     assert all(float(level["effective_liquidity_xrp"]) >= 1.0 for level in out.consumed_levels_detailed)
 
 
+def test_fundedness_heuristic_reduces_fake_deep_wall() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[
+            {"price": 1.0, "token_amount": 1000.0, "xrp_value": 1000.0},
+            {"price": 1.01, "token_amount": 20.0, "xrp_value": 20.2},
+            {"price": 1.02, "token_amount": 20.0, "xrp_value": 20.4},
+        ],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=900.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+        min_level_xrp=0.0,
+        max_levels=8,
+    )
+    assert out.fill_status in {"PARTIAL", "UNFILLED"}
+    assert out.filled_size < 900.0
+
+
+def test_no_asks_entry_fails_strictly() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=10.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+    )
+    assert out.fill_status == "UNFILLED"
+    assert out.failure_reason == "INVALID_ORDERBOOK"
+
+
+def test_no_hidden_liquidity_price_improvement_assumption() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[
+            {"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0},
+            {"price": 1.2, "token_amount": 100.0, "xrp_value": 120.0},
+        ],
+        best_bid=1.0,
+        best_ask=1.1,
+        requested_size_xrp=150.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+    )
+    assert out.avg_entry_price is not None
+    assert out.avg_entry_price >= 1.1
+
+
 def test_canonical_mismatch_detects_canonical_gt_legacy(monkeypatch: pytest.MonkeyPatch) -> None:
     reset_tables()
     settings = Settings(ALPHA_MIN_SCORE=0.0)
