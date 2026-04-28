@@ -62,6 +62,13 @@ def main() -> None:
             execution_latency_ms=settings.EXECUTION_LATENCY_MS,
             max_snapshot_age_ms=settings.MAX_SNAPSHOT_AGE_MS,
             liquidity_haircut_pct=settings.EXECUTION_LIQUIDITY_HAIRCUT_PCT,
+            snapshot_to_decision_ms=settings.SNAPSHOT_TO_DECISION_MS,
+            decision_to_submission_ms=settings.DECISION_TO_SUBMISSION_MS,
+            submission_to_inclusion_ms=settings.SUBMISSION_TO_INCLUSION_MS,
+            latency_haircut_pct=settings.EXECUTION_LATENCY_HAIRCUT_PCT,
+            contention_haircut_pct=settings.EXECUTION_CONTENTION_HAIRCUT_PCT,
+            trustline_liquidity_discount_pct=settings.EXECUTION_TRUSTLINE_DISCOUNT_PCT,
+            ledger_drift_pct=settings.EXECUTION_LEDGER_DRIFT_PCT,
         )
         failures = pnl_engine.list_failures(session, limit=300)
 

@@ -147,5 +147,12 @@ def test_strict_attribution_endpoints_available() -> None:
     assert "fill_efficiency" in body
     assert "avg_levels_consumed" in body
     assert "queue_impact_pct" in body
+    assert "effective_vs_raw_liquidity" in body
+    assert "avg_execution_latency_ms" in body
+    assert "avg_snapshot_age_ms" in body
+    assert "avg_snapshot_to_decision_ms" in body
+    assert "avg_decision_to_submission_ms" in body
+    assert "avg_submission_to_inclusion_ms" in body
+    assert "avg_slippage_vs_top" in body
     assert "partial_fill_rate" in body
     assert "failure_rate_by_reason" in body

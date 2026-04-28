@@ -19,15 +19,24 @@ class ExecutionResult:
     fill_status: str
     slippage_pct: float | None
     execution_latency_ms: int
+    snapshot_to_decision_ms: int
+    decision_to_submission_ms: int
+    submission_to_inclusion_ms: int
+    total_execution_latency_ms: int
     failure_reason: str | None
     snapshot_age_ms: int
     queue_haircut_pct: float
+    latency_haircut_pct: float
+    contention_haircut_pct: float
+    trustline_liquidity_discount_pct: float
+    ledger_drift_pct: float
+    effective_liquidity_ratio: float
     fill_levels: list[dict[str, float | int]]
     consumed_levels_detailed: list[dict[str, float | int]]
 
     @property
     def fill_success(self) -> bool:
-        return self.fill_status == "FULL"
+        return self.fill_status in {"FILLED", "FULL"}
 
     @property
     def partial_fill(self) -> bool:
@@ -63,8 +72,49 @@ def _fill_status(requested: float, filled: float) -> str:
     if filled <= 1e-12:
         return "UNFILLED"
     if filled + 1e-9 >= requested:
-        return "FULL"
+        return "FILLED"
     return "PARTIAL"
+
+
+def _clamp_pct(raw: float) -> float:
+    return max(0.0, min(0.95, float(raw)))
+
+
+def _degradation_multiplier(*, queue: float, latency: float, contention: float, trustline: float, fundedness: float, drift: float) -> float:
+    # Apply independent execution degradations multiplicatively to avoid optimistic overfills.
+    mul = 1.0
+    for pct in (queue, latency, contention, trustline, fundedness, drift):
+        mul *= 1.0 - _clamp_pct(pct)
+    return max(0.0, min(1.0, mul))
+
+
+def _stage_latency_total(
+    *,
+    execution_latency_ms: int,
+    snapshot_to_decision_ms: int | None,
+    decision_to_submission_ms: int | None,
+    submission_to_inclusion_ms: int | None,
+) -> tuple[int, int, int, int]:
+    if (
+        snapshot_to_decision_ms is None
+        and decision_to_submission_ms is None
+        and submission_to_inclusion_ms is None
+    ):
+        total = max(0, int(execution_latency_ms))
+        return 0, 0, total, total
+
+    s2d = max(0, int(snapshot_to_decision_ms or 0))
+    d2s = max(0, int(decision_to_submission_ms or 0))
+    s2i = max(0, int(submission_to_inclusion_ms or 0))
+    total = s2d + d2s + s2i
+    return s2d, d2s, s2i, total
+
+
+def _dynamic_latency_haircut(base_latency_haircut_pct: float, s2d_ms: int, d2s_ms: int, s2i_ms: int, total_ms: int) -> float:
+    # Longer staged latency means worse queue position and higher stale risk.
+    stage_penalty = (s2d_ms / 20000.0) + (d2s_ms / 16000.0) + (s2i_ms / 12000.0)
+    total_penalty = total_ms / 30000.0
+    return _clamp_pct(float(base_latency_haircut_pct) + stage_penalty + total_penalty)
 
 
 def _snapshot_age_ms(snapshot_time: datetime, signal_time: datetime, execution_latency_ms: int) -> tuple[int, datetime]:
@@ -106,13 +156,26 @@ def simulate_entry_buy(
     snapshot_time: datetime,
     signal_time: datetime,
     execution_latency_ms: int,
+    snapshot_to_decision_ms: int | None = None,
+    decision_to_submission_ms: int | None = None,
+    submission_to_inclusion_ms: int | None = None,
     max_snapshot_age_ms: int,
     liquidity_haircut_pct: float,
+    latency_haircut_pct: float = 0.0,
+    contention_haircut_pct: float = 0.0,
+    trustline_liquidity_discount_pct: float = 0.0,
+    ledger_drift_pct: float = 0.0,
     min_level_xrp: float = 0.0,
     max_levels: int | None = None,
 ) -> ExecutionResult:
     requested = max(0.0, float(requested_size_xrp))
-    age_ms, _ = _snapshot_age_ms(snapshot_time, signal_time, execution_latency_ms)
+    s2d_ms, d2s_ms, s2i_ms, total_latency_ms = _stage_latency_total(
+        execution_latency_ms=execution_latency_ms,
+        snapshot_to_decision_ms=snapshot_to_decision_ms,
+        decision_to_submission_ms=decision_to_submission_ms,
+        submission_to_inclusion_ms=submission_to_inclusion_ms,
+    )
+    age_ms, _ = _snapshot_age_ms(snapshot_time, signal_time, total_latency_ms)
     if age_ms > max_snapshot_age_ms:
         return ExecutionResult(
             requested_size=requested,
@@ -121,10 +184,19 @@ def simulate_entry_buy(
             avg_exit_price=None,
             fill_status="UNFILLED",
             slippage_pct=None,
-            execution_latency_ms=execution_latency_ms,
+            execution_latency_ms=total_latency_ms,
+            snapshot_to_decision_ms=s2d_ms,
+            decision_to_submission_ms=d2s_ms,
+            submission_to_inclusion_ms=s2i_ms,
+            total_execution_latency_ms=total_latency_ms,
             failure_reason="STALE_MARKET_DATA",
             snapshot_age_ms=age_ms,
-            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
+            queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
+            latency_haircut_pct=_clamp_pct(latency_haircut_pct),
+            contention_haircut_pct=_clamp_pct(contention_haircut_pct),
+            trustline_liquidity_discount_pct=_clamp_pct(trustline_liquidity_discount_pct),
+            ledger_drift_pct=_clamp_pct(ledger_drift_pct),
+            effective_liquidity_ratio=0.0,
             fill_levels=[],
             consumed_levels_detailed=[],
         )
@@ -137,10 +209,19 @@ def simulate_entry_buy(
             avg_exit_price=None,
             fill_status="UNFILLED",
             slippage_pct=None,
-            execution_latency_ms=execution_latency_ms,
+            execution_latency_ms=total_latency_ms,
+            snapshot_to_decision_ms=s2d_ms,
+            decision_to_submission_ms=d2s_ms,
+            submission_to_inclusion_ms=s2i_ms,
+            total_execution_latency_ms=total_latency_ms,
             failure_reason="NO_REQUESTED_SIZE",
             snapshot_age_ms=age_ms,
-            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
+            queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
+            latency_haircut_pct=_clamp_pct(latency_haircut_pct),
+            contention_haircut_pct=_clamp_pct(contention_haircut_pct),
+            trustline_liquidity_discount_pct=_clamp_pct(trustline_liquidity_discount_pct),
+            ledger_drift_pct=_clamp_pct(ledger_drift_pct),
+            effective_liquidity_ratio=0.0,
             fill_levels=[],
             consumed_levels_detailed=[],
         )
@@ -153,19 +234,34 @@ def simulate_entry_buy(
             avg_exit_price=None,
             fill_status="UNFILLED",
             slippage_pct=None,
-            execution_latency_ms=execution_latency_ms,
+            execution_latency_ms=total_latency_ms,
+            snapshot_to_decision_ms=s2d_ms,
+            decision_to_submission_ms=d2s_ms,
+            submission_to_inclusion_ms=s2i_ms,
+            total_execution_latency_ms=total_latency_ms,
             failure_reason="INVALID_ORDERBOOK",
             snapshot_age_ms=age_ms,
-            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
+            queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
+            latency_haircut_pct=_clamp_pct(latency_haircut_pct),
+            contention_haircut_pct=_clamp_pct(contention_haircut_pct),
+            trustline_liquidity_discount_pct=_clamp_pct(trustline_liquidity_discount_pct),
+            ledger_drift_pct=_clamp_pct(ledger_drift_pct),
+            effective_liquidity_ratio=0.0,
             fill_levels=[],
             consumed_levels_detailed=[],
         )
 
-    haircut = max(0.0, min(0.95, liquidity_haircut_pct))
+    queue_haircut = _clamp_pct(liquidity_haircut_pct)
+    latency_haircut = _dynamic_latency_haircut(latency_haircut_pct, s2d_ms, d2s_ms, s2i_ms, total_latency_ms)
+    contention_haircut = _clamp_pct(contention_haircut_pct)
+    trustline_haircut = _clamp_pct(trustline_liquidity_discount_pct)
+    ledger_drift_haircut = _clamp_pct(ledger_drift_pct)
     remaining_xrp = requested
     spent_xrp = 0.0
     tokens_bought = 0.0
     levels_used: list[dict[str, float | int]] = []
+    raw_total_xrp = 0.0
+    effective_total_xrp = 0.0
 
     for idx, level in enumerate(asks):
         if max_levels is not None and idx >= max_levels:
@@ -174,10 +270,19 @@ def simulate_entry_buy(
         price = float(level.get("price", 0.0))
         raw_xrp_value = float(level.get("xrp_value", 0.0))
         raw_token_amount = float(level.get("token_amount", 0.0))
+        raw_total_xrp += max(0.0, raw_xrp_value)
         fundedness_haircut = _fundedness_reliability_haircut(asks, "ask", idx)
-        effective_haircut = min(0.95, haircut + fundedness_haircut)
-        effective_xrp_value = raw_xrp_value * (1.0 - effective_haircut)
-        effective_token_amount = raw_token_amount * (1.0 - effective_haircut)
+        eff_mul = _degradation_multiplier(
+            queue=queue_haircut,
+            latency=latency_haircut,
+            contention=contention_haircut,
+            trustline=trustline_haircut,
+            fundedness=fundedness_haircut,
+            drift=ledger_drift_haircut,
+        )
+        effective_xrp_value = raw_xrp_value * eff_mul
+        effective_token_amount = raw_token_amount * eff_mul
+        effective_total_xrp += max(0.0, effective_xrp_value)
         if price <= 0 or effective_xrp_value <= 0 or effective_token_amount <= 0:
             continue
         if effective_xrp_value < max(0.0, float(min_level_xrp)):
@@ -197,6 +302,10 @@ def simulate_entry_buy(
                 "raw_tokens": raw_token_amount,
                 "effective_tokens": effective_token_amount,
                 "fundedness_haircut_pct": fundedness_haircut,
+                "latency_haircut_pct": latency_haircut,
+                "contention_haircut_pct": contention_haircut,
+                "trustline_haircut_pct": trustline_haircut,
+                "ledger_drift_pct": ledger_drift_haircut,
                 "consumed_xrp": take_xrp,
                 "consumed_tokens": token_take,
             }
@@ -205,7 +314,9 @@ def simulate_entry_buy(
         if remaining_xrp <= 0:
             break
 
+    eff_ratio = 0.0 if raw_total_xrp <= 0 else max(0.0, min(1.0, effective_total_xrp / raw_total_xrp))
     if spent_xrp <= 0 or tokens_bought <= 0:
+        reason = "BOOK_COLLAPSED" if raw_total_xrp > 0 and eff_ratio < 0.25 else "NO_LIQUIDITY"
         return ExecutionResult(
             requested_size=requested,
             filled_size=0.0,
@@ -213,10 +324,19 @@ def simulate_entry_buy(
             avg_exit_price=None,
             fill_status="UNFILLED",
             slippage_pct=None,
-            execution_latency_ms=execution_latency_ms,
-            failure_reason="NO_LIQUIDITY",
+            execution_latency_ms=total_latency_ms,
+            snapshot_to_decision_ms=s2d_ms,
+            decision_to_submission_ms=d2s_ms,
+            submission_to_inclusion_ms=s2i_ms,
+            total_execution_latency_ms=total_latency_ms,
+            failure_reason=reason,
             snapshot_age_ms=age_ms,
-            queue_haircut_pct=haircut,
+            queue_haircut_pct=queue_haircut,
+            latency_haircut_pct=latency_haircut,
+            contention_haircut_pct=contention_haircut,
+            trustline_liquidity_discount_pct=trustline_haircut,
+            ledger_drift_pct=ledger_drift_haircut,
+            effective_liquidity_ratio=eff_ratio,
             fill_levels=[],
             consumed_levels_detailed=[],
         )
@@ -230,7 +350,7 @@ def simulate_entry_buy(
     if status == "UNFILLED":
         reason = "NO_LIQUIDITY"
     elif status == "PARTIAL":
-        reason = "PARTIAL_FILL"
+        reason = "INSUFFICIENT_DEPTH"
 
     return ExecutionResult(
         requested_size=requested,
@@ -239,10 +359,19 @@ def simulate_entry_buy(
         avg_exit_price=None,
         fill_status=status,
         slippage_pct=slippage,
-        execution_latency_ms=execution_latency_ms,
+        execution_latency_ms=total_latency_ms,
+        snapshot_to_decision_ms=s2d_ms,
+        decision_to_submission_ms=d2s_ms,
+        submission_to_inclusion_ms=s2i_ms,
+        total_execution_latency_ms=total_latency_ms,
         failure_reason=reason,
         snapshot_age_ms=age_ms,
-        queue_haircut_pct=haircut,
+        queue_haircut_pct=queue_haircut,
+        latency_haircut_pct=latency_haircut,
+        contention_haircut_pct=contention_haircut,
+        trustline_liquidity_discount_pct=trustline_haircut,
+        ledger_drift_pct=ledger_drift_haircut,
+        effective_liquidity_ratio=eff_ratio,
         fill_levels=levels_used,
         consumed_levels_detailed=levels_used,
     )
@@ -257,13 +386,26 @@ def simulate_exit_sell(
     snapshot_time: datetime,
     signal_time: datetime,
     execution_latency_ms: int,
+    snapshot_to_decision_ms: int | None = None,
+    decision_to_submission_ms: int | None = None,
+    submission_to_inclusion_ms: int | None = None,
     max_snapshot_age_ms: int,
     liquidity_haircut_pct: float,
+    latency_haircut_pct: float = 0.0,
+    contention_haircut_pct: float = 0.0,
+    trustline_liquidity_discount_pct: float = 0.0,
+    ledger_drift_pct: float = 0.0,
     min_level_xrp: float = 0.0,
     max_levels: int | None = None,
 ) -> ExecutionResult:
     requested = max(0.0, float(requested_token_size))
-    age_ms, _ = _snapshot_age_ms(snapshot_time, signal_time, execution_latency_ms)
+    s2d_ms, d2s_ms, s2i_ms, total_latency_ms = _stage_latency_total(
+        execution_latency_ms=execution_latency_ms,
+        snapshot_to_decision_ms=snapshot_to_decision_ms,
+        decision_to_submission_ms=decision_to_submission_ms,
+        submission_to_inclusion_ms=submission_to_inclusion_ms,
+    )
+    age_ms, _ = _snapshot_age_ms(snapshot_time, signal_time, total_latency_ms)
     if age_ms > max_snapshot_age_ms:
         return ExecutionResult(
             requested_size=requested,
@@ -272,10 +414,19 @@ def simulate_exit_sell(
             avg_exit_price=None,
             fill_status="UNFILLED",
             slippage_pct=None,
-            execution_latency_ms=execution_latency_ms,
+            execution_latency_ms=total_latency_ms,
+            snapshot_to_decision_ms=s2d_ms,
+            decision_to_submission_ms=d2s_ms,
+            submission_to_inclusion_ms=s2i_ms,
+            total_execution_latency_ms=total_latency_ms,
             failure_reason="STALE_MARKET_DATA",
             snapshot_age_ms=age_ms,
-            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
+            queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
+            latency_haircut_pct=_clamp_pct(latency_haircut_pct),
+            contention_haircut_pct=_clamp_pct(contention_haircut_pct),
+            trustline_liquidity_discount_pct=_clamp_pct(trustline_liquidity_discount_pct),
+            ledger_drift_pct=_clamp_pct(ledger_drift_pct),
+            effective_liquidity_ratio=0.0,
             fill_levels=[],
             consumed_levels_detailed=[],
         )
@@ -288,10 +439,19 @@ def simulate_exit_sell(
             avg_exit_price=None,
             fill_status="UNFILLED",
             slippage_pct=None,
-            execution_latency_ms=execution_latency_ms,
+            execution_latency_ms=total_latency_ms,
+            snapshot_to_decision_ms=s2d_ms,
+            decision_to_submission_ms=d2s_ms,
+            submission_to_inclusion_ms=s2i_ms,
+            total_execution_latency_ms=total_latency_ms,
             failure_reason="NO_REQUESTED_SIZE",
             snapshot_age_ms=age_ms,
-            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
+            queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
+            latency_haircut_pct=_clamp_pct(latency_haircut_pct),
+            contention_haircut_pct=_clamp_pct(contention_haircut_pct),
+            trustline_liquidity_discount_pct=_clamp_pct(trustline_liquidity_discount_pct),
+            ledger_drift_pct=_clamp_pct(ledger_drift_pct),
+            effective_liquidity_ratio=0.0,
             fill_levels=[],
             consumed_levels_detailed=[],
         )
@@ -304,19 +464,34 @@ def simulate_exit_sell(
             avg_exit_price=None,
             fill_status="UNFILLED",
             slippage_pct=None,
-            execution_latency_ms=execution_latency_ms,
+            execution_latency_ms=total_latency_ms,
+            snapshot_to_decision_ms=s2d_ms,
+            decision_to_submission_ms=d2s_ms,
+            submission_to_inclusion_ms=s2i_ms,
+            total_execution_latency_ms=total_latency_ms,
             failure_reason="NO_BIDS",
             snapshot_age_ms=age_ms,
-            queue_haircut_pct=max(0.0, min(0.95, liquidity_haircut_pct)),
+            queue_haircut_pct=_clamp_pct(liquidity_haircut_pct),
+            latency_haircut_pct=_clamp_pct(latency_haircut_pct),
+            contention_haircut_pct=_clamp_pct(contention_haircut_pct),
+            trustline_liquidity_discount_pct=_clamp_pct(trustline_liquidity_discount_pct),
+            ledger_drift_pct=_clamp_pct(ledger_drift_pct),
+            effective_liquidity_ratio=0.0,
             fill_levels=[],
             consumed_levels_detailed=[],
         )
 
-    haircut = max(0.0, min(0.95, liquidity_haircut_pct))
+    queue_haircut = _clamp_pct(liquidity_haircut_pct)
+    latency_haircut = _dynamic_latency_haircut(latency_haircut_pct, s2d_ms, d2s_ms, s2i_ms, total_latency_ms)
+    contention_haircut = _clamp_pct(contention_haircut_pct)
+    trustline_haircut = _clamp_pct(trustline_liquidity_discount_pct)
+    ledger_drift_haircut = _clamp_pct(ledger_drift_pct)
     remaining_tokens = requested
     sold_tokens = 0.0
     proceeds_xrp = 0.0
     levels_used: list[dict[str, float | int]] = []
+    raw_total_xrp = 0.0
+    effective_total_xrp = 0.0
 
     for idx, level in enumerate(bids):
         if max_levels is not None and idx >= max_levels:
@@ -325,10 +500,19 @@ def simulate_exit_sell(
         price = float(level.get("price", 0.0))
         raw_token_amount = float(level.get("token_amount", 0.0))
         fundedness_haircut = _fundedness_reliability_haircut(bids, "bid", idx)
-        effective_haircut = min(0.95, haircut + fundedness_haircut)
-        effective_token_amount = raw_token_amount * (1.0 - effective_haircut)
+        eff_mul = _degradation_multiplier(
+            queue=queue_haircut,
+            latency=latency_haircut,
+            contention=contention_haircut,
+            trustline=trustline_haircut,
+            fundedness=fundedness_haircut,
+            drift=ledger_drift_haircut,
+        )
+        effective_token_amount = raw_token_amount * eff_mul
         raw_liquidity_xrp = raw_token_amount * price
         effective_liquidity_xrp = effective_token_amount * price
+        raw_total_xrp += max(0.0, raw_liquidity_xrp)
+        effective_total_xrp += max(0.0, effective_liquidity_xrp)
         if price <= 0 or effective_token_amount <= 0:
             continue
         if effective_liquidity_xrp < max(0.0, float(min_level_xrp)):
@@ -347,6 +531,10 @@ def simulate_exit_sell(
                 "raw_tokens": raw_token_amount,
                 "effective_tokens": effective_token_amount,
                 "fundedness_haircut_pct": fundedness_haircut,
+                "latency_haircut_pct": latency_haircut,
+                "contention_haircut_pct": contention_haircut,
+                "trustline_haircut_pct": trustline_haircut,
+                "ledger_drift_pct": ledger_drift_haircut,
                 "consumed_tokens": take_tokens,
                 "proceeds_xrp": take_tokens * price,
             }
@@ -355,7 +543,9 @@ def simulate_exit_sell(
         if remaining_tokens <= 0:
             break
 
+    eff_ratio = 0.0 if raw_total_xrp <= 0 else max(0.0, min(1.0, effective_total_xrp / raw_total_xrp))
     if sold_tokens <= 0:
+        reason = "BOOK_COLLAPSED" if raw_total_xrp > 0 and eff_ratio < 0.25 else "NO_BIDS"
         return ExecutionResult(
             requested_size=requested,
             filled_size=0.0,
@@ -363,10 +553,19 @@ def simulate_exit_sell(
             avg_exit_price=None,
             fill_status="UNFILLED",
             slippage_pct=None,
-            execution_latency_ms=execution_latency_ms,
-            failure_reason="NO_BIDS",
+            execution_latency_ms=total_latency_ms,
+            snapshot_to_decision_ms=s2d_ms,
+            decision_to_submission_ms=d2s_ms,
+            submission_to_inclusion_ms=s2i_ms,
+            total_execution_latency_ms=total_latency_ms,
+            failure_reason=reason,
             snapshot_age_ms=age_ms,
-            queue_haircut_pct=haircut,
+            queue_haircut_pct=queue_haircut,
+            latency_haircut_pct=latency_haircut,
+            contention_haircut_pct=contention_haircut,
+            trustline_liquidity_discount_pct=trustline_haircut,
+            ledger_drift_pct=ledger_drift_haircut,
+            effective_liquidity_ratio=eff_ratio,
             fill_levels=[],
             consumed_levels_detailed=[],
         )
@@ -376,7 +575,7 @@ def simulate_exit_sell(
     if best_bid > 0:
         slippage = max(0.0, ((best_bid - avg_exit) / best_bid) * 100.0)
     status = _fill_status(requested, sold_tokens)
-    reason = "PARTIAL_EXIT" if status == "PARTIAL" else None
+    reason = "INSUFFICIENT_DEPTH" if status == "PARTIAL" else None
 
     return ExecutionResult(
         requested_size=requested,
@@ -385,10 +584,19 @@ def simulate_exit_sell(
         avg_exit_price=avg_exit,
         fill_status=status,
         slippage_pct=slippage,
-        execution_latency_ms=execution_latency_ms,
+        execution_latency_ms=total_latency_ms,
+        snapshot_to_decision_ms=s2d_ms,
+        decision_to_submission_ms=d2s_ms,
+        submission_to_inclusion_ms=s2i_ms,
+        total_execution_latency_ms=total_latency_ms,
         failure_reason=reason,
         snapshot_age_ms=age_ms,
-        queue_haircut_pct=haircut,
+        queue_haircut_pct=queue_haircut,
+        latency_haircut_pct=latency_haircut,
+        contention_haircut_pct=contention_haircut,
+        trustline_liquidity_discount_pct=trustline_haircut,
+        ledger_drift_pct=ledger_drift_haircut,
+        effective_liquidity_ratio=eff_ratio,
         fill_levels=levels_used,
         consumed_levels_detailed=levels_used,
     )

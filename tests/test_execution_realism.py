@@ -151,6 +151,80 @@ def test_stale_snapshot_rejection() -> None:
     assert out.failure_reason == "STALE_MARKET_DATA"
 
 
+def test_staged_latency_longer_delay_reduces_fill_size() -> None:
+    now = datetime.now(tz=timezone.utc)
+    fast = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=85.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        snapshot_to_decision_ms=20,
+        decision_to_submission_ms=20,
+        submission_to_inclusion_ms=20,
+        max_snapshot_age_ms=5000,
+        liquidity_haircut_pct=0.0,
+        latency_haircut_pct=0.0,
+    )
+    slow = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=85.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        snapshot_to_decision_ms=3000,
+        decision_to_submission_ms=3000,
+        submission_to_inclusion_ms=3000,
+        max_snapshot_age_ms=10000,
+        liquidity_haircut_pct=0.0,
+        latency_haircut_pct=0.0,
+    )
+    assert slow.filled_size < fast.filled_size
+
+
+def test_staged_latency_stale_rejection() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=10.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        snapshot_to_decision_ms=1000,
+        decision_to_submission_ms=1000,
+        submission_to_inclusion_ms=1000,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+    )
+    assert out.failure_reason == "STALE_MARKET_DATA"
+
+
+def test_total_latency_equals_staged_sum() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=10.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        snapshot_to_decision_ms=111,
+        decision_to_submission_ms=222,
+        submission_to_inclusion_ms=333,
+        max_snapshot_age_ms=5000,
+        liquidity_haircut_pct=0.0,
+    )
+    assert out.total_execution_latency_ms == 666
+    assert out.execution_latency_ms == 666
+
+
 def test_depth_walk_vwap_correctness() -> None:
     now = datetime.now(tz=timezone.utc)
     out = simulate_entry_buy(
@@ -302,6 +376,78 @@ def test_high_queue_haircut_causes_partial_fill() -> None:
     )
     assert out.fill_status == "PARTIAL"
     assert out.queue_haircut_pct == pytest.approx(0.8)
+
+
+def test_latency_and_contention_reduce_effective_fill() -> None:
+    now = datetime.now(tz=timezone.utc)
+    baseline = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=95.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.05,
+        latency_haircut_pct=0.0,
+        contention_haircut_pct=0.0,
+    )
+    stressed = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=95.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.05,
+        latency_haircut_pct=0.20,
+        contention_haircut_pct=0.20,
+    )
+    assert stressed.filled_size < baseline.filled_size
+    assert stressed.effective_liquidity_ratio < baseline.effective_liquidity_ratio
+
+
+def test_trustline_discount_can_force_insufficient_depth() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=90.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+        trustline_liquidity_discount_pct=0.30,
+    )
+    assert out.fill_status == "PARTIAL"
+    assert out.failure_reason == "INSUFFICIENT_DEPTH"
+
+
+def test_ledger_drift_book_collapse_reason() -> None:
+    now = datetime.now(tz=timezone.utc)
+    out = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=20.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+        latency_haircut_pct=0.90,
+        contention_haircut_pct=0.90,
+        ledger_drift_pct=0.90,
+        trustline_liquidity_discount_pct=0.40,
+        min_level_xrp=1.0,
+    )
+    assert out.fill_status == "UNFILLED"
+    assert out.failure_reason == "BOOK_COLLAPSED"
 
 
 def test_deep_book_cap_enforced() -> None:
@@ -477,7 +623,7 @@ def test_canonical_mismatch_detects_legacy_gt_canonical(monkeypatch: pytest.Monk
                 filled_size_xrp=50.0,
                 fill_success=True,
                 partial_fill=False,
-                fill_status="FULL",
+                fill_status="FILLED",
             )
         )
         session.commit()
@@ -532,7 +678,7 @@ def test_canonical_mismatch_detects_semantic_mismatch(monkeypatch: pytest.Monkey
                 filled_size_xrp=70.0,
                 fill_success=True,
                 partial_fill=False,
-                fill_status="FULL",
+                fill_status="FILLED",
                 exit_time=datetime.now(tz=timezone.utc),
                 exit_price=1.1,
             )

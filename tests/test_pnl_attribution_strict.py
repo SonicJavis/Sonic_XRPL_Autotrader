@@ -790,6 +790,57 @@ def test_valid_next_ledger_execution_is_accepted() -> None:
     assert row.ledger_index_inclusion == 102
 
 
+def test_execution_record_persists_staged_latency_fields() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+        )
+        out = simulate_entry_buy(
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+            best_bid=1.0,
+            best_ask=1.1,
+            requested_size_xrp=10.0,
+            snapshot_time=now,
+            signal_time=now,
+            execution_latency_ms=0,
+            snapshot_to_decision_ms=120,
+            decision_to_submission_ms=230,
+            submission_to_inclusion_ms=340,
+            max_snapshot_age_ms=5000,
+            liquidity_haircut_pct=0.0,
+        )
+        row = PnLAttributionEngine().create_execution_record(
+            session,
+            token_id=token.id,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            snapshot_id=snap.id,
+            position_id=None,
+            side="BUY",
+            execution_result=out,
+            snapshot_time=now,
+            signal_time=now,
+            execution_time=now,
+            ledger_index_snapshot=100,
+            ledger_index_signal=101,
+            ledger_index_execution=101,
+            ledger_index_inclusion=102,
+            min_ledger_delay=1,
+            max_ledger_delay=3,
+        )
+
+    assert row.snapshot_to_decision_ms == 120
+    assert row.decision_to_submission_ms == 230
+    assert row.submission_to_inclusion_ms == 340
+    assert row.total_execution_latency_ms == 690
+
+
 def test_overfill_prevention() -> None:
     reset_tables()
     with Session(engine) as session:

@@ -55,6 +55,9 @@ class Settings(BaseSettings):
 
     MAX_SNAPSHOT_AGE_MS: int = Field(default=1500, ge=1)
     EXECUTION_LATENCY_MS: int = Field(default=120, ge=0)
+    SNAPSHOT_TO_DECISION_MS: int = Field(default=40, ge=0)
+    DECISION_TO_SUBMISSION_MS: int = Field(default=30, ge=0)
+    SUBMISSION_TO_INCLUSION_MS: int = Field(default=50, ge=0)
     XRPL_LEDGER_CLOSE_MS: int = Field(default=4000, ge=1000)
     MIN_LEDGER_DELAY: int = Field(default=1, ge=0)
     MAX_LEDGER_DELAY: int = Field(default=3, ge=1)
