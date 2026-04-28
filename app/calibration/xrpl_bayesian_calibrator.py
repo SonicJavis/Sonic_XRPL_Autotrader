@@ -319,7 +319,7 @@ def build_xrpl_shadow_calibration_sample(
     )
     observation = XRPLBayesianObservation(
         observed_at=observed_at,
-        sample_weight = max(0.25, observation_confidence),
+        sample_weight=max(0.25, observation_confidence),
         phantom_penalty=error_metrics.phantom_penalty,
         route_instability=error_metrics.route_instability,
         competition_penalty=error_metrics.competition_penalty,
