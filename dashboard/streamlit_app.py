@@ -40,6 +40,7 @@ from app.calibration.xrpl_memory_model import aggregate_by_issuer, aggregate_by_
 from app.calibration.xrpl_regime_detector import XRPLRegimeDetector
 from app.calibration.xrpl_time_execution_model import XRPLTimeExecutionModel, build_time_execution_input_from_shadow_execution
 from app.decision.xrpl_trade_gate import XRPLTradeGate
+from app.decision.xrpl_memory_weighting import XRPLMemoryWeighting, XRPLMemoryWeightingInput
 from app.feedback.feedback_aggregator import DecisionFeedbackAggregator
 from app.live.dashboard_metrics import build_live_dashboard_metrics
 from app.risk.kill_switch import KillSwitch
@@ -508,6 +509,9 @@ def main() -> None:
     st.warning("XRPL liquidity is not guaranteed executable")
     st.warning("Paths may change between ledgers")
     st.warning("Observed fill is probabilistic")
+    st.warning("Memory weighting is advisory only")
+    st.warning("No decision is auto-executed")
+    st.warning("Token/issuer memory is based on shadow observations only")
 
     shadow_requested_default = 100.0
     if shadow_execution_rows:
@@ -543,6 +547,16 @@ def main() -> None:
         - ((1.0 - gate_fill_probability) * gate_expected_loss)
         - (gate_adjusted_slippage * gate_requested_size * 0.01)
     )
+    gate_memory_weighting = XRPLMemoryWeighting().evaluate(
+        XRPLMemoryWeightingInput(
+            global_aggregate=memory_global,
+            token_aggregate=memory_tokens[0] if memory_tokens else None,
+            issuer_aggregate=memory_issuers[0] if memory_issuers else None,
+            global_regime=global_regime,
+            token_regime=regime_detector.assess(memory_tokens[0]) if memory_tokens else None,
+            issuer_regime=regime_detector.assess(memory_issuers[0]) if memory_issuers else None,
+        )
+    )
     gate_decision = XRPLTradeGate().evaluate_trade(
         requested_size=gate_requested_size,
         effective_size=(
@@ -552,14 +566,23 @@ def main() -> None:
             * gate_fill_probability
         ),
         latency_path_adjusted_probability=gate_fill_probability,
-        uncertainty_adjusted_value=gate_adjusted_ev,
-        drift_adjusted_ev=gate_adjusted_ev,
+        memory_adjusted_probability=gate_fill_probability * gate_memory_weighting.execution_probability_multiplier,
+        memory_adjusted_effective_size=(
+            gate_requested_size
+            * (1.0 - xrpl_shadow_calibration.calibration.recommendations.liquidity_haircut)
+            * (1.0 - xrpl_shadow_calibration.phantom_penalty_avg)
+            * gate_fill_probability
+            * gate_memory_weighting.effective_size_multiplier
+        ),
+        uncertainty_adjusted_value=gate_adjusted_ev - gate_memory_weighting.ev_penalty,
+        drift_adjusted_ev=gate_adjusted_ev - gate_memory_weighting.ev_penalty,
         threshold=0.0,
-        slippage_multiplier=gate_adjusted_slippage,
+        slippage_multiplier=gate_adjusted_slippage * gate_memory_weighting.slippage_multiplier_boost,
         liquidity_haircut=xrpl_shadow_calibration.calibration.recommendations.liquidity_haircut,
         phantom_penalty=xrpl_shadow_calibration.phantom_penalty_avg,
         route_instability=xrpl_shadow_calibration.route_instability_avg,
         competition_penalty=xrpl_shadow_calibration.competition_failure_rate,
+        memory_risk_flags=gate_memory_weighting.risk_flags,
     )
 
     tg1, tg2, tg3, tg4 = st.columns(4)
@@ -574,6 +597,15 @@ def main() -> None:
     tr3.metric("Competition Penalty", f"{xrpl_shadow_calibration.competition_failure_rate:.3f}")
     tr4.metric("Ledger Delay Error", f"{xrpl_shadow_calibration.ledger_delay_error_avg:.3f}")
 
+    mw1, mw2, mw3, mw4 = st.columns(4)
+    mw1.metric("Memory Probability Multiplier", f"{gate_memory_weighting.execution_probability_multiplier:.3f}")
+    mw2.metric("Memory Size Multiplier", f"{gate_memory_weighting.effective_size_multiplier:.3f}")
+    mw3.metric("Memory Slippage Boost", f"{gate_memory_weighting.slippage_multiplier_boost:.3f}")
+    mw4.metric("Memory EV Penalty", f"{gate_memory_weighting.ev_penalty:.3f}")
+    st.caption(
+        "Memory risk flags: "
+        + (", ".join(gate_memory_weighting.risk_flags) if gate_memory_weighting.risk_flags else "none")
+    )
     st.caption("Advisory risk flags: " + (", ".join(gate_decision.risk_flags) if gate_decision.risk_flags else "none"))
     st.progress(max(0.0, min(1.0, gate_decision.latency_path_adjusted_probability)))
     st.bar_chart(

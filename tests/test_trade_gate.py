@@ -235,3 +235,90 @@ def test_trade_gate_outputs_are_deterministic() -> None:
     second = gate.evaluate(data)
 
     assert first == second
+
+
+def test_no_memory_preserves_previous_trade_gate_output_fields() -> None:
+    gate = XRPLTradeGate()
+    baseline = gate.evaluate(
+        XRPLTradeGateInput(
+            requested_size=100.0,
+            expected_profit=20.0,
+            expected_loss=5.0,
+            threshold=0.0,
+            execution_probability_floor=0.8,
+            slippage_multiplier=1.0,
+            liquidity_haircut=0.1,
+            phantom_penalty=0.1,
+            route_instability=0.1,
+            competition_penalty=0.0,
+        )
+    )
+    explicit_neutral = gate.evaluate(
+        XRPLTradeGateInput(
+            requested_size=100.0,
+            expected_profit=20.0,
+            expected_loss=5.0,
+            threshold=0.0,
+            execution_probability_floor=0.8,
+            slippage_multiplier=1.0,
+            liquidity_haircut=0.1,
+            phantom_penalty=0.1,
+            route_instability=0.1,
+            competition_penalty=0.0,
+            memory_probability_multiplier=1.0,
+            memory_size_multiplier=1.0,
+            memory_slippage_boost=1.0,
+            memory_ev_penalty=0.0,
+        )
+    )
+
+    assert explicit_neutral == baseline
+    assert baseline.memory_adjusted_probability == baseline.latency_path_adjusted_probability
+    assert baseline.memory_adjusted_effective_size == baseline.effective_size
+
+
+def test_memory_reduces_probability_and_effective_size() -> None:
+    decision = XRPLTradeGate().evaluate(
+        XRPLTradeGateInput(
+            requested_size=100.0,
+            expected_profit=20.0,
+            expected_loss=5.0,
+            threshold=0.0,
+            execution_probability_floor=0.8,
+            slippage_multiplier=1.0,
+            liquidity_haircut=0.1,
+            phantom_penalty=0.1,
+            route_instability=0.1,
+            competition_penalty=0.0,
+            memory_probability_multiplier=0.5,
+            memory_size_multiplier=0.4,
+        )
+    )
+
+    assert decision.memory_adjusted_probability < decision.latency_path_adjusted_probability
+    assert decision.memory_adjusted_effective_size < decision.effective_size
+
+
+def test_execution_collapse_memory_blocks_allow_trade() -> None:
+    decision = XRPLTradeGate().evaluate(
+        XRPLTradeGateInput(
+            requested_size=100.0,
+            expected_profit=50.0,
+            expected_loss=1.0,
+            threshold=0.0,
+            execution_probability_floor=0.9,
+            slippage_multiplier=1.0,
+            liquidity_haircut=0.0,
+            phantom_penalty=0.0,
+            route_instability=0.0,
+            competition_penalty=0.0,
+            memory_probability_multiplier=0.1,
+            memory_size_multiplier=0.1,
+            memory_ev_penalty=1.0,
+            memory_risk_flags=["EXECUTION_MEMORY_COLLAPSE"],
+        )
+    )
+
+    assert decision.allow_trade is False
+    assert "EXECUTION_MEMORY_COLLAPSE" in decision.memory_risk_flags
+    assert "EXECUTION_MEMORY_COLLAPSE" in decision.risk_flags

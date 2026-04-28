@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from typing import Any
 from math import ceil
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from app.decision.xrpl_trade_gate import XRPLTradeGate, XRPLTradeGateInput
+from app.decision.xrpl_memory_weighting import build_memory_weighting_from_payload
 
 router = APIRouter()
 
@@ -39,6 +41,7 @@ class TradeGateEvaluateRequest(BaseModel):
     expected_profit: float
     expected_loss: float = Field(ge=0.0)
     calibration: TradeGateCalibrationInput
+    memory: dict[str, Any] | None = None
 
 
 @router.post("/trade-gate/evaluate")
@@ -53,6 +56,7 @@ def trade_gate_evaluate(payload: TradeGateEvaluateRequest) -> dict[str, object]:
         * (1.0 + float(calibration.route_instability))
         * (1.0 + float(calibration.competition_penalty)),
     )
+    memory_weighting = build_memory_weighting_from_payload(payload.memory)
     decision = XRPLTradeGate().evaluate(
         data=XRPLTradeGateInput(
             requested_size=requested_size,
@@ -73,15 +77,29 @@ def trade_gate_evaluate(payload: TradeGateEvaluateRequest) -> dict[str, object]:
             ledger_index_execution=ledger_delay,
             path_complexity=path_complexity,
             slippage_estimate=float(calibration.slippage_estimate),
+            memory_probability_multiplier=memory_weighting.execution_probability_multiplier,
+            memory_size_multiplier=memory_weighting.effective_size_multiplier,
+            memory_slippage_boost=memory_weighting.slippage_multiplier_boost,
+            memory_ev_penalty=memory_weighting.ev_penalty,
+            memory_risk_flags=memory_weighting.risk_flags,
         )
     )
     return {
         "allow_trade": decision.allow_trade,
         "effective_size": decision.effective_size,
+        "memory_adjusted_effective_size": decision.memory_adjusted_effective_size,
         "latency_path_adjusted_probability": decision.latency_path_adjusted_probability,
         "adjusted_execution_probability": decision.latency_path_adjusted_probability,
+        "memory_adjusted_probability": decision.memory_adjusted_probability,
         "uncertainty_adjusted_value": decision.uncertainty_adjusted_value,
         "drift_adjusted_ev": decision.drift_adjusted_ev,
+        "memory_probability_multiplier": memory_weighting.execution_probability_multiplier,
+        "memory_size_multiplier": memory_weighting.effective_size_multiplier,
+        "memory_slippage_boost": memory_weighting.slippage_multiplier_boost,
+        "memory_ev_penalty": memory_weighting.ev_penalty,
+        "memory_risk_flags": decision.memory_risk_flags,
+        "memory_advisory_risk_level": memory_weighting.advisory_risk_level,
+        "memory_reasoning": memory_weighting.reasoning,
         "risk_flags": decision.risk_flags,
         "reasoning": decision.reasoning,
         "is_advisory": True,
