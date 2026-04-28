@@ -19,6 +19,7 @@ def _observation(
     route_instability: float = 0.0,
     sample_weight: float = 1.0,
     weighted_error: float = 0.5,
+    drift_error: float = 0.0,
 ) -> XRPLBayesianObservation:
     return XRPLBayesianObservation(
         observed_at=observed_at,
@@ -32,6 +33,9 @@ def _observation(
         path_error=path_error,
         ledger_delay_error=ledger_delay_error,
         weighted_error=weighted_error,
+        drift_error=drift_error,
+        latency_stability_error=ledger_delay_error,
+        path_reliability_weighting_error=max(path_error, route_instability),
     )
 
 
@@ -117,3 +121,6 @@ def test_bayesian_calibrator_recommendations_use_lower_bounds_only() -> None:
         6,
     )
     assert summary.recommendations.expected_slippage_multiplier == 1.5
+    assert summary.drift_reliability.lower_bound <= 1.0
+    assert summary.latency_stability.lower_bound <= 1.0
+    assert summary.path_reliability_weighting.lower_bound <= 1.0

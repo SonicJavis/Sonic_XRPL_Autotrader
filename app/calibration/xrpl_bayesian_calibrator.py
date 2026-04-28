@@ -44,6 +44,9 @@ class XRPLBayesianObservation:
     path_error: float
     ledger_delay_error: float
     weighted_error: float
+    drift_error: float
+    latency_stability_error: float
+    path_reliability_weighting_error: float
 
 
 @dataclass(slots=True)
@@ -73,6 +76,9 @@ class XRPLBayesianCalibrationSummary:
     latency_reliability: XRPLReliabilityDimension
     fill_reliability: XRPLReliabilityDimension
     competition_reliability: XRPLReliabilityDimension
+    drift_reliability: XRPLReliabilityDimension
+    latency_stability: XRPLReliabilityDimension
+    path_reliability_weighting: XRPLReliabilityDimension
     recommendations: XRPLShadowRecommendations
     phantom_penalty_avg: float
     weighted_error_avg: float
@@ -124,6 +130,9 @@ class XRPLBayesianCalibrator:
             "latency": 1.0,
             "fill": 1.0,
             "competition": 1.0,
+            "drift": 1.0,
+            "latency_stability": 1.0,
+            "path_reliability_weighting": 1.0,
         }
 
     def calibrate(
@@ -156,6 +165,9 @@ class XRPLBayesianCalibrator:
                 latency_reliability=zero_dimension,
                 fill_reliability=zero_dimension,
                 competition_reliability=zero_dimension,
+                drift_reliability=zero_dimension,
+                latency_stability=zero_dimension,
+                path_reliability_weighting=zero_dimension,
                 recommendations=recommendations,
                 phantom_penalty_avg=0.0,
                 weighted_error_avg=0.0,
@@ -178,6 +190,9 @@ class XRPLBayesianCalibrator:
                 "latency": _clamp_unit(observation.ledger_delay_error),
                 "fill": _clamp_unit(max(observation.fill_disagreement, observation.low_fill_bias)),
                 "competition": _clamp_unit(observation.competition_penalty),
+                "drift": _clamp_unit(observation.drift_error),
+                "latency_stability": _clamp_unit(observation.latency_stability_error),
+                "path_reliability_weighting": _clamp_unit(observation.path_reliability_weighting_error),
             }
             for dimension, score in error_scores.items():
                 state = states[dimension]
@@ -197,6 +212,9 @@ class XRPLBayesianCalibrator:
         latency_dimension = self._dimension_from_state(states["latency"])
         fill_dimension = self._dimension_from_state(states["fill"])
         competition_dimension = self._dimension_from_state(states["competition"])
+        drift_dimension = self._dimension_from_state(states["drift"])
+        latency_stability_dimension = self._dimension_from_state(states["latency_stability"])
+        path_reliability_weighting_dimension = self._dimension_from_state(states["path_reliability_weighting"])
         recommendations = XRPLShadowRecommendations(
             liquidity_haircut=round(1.0 - liquidity_dimension.lower_bound, 6),
             expected_slippage_multiplier=round(1.0 + max(0.0, float(phantom_penalty_avg)), 6),
@@ -212,6 +230,9 @@ class XRPLBayesianCalibrator:
             latency_reliability=latency_dimension,
             fill_reliability=fill_dimension,
             competition_reliability=competition_dimension,
+            drift_reliability=drift_dimension,
+            latency_stability=latency_stability_dimension,
+            path_reliability_weighting=path_reliability_weighting_dimension,
             recommendations=recommendations,
             phantom_penalty_avg=round(max(0.0, float(phantom_penalty_avg)), 6),
             weighted_error_avg=weighted_error_avg,
@@ -329,6 +350,9 @@ def build_xrpl_shadow_calibration_sample(
         path_error=path_error,
         ledger_delay_error=ledger_delay_error,
         weighted_error=error_metrics.weighted_error,
+        drift_error=price_error_norm,
+        latency_stability_error=ledger_delay_error,
+        path_reliability_weighting_error=max(path_error, error_metrics.route_instability),
     )
     return XRPLShadowCalibrationSample(
         execution_id=int(execution.id or 0),

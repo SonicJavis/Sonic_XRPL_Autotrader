@@ -52,6 +52,9 @@ def _aggregate(
             latency_reliability=_dimension(0.7),
             fill_reliability=_dimension(execution_probability_floor),
             competition_reliability=_dimension(max(0.0, 1.0 - (competition_risk_multiplier - 1.0))),
+            drift_reliability=_dimension(0.7),
+            latency_stability=_dimension(0.7),
+            path_reliability_weighting=_dimension(max(0.0, 1.0 - route_instability_avg)),
             recommendations=XRPLShadowRecommendations(
                 liquidity_haircut=liquidity_haircut,
                 expected_slippage_multiplier=expected_slippage_multiplier,
@@ -130,7 +133,7 @@ def test_route_instability_reduces_execution_probability() -> None:
         )
     )
 
-    assert unstable.adjusted_execution_probability < stable.adjusted_execution_probability
+    assert unstable.latency_path_adjusted_probability < stable.latency_path_adjusted_probability
     assert "ROUTE_UNSTABLE" in unstable.risk_flags
 
 
@@ -152,7 +155,7 @@ def test_competition_penalty_blocks_trade() -> None:
     )
 
     assert decision.allow_trade is False
-    assert decision.adjusted_execution_probability == 0.0
+    assert decision.latency_path_adjusted_probability == 0.0
     assert "COMPETITION_RISK_HIGH" in decision.risk_flags
 
 

@@ -16,6 +16,8 @@ def _payload(**overrides):
             "route_instability": 0.1,
             "competition_penalty": 0.1,
             "ledger_delay_error": 0.1,
+            "snapshot_derived_liquidity": 100.0,
+            "observed_possible_fill": 100.0,
         },
     }
     for key, value in overrides.items():
@@ -82,7 +84,7 @@ def test_trade_gate_api_ledger_delay_reduces_probability() -> None:
     client = TestClient(create_app())
     fast = client.post("/trade-gate/evaluate", json=_payload(calibration={"ledger_delay_error": 0.0})).json()
     slow = client.post("/trade-gate/evaluate", json=_payload(calibration={"ledger_delay_error": 1.0})).json()
-    assert slow["adjusted_execution_probability"] < fast["adjusted_execution_probability"]
+    assert slow["latency_path_adjusted_probability"] < fast["latency_path_adjusted_probability"]
 
 
 def test_trade_gate_api_is_deterministic() -> None:

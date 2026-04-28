@@ -10,6 +10,10 @@ from app.calibration.regime_classifier import RegimeClassificationInput, XRPLReg
 from app.calibration.recommendation_engine import ConfidenceWeightedCalibrationEngine, LiveCalibrationSample
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
 from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
+from app.calibration.xrpl_time_execution_model import (
+    XRPLTimeExecutionModel,
+    build_time_execution_input_from_shadow_execution,
+)
 from app.db.models import ExecutionRecord, XRPLOrderbookSequence, XRPLOrderbookSnapshot
 
 router = APIRouter()
@@ -17,12 +21,24 @@ router = APIRouter()
 
 def _shadow_calibration_meta() -> dict[str, object]:
     return {
+        "is_advisory": True,
+        "is_shadow": True,
         "is_shadow_calibration": True,
         "is_truth": False,
         "is_executable": False,
         "auto_apply": False,
         "requires_manual_review": True,
         "xrpl_warning": "Shadow calibration is advisory only and uses snapshot-derived liquidity under execution uncertainty",
+    }
+
+
+def _stats(values: list[float]) -> dict[str, float]:
+    if not values:
+        return {"min": 0.0, "max": 0.0, "avg": 0.0}
+    return {
+        "min": round(min(values), 6),
+        "max": round(max(values), 6),
+        "avg": round(sum(values) / len(values), 6),
     }
 
 
@@ -248,6 +264,9 @@ def calibration_shadow_xrpl_reliability(request: Request, limit: int = 500) -> d
             "latency_reliability": calibration.latency_reliability.lower_bound,
             "fill_reliability": calibration.fill_reliability.lower_bound,
             "competition_reliability": calibration.competition_reliability.lower_bound,
+            "drift_reliability": calibration.drift_reliability.lower_bound,
+            "latency_stability": calibration.latency_stability.lower_bound,
+            "path_reliability_weighting": calibration.path_reliability_weighting.lower_bound,
         },
         "adaptive_weights": {
             "liquidity_reliability": calibration.liquidity_reliability.adaptive_weight,
@@ -255,7 +274,77 @@ def calibration_shadow_xrpl_reliability(request: Request, limit: int = 500) -> d
             "latency_reliability": calibration.latency_reliability.adaptive_weight,
             "fill_reliability": calibration.fill_reliability.adaptive_weight,
             "competition_reliability": calibration.competition_reliability.adaptive_weight,
+            "drift_reliability": calibration.drift_reliability.adaptive_weight,
+            "latency_stability": calibration.latency_stability.adaptive_weight,
+            "path_reliability_weighting": calibration.path_reliability_weighting.adaptive_weight,
         },
+    }
+
+
+@router.get("/calibration/shadow/xrpl/time-model")
+def calibration_shadow_xrpl_time_model(request: Request, limit: int = 500) -> dict[str, object]:
+    container = request.app.state.container
+    safe_limit = min(max(limit, 1), 5000)
+    with container.session_factory() as session:
+        executions = session.exec(
+            select(ExecutionRecord).order_by(ExecutionRecord.id.desc()).limit(safe_limit)
+        ).all()
+
+    model = XRPLTimeExecutionModel()
+    latency_values: list[float] = []
+    drift_values: list[float] = []
+    path_complexities: list[float] = []
+    fill_values: list[float] = []
+    decay_values: list[float] = []
+    ev_before_values: list[float] = []
+    ev_after_values: list[float] = []
+    sample_rows: list[dict[str, float | int]] = []
+
+    for execution in executions:
+        try:
+            details = json.loads(str(execution.execution_details_json or "{}"))
+        except json.JSONDecodeError:
+            details = {}
+        if not bool(details.get("shadow")):
+            continue
+
+        data = build_time_execution_input_from_shadow_execution(execution, details)
+        result = model.evaluate(data)
+        base_probability = max(0.0, min(1.0, float(data.base_fill_probability)))
+        ev_before_drift = base_probability * (1.0 - max(0.0, float(data.slippage_estimate))) - (1.0 - base_probability)
+
+        latency_values.append(result.latency_seconds)
+        drift_values.append(result.price_drift)
+        path_complexities.append(float(data.path_complexity))
+        fill_values.append(result.effective_fill_probability)
+        decay_values.append(result.liquidity_decay)
+        ev_before_values.append(round(ev_before_drift, 6))
+        ev_after_values.append(result.drift_adjusted_ev)
+        sample_rows.append(
+            {
+                "execution_id": int(execution.id or 0),
+                "latency_seconds": result.latency_seconds,
+                "ledger_delay": result.ledger_delay,
+                "price_drift": result.price_drift,
+                "path_complexity": int(data.path_complexity),
+                "liquidity_decay": result.liquidity_decay,
+                "effective_fill_probability": result.effective_fill_probability,
+                "ev_before_drift": round(ev_before_drift, 6),
+                "drift_adjusted_ev": result.drift_adjusted_ev,
+            }
+        )
+
+    return {
+        **_shadow_calibration_meta(),
+        "sample_count": len(sample_rows),
+        "latency_distribution": latency_values,
+        "drift_distribution": drift_values,
+        "path_complexity_stats": _stats(path_complexities),
+        "decay_stats": _stats(decay_values),
+        "fill_probability_stats": _stats(fill_values),
+        "ev_before_drift_stats": _stats(ev_before_values),
+        "drift_adjusted_ev_stats": _stats(ev_after_values),
+        "samples": sample_rows[:100],
     }
 
 

@@ -36,6 +36,7 @@ from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.replay_engine import ReplayEngine
 from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
+from app.calibration.xrpl_time_execution_model import XRPLTimeExecutionModel, build_time_execution_input_from_shadow_execution
 from app.decision.xrpl_trade_gate import XRPLTradeGate
 from app.feedback.feedback_aggregator import DecisionFeedbackAggregator
 from app.live.dashboard_metrics import build_live_dashboard_metrics
@@ -256,7 +257,9 @@ def main() -> None:
         orderbook_snapshots=orderbook_snapshots,
     )
     decision_feedback = DecisionFeedbackAggregator().aggregate_from_executions(executions)
+    time_execution_model = XRPLTimeExecutionModel()
     shadow_execution_rows = []
+    time_execution_rows = []
     for row in executions:
         try:
             details = json.loads(str(row.execution_details_json or "{}"))
@@ -272,6 +275,26 @@ def main() -> None:
                     "filled_size": float(row.filled_size or 0.0),
                     "disagreement_score": round(float(details.get("disagreement_score", 0.0)), 4),
                     "path_execution_risk": round(float(details.get("path_execution_risk", 0.0)), 4),
+                }
+            )
+            time_input = build_time_execution_input_from_shadow_execution(row, details)
+            time_result = time_execution_model.evaluate(time_input)
+            base_probability = max(0.0, min(1.0, float(time_input.base_fill_probability)))
+            ev_before_drift = base_probability * (1.0 - max(0.0, float(time_input.slippage_estimate))) - (
+                1.0 - base_probability
+            )
+            time_execution_rows.append(
+                {
+                    "execution_id": int(row.id or 0),
+                    "latency_seconds": time_result.latency_seconds,
+                    "ledger_delay": time_result.ledger_delay,
+                    "price_drift": time_result.price_drift,
+                    "drift_amplified": time_result.drift_amplified,
+                    "path_complexity": int(time_input.path_complexity),
+                    "liquidity_decay": time_result.liquidity_decay,
+                    "effective_fill_probability": time_result.effective_fill_probability,
+                    "ev_before_drift": round(ev_before_drift, 6),
+                    "drift_adjusted_ev": time_result.drift_adjusted_ev,
                 }
             )
 
@@ -519,8 +542,9 @@ def main() -> None:
             * (1.0 - xrpl_shadow_calibration.phantom_penalty_avg)
             * gate_fill_probability
         ),
-        adjusted_execution_probability=gate_fill_probability,
+        latency_path_adjusted_probability=gate_fill_probability,
         uncertainty_adjusted_value=gate_adjusted_ev,
+        drift_adjusted_ev=gate_adjusted_ev,
         threshold=0.0,
         slippage_multiplier=gate_adjusted_slippage,
         liquidity_haircut=xrpl_shadow_calibration.calibration.recommendations.liquidity_haircut,
@@ -531,9 +555,9 @@ def main() -> None:
 
     tg1, tg2, tg3, tg4 = st.columns(4)
     tg1.metric("Allow Trade", "YES" if gate_decision.allow_trade else "NO")
-    tg2.metric("Execution Probability", f"{gate_decision.adjusted_execution_probability:.3f}")
+    tg2.metric("Execution Probability", f"{gate_decision.latency_path_adjusted_probability:.3f}")
     tg3.metric("Effective Size", f"{gate_decision.effective_size:.3f}")
-    tg4.metric("Adjusted EV", f"{gate_decision.uncertainty_adjusted_value:.3f}")
+    tg4.metric("Drift Adjusted EV", f"{gate_decision.drift_adjusted_ev:.3f}")
 
     tr1, tr2, tr3, tr4 = st.columns(4)
     tr1.metric("Phantom Penalty", f"{xrpl_shadow_calibration.phantom_penalty_avg:.3f}")
@@ -542,7 +566,7 @@ def main() -> None:
     tr4.metric("Ledger Delay Error", f"{xrpl_shadow_calibration.ledger_delay_error_avg:.3f}")
 
     st.caption("Advisory risk flags: " + (", ".join(gate_decision.risk_flags) if gate_decision.risk_flags else "none"))
-    st.progress(max(0.0, min(1.0, gate_decision.adjusted_execution_probability)))
+    st.progress(max(0.0, min(1.0, gate_decision.latency_path_adjusted_probability)))
     st.bar_chart(
         [
             {"label": "requested_size", "value": gate_requested_size},
@@ -559,12 +583,32 @@ def main() -> None:
     st.bar_chart(
         [
             {"label": "ev_before_adjustment", "value": gate_base_ev},
-            {"label": "ev_after_adjustment", "value": gate_decision.uncertainty_adjusted_value},
+            {"label": "ev_after_drift", "value": gate_decision.drift_adjusted_ev},
         ],
         x="label",
         y="value",
         use_container_width=True,
     )
+
+    st.subheader("XRPL Time Execution Model – Shadow Only")
+    if time_execution_rows:
+        st.bar_chart(time_execution_rows[:50], x="execution_id", y="latency_seconds", use_container_width=True)
+        st.scatter_chart(time_execution_rows[:50], x="latency_seconds", y="price_drift", use_container_width=True)
+        st.scatter_chart(
+            time_execution_rows[:50],
+            x="path_complexity",
+            y="effective_fill_probability",
+            use_container_width=True,
+        )
+        st.line_chart(time_execution_rows[:50], x="execution_id", y="liquidity_decay", use_container_width=True)
+        st.bar_chart(
+            time_execution_rows[:50],
+            x="execution_id",
+            y=["ev_before_drift", "drift_adjusted_ev"],
+            use_container_width=True,
+        )
+    else:
+        st.info("No time execution samples available yet.")
 
     st.subheader("XRPL Decision Quality – Ledger Aware")
     dq1, dq2, dq3, dq4 = st.columns(4)

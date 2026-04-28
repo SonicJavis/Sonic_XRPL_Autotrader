@@ -36,6 +36,7 @@ def test_shadow_calibration_endpoints_return_safe_empty_state() -> None:
         "/calibration/shadow/xrpl/errors",
         "/calibration/shadow/xrpl/reliability",
         "/calibration/shadow/xrpl/recommendations",
+        "/calibration/shadow/xrpl/time-model",
     ):
         res = client.get(path)
         assert res.status_code == 200
@@ -137,6 +138,11 @@ def test_shadow_calibration_endpoints_expose_xrpl_specific_metrics() -> None:
                         "observation_confidence": 0.7,
                         "ledger_delay_error": 0.3,
                         "routes_seen": ["direct", "auto_bridge"],
+                        "snapshot_price": 1.0,
+                        "execution_price": 1.04,
+                        "snapshot_derived_liquidity": 280.0,
+                        "path_complexity": 2,
+                        "slippage_estimate": 0.02,
                     }
                 ),
             )
@@ -157,7 +163,22 @@ def test_shadow_calibration_endpoints_expose_xrpl_specific_metrics() -> None:
     reliability_body = reliability.json()
     _assert_shadow_calibration_meta(reliability_body)
     assert reliability_body["reliability_lower_bounds"]["competition_reliability"] <= 1.0
+    assert reliability_body["reliability_lower_bounds"]["drift_reliability"] <= 1.0
+    assert reliability_body["reliability_lower_bounds"]["latency_stability"] <= 1.0
+    assert reliability_body["reliability_lower_bounds"]["path_reliability_weighting"] <= 1.0
     assert reliability_body["adaptive_weights"]["competition_reliability"] >= 1.0
+
+    time_model = client.get("/calibration/shadow/xrpl/time-model")
+    assert time_model.status_code == 200
+    time_model_body = time_model.json()
+    _assert_shadow_calibration_meta(time_model_body)
+    assert time_model_body["is_advisory"] is True
+    assert time_model_body["is_shadow"] is True
+    assert time_model_body["sample_count"] == 1
+    assert time_model_body["latency_distribution"] == [8.0]
+    assert time_model_body["drift_distribution"] == [0.04]
+    assert time_model_body["path_complexity_stats"]["avg"] == 2.0
+    assert time_model_body["decay_stats"]["avg"] > 0.0
 
     recommendations = client.get("/calibration/shadow/xrpl/recommendations")
     assert recommendations.status_code == 200
