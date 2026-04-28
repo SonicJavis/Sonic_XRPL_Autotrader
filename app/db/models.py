@@ -227,6 +227,22 @@ class ExecutionRecord(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow)
 
 
+class ExecutionFillSlice(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    execution_id: int = Field(foreign_key="executionrecord.id", index=True)
+    ledger_index: int
+    side: str
+    requested_size: float
+    filled_size: float
+    avg_price: float | None = None
+    fill_status: str = "UNFILLED"
+    fill_levels_json: list[dict[str, float | int]] = Field(default_factory=list, sa_column=Column(JSON))
+    degradation_factors_json: str = "{}"
+
+    created_at: datetime = Field(default_factory=utcnow)
+
+
 class PositionExitFill(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
 

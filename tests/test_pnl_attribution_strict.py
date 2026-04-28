@@ -8,6 +8,7 @@ from app.db.models import (
     AlphaSignal,
     CapitalLedger,
     CapitalReservation,
+    ExecutionFillSlice,
     ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
@@ -30,6 +31,7 @@ def reset_tables() -> None:
     CapitalLedger.__table__.drop(engine, checkfirst=True)
     PaperTrade.__table__.drop(engine, checkfirst=True)
     PositionExitFill.__table__.drop(engine, checkfirst=True)
+    ExecutionFillSlice.__table__.drop(engine, checkfirst=True)
     ExecutionRecord.__table__.drop(engine, checkfirst=True)
     Position.__table__.drop(engine, checkfirst=True)
     PaperTradeOutcome.__table__.drop(engine, checkfirst=True)
@@ -1028,3 +1030,233 @@ def test_fill_levels_json_persisted_as_structured_list() -> None:
     assert isinstance(exit_fill.fill_levels_json, list)
     assert len(exit_fill.fill_levels_json) >= 1
     assert isinstance(exit_fill.fill_levels_json[0], dict)
+
+
+def test_partial_fill_across_ledgers_creates_multiple_slices() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+        )
+        out = simulate_entry_buy(
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+            best_bid=1.0,
+            best_ask=1.1,
+            requested_size_xrp=30.0,
+            snapshot_time=now,
+            signal_time=now,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=5000,
+            liquidity_haircut_pct=0.0,
+        )
+        row = PnLAttributionEngine().create_execution_record(
+            session,
+            token_id=token.id,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            snapshot_id=snap.id,
+            position_id=None,
+            side="BUY",
+            execution_result=out,
+            snapshot_time=now,
+            signal_time=now,
+            execution_time=now,
+            ledger_index_snapshot=200,
+            ledger_index_signal=201,
+            ledger_index_execution=201,
+            ledger_index_inclusion=203,
+            inclusion_status="DELAYED",
+            min_ledger_delay=1,
+            max_ledger_delay=3,
+        )
+        slices = session.exec(select(ExecutionFillSlice).where(ExecutionFillSlice.execution_id == row.id)).all()
+
+    assert len(slices) >= 2
+
+
+def test_total_fill_equals_sum_of_slices() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+        )
+        out = simulate_entry_buy(
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+            best_bid=1.0,
+            best_ask=1.1,
+            requested_size_xrp=30.0,
+            snapshot_time=now,
+            signal_time=now,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=5000,
+            liquidity_haircut_pct=0.0,
+        )
+        row = PnLAttributionEngine().create_execution_record(
+            session,
+            token_id=token.id,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            snapshot_id=snap.id,
+            position_id=None,
+            side="BUY",
+            execution_result=out,
+            snapshot_time=now,
+            signal_time=now,
+            execution_time=now,
+            ledger_index_snapshot=200,
+            ledger_index_signal=201,
+            ledger_index_execution=201,
+            ledger_index_inclusion=203,
+            inclusion_status="DELAYED",
+            min_ledger_delay=1,
+            max_ledger_delay=3,
+        )
+        slices = session.exec(select(ExecutionFillSlice).where(ExecutionFillSlice.execution_id == row.id)).all()
+
+    assert sum(float(s.filled_size) for s in slices) == pytest.approx(float(row.filled_size))
+
+
+def test_entry_position_size_uses_slice_fills_only() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+        )
+        out = simulate_entry_buy(
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+            best_bid=1.0,
+            best_ask=1.1,
+            requested_size_xrp=30.0,
+            snapshot_time=now,
+            signal_time=now,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=5000,
+            liquidity_haircut_pct=0.0,
+        )
+        eng = PnLAttributionEngine()
+        row = eng.create_execution_record(
+            session,
+            token_id=token.id,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            snapshot_id=snap.id,
+            position_id=None,
+            side="BUY",
+            execution_result=out,
+            snapshot_time=now,
+            signal_time=now,
+            execution_time=now,
+            ledger_index_snapshot=200,
+            ledger_index_signal=201,
+            ledger_index_execution=201,
+            ledger_index_inclusion=203,
+            inclusion_status="DELAYED",
+            min_ledger_delay=1,
+            max_ledger_delay=3,
+        )
+        first_slice = session.exec(
+            select(ExecutionFillSlice)
+            .where(ExecutionFillSlice.execution_id == row.id)
+            .order_by(ExecutionFillSlice.id.asc())
+        ).first()
+        assert first_slice is not None
+        first_slice.filled_size = max(0.0, float(first_slice.filled_size) * 0.5)
+        session.add(first_slice)
+        session.commit()
+
+        pos = eng.create_position_from_entry(
+            session,
+            token_id=token.id,
+            issuer=token.issuer,
+            currency=token.currency,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            execution_record_id=row.id,
+            snapshot_id=snap.id,
+            execution_result=out,
+            alpha_signal=None,
+            execution_time=now,
+        )
+        slices = session.exec(select(ExecutionFillSlice).where(ExecutionFillSlice.execution_id == row.id)).all()
+
+    assert pos is not None
+    assert pos.entry_filled_size == pytest.approx(sum(float(s.filled_size) for s in slices))
+
+
+def test_failed_slice_creates_no_pnl() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+        )
+        out = simulate_entry_buy(
+            asks=[{"price": 1.1, "token_amount": 100.0, "xrp_value": 110.0}],
+            best_bid=1.0,
+            best_ask=1.1,
+            requested_size_xrp=30.0,
+            snapshot_time=now,
+            signal_time=now,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=5000,
+            liquidity_haircut_pct=0.0,
+        )
+        eng = PnLAttributionEngine()
+        row = eng.create_execution_record(
+            session,
+            token_id=token.id,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            snapshot_id=snap.id,
+            position_id=None,
+            side="BUY",
+            execution_result=out,
+            snapshot_time=now,
+            signal_time=now,
+            execution_time=now,
+            ledger_index_snapshot=200,
+            ledger_index_signal=201,
+            ledger_index_execution=201,
+            ledger_index_inclusion=202,
+            inclusion_status="FAILED_INCLUSION",
+            inclusion_failure_reason="SIM_FAIL",
+            min_ledger_delay=1,
+            max_ledger_delay=3,
+        )
+
+        pos = eng.create_position_from_entry(
+            session,
+            token_id=token.id,
+            issuer=token.issuer,
+            currency=token.currency,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            execution_record_id=row.id,
+            snapshot_id=snap.id,
+            execution_result=out,
+            alpha_signal=None,
+            execution_time=now,
+        )
+        realized = eng.realized_pnl_summary(session)
+
+    assert pos is None
+    assert realized["realized_pnl_xrp"] == pytest.approx(0.0)

@@ -12,6 +12,7 @@ from app.db.models import (
     AlphaSignal,
     CapitalLedger,
     CapitalReservation,
+    ExecutionFillSlice,
     ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
@@ -58,6 +59,7 @@ def reset_tables() -> None:
     CapitalLedger.__table__.drop(engine, checkfirst=True)
     PaperTrade.__table__.drop(engine, checkfirst=True)
     PositionExitFill.__table__.drop(engine, checkfirst=True)
+    ExecutionFillSlice.__table__.drop(engine, checkfirst=True)
     ExecutionRecord.__table__.drop(engine, checkfirst=True)
     Position.__table__.drop(engine, checkfirst=True)
     PaperTradeOutcome.__table__.drop(engine, checkfirst=True)

@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 
 from app.db.models import (
     AlphaSignal,
+    ExecutionFillSlice,
     ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
@@ -48,6 +49,107 @@ class PnLAttributionEngine:
     @staticmethod
     def _is_transient_exit_failure(reason: str | None) -> bool:
         return reason in {"NO_BIDS", "NO_LIQUIDITY", "STALE_MARKET_DATA"}
+
+    @staticmethod
+    def _filled_size_from_slices(session: Session, execution_id: int | None) -> float | None:
+        if execution_id is None:
+            return None
+        slices = session.exec(
+            select(ExecutionFillSlice)
+            .where(ExecutionFillSlice.execution_id == execution_id)
+            .order_by(ExecutionFillSlice.id.asc())
+        ).all()
+        if not slices:
+            return None
+        return float(sum(float(s.filled_size or 0.0) for s in slices))
+
+    @staticmethod
+    def _scaled_levels(levels: list[dict[str, float | int]], scale: float) -> list[dict[str, float | int]]:
+        out: list[dict[str, float | int]] = []
+        for level in levels:
+            row: dict[str, float | int] = dict(level)
+            for key in ("consumed_xrp", "consumed_tokens", "proceeds_xrp"):
+                if key in row:
+                    row[key] = float(row[key]) * scale
+            out.append(row)
+        return out
+
+    def _create_fill_slices(
+        self,
+        session: Session,
+        *,
+        execution_id: int,
+        side: str,
+        requested_size: float,
+        filled_size: float,
+        avg_fill_price: float | None,
+        fill_status: str,
+        fill_levels: list[dict[str, float | int]],
+        execution_ledger: int,
+        inclusion_ledger: int,
+        inclusion_status: str,
+    ) -> None:
+        ledger_span = max(1, inclusion_ledger - execution_ledger + 1)
+        if inclusion_status == "FAILED_INCLUSION" or filled_size <= 0:
+            session.add(
+                ExecutionFillSlice(
+                    execution_id=execution_id,
+                    ledger_index=execution_ledger,
+                    side=side,
+                    requested_size=requested_size,
+                    filled_size=0.0,
+                    avg_price=avg_fill_price,
+                    fill_status="UNFILLED",
+                    fill_levels_json=[],
+                    degradation_factors_json=json.dumps(
+                        {
+                            "slice_index": 0,
+                            "slice_count": 1,
+                            "inclusion_status": inclusion_status,
+                        }
+                    ),
+                )
+            )
+            return
+
+        remaining_fill = float(filled_size)
+        requested_per_slice = float(requested_size) / ledger_span if ledger_span > 0 else float(requested_size)
+
+        for i in range(ledger_span):
+            is_last = i == ledger_span - 1
+            remaining_slices = max(1, ledger_span - i)
+            if is_last:
+                slice_fill = max(0.0, remaining_fill)
+            else:
+                slice_fill = max(0.0, min(remaining_fill, filled_size / remaining_slices))
+            remaining_fill -= slice_fill
+
+            scale = 0.0 if filled_size <= 0 else max(0.0, min(1.0, slice_fill / filled_size))
+            if side.upper() == "BUY":
+                slice_price = (avg_fill_price or 0.0) * (1.0 + (0.0008 * i)) if avg_fill_price is not None else None
+            else:
+                slice_price = (avg_fill_price or 0.0) * max(0.0, 1.0 - (0.0008 * i)) if avg_fill_price is not None else None
+
+            slice_status = "UNFILLED" if slice_fill <= 1e-12 else ("FILLED" if is_last and remaining_fill <= 1e-12 else "PARTIAL")
+            session.add(
+                ExecutionFillSlice(
+                    execution_id=execution_id,
+                    ledger_index=execution_ledger + i,
+                    side=side,
+                    requested_size=requested_per_slice,
+                    filled_size=slice_fill,
+                    avg_price=slice_price,
+                    fill_status=slice_status,
+                    fill_levels_json=self._scaled_levels(fill_levels, scale),
+                    degradation_factors_json=json.dumps(
+                        {
+                            "slice_index": i,
+                            "slice_count": ledger_span,
+                            "inclusion_status": inclusion_status,
+                        }
+                    ),
+                )
+            )
 
     @staticmethod
     def _ledger_index_for_time(ts: datetime, ledger_close_ms: int) -> int:
@@ -184,6 +286,22 @@ class PnLAttributionEngine:
         session.add(record)
         session.commit()
         session.refresh(record)
+
+        self._create_fill_slices(
+            session,
+            execution_id=record.id or 0,
+            side=side,
+            requested_size=execution_result.requested_size,
+            filled_size=execution_result.filled_size,
+            avg_fill_price=(execution_result.avg_entry_price if side.upper() == "BUY" else execution_result.avg_exit_price),
+            fill_status=execution_result.fill_status,
+            fill_levels=execution_result.fill_levels,
+            execution_ledger=ex_ledger,
+            inclusion_ledger=incl_ledger,
+            inclusion_status=str(inclusion_status),
+        )
+        session.commit()
+        session.refresh(record)
         return record
 
     def create_position_from_entry(
@@ -201,7 +319,9 @@ class PnLAttributionEngine:
         alpha_signal: AlphaSignal | None,
         execution_time: datetime,
     ) -> Position | None:
-        if execution_result.filled_size <= 0 or execution_result.avg_entry_price is None:
+        slice_filled = self._filled_size_from_slices(session, execution_record_id)
+        effective_filled = execution_result.filled_size if slice_filled is None else float(slice_filled)
+        if effective_filled <= 0 or execution_result.avg_entry_price is None:
             return None
 
         position = Position(
@@ -213,8 +333,8 @@ class PnLAttributionEngine:
             execution_id=execution_record_id,
             entry_time=_utc(execution_time),
             entry_vwap=execution_result.avg_entry_price,
-            entry_filled_size=execution_result.filled_size,
-            remaining_size=execution_result.filled_size,
+            entry_filled_size=effective_filled,
+            remaining_size=effective_filled,
             entry_orderbook_snapshot_id=snapshot_id,
             status="OPEN",
             component_scores_json=(alpha_signal.component_scores_json if alpha_signal is not None else "{}"),
@@ -238,6 +358,7 @@ class PnLAttributionEngine:
             exec_row.position_id = position.position_id
             session.add(exec_row)
             session.commit()
+            session.refresh(position)
 
         return position
 
@@ -428,12 +549,14 @@ class PnLAttributionEngine:
                 session.commit()
                 continue
 
-            proposed_exit_filled = position.exit_filled_size + exec_result.filled_size
+            slice_filled = self._filled_size_from_slices(session, exec_row.id)
+            effective_exit_filled = exec_result.filled_size if slice_filled is None else float(slice_filled)
+            proposed_exit_filled = position.exit_filled_size + effective_exit_filled
             if proposed_exit_filled > (position.entry_filled_size + 1e-9):
                 raise ValueError("CRITICAL_OVERFILL_DETECTED")
 
-            fill_xrp = exec_result.avg_exit_price * exec_result.filled_size
-            cost_xrp = position.entry_vwap * exec_result.filled_size
+            fill_xrp = exec_result.avg_exit_price * effective_exit_filled
+            cost_xrp = position.entry_vwap * effective_exit_filled
             pnl = fill_xrp - cost_xrp
 
             session.add(
@@ -443,7 +566,7 @@ class PnLAttributionEngine:
                     snapshot_id=snapshot.id,
                     exit_time=datetime.now(tz=timezone.utc),
                     exit_vwap=exec_result.avg_exit_price,
-                    fill_size=exec_result.filled_size,
+                    fill_size=effective_exit_filled,
                     pnl_xrp=pnl,
                     fill_levels_json=exec_result.fill_levels,
                     failure_reason=exec_result.failure_reason,
@@ -451,7 +574,7 @@ class PnLAttributionEngine:
             )
 
             prior_remaining = position.remaining_size
-            position.exit_filled_size = proposed_exit_filled
+            position.exit_filled_size = position.exit_filled_size + effective_exit_filled
             position.remaining_size = max(0.0, position.entry_filled_size - position.exit_filled_size)
             if position.remaining_size > (prior_remaining + 1e-9):
                 raise ValueError("CRITICAL_SIZE_DRIFT_DETECTED")
