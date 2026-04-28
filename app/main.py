@@ -14,6 +14,7 @@ from app.api.routes_performance import router as performance_router
 from app.api.routes_positions import router as positions_router
 from app.api.routes_signals import router as signals_router
 from app.api.routes_trades import router as trades_router
+from app.api.routes_validation import router as validation_router
 from app.config import Settings
 from app.db.session import engine, init_db
 from app.execution.paper import PaperExecutor
@@ -67,6 +68,7 @@ def create_app() -> FastAPI:
     app.include_router(performance_router)
     app.include_router(positions_router)
     app.include_router(calibration_router)
+    app.include_router(validation_router)
     return app
 
 
