@@ -559,14 +559,54 @@ class ExecutionPipeline:
             return
         canonical = session.exec(select(Position).where(Position.token_id == token_id)).all()
         legacy = session.exec(select(PaperTradeOutcome).where(PaperTradeOutcome.token_id == token_id)).all()
-        if len(legacy) < len(canonical):
+
+        canonical_count = len(canonical)
+        legacy_count = len(legacy)
+        mismatch_type: str | None = None
+
+        if canonical_count > legacy_count:
+            mismatch_type = "canonical_gt_legacy"
+        elif legacy_count > canonical_count:
+            mismatch_type = "legacy_gt_canonical"
+        else:
+            canonical_statuses = sorted([str(p.status) for p in canonical])
+            legacy_statuses = sorted([("CLOSED" if o.exit_time is not None else "OPEN") for o in legacy])
+
+            canonical_entry_size = round(sum(float(p.entry_filled_size or 0.0) for p in canonical), 9)
+            legacy_entry_size = round(sum(float(o.filled_size_xrp or 0.0) for o in legacy), 9)
+
+            canonical_exit_size = round(sum(float(p.exit_filled_size or 0.0) for p in canonical), 9)
+            legacy_closed_size = round(
+                sum(float(o.filled_size_xrp or 0.0) for o in legacy if o.exit_time is not None),
+                9,
+            )
+
+            canonical_outcomes = sorted([
+                ("CLOSED" if p.status == "CLOSED" else "OPEN")
+                for p in canonical
+            ])
+            legacy_outcomes = sorted([
+                ("CLOSED" if o.exit_time is not None else "OPEN")
+                for o in legacy
+            ])
+
+            if (
+                canonical_statuses != legacy_statuses
+                or canonical_entry_size != legacy_entry_size
+                or canonical_exit_size != legacy_closed_size
+                or canonical_outcomes != legacy_outcomes
+            ):
+                mismatch_type = "semantic_mismatch"
+
+        if mismatch_type is not None:
             log_event(
                 self.logger,
                 {
                     "event_type": "canonical_ledger_mismatch",
                     "token_id": token_id,
-                    "canonical_positions": len(canonical),
-                    "legacy_outcomes": len(legacy),
+                    "canonical_count": canonical_count,
+                    "legacy_count": legacy_count,
+                    "mismatch_type": mismatch_type,
                     "severity": "WARN",
                 },
             )

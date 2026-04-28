@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 from sqlmodel import Session, select
@@ -247,3 +248,152 @@ def test_pipeline_skips_stale_execution() -> None:
 
     assert result["signals"] >= 1
     assert any(o.failure_reason == "STALE_MARKET_DATA" for o in outcomes)
+
+
+def test_canonical_mismatch_detects_canonical_gt_legacy(monkeypatch: pytest.MonkeyPatch) -> None:
+    reset_tables()
+    settings = Settings(ALPHA_MIN_SCORE=0.0)
+    pipeline = build_pipeline(settings)
+    captured: list[dict[str, object]] = []
+
+    def _capture(_logger, payload):
+        if payload.get("event_type") == "canonical_ledger_mismatch":
+            captured.append(payload)
+
+    monkeypatch.setattr("app.execution.pipeline.log_event", _capture)
+
+    with Session(engine) as session:
+        token = WatchedToken(issuer="rIssuer", currency="USD", is_xrp=False)
+        session.add(token)
+        session.commit()
+        session.refresh(token)
+
+        session.add(
+            Position(
+                issuer=token.issuer,
+                currency=token.currency,
+                token_id=token.id,
+                signal_id=1,
+                entry_vwap=1.0,
+                entry_filled_size=50.0,
+                remaining_size=50.0,
+                entry_orderbook_snapshot_id=1,
+                status="OPEN",
+            )
+        )
+        session.commit()
+
+        pipeline._check_canonical_ledger_mismatch(session, token.id)
+
+    assert len(captured) == 1
+    assert captured[0]["mismatch_type"] == "canonical_gt_legacy"
+
+
+def test_canonical_mismatch_detects_legacy_gt_canonical(monkeypatch: pytest.MonkeyPatch) -> None:
+    reset_tables()
+    settings = Settings(ALPHA_MIN_SCORE=0.0)
+    pipeline = build_pipeline(settings)
+    captured: list[dict[str, object]] = []
+
+    def _capture(_logger, payload):
+        if payload.get("event_type") == "canonical_ledger_mismatch":
+            captured.append(payload)
+
+    monkeypatch.setattr("app.execution.pipeline.log_event", _capture)
+
+    with Session(engine) as session:
+        token = WatchedToken(issuer="rIssuer", currency="USD", is_xrp=False)
+        session.add(token)
+        session.commit()
+        session.refresh(token)
+
+        session.add(
+            PaperTradeOutcome(
+                token_id=token.id,
+                signal_id=1,
+                snapshot_id=None,
+                entry_price=1.0,
+                expected_slippage_pct=0.0,
+                actual_slippage_pct=0.0,
+                target_size_xrp=50.0,
+                filled_size_xrp=50.0,
+                fill_success=True,
+                partial_fill=False,
+                fill_status="FULL",
+            )
+        )
+        session.commit()
+
+        pipeline._check_canonical_ledger_mismatch(session, token.id)
+
+    assert len(captured) == 1
+    assert captured[0]["mismatch_type"] == "legacy_gt_canonical"
+
+
+def test_canonical_mismatch_detects_semantic_mismatch(monkeypatch: pytest.MonkeyPatch) -> None:
+    reset_tables()
+    settings = Settings(ALPHA_MIN_SCORE=0.0)
+    pipeline = build_pipeline(settings)
+    captured: list[dict[str, object]] = []
+
+    def _capture(_logger, payload):
+        if payload.get("event_type") == "canonical_ledger_mismatch":
+            captured.append(payload)
+
+    monkeypatch.setattr("app.execution.pipeline.log_event", _capture)
+
+    with Session(engine) as session:
+        token = WatchedToken(issuer="rIssuer", currency="USD", is_xrp=False)
+        session.add(token)
+        session.commit()
+        session.refresh(token)
+
+        session.add(
+            Position(
+                issuer=token.issuer,
+                currency=token.currency,
+                token_id=token.id,
+                signal_id=1,
+                entry_vwap=1.0,
+                entry_filled_size=70.0,
+                exit_filled_size=0.0,
+                remaining_size=70.0,
+                entry_orderbook_snapshot_id=1,
+                status="OPEN",
+            )
+        )
+        session.add(
+            PaperTradeOutcome(
+                token_id=token.id,
+                signal_id=1,
+                snapshot_id=None,
+                entry_price=1.0,
+                expected_slippage_pct=0.0,
+                actual_slippage_pct=0.0,
+                target_size_xrp=70.0,
+                filled_size_xrp=70.0,
+                fill_success=True,
+                partial_fill=False,
+                fill_status="FULL",
+                exit_time=datetime.now(tz=timezone.utc),
+                exit_price=1.1,
+            )
+        )
+        session.commit()
+
+        pipeline._check_canonical_ledger_mismatch(session, token.id)
+
+    assert len(captured) == 1
+    assert captured[0]["mismatch_type"] == "semantic_mismatch"
+
+
+def test_no_residual_midpoint_slippage_naming_in_execution_paths() -> None:
+    roots = [
+        Path("app/execution/pnl_attribution_engine.py"),
+        Path("app/execution/pipeline.py"),
+        Path("tests/test_pnl_attribution_strict.py"),
+    ]
+    for path in roots:
+        text = path.read_text(encoding="utf-8")
+        assert "entry_slippage_vs_mid" not in text
+        assert "slippage_vs_mid" not in text

@@ -169,7 +169,7 @@ class PnLAttributionEngine:
                 {
                     "entry_fill_status": execution_result.fill_status,
                     "entry_levels": execution_result.fill_levels,
-                    "entry_slippage_vs_mid": execution_result.slippage_pct,
+                    "entry_slippage_vs_top": execution_result.slippage_pct,
                     "entry_latency_ms": execution_result.execution_latency_ms,
                     "entry_snapshot_age_ms": execution_result.snapshot_age_ms,
                 }

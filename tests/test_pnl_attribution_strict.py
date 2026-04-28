@@ -747,3 +747,99 @@ def test_retry_uses_new_snapshot_not_old() -> None:
 
     assert refreshed is not None
     assert refreshed.exit_orderbook_snapshot_id == new_snap_id
+
+
+def test_fill_levels_json_persisted_as_structured_list() -> None:
+    reset_tables()
+    now = datetime.now(tz=timezone.utc)
+    with Session(engine) as session:
+        token, sig = _mk_token_signal(session)
+        snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.0, "token_amount": 300.0, "xrp_value": 300.0}],
+            asks=[
+                {"price": 1.01, "token_amount": 200.0, "xrp_value": 202.0},
+                {"price": 1.02, "token_amount": 200.0, "xrp_value": 204.0},
+            ],
+        )
+        out = simulate_entry_buy(
+            asks=[
+                {"price": 1.01, "token_amount": 200.0, "xrp_value": 202.0},
+                {"price": 1.02, "token_amount": 200.0, "xrp_value": 204.0},
+            ],
+            best_bid=1.0,
+            best_ask=1.01,
+            requested_size_xrp=300.0,
+            snapshot_time=now,
+            signal_time=now,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=1500,
+            liquidity_haircut_pct=0.0,
+        )
+        eng = PnLAttributionEngine()
+        exec_row = eng.create_execution_record(
+            session,
+            token_id=token.id,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            snapshot_id=snap.id,
+            position_id=None,
+            side="BUY",
+            execution_result=out,
+            snapshot_time=now,
+            signal_time=now,
+            execution_time=now,
+        )
+        pos = eng.create_position_from_entry(
+            session,
+            token_id=token.id,
+            issuer=token.issuer,
+            currency=token.currency,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            execution_record_id=exec_row.id,
+            snapshot_id=snap.id,
+            execution_result=out,
+            alpha_signal=None,
+            execution_time=now,
+        )
+        assert pos is not None
+        pos.status = "PARTIAL_EXIT"
+        session.add(pos)
+        session.commit()
+
+        exit_snap = _mk_snapshot_with_depth(
+            session,
+            token.id,
+            bids=[{"price": 1.03, "token_amount": 1000.0, "xrp_value": 1030.0}],
+            asks=[{"price": 1.04, "token_amount": 1000.0, "xrp_value": 1040.0}],
+        )
+        eng.update_positions_for_snapshot(
+            session,
+            token_id=token.id,
+            snapshot=exit_snap,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=1500,
+            liquidity_haircut_pct=0.0,
+            min_exit_retry_ms=0,
+            max_exit_retries=5,
+            approve_exit_fn=lambda p, s: True,
+        )
+
+        exec_saved = session.get(ExecutionRecord, exec_row.id)
+        exit_fill = session.exec(
+            select(PositionExitFill)
+            .where(PositionExitFill.position_id == pos.position_id)
+            .order_by(PositionExitFill.id.desc())
+        ).first()
+
+    assert exec_saved is not None
+    assert isinstance(exec_saved.fill_levels_json, list)
+    assert len(exec_saved.fill_levels_json) >= 1
+    assert isinstance(exec_saved.fill_levels_json[0], dict)
+
+    assert exit_fill is not None
+    assert isinstance(exit_fill.fill_levels_json, list)
+    assert len(exit_fill.fill_levels_json) >= 1
+    assert isinstance(exit_fill.fill_levels_json[0], dict)
