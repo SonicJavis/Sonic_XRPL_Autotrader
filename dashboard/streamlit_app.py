@@ -45,6 +45,7 @@ from app.decision.xrpl_memory_weighting import XRPLMemoryWeighting, XRPLMemoryWe
 from app.feedback.feedback_aggregator import DecisionFeedbackAggregator
 from app.feedback.shadow_decision_tracker import ShadowDecisionTracker
 from app.live.dashboard_metrics import build_live_dashboard_metrics
+from app.live.xrpl_ingestion_models import XRPLIngestionHealth
 from app.risk.kill_switch import KillSwitch
 
 
@@ -262,6 +263,16 @@ def main() -> None:
 
     uncertainty_report = UncertaintyReportEngine().build(validation_samples)
     live_dashboard = build_live_dashboard_metrics(executions=executions, orderbook_snapshots=orderbook_snapshots)
+    ingestion_health = XRPLIngestionHealth(
+        connected=False,
+        latest_ledger_index=0,
+        latest_validated_ledger_index=0,
+        stale_snapshot_count=0,
+        rejected_snapshot_count=0,
+        reconnect_count=0,
+        backoff_seconds=0.0,
+        reason=("INGESTION_ENABLED_NOT_STARTED" if settings.XRPL_INGESTION_ENABLED else "INGESTION_DISABLED"),
+    )
     xrpl_shadow_calibration = build_xrpl_shadow_calibration_aggregate(
         executions=executions,
         orderbook_snapshots=orderbook_snapshots,
@@ -756,6 +767,24 @@ def main() -> None:
         )
     else:
         st.info("No continuous shadow decisions recorded yet.")
+
+    st.subheader("XRPL Read-Only Ingestion Status")
+    st.warning("Read-only XRPL observation only")
+    st.warning("No transaction is created or submitted")
+    st.warning("book_offers is snapshot polling only")
+    st.warning("Observed liquidity may not execute")
+    st.warning("Ingestion status does not imply executable liquidity")
+    ih1, ih2, ih3, ih4 = st.columns(4)
+    ih1.metric("Configured", "YES" if settings.XRPL_INGESTION_ENABLED else "NO")
+    ih2.metric("Connected", "YES" if ingestion_health.connected else "NO")
+    ih3.metric("Latest Ledger", str(ingestion_health.latest_ledger_index))
+    ih4.metric("Validated Ledger", str(ingestion_health.latest_validated_ledger_index))
+    ih5, ih6, ih7, ih8 = st.columns(4)
+    ih5.metric("Stale Snapshots", str(ingestion_health.stale_snapshot_count))
+    ih6.metric("Rejected Snapshots", str(ingestion_health.rejected_snapshot_count))
+    ih7.metric("Reconnects", str(ingestion_health.reconnect_count))
+    ih8.metric("Backoff Seconds", f"{ingestion_health.backoff_seconds:.1f}")
+    st.caption(f"Ingestion reason: {ingestion_health.reason}")
 
     st.subheader("XRPL Decision Quality – Ledger Aware")
     dq1, dq2, dq3, dq4 = st.columns(4)

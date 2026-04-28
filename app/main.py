@@ -10,6 +10,7 @@ from app.api.routes_calibration import router as calibration_router
 from app.api.routes_health import router as health_router
 from app.api.routes_feedback import router as feedback_router
 from app.api.routes_live import router as live_router
+from app.api.routes_live_ingestion import router as live_ingestion_router
 from app.api.routes_live_shadow import router as live_shadow_router
 from app.api.routes_market import router as market_router
 from app.api.routes_mode import router as mode_router
@@ -75,6 +76,7 @@ def create_app() -> FastAPI:
     app.include_router(positions_router)
     app.include_router(calibration_router)
     app.include_router(live_router)
+    app.include_router(live_ingestion_router)
     app.include_router(live_shadow_router)
     app.include_router(validation_router)
     return app

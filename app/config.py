@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     XRPL_RPC_URL: str = "https://s1.ripple.com:51234"
     XRPL_WS_URL: str = "wss://s1.ripple.com"
+    XRPL_INGESTION_ENABLED: bool = False
+    XRPL_DEFAULT_SHADOW_SIZE: float = Field(default=100.0, gt=0)
+    XRPL_MAX_SNAPSHOT_AGE_MS: int = Field(default=15000, ge=1)
     XRPL_WALLET_SEED: SecretStr | None = Field(default=None, repr=False)
 
     MAX_TRADE_XRP: float = Field(default=5.0, gt=0)
