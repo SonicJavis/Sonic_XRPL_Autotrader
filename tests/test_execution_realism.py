@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from sqlmodel import Session, select
@@ -805,6 +806,179 @@ def test_canonical_mismatch_detects_semantic_mismatch(monkeypatch: pytest.Monkey
 
     assert len(captured) == 1
     assert captured[0]["mismatch_type"] == "semantic_mismatch"
+
+
+def test_failed_inclusion_creates_no_position(monkeypatch: pytest.MonkeyPatch) -> None:
+    reset_tables()
+    settings = Settings(
+        MIN_LIQUIDITY_XRP=1.0,
+        MAX_SPREAD_PCT=50.0,
+        ALPHA_STABILITY_WINDOW=3,
+        ALPHA_MIN_FILL_PROBABILITY=0.0,
+        ALPHA_MIN_SCORE=0.0,
+    )
+    pipeline = build_pipeline(settings)
+    monkeypatch.setattr(
+        pipeline.alpha_engine,
+        "evaluate",
+        lambda **kwargs: SimpleNamespace(
+            pair="USD:rIssuer",
+            score=0.99,
+            decision="APPROVE",
+            reasons=[],
+            spread=1.0,
+            depth_xrp=10000.0,
+            imbalance=0.0,
+            slippage_estimate=0.0,
+            fill_probability=1.0,
+            stability_score=1.0,
+            spread_stability=1.0,
+            liquidity_consistency=1.0,
+            mid_price_stability=1.0,
+            component_scores={},
+            manipulation_flags={},
+        ),
+    )
+    monkeypatch.setattr(
+        pipeline,
+        "_simulate_inclusion_uncertainty",
+        lambda signal_id, snapshot_id: {"status": "FAILED_INCLUSION", "delay_ledgers": 1, "failure_reason": "SIM_FAIL"},
+    )
+
+    with Session(engine) as session:
+        token = WatchedToken(issuer="rIssuer", currency="USD", is_xrp=False)
+        session.add(token)
+        session.commit()
+
+        pipeline.run_once(session)
+        positions = session.exec(select(Position)).all()
+        executions = session.exec(select(ExecutionRecord)).all()
+
+    assert len(positions) == 0
+    assert any(e.inclusion_status == "FAILED_INCLUSION" for e in executions)
+
+
+def test_delayed_inclusion_worsens_fill() -> None:
+    settings = Settings(ALPHA_MIN_SCORE=0.0)
+    pipeline = build_pipeline(settings)
+    now = datetime.now(tz=timezone.utc)
+    fill = simulate_entry_buy(
+        asks=[{"price": 1.0, "token_amount": 100.0, "xrp_value": 100.0}],
+        best_bid=0.99,
+        best_ask=1.0,
+        requested_size_xrp=80.0,
+        snapshot_time=now,
+        signal_time=now,
+        execution_latency_ms=0,
+        max_snapshot_age_ms=1500,
+        liquidity_haircut_pct=0.0,
+    )
+    baseline = fill.filled_size
+    degraded = pipeline._apply_inclusion_uncertainty(
+        fill,
+        {"status": "DELAYED", "delay_ledgers": 2, "failure_reason": None},
+    )
+    assert degraded.filled_size < baseline
+
+
+def test_inclusion_failure_releases_reserved_capital(monkeypatch: pytest.MonkeyPatch) -> None:
+    reset_tables()
+    settings = Settings(
+        MIN_LIQUIDITY_XRP=1.0,
+        MAX_SPREAD_PCT=50.0,
+        ALPHA_STABILITY_WINDOW=3,
+        ALPHA_MIN_FILL_PROBABILITY=0.0,
+        ALPHA_MIN_SCORE=0.0,
+    )
+    pipeline = build_pipeline(settings)
+    monkeypatch.setattr(
+        pipeline.alpha_engine,
+        "evaluate",
+        lambda **kwargs: SimpleNamespace(
+            pair="USD:rIssuer",
+            score=0.99,
+            decision="APPROVE",
+            reasons=[],
+            spread=1.0,
+            depth_xrp=10000.0,
+            imbalance=0.0,
+            slippage_estimate=0.0,
+            fill_probability=1.0,
+            stability_score=1.0,
+            spread_stability=1.0,
+            liquidity_consistency=1.0,
+            mid_price_stability=1.0,
+            component_scores={},
+            manipulation_flags={},
+        ),
+    )
+    monkeypatch.setattr(
+        pipeline,
+        "_simulate_inclusion_uncertainty",
+        lambda signal_id, snapshot_id: {"status": "FAILED_INCLUSION", "delay_ledgers": 1, "failure_reason": "SIM_FAIL"},
+    )
+
+    with Session(engine) as session:
+        token = WatchedToken(issuer="rIssuer", currency="USD", is_xrp=False)
+        session.add(token)
+        session.commit()
+
+        pipeline.run_once(session)
+        reservation = session.exec(select(CapitalReservation).order_by(CapitalReservation.id.desc())).first()
+
+    assert reservation is not None
+    assert reservation.status == "RELEASED"
+    assert reservation.deployed_xrp == pytest.approx(0.0)
+
+
+def test_inclusion_status_persisted(monkeypatch: pytest.MonkeyPatch) -> None:
+    reset_tables()
+    settings = Settings(
+        MIN_LIQUIDITY_XRP=1.0,
+        MAX_SPREAD_PCT=50.0,
+        ALPHA_STABILITY_WINDOW=3,
+        ALPHA_MIN_FILL_PROBABILITY=0.0,
+        ALPHA_MIN_SCORE=0.0,
+    )
+    pipeline = build_pipeline(settings)
+    monkeypatch.setattr(
+        pipeline.alpha_engine,
+        "evaluate",
+        lambda **kwargs: SimpleNamespace(
+            pair="USD:rIssuer",
+            score=0.99,
+            decision="APPROVE",
+            reasons=[],
+            spread=1.0,
+            depth_xrp=10000.0,
+            imbalance=0.0,
+            slippage_estimate=0.0,
+            fill_probability=1.0,
+            stability_score=1.0,
+            spread_stability=1.0,
+            liquidity_consistency=1.0,
+            mid_price_stability=1.0,
+            component_scores={},
+            manipulation_flags={},
+        ),
+    )
+    monkeypatch.setattr(
+        pipeline,
+        "_simulate_inclusion_uncertainty",
+        lambda signal_id, snapshot_id: {"status": "DELAYED", "delay_ledgers": 2, "failure_reason": None},
+    )
+
+    with Session(engine) as session:
+        token = WatchedToken(issuer="rIssuer", currency="USD", is_xrp=False)
+        session.add(token)
+        session.commit()
+
+        pipeline.run_once(session)
+        record = session.exec(select(ExecutionRecord).order_by(ExecutionRecord.id.desc())).first()
+
+    assert record is not None
+    assert record.inclusion_status == "DELAYED"
+    assert record.inclusion_delay_ledgers == 2
 
 
 def test_no_residual_midpoint_slippage_naming_in_execution_paths() -> None:

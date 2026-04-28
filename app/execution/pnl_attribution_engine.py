@@ -101,6 +101,9 @@ class PnLAttributionEngine:
         ledger_index_signal: int | None = None,
         ledger_index_execution: int | None = None,
         ledger_index_inclusion: int | None = None,
+        inclusion_delay_ledgers: int | None = None,
+        inclusion_status: str = "INCLUDED",
+        inclusion_failure_reason: str | None = None,
         xrpl_ledger_close_ms: int = 4000,
         min_ledger_delay: int = 1,
         max_ledger_delay: int = 3,
@@ -124,11 +127,8 @@ class PnLAttributionEngine:
         )
         ex_ledger_default = max(sig_ledger, sig_ledger + max(0, int(min_ledger_delay)) - 1)
         ex_ledger = int(ledger_index_execution) if ledger_index_execution is not None else ex_ledger_default
-        incl_ledger = (
-            int(ledger_index_inclusion)
-            if ledger_index_inclusion is not None
-            else ex_ledger + max(0, int(min_ledger_delay))
-        )
+        incl_delay = int(inclusion_delay_ledgers) if inclusion_delay_ledgers is not None else max(0, int(min_ledger_delay))
+        incl_ledger = int(ledger_index_inclusion) if ledger_index_inclusion is not None else ex_ledger + incl_delay
 
         if sig_ledger < s_ledger or ex_ledger < sig_ledger or incl_ledger < ex_ledger:
             raise ValueError("FAILED_INVALID_LEDGER_TIMING")
@@ -160,6 +160,9 @@ class PnLAttributionEngine:
             decision_to_submission_ms=execution_result.decision_to_submission_ms,
             submission_to_inclusion_ms=execution_result.submission_to_inclusion_ms,
             total_execution_latency_ms=execution_result.total_execution_latency_ms,
+            inclusion_delay_ledgers=ledger_delay,
+            inclusion_status=str(inclusion_status),
+            inclusion_failure_reason=inclusion_failure_reason,
             execution_latency_ms=execution_result.execution_latency_ms,
             snapshot_age_ms=execution_result.snapshot_age_ms,
             holding_time_ms=holding_time_ms,
@@ -172,6 +175,9 @@ class PnLAttributionEngine:
                     "decision_to_submission_ms": execution_result.decision_to_submission_ms,
                     "submission_to_inclusion_ms": execution_result.submission_to_inclusion_ms,
                     "total_execution_latency_ms": execution_result.total_execution_latency_ms,
+                    "inclusion_delay_ledgers": ledger_delay,
+                    "inclusion_status": str(inclusion_status),
+                    "inclusion_failure_reason": inclusion_failure_reason,
                 }
             ),
         )

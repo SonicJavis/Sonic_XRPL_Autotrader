@@ -424,6 +424,9 @@ class ExecutionPipeline:
                         max_levels=self.settings.EXECUTION_MAX_LEVELS,
                     )
 
+                    inclusion = self._simulate_inclusion_uncertainty(signal.id or 0, snapshot.id or 0)
+                    strict_fill = self._apply_inclusion_uncertainty(strict_fill, inclusion)
+
                     fill_success = strict_fill.fill_success
                     partial_fill = strict_fill.partial_fill
                     actual_slippage = strict_fill.slippage_pct
@@ -434,6 +437,8 @@ class ExecutionPipeline:
                     reason_closed: str | None = None
                     if strict_fill.failure_reason == "STALE_MARKET_DATA":
                         reason_closed = "STALE_MARKET_DATA"
+                    elif inclusion["status"] == "FAILED_INCLUSION":
+                        reason_closed = "FAILED_INCLUSION"
                     elif strict_fill.failure_reason == "INVALID_ORDERBOOK":
                         reason_closed = "INVALID_ORDERBOOK"
                     elif strict_fill.fill_status == "UNFILLED":
@@ -485,6 +490,9 @@ class ExecutionPipeline:
                             snapshot_time=snapshot_time,
                             signal_time=signal_time,
                             execution_time=execution_time,
+                            inclusion_delay_ledgers=int(inclusion["delay_ledgers"]),
+                            inclusion_status=str(inclusion["status"]),
+                            inclusion_failure_reason=(str(inclusion["failure_reason"]) if inclusion["failure_reason"] else None),
                             xrpl_ledger_close_ms=self.settings.XRPL_LEDGER_CLOSE_MS,
                             min_ledger_delay=self.settings.MIN_LEDGER_DELAY,
                             max_ledger_delay=self.settings.MAX_LEDGER_DELAY,
@@ -617,6 +625,8 @@ class ExecutionPipeline:
                             "avg_price": strict_fill.avg_entry_price,
                             "slippage": strict_fill.slippage_pct,
                             "latency_ms": strict_fill.execution_latency_ms,
+                            "inclusion_status": inclusion["status"],
+                            "inclusion_delay_ledgers": inclusion["delay_ledgers"],
                             "reason": strict_fill.failure_reason,
                         },
                     )
@@ -679,6 +689,64 @@ class ExecutionPipeline:
     def _risk_approves_exit() -> bool:
         # Exit risk gate is explicit and deterministic in this phase.
         return True
+
+    def _simulate_inclusion_uncertainty(self, signal_id: int, snapshot_id: int) -> dict[str, object]:
+        # Deterministic ledger inclusion model: no randomness, replay-safe decisions.
+        bucket = (int(signal_id) * 31 + int(snapshot_id) * 17) % 11
+        if bucket == 0:
+            return {
+                "status": "FAILED_INCLUSION",
+                "delay_ledgers": max(0, int(self.settings.MIN_LEDGER_DELAY)),
+                "failure_reason": "SIMULATED_INCLUSION_FAILURE",
+            }
+        if bucket in {1, 2, 3}:
+            delayed = min(max(1, int(self.settings.MIN_LEDGER_DELAY) + 1), int(self.settings.MAX_LEDGER_DELAY))
+            return {
+                "status": "DELAYED",
+                "delay_ledgers": delayed,
+                "failure_reason": None,
+            }
+        return {
+            "status": "INCLUDED",
+            "delay_ledgers": max(0, int(self.settings.MIN_LEDGER_DELAY)),
+            "failure_reason": None,
+        }
+
+    @staticmethod
+    def _apply_inclusion_uncertainty(fill: ExecutionResult, inclusion: dict[str, object]) -> ExecutionResult:
+        if fill.failure_reason in {"STALE_MARKET_DATA", "INVALID_ORDERBOOK"}:
+            return fill
+
+        status = str(inclusion.get("status", "INCLUDED"))
+        delay_ledgers = max(0, int(inclusion.get("delay_ledgers", 0) or 0))
+        if status == "FAILED_INCLUSION":
+            fill.filled_size = 0.0
+            fill.avg_entry_price = None
+            fill.fill_status = "UNFILLED"
+            fill.failure_reason = "FAILED_INCLUSION"
+            fill.fill_levels = []
+            fill.consumed_levels_detailed = []
+            return fill
+
+        if status == "DELAYED" and fill.filled_size > 0:
+            degrade = max(0.0, min(0.85, 0.12 * delay_ledgers))
+            factor = 1.0 - degrade
+            fill.filled_size *= factor
+            for level in fill.fill_levels:
+                if "consumed_xrp" in level:
+                    level["consumed_xrp"] = float(level["consumed_xrp"]) * factor
+                if "consumed_tokens" in level:
+                    level["consumed_tokens"] = float(level["consumed_tokens"]) * factor
+                if "proceeds_xrp" in level:
+                    level["proceeds_xrp"] = float(level["proceeds_xrp"]) * factor
+            fill.consumed_levels_detailed = list(fill.fill_levels)
+            if fill.filled_size <= 1e-12:
+                fill.fill_status = "UNFILLED"
+                fill.failure_reason = "FAILED_INCLUSION"
+            elif fill.filled_size + 1e-9 < fill.requested_size:
+                fill.fill_status = "PARTIAL"
+                fill.failure_reason = "INSUFFICIENT_DEPTH"
+        return fill
 
     def _check_canonical_ledger_mismatch(self, session: Session, token_id: int | None) -> None:
         if token_id is None:
