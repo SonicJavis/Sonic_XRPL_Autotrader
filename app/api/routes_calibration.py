@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import json
+
 from fastapi import APIRouter, Request
 from sqlmodel import select
 
 from app.calibration.fundedness_proxy import FundednessProxy
 from app.calibration.regime_classifier import RegimeClassificationInput, XRPLRegimeClassifier
+from app.calibration.recommendation_engine import ConfidenceWeightedCalibrationEngine, LiveCalibrationSample
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
 from app.db.models import ExecutionRecord, XRPLOrderbookSequence, XRPLOrderbookSnapshot
 
@@ -37,6 +40,8 @@ def calibration_gap_report(request: Request, limit: int = 500) -> dict[str, obje
                 "path_distortion_rate": 0.0,
                 "fundedness_uncertainty_score": 1.0,
                 "ledger_delay_error": 0.0,
+                "live_simulated_fail_rate": 0.0,
+                "path_mismatch_rate": 0.0,
                 "avg_decay_score": 0.0,
                 "avg_volatility_score": 0.0,
                 "collapse_events_total": 0,
@@ -45,8 +50,10 @@ def calibration_gap_report(request: Request, limit: int = 500) -> dict[str, obje
         results = []
         regimes: list[str] = []
         ledger_delay_errors: list[float] = []
+        live_samples: list[LiveCalibrationSample] = []
         fundedness_proxy = FundednessProxy()
         regime_classifier = XRPLRegimeClassifier()
+        calibration_engine = ConfidenceWeightedCalibrationEngine()
         for row in executions:
             lower = min(int(row.ledger_index_snapshot), int(row.ledger_index_inclusion))
             upper = max(int(row.ledger_index_snapshot), int(row.ledger_index_inclusion))
@@ -102,6 +109,31 @@ def calibration_gap_report(request: Request, limit: int = 500) -> dict[str, obje
             )
             regimes.append(classified.regime)
 
+            try:
+                details = json.loads(str(row.execution_details_json or "{}"))
+            except json.JSONDecodeError:
+                details = {}
+
+            if bool(details.get("shadow")):
+                simulated_fill_ratio = 0.0
+                if float(row.requested_size or 0.0) > 0:
+                    simulated_fill_ratio = max(0.0, min(1.0, float(row.filled_size or 0.0) / float(row.requested_size or 1.0)))
+
+                observed_fill_ratio = max(
+                    0.0,
+                    min(1.0, float(details.get("observed_fill_ratio", max(0.0, 1.0 - compared.execution_survivability_error)))),
+                )
+                live_samples.append(
+                    LiveCalibrationSample(
+                        simulated_fill_ratio=simulated_fill_ratio,
+                        observed_fill_ratio=observed_fill_ratio,
+                        disagreement_score=max(0.0, min(1.0, float(details.get("disagreement_score", compared.depth_overestimation)))),
+                        ledger_delay_error=max(0.0, min(1.0, float(details.get("ledger_delay_error", ledger_delay_errors[-1])))),
+                        path_execution_risk=max(0.0, min(1.0, float(details.get("path_execution_risk", 0.0)))),
+                        observation_confidence=max(0.0, min(1.0, float(details.get("observation_confidence", 0.5)))),
+                    )
+                )
+
         fundedness_confidence = fundedness_proxy.evaluate(
             sorted(
                 session.exec(select(XRPLOrderbookSnapshot).order_by(XRPLOrderbookSnapshot.ledger_index.asc()).limit(300)).all(),
@@ -121,6 +153,7 @@ def calibration_gap_report(request: Request, limit: int = 500) -> dict[str, obje
     path_distortion_rate = sum(1 for r in regimes if r == "PATH_DISTORTED") / max(1, len(regimes))
     fundedness_uncertainty_score = 1.0 - max(0.0, min(1.0, fundedness_confidence))
     ledger_delay_error = 0.0 if not ledger_delay_errors else (sum(ledger_delay_errors) / len(ledger_delay_errors))
+    live_summary = calibration_engine.summarize_live_metrics(live_samples)
 
     seq_count = len(sequences)
     avg_decay = 0.0 if seq_count == 0 else sum(float(s.decay_score) for s in sequences) / seq_count
@@ -138,7 +171,9 @@ def calibration_gap_report(request: Request, limit: int = 500) -> dict[str, obje
         "depth_illusion_rate": round(depth_illusion_rate, 6),
         "path_distortion_rate": round(path_distortion_rate, 6),
         "fundedness_uncertainty_score": round(fundedness_uncertainty_score, 6),
-        "ledger_delay_error": round(ledger_delay_error, 6),
+        "ledger_delay_error": round(max(ledger_delay_error, live_summary.ledger_delay_error), 6),
+        "live_simulated_fail_rate": live_summary.live_simulated_fail_rate,
+        "path_mismatch_rate": live_summary.path_mismatch_rate,
         "avg_decay_score": round(avg_decay, 6),
         "avg_volatility_score": round(avg_volatility, 6),
         "collapse_events_total": collapse_total,

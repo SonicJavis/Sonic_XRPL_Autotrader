@@ -1,4 +1,8 @@
-from app.calibration.recommendation_engine import CalibrationErrorSample, ConfidenceWeightedCalibrationEngine
+from app.calibration.recommendation_engine import (
+    CalibrationErrorSample,
+    ConfidenceWeightedCalibrationEngine,
+    LiveCalibrationSample,
+)
 
 
 def test_low_samples_returns_no_recommendation() -> None:
@@ -119,3 +123,30 @@ def test_confidence_floor_threshold_is_enforced() -> None:
         confidence_floor_threshold=0.8,
     )
     assert out is None
+
+
+def test_live_metric_summary_is_conservative() -> None:
+    summary = ConfidenceWeightedCalibrationEngine().summarize_live_metrics(
+        [
+            LiveCalibrationSample(
+                simulated_fill_ratio=0.9,
+                observed_fill_ratio=0.3,
+                disagreement_score=0.7,
+                ledger_delay_error=0.6,
+                path_execution_risk=0.8,
+                observation_confidence=0.8,
+            ),
+            LiveCalibrationSample(
+                simulated_fill_ratio=0.4,
+                observed_fill_ratio=0.35,
+                disagreement_score=0.2,
+                ledger_delay_error=0.2,
+                path_execution_risk=0.2,
+                observation_confidence=0.7,
+            ),
+        ]
+    )
+
+    assert summary.live_simulated_fail_rate == 0.5
+    assert summary.ledger_delay_error == 0.4
+    assert summary.path_mismatch_rate == 0.5

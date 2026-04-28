@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 
 from fastapi.testclient import TestClient
@@ -51,6 +52,8 @@ def test_gap_report_empty_is_safe() -> None:
     assert body["path_distortion_rate"] == 0.0
     assert body["fundedness_uncertainty_score"] >= 0.0
     assert body["ledger_delay_error"] == 0.0
+    assert body["live_simulated_fail_rate"] == 0.0
+    assert body["path_mismatch_rate"] == 0.0
 
 
 def test_gap_report_returns_aggregates() -> None:
@@ -81,6 +84,16 @@ def test_gap_report_returns_aggregates() -> None:
                 snapshot_time=now,
                 signal_time=now,
                 execution_time=now,
+                execution_details_json=json.dumps(
+                    {
+                        "shadow": True,
+                        "observed_fill_ratio": 0.2,
+                        "disagreement_score": 0.75,
+                        "ledger_delay_error": 0.5,
+                        "path_execution_risk": 0.8,
+                        "observation_confidence": 0.8,
+                    }
+                ),
             )
         )
         session.add(
@@ -146,3 +159,7 @@ def test_gap_report_returns_aggregates() -> None:
     assert "path_distortion_rate" in body
     assert "fundedness_uncertainty_score" in body
     assert "ledger_delay_error" in body
+    assert "live_simulated_fail_rate" in body
+    assert "path_mismatch_rate" in body
+    assert body["live_simulated_fail_rate"] > 0.0
+    assert body["path_mismatch_rate"] > 0.0

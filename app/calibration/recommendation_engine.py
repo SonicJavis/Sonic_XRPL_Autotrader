@@ -22,7 +22,63 @@ class CalibrationRecommendation:
     reasoning: str
 
 
+@dataclass(slots=True)
+class LiveCalibrationSample:
+    simulated_fill_ratio: float
+    observed_fill_ratio: float
+    disagreement_score: float
+    ledger_delay_error: float
+    path_execution_risk: float
+    observation_confidence: float
+
+
+@dataclass(slots=True)
+class LiveCalibrationSummary:
+    live_simulated_fail_rate: float
+    ledger_delay_error: float
+    path_mismatch_rate: float
+
+
 class ConfidenceWeightedCalibrationEngine:
+    def summarize_live_metrics(self, samples: list[LiveCalibrationSample]) -> LiveCalibrationSummary:
+        if not samples:
+            return LiveCalibrationSummary(
+                live_simulated_fail_rate=0.0,
+                ledger_delay_error=0.0,
+                path_mismatch_rate=0.0,
+            )
+
+        total = len(samples)
+        fail_count = 0
+        path_mismatch_count = 0
+        ledger_delay_error_total = 0.0
+
+        for sample in samples:
+            simulated_fill_ratio = max(0.0, min(1.0, float(sample.simulated_fill_ratio)))
+            observed_fill_ratio = max(0.0, min(1.0, float(sample.observed_fill_ratio)))
+            disagreement_score = max(0.0, min(1.0, float(sample.disagreement_score)))
+            ledger_delay_error = max(0.0, min(1.0, float(sample.ledger_delay_error)))
+            path_execution_risk = max(0.0, min(1.0, float(sample.path_execution_risk)))
+            observation_confidence = max(0.0, min(1.0, float(sample.observation_confidence)))
+
+            if observation_confidence >= 0.45 and (simulated_fill_ratio - observed_fill_ratio) >= 0.20:
+                fail_count += 1
+            elif disagreement_score >= 0.60 and observation_confidence >= 0.55:
+                fail_count += 1
+
+            if simulated_fill_ratio >= 0.50 and path_execution_risk >= 0.50:
+                path_mismatch_count += 1
+            elif disagreement_score >= 0.50 and path_execution_risk >= 0.40:
+                path_mismatch_count += 1
+
+            ledger_delay_error_total += ledger_delay_error
+
+        return LiveCalibrationSummary(
+            live_simulated_fail_rate=round(fail_count / total, 6),
+            ledger_delay_error=round(ledger_delay_error_total / total, 6),
+            path_mismatch_rate=round(path_mismatch_count / total, 6),
+        )
+
     def recommend(
         self,
         *,
