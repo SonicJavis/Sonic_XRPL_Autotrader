@@ -35,3 +35,62 @@ def test_high_volatility_recommends_stricter_config() -> None:
     assert out.drift_haircut_pct >= 0.25
     assert out.latency_ms >= 1000
     assert out.snapshot_max_age_ms <= 1400
+
+
+def test_regime_rules_harden_specific_penalties() -> None:
+    samples = [CalibrationErrorSample(0.6, 0.7, 0.7, 0.6)] * 12
+
+    base = ConfidenceWeightedCalibrationEngine().recommend(
+        samples=samples,
+        fundedness_confidence=0.8,
+        sequence_stability=0.8,
+    )
+    assert base is not None
+
+    path = ConfidenceWeightedCalibrationEngine().recommend(
+        samples=samples,
+        fundedness_confidence=0.8,
+        sequence_stability=0.8,
+        regime="PATH_DISTORTED",
+    )
+    assert path is not None
+    assert path.slippage_penalty_pct >= base.slippage_penalty_pct
+
+    illusion = ConfidenceWeightedCalibrationEngine().recommend(
+        samples=samples,
+        fundedness_confidence=0.8,
+        sequence_stability=0.8,
+        regime="ILLUSION_LIQUIDITY",
+    )
+    assert illusion is not None
+    assert illusion.queue_haircut_pct >= base.queue_haircut_pct
+
+    collapsing = ConfidenceWeightedCalibrationEngine().recommend(
+        samples=samples,
+        fundedness_confidence=0.8,
+        sequence_stability=0.8,
+        regime="COLLAPSING",
+    )
+    assert collapsing is not None
+    assert collapsing.drift_haircut_pct >= base.drift_haircut_pct
+    assert collapsing.latency_ms >= base.latency_ms
+
+
+def test_engine_never_reduces_existing_penalties() -> None:
+    samples = [CalibrationErrorSample(0.3, 0.2, 0.2, 0.2)] * 20
+    out = ConfidenceWeightedCalibrationEngine().recommend(
+        samples=samples,
+        fundedness_confidence=0.9,
+        sequence_stability=0.9,
+        current_slippage_penalty_pct=0.30,
+        current_queue_haircut_pct=0.40,
+        current_drift_haircut_pct=0.35,
+        current_latency_ms=1800,
+        current_snapshot_max_age_ms=800,
+    )
+    assert out is not None
+    assert out.slippage_penalty_pct >= 0.30
+    assert out.queue_haircut_pct >= 0.40
+    assert out.drift_haircut_pct >= 0.35
+    assert out.latency_ms >= 1800
+    assert out.snapshot_max_age_ms <= 800
