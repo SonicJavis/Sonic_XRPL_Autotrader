@@ -26,13 +26,14 @@ from app.db.models import (
     WatchedToken,
 )
 from app.execution.fill_simulator import ExecutionResult, simulate_entry_buy, simulate_exit_sell, validate_orderbook
+from app.execution.liquidity_decay import analyze_liquidity_decay
 from app.execution.paper import PaperExecutor
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.scanner import build_scanner_context
 from app.market_data.metrics import MarketMetrics
 from app.market_data.snapshot_builder import build_snapshot_from_offers
 from app.risk.risk_manager import RiskManager
-from app.risk.rules import RiskContext, RiskDecision
+from app.risk.rules import RiskContext, RiskDecision, RiskEvaluation
 from app.strategies.strategy_registry import StrategyRegistry
 from app.telemetry.events import TelemetryEvent
 from app.telemetry.logging import get_logger, log_event
@@ -163,6 +164,29 @@ class ExecutionPipeline:
                 issuer=token.issuer,
             )
 
+            decay = analyze_liquidity_decay(
+                settings=self.settings,
+                history=history,
+                bids=parsed.get("bids", []),
+                asks=parsed.get("asks", []),
+                spread_pct=snapshot_payload["spread_pct"],
+            )
+            if bool(decay["collapse_flag"]):
+                alpha_eval.reasons.append("reject: liquidity collapse detected")
+            if bool(decay["spoof_flag"]):
+                alpha_eval.reasons.append("reject: spoof pattern detected")
+            if bool(decay["fake_spread_flag"]):
+                alpha_eval.reasons.append("reject: fake tight spread detected")
+            if bool(decay["collapse_flag"] or decay["spoof_flag"] or decay["fake_spread_flag"]):
+                alpha_eval.decision = "REJECT"
+            alpha_eval.manipulation_flags.update(
+                {
+                    "liquidity_collapse": bool(decay["collapse_flag"]),
+                    "spoof_pattern": bool(decay["spoof_flag"]),
+                    "fake_tight_spread": bool(decay["fake_spread_flag"]),
+                }
+            )
+
             if token.id is not None and self._token_in_cooldown(session, token.id, self.settings):
                 alpha_eval.decision = "REJECT"
                 alpha_eval.reasons = ["reject: alpha cooldown active"]
@@ -268,6 +292,20 @@ class ExecutionPipeline:
                         live_trading_requested=False,
                     ),
                 )
+
+                if bool(decay["collapse_flag"] or decay["spoof_flag"] or decay["fake_spread_flag"]):
+                    decay_reasons: list[str] = []
+                    if bool(decay["collapse_flag"]):
+                        decay_reasons.append("liquidity_collapse")
+                    if bool(decay["spoof_flag"]):
+                        decay_reasons.append("spoof_pattern")
+                    if bool(decay["fake_spread_flag"]):
+                        decay_reasons.append("fake_tight_spread")
+                    risk_eval = RiskEvaluation(
+                        decision=RiskDecision.DENY,
+                        reason=f"adversarial_liquidity_detected: {','.join(decay_reasons)}",
+                        approved_size_xrp=0.0,
+                    )
 
                 risk_record = RiskDecisionRecord(
                     token_id=token.id,
