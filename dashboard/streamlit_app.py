@@ -7,6 +7,7 @@ from app.alpha.performance_engine import PerformanceEngine
 from app.config import Settings
 from app.db.models import (
     AlphaSignal,
+    ExecutionFillSlice,
     ExecutionRecord,
     MarketDepthLevel,
     MarketSnapshot,
@@ -21,6 +22,7 @@ from app.db.models import (
 )
 from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
+from app.execution.replay_engine import ReplayEngine
 from app.risk.kill_switch import KillSwitch
 
 
@@ -48,6 +50,7 @@ def main() -> None:
         outcomes = session.exec(select(PaperTradeOutcome).order_by(PaperTradeOutcome.id.desc()).limit(200)).all()
         positions = session.exec(select(Position).order_by(Position.entry_time.desc()).limit(200)).all()
         executions = session.exec(select(ExecutionRecord).order_by(ExecutionRecord.id.desc()).limit(300)).all()
+        fill_slices = session.exec(select(ExecutionFillSlice).order_by(ExecutionFillSlice.id.desc()).limit(800)).all()
         exit_fills = session.exec(select(PositionExitFill).order_by(PositionExitFill.id.desc()).limit(300)).all()
         trades = session.exec(select(PaperTrade).order_by(PaperTrade.id.desc()).limit(50)).all()
         risk_decisions = session.exec(select(RiskDecisionRecord).order_by(RiskDecisionRecord.id.desc()).limit(50)).all()
@@ -72,6 +75,8 @@ def main() -> None:
             execution_window_snapshots=settings.EXECUTION_WINDOW_SNAPSHOTS,
         )
         failures = pnl_engine.list_failures(session, limit=300)
+        replay_engine = ReplayEngine()
+        replay_samples = [replay_engine.replay_execution(session, row.id) for row in executions[:80] if row.id is not None]
 
     realized_pnl = float(realized.get("realized_pnl_xrp", 0.0))
     unrealized_pnl_raw = unrealized.get("unrealized_pnl_xrp")
@@ -164,6 +169,20 @@ def main() -> None:
     ]
     st.dataframe(failed_outcomes, use_container_width=True)
 
+    st.subheader("Execution Inclusion Overview (Simulated/Paper)")
+    status_counts: dict[str, int] = {}
+    delays: list[int] = []
+    for row in executions:
+        status = str(row.inclusion_status or "INCLUDED")
+        status_counts[status] = status_counts.get(status, 0) + 1
+        delays.append(int(row.inclusion_delay_ledgers or 0))
+    i1, i2, i3 = st.columns(3)
+    i1.metric("Included", str(status_counts.get("INCLUDED", 0)))
+    i2.metric("Delayed", str(status_counts.get("DELAYED", 0)))
+    i3.metric("Failed Inclusion", str(status_counts.get("FAILED_INCLUSION", 0)))
+    st.caption("Ledger delay distribution (simulated)")
+    st.bar_chart([{"delay_ledgers": d} for d in delays], x="delay_ledgers", y="delay_ledgers", use_container_width=True)
+
     st.subheader("Paper Performance Attribution")
     p1, p2, p3, p4 = st.columns(4)
     p1.metric("Win Rate", f"{float(perf_summary.get('win_rate', 0.0)) * 100:.1f}%")
@@ -210,6 +229,46 @@ def main() -> None:
             }
         )
     st.dataframe(execution_rows, use_container_width=True)
+
+    st.subheader("Latency Degradation Metrics (Simulated/Paper)")
+    if executions:
+        avg_s2d = sum(float(r.snapshot_to_decision_ms or 0.0) for r in executions) / len(executions)
+        avg_d2s = sum(float(r.decision_to_submission_ms or 0.0) for r in executions) / len(executions)
+        avg_s2i = sum(float(r.submission_to_inclusion_ms or 0.0) for r in executions) / len(executions)
+        avg_total = sum(float(r.total_execution_latency_ms or 0.0) for r in executions) / len(executions)
+    else:
+        avg_s2d = avg_d2s = avg_s2i = avg_total = 0.0
+    l1, l2, l3, l4 = st.columns(4)
+    l1.metric("Snapshot->Decision ms", f"{avg_s2d:.1f}")
+    l2.metric("Decision->Submission ms", f"{avg_d2s:.1f}")
+    l3.metric("Submission->Inclusion ms", f"{avg_s2i:.1f}")
+    l4.metric("Total Execution Latency ms", f"{avg_total:.1f}")
+
+    st.subheader("Fill Slices Per Execution")
+    slice_rows = [
+        {
+            "execution_id": s.execution_id,
+            "ledger_index": s.ledger_index,
+            "fill_status": s.fill_status,
+            "requested_size": s.requested_size,
+            "filled_size": s.filled_size,
+            "avg_price": s.avg_price,
+        }
+        for s in fill_slices
+    ]
+    st.dataframe(slice_rows, use_container_width=True)
+
+    st.subheader("Replay Mismatch Alerts")
+    replay_alerts = [
+        {
+            "execution_id": r.get("execution_id"),
+            "status": r.get("status"),
+            "mismatches": ",".join(r.get("mismatches", [])),
+        }
+        for r in replay_samples
+        if r.get("status") == "REPLAY_MISMATCH"
+    ]
+    st.dataframe(replay_alerts, use_container_width=True)
 
     st.subheader("Exit Fill Ledger")
     st.dataframe([row.model_dump() for row in exit_fills], use_container_width=True)

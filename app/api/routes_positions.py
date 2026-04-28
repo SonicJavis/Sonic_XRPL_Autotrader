@@ -3,8 +3,9 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 from sqlmodel import select
 
-from app.db.models import ExecutionRecord, MarketSnapshot, Position
+from app.db.models import ExecutionFillSlice, ExecutionRecord, MarketSnapshot, Position
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
+from app.execution.replay_engine import ReplayEngine
 
 router = APIRouter()
 
@@ -142,6 +143,105 @@ def execution_quality(request: Request, limit: int = 500) -> dict[str, object]:
         "avg_submission_to_inclusion_ms": round(avg_submission_to_inclusion_ms, 6),
         "avg_slippage_vs_top": round(avg_slippage_vs_top, 6),
         "failure_rate_by_reason": failure_rate_by_reason,
+    }
+
+
+@router.get("/execution/replay/{execution_id}")
+def execution_replay(execution_id: int, request: Request) -> dict[str, object]:
+    container = request.app.state.container
+    with container.session_factory() as session:
+        replay = ReplayEngine().replay_execution(session, execution_id)
+    if replay.get("status") == "NOT_FOUND":
+        raise HTTPException(status_code=404, detail="execution not found")
+    replay["paper_mode"] = True
+    replay["simulated"] = True
+    return replay
+
+
+@router.get("/execution/ledger-slices/{execution_id}")
+def execution_ledger_slices(execution_id: int, request: Request) -> dict[str, object]:
+    container = request.app.state.container
+    with container.session_factory() as session:
+        exists = session.get(ExecutionRecord, execution_id)
+        if exists is None:
+            raise HTTPException(status_code=404, detail="execution not found")
+        rows = session.exec(
+            select(ExecutionFillSlice)
+            .where(ExecutionFillSlice.execution_id == execution_id)
+            .order_by(ExecutionFillSlice.ledger_index.asc(), ExecutionFillSlice.id.asc())
+        ).all()
+
+    return {
+        "execution_id": execution_id,
+        "paper_mode": True,
+        "simulated": True,
+        "slice_count": len(rows),
+        "slices": [r.model_dump() for r in rows],
+    }
+
+
+@router.get("/execution/latency-summary")
+def execution_latency_summary(request: Request, limit: int = 1000) -> dict[str, object]:
+    container = request.app.state.container
+    safe_limit = min(max(limit, 1), 5000)
+    with container.session_factory() as session:
+        rows = session.exec(select(ExecutionRecord).order_by(ExecutionRecord.id.desc()).limit(safe_limit)).all()
+
+    if not rows:
+        return {
+            "paper_mode": True,
+            "simulated": True,
+            "sample_size": 0,
+            "avg_snapshot_to_decision_ms": 0.0,
+            "avg_decision_to_submission_ms": 0.0,
+            "avg_submission_to_inclusion_ms": 0.0,
+            "avg_total_execution_latency_ms": 0.0,
+            "latency_degradation_score": 0.0,
+        }
+
+    total = len(rows)
+    avg_s2d = sum(float(r.snapshot_to_decision_ms or 0.0) for r in rows) / total
+    avg_d2s = sum(float(r.decision_to_submission_ms or 0.0) for r in rows) / total
+    avg_s2i = sum(float(r.submission_to_inclusion_ms or 0.0) for r in rows) / total
+    avg_total = sum(float(r.total_execution_latency_ms or 0.0) for r in rows) / total
+    latency_degradation_score = min(1.0, avg_total / 10000.0)
+
+    return {
+        "paper_mode": True,
+        "simulated": True,
+        "sample_size": total,
+        "avg_snapshot_to_decision_ms": round(avg_s2d, 6),
+        "avg_decision_to_submission_ms": round(avg_d2s, 6),
+        "avg_submission_to_inclusion_ms": round(avg_s2i, 6),
+        "avg_total_execution_latency_ms": round(avg_total, 6),
+        "latency_degradation_score": round(latency_degradation_score, 6),
+    }
+
+
+@router.get("/execution/inclusion-summary")
+def execution_inclusion_summary(request: Request, limit: int = 1000) -> dict[str, object]:
+    container = request.app.state.container
+    safe_limit = min(max(limit, 1), 5000)
+    with container.session_factory() as session:
+        rows = session.exec(select(ExecutionRecord).order_by(ExecutionRecord.id.desc()).limit(safe_limit)).all()
+
+    counts = {"INCLUDED": 0, "DELAYED": 0, "FAILED_INCLUSION": 0}
+    delays: list[int] = []
+    for row in rows:
+        status = str(row.inclusion_status or "INCLUDED")
+        if status not in counts:
+            counts[status] = 0
+        counts[status] += 1
+        delays.append(int(row.inclusion_delay_ledgers or 0))
+
+    sample = len(rows)
+    avg_delay = (sum(delays) / sample) if sample > 0 else 0.0
+    return {
+        "paper_mode": True,
+        "simulated": True,
+        "sample_size": sample,
+        "inclusion_status_counts": counts,
+        "avg_inclusion_delay_ledgers": round(avg_delay, 6),
     }
 
 

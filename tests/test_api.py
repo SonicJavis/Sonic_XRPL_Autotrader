@@ -1,5 +1,11 @@
-from fastapi.testclient import TestClient
+from datetime import datetime, timezone
 
+from fastapi.testclient import TestClient
+from sqlmodel import select
+
+from app.db.models import MarketSnapshot, Signal, WatchedToken
+from app.execution.fill_simulator import simulate_entry_buy
+from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.main import create_app
 
 
@@ -156,3 +162,92 @@ def test_strict_attribution_endpoints_available() -> None:
     assert "avg_slippage_vs_top" in body
     assert "partial_fill_rate" in body
     assert "failure_rate_by_reason" in body
+
+    latency = client.get("/execution/latency-summary")
+    assert latency.status_code == 200
+    assert "avg_total_execution_latency_ms" in latency.json()
+
+    inclusion = client.get("/execution/inclusion-summary")
+    assert inclusion.status_code == 200
+    assert "inclusion_status_counts" in inclusion.json()
+
+    slices_missing = client.get("/execution/ledger-slices/999999")
+    assert slices_missing.status_code == 404
+
+
+def test_replay_endpoint_exposes_replay_status() -> None:
+    app = create_app()
+    client = TestClient(app)
+
+    with app.state.container.session_factory() as session:
+        token = WatchedToken(issuer="rIssuer", currency="USD", is_xrp=False)
+        session.add(token)
+        session.commit()
+        session.refresh(token)
+
+        sig = Signal(
+            strategy_name="unit",
+            issuer=token.issuer,
+            currency=token.currency,
+            side="BUY",
+            confidence=0.9,
+            risk_score=0.1,
+            suggested_size_xrp=10.0,
+            reason="unit",
+        )
+        session.add(sig)
+        session.commit()
+        session.refresh(sig)
+
+        snap = MarketSnapshot(
+            token_id=token.id,
+            price_xrp=1.0,
+            liquidity_xrp=1000.0,
+            liquidity_bid_xrp=500.0,
+            liquidity_ask_xrp=500.0,
+            spread_pct=1.0,
+            best_bid=0.99,
+            best_ask=1.01,
+            bid_count=2,
+            ask_count=2,
+        )
+        session.add(snap)
+        session.commit()
+        session.refresh(snap)
+
+        now = datetime.now(tz=timezone.utc)
+        out = simulate_entry_buy(
+            asks=[{"price": 1.01, "token_amount": 100.0, "xrp_value": 101.0}],
+            best_bid=0.99,
+            best_ask=1.01,
+            requested_size_xrp=10.0,
+            snapshot_time=now,
+            signal_time=now,
+            execution_latency_ms=0,
+            max_snapshot_age_ms=1500,
+            liquidity_haircut_pct=0.0,
+        )
+        rec = PnLAttributionEngine().create_execution_record(
+            session,
+            token_id=token.id,
+            signal_id=sig.id,
+            risk_decision_id=None,
+            snapshot_id=snap.id,
+            position_id=None,
+            side="BUY",
+            execution_result=out,
+            snapshot_time=now,
+            signal_time=now,
+            execution_time=now,
+            ledger_index_snapshot=10,
+            ledger_index_signal=11,
+            ledger_index_execution=11,
+            ledger_index_inclusion=12,
+            inclusion_status="INCLUDED",
+            min_ledger_delay=1,
+            max_ledger_delay=3,
+        )
+
+    replay = client.get(f"/execution/replay/{rec.id}")
+    assert replay.status_code == 200
+    assert replay.json()["status"] in {"REPLAY_OK", "REPLAY_MISMATCH"}
