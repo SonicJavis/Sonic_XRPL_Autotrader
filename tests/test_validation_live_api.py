@@ -13,6 +13,50 @@ from app.main import create_app
 
 BASE = datetime(2026, 4, 29, 12, 0, tzinfo=timezone.utc)
 
+STATUS_FIELDS = {
+    "current_ledger",
+    "buffer_size",
+    "ledger_lag",
+    "health_state",
+    "processed_ledger_count",
+    "duplicate_ledger_count",
+    "gap_count",
+    "dropped_event_count",
+    "pending_window_count",
+    "resolved_window_count",
+    "expired_window_count",
+    "latency",
+    "is_shadow",
+    "is_advisory",
+    "is_executable",
+    "is_truth",
+    "xrpl_warning",
+}
+
+METRIC_FIELDS = {
+    "rolling_brier",
+    "rolling_disagreement",
+    "attribution_breakdown",
+    "sample_count",
+    "is_shadow",
+    "is_advisory",
+    "is_executable",
+    "is_truth",
+    "xrpl_warning",
+}
+
+DRIFT_FIELDS = {
+    "drift_flag",
+    "drift_magnitude",
+    "live_sample_count",
+    "replay_sample_count",
+    "is_shadow",
+    "is_advisory",
+    "is_executable",
+    "is_truth",
+    "xrpl_warning",
+}
+
 
 def test_live_validation_api_default_state_safe() -> None:
     client = TestClient(create_app())
@@ -22,6 +66,9 @@ def test_live_validation_api_default_state_safe() -> None:
     drift = client.get("/validation/live/drift").json()
 
     assert status["health_state"] == "NOT_CONFIGURED"
+    assert set(status) == STATUS_FIELDS
+    assert set(metrics) == METRIC_FIELDS
+    assert set(drift) == DRIFT_FIELDS
     assert metrics["sample_count"] == 0
     assert drift["drift_flag"] is False
     _assert_meta(status)
@@ -47,12 +94,18 @@ def test_live_validation_api_reads_attached_pipeline_without_mutation() -> None:
 
     first = client.get("/validation/live/status").json()
     second = client.get("/validation/live/status").json()
+    before_processed = pipeline.status()["processed_ledger_count"]
     metrics = client.get("/validation/live/metrics").json()
     drift = client.get("/validation/live/drift").json()
+    after_processed = pipeline.status()["processed_ledger_count"]
 
     assert first == second
+    assert set(first) == STATUS_FIELDS
+    assert set(metrics) == METRIC_FIELDS
+    assert set(drift) == DRIFT_FIELDS
     assert first["current_ledger"] == 2
     assert metrics["sample_count"] == 1
+    assert before_processed == after_processed
     assert "attribution_breakdown" in metrics
     assert 0.0 <= drift["drift_magnitude"] <= 1.0
     _assert_meta(first)

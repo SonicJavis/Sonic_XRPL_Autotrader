@@ -1,0 +1,24 @@
+{
+  "name": "phase23_stress",
+  "initial_expected_ledger": 100,
+  "window_size": 3,
+  "max_gap_ledgers": 3,
+  "max_buffer_size": 4,
+  "max_processed_ledgers": 12,
+  "base_time": "2026-04-29T12:00:00+00:00",
+  "events": [
+    {"ledger_index": 103, "processing_delay_ms": 900, "snapshot": {"observed_possible_fill": 90.0}},
+    {"ledger_index": 101, "processing_delay_ms": 300, "snapshot": {"observed_possible_fill": 90.0}},
+    {"ledger_index": 102, "processing_delay_ms": 400, "snapshot": {"observed_possible_fill": 80.0}},
+    {"ledger_index": 100, "processing_delay_ms": 500, "snapshot": {"observed_possible_fill": 95.0}},
+    {"ledger_index": 103, "processing_delay_ms": 950, "snapshot": {"observed_possible_fill": 90.0}},
+    {"ledger_index": 104, "processing_delay_ms": 500, "snapshot": {"observed_possible_fill": 70.0}},
+    {"ledger_index": 108, "processing_delay_ms": 600, "snapshot": {"observed_possible_fill": 5.0}},
+    {"ledger_index": 109, "processing_delay_ms": 700, "snapshot": {"observed_possible_fill": 4.0}},
+    {"ledger_index": 110, "processing_delay_ms": 800, "snapshot": {"observed_possible_fill": 3.0}},
+    {"ledger_index": 111, "processing_delay_ms": 900, "snapshot": {"observed_possible_fill": 2.0}},
+    {"ledger_index": 112, "processing_delay_ms": 1000, "snapshot": {"observed_possible_fill": 1.0}},
+    {"ledger_index": 113, "processing_delay_ms": 1100, "snapshot": {"observed_possible_fill": 0.0}}
+  ],
+  "replay_results": []
+}

@@ -80,12 +80,21 @@ class LedgerGapEvent:
 
 
 class XRPLLedgerSequencer:
-    def __init__(self, *, max_buffer_size: int = 32, max_gap_ledgers: int = 1, initial_expected_ledger: int | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        max_buffer_size: int = 32,
+        max_gap_ledgers: int = 1,
+        initial_expected_ledger: int | None = None,
+        max_processed_ledgers: int = 4096,
+    ) -> None:
         self.max_buffer_size = max(1, int(max_buffer_size))
         self.max_gap_ledgers = max(1, int(max_gap_ledgers))
+        self.max_processed_ledgers = max(1, int(max_processed_ledgers))
         self.buffer: dict[int, LiveLedgerFrame] = {}
         self.expected_ledger: int | None = None if initial_expected_ledger is None else max(1, int(initial_expected_ledger))
         self.processed_ledgers: set[int] = set()
+        self._processed_order: list[int] = []
         self.duplicate_ledger_count = 0
         self.gap_count = 0
         self.dropped_event_count = 0
@@ -119,7 +128,7 @@ class XRPLLedgerSequencer:
         while self.expected_ledger is not None:
             if self.expected_ledger in self.buffer:
                 frame = self.buffer.pop(self.expected_ledger)
-                self.processed_ledgers.add(frame.ledger_index)
+                self._mark_processed(frame.ledger_index)
                 emitted.append(frame)
                 self.expected_ledger += 1
                 continue
@@ -142,6 +151,13 @@ class XRPLLedgerSequencer:
             self.buffer.pop(max(self.buffer))
             self.dropped_event_count += 1
         return emitted
+
+    def _mark_processed(self, ledger_index: int) -> None:
+        self.processed_ledgers.add(ledger_index)
+        self._processed_order.append(ledger_index)
+        while len(self._processed_order) > self.max_processed_ledgers:
+            expired = self._processed_order.pop(0)
+            self.processed_ledgers.discard(expired)
 
 
 @dataclass(slots=True)
@@ -393,6 +409,22 @@ class XRPLLiveShadowPipeline:
 
     def drift(self) -> dict[str, object]:
         return LiveDriftDetector().compare(live=self.live_results, replay=self.replay_results)
+
+    def to_report(self) -> dict[str, object]:
+        status = self.status()
+        metrics = self.metrics_body()
+        drift = self.drift()
+        return {
+            "status": status,
+            "metrics": metrics,
+            "drift": drift,
+            "gap_count": status["gap_count"],
+            "duplicate_count": status["duplicate_ledger_count"],
+            "pending_windows": status["pending_window_count"],
+            "resolved_windows": status["resolved_window_count"],
+            "expired_windows": status["expired_window_count"],
+            **_meta(),
+        }
 
     def _sync_metrics(self, *, network_head: int | None) -> None:
         self.metrics.buffer_size = len(self.sequencer.buffer)
