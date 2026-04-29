@@ -26,6 +26,7 @@ from app.validation.xrpl_calibration_recommendations import (
     XRPL_CALIBRATION_WARNING,
     XRPLCalibrationRecommendationEngine,
 )
+from app.live.xrpl_live_shadow_pipeline import default_live_drift, default_live_metrics, default_live_status
 
 router = APIRouter()
 
@@ -374,6 +375,30 @@ def validation_calibration_export(
         reviews=review_rows,
         deterministic=deterministic,
     )
+
+
+@router.get("/validation/live/status")
+def validation_live_status(request: Request) -> dict[str, object]:
+    pipeline = getattr(request.app.state, "live_shadow_pipeline", None)
+    if pipeline is None:
+        return default_live_status()
+    return pipeline.status()
+
+
+@router.get("/validation/live/metrics")
+def validation_live_metrics(request: Request) -> dict[str, object]:
+    pipeline = getattr(request.app.state, "live_shadow_pipeline", None)
+    if pipeline is None:
+        return default_live_metrics()
+    return pipeline.metrics_body()
+
+
+@router.get("/validation/live/drift")
+def validation_live_drift(request: Request) -> dict[str, object]:
+    pipeline = getattr(request.app.state, "live_shadow_pipeline", None)
+    if pipeline is None:
+        return default_live_drift()
+    return pipeline.drift()
 
 
 def _worst(groups: dict[str, list[float]]) -> list[dict[str, object]]:

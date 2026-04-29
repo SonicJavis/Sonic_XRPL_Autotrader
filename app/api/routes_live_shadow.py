@@ -20,7 +20,7 @@ def _meta() -> dict[str, object]:
         "is_shadow": True,
         "is_executable": False,
         "is_advisory": True,
-        "xrpl_warning": "Shadow decisions are advisory only; book_offers is snapshot-based and observed liquidity is not executable truth",
+        "xrpl_warning": "Shadow decisions are advisory only; book_offers is snapshot-based and observed liquidity is not executable",
     }
 
 

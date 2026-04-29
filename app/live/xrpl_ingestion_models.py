@@ -6,7 +6,7 @@ from math import isfinite
 
 
 XRPL_INGESTION_WARNING = (
-    "Read-only XRPL observation only; book_offers is snapshot polling and observed liquidity is not executable truth"
+    "Read-only XRPL observation only; book_offers is snapshot polling and observed liquidity is not executable"
 )
 
 

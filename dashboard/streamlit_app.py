@@ -49,6 +49,7 @@ from app.decision.xrpl_memory_weighting import XRPLMemoryWeighting, XRPLMemoryWe
 from app.feedback.feedback_aggregator import DecisionFeedbackAggregator
 from app.feedback.shadow_decision_tracker import ShadowDecisionTracker
 from app.live.dashboard_metrics import build_live_dashboard_metrics
+from app.live.xrpl_live_shadow_pipeline import default_live_drift, default_live_status
 from app.live.xrpl_ingestion_models import XRPLIngestionHealth
 from app.risk.kill_switch import KillSwitch
 
@@ -943,6 +944,24 @@ def main() -> None:
     li5.metric("Rejection %", f"{ingestion_health.snapshot_rejection_rate * 100:.1f}%")
     li6.metric("Stale Snapshots", str(ingestion_health.stale_snapshot_count))
     li7.metric("Ledger Gaps", str(ingestion_health.ledger_gap_count))
+
+    st.subheader("XRPL Live Probabilistic Observatory")
+    st.warning("Ledger event-time drives validation windows")
+    st.warning("Processing time is observability only")
+    st.warning("No calibration setting is changed from this panel")
+    live_status = default_live_status()
+    live_drift = default_live_drift()
+    lo1, lo2, lo3, lo4 = st.columns(4)
+    lo1.metric("Current Ledger", str(live_status["current_ledger"]))
+    lo2.metric("Buffer Size", str(live_status["buffer_size"]))
+    lo3.metric("Ledger Lag", str(live_status["ledger_lag"]))
+    lo4.metric("Health", str(live_status["health_state"]))
+    latency = live_status["latency"]
+    lp1, lp2, lp3 = st.columns(3)
+    lp1.metric("Ingestion p95 ms", f"{latency['ingestion_latency_ms']['p95']:.1f}")
+    lp2.metric("Processing p95 ms", f"{latency['processing_latency_ms']['p95']:.1f}")
+    lp3.metric("Drift Magnitude", f"{float(live_drift['drift_magnitude']):.3f}")
+    st.caption("Drift indicator is advisory-only and does not change calibration or review records.")
 
     st.subheader("XRPL Decision Quality – Ledger Aware")
     dq1, dq2, dq3, dq4 = st.columns(4)
