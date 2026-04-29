@@ -28,6 +28,9 @@ def test_dashboard_live_observability_panel_is_review_only() -> None:
     assert "Derived from validated ledger data only" in source
     assert "Execution not guaranteed on XRPL" in source
     assert "Estimates based on current snapshot only" in source
+    assert "Simulated XRPL execution only" in source
+    assert "Routing and fills are not guaranteed" in source
+    assert "Based on current ledger snapshot" in source
     live_panel = source[source.index("XRPL Live Probabilistic Observatory") :]
     for phrase in ("execute trade", "auto trade", "wallet connect", "approve-and-apply"):
         assert phrase not in live_panel.lower()

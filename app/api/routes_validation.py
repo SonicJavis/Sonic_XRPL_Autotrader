@@ -8,6 +8,12 @@ from sqlmodel import select
 
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
 from app.db.models import CalibrationReviewRecord, ExecutionRecord, ShadowValidationRecord, WatchedToken, XRPLOrderbookSnapshot
+from app.execution.xrpl_paper_execution import (
+    PAPER_EXECUTION_SCHEMA_VERSION,
+    XRPL_PAPER_EXECUTION_WARNING,
+    XRPLPaperExecutionEngine,
+    summarize_simulations,
+)
 from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
@@ -419,6 +425,40 @@ def validation_intent_detail(request: Request, intent_id: str, limit: int = 500,
     raise HTTPException(status_code=404, detail="intent not found")
 
 
+@router.get("/validation/simulations")
+def validation_simulations(request: Request, limit: int = 500, requested_size: float = 100.0) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    simulations = _build_simulations(request, limit=safe_limit, requested_size=requested_size)
+    return {
+        **_simulation_meta(),
+        "schema_version": PAPER_EXECUTION_SCHEMA_VERSION,
+        "limit": safe_limit,
+        "count": len(simulations),
+        "simulations": simulations[:safe_limit],
+    }
+
+
+@router.get("/validation/simulations/summary")
+def validation_simulations_summary(request: Request, limit: int = 500, requested_size: float = 100.0) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    simulations = _build_simulations(request, limit=safe_limit, requested_size=requested_size)
+    return {
+        **_simulation_meta(),
+        "limit": safe_limit,
+        "summary": summarize_simulations(simulations[:safe_limit]),
+    }
+
+
+@router.get("/validation/simulations/{simulation_id}")
+def validation_simulation_detail(request: Request, simulation_id: str, limit: int = 500, requested_size: float = 100.0) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    simulations = _build_simulations(request, limit=safe_limit, requested_size=requested_size)
+    for simulation in simulations:
+        if simulation["simulation_id"] == simulation_id:
+            return {**_simulation_meta(), "simulation": simulation}
+    raise HTTPException(status_code=404, detail="simulation not found")
+
+
 @router.get("/validation/live/status")
 def validation_live_status(request: Request) -> dict[str, object]:
     pipeline = getattr(request.app.state, "live_shadow_pipeline", None)
@@ -479,6 +519,64 @@ def _build_intents(request: Request, *, limit: int, requested_size: float) -> li
     )
 
 
+def _build_simulations(request: Request, *, limit: int, requested_size: float) -> list[dict[str, object]]:
+    intents = [intent.to_dict() for intent in _build_intents(request, limit=limit, requested_size=requested_size)]
+    with request.app.state.container.session_factory() as session:
+        snapshots = session.exec(
+            select(XRPLOrderbookSnapshot).order_by(XRPLOrderbookSnapshot.ledger_index.desc(), XRPLOrderbookSnapshot.id.desc()).limit(5000)
+        ).all()
+    levels_by_token: dict[int, list[dict[str, object]]] = {}
+    for snapshot in snapshots:
+        token_id = int(snapshot.token_id)
+        if token_id in levels_by_token:
+            continue
+        levels_by_token[token_id] = _levels_from_snapshot(snapshot)
+    engine = XRPLPaperExecutionEngine()
+    simulations = []
+    for intent in intents:
+        token_id = int(_finite(intent.get("token_id", 0)))
+        result = engine.simulate(
+            intent=intent,
+            quality_levels=levels_by_token.get(token_id, []),
+            transfer_fee_bps=0,
+            trustline_available=True,
+            snapshot_complete=bool(levels_by_token.get(token_id)),
+        ).to_dict()
+        simulations.append(result)
+    return sorted(
+        simulations,
+        key=lambda row: (
+            -int(_finite(row.get("xrpl_execution_context", {}).get("ledger_index", 0) if isinstance(row.get("xrpl_execution_context"), dict) else 0)),
+            str(row.get("intent_id", "")),
+            str(row.get("simulation_id", "")),
+        ),
+    )
+
+
+def _levels_from_snapshot(snapshot: XRPLOrderbookSnapshot) -> list[dict[str, object]]:
+    raw_levels = snapshot.levels_json if isinstance(snapshot.levels_json, list) else []
+    levels: list[dict[str, object]] = []
+    for row in raw_levels:
+        if not isinstance(row, dict):
+            continue
+        side = str(row.get("side", "ask")).lower()
+        if side not in {"ask", "sell", "offer"}:
+            continue
+        price = _finite(row.get("price", row.get("price_xrp_per_token", row.get("quality", snapshot.best_ask))))
+        size = _finite(row.get("xrp_value", row.get("available_size", row.get("token_amount", 0.0))))
+        levels.append({"quality": price, "price": price, "available_size": size, "funded": bool(row.get("funded", True))})
+    if levels:
+        return levels
+    return [
+        {
+            "quality": _finite(snapshot.best_ask),
+            "price": _finite(snapshot.best_ask),
+            "available_size": _finite(snapshot.ask_depth_xrp),
+            "funded": True,
+        }
+    ]
+
+
 def _worst(groups: dict[str, list[float]]) -> list[dict[str, object]]:
     rows = [
         {"key": key, "avg_disagreement_score": round(sum(values) / max(len(values), 1), 6), "sample_count": len(values)}
@@ -504,6 +602,16 @@ def _intent_meta() -> dict[str, object]:
         "is_executable": False,
         "is_truth": False,
         "xrpl_warning": XRPL_ORDER_INTENT_WARNING,
+    }
+
+
+def _simulation_meta() -> dict[str, object]:
+    return {
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
+        "xrpl_warning": XRPL_PAPER_EXECUTION_WARNING,
     }
 
 

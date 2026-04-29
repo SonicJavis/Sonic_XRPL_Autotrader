@@ -41,6 +41,7 @@ from app.db.models import (
 from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.replay_engine import ReplayEngine
+from app.execution.xrpl_paper_execution import XRPLPaperExecutionEngine, summarize_simulations
 from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
 from app.calibration.xrpl_memory_model import aggregate_by_issuer, aggregate_by_token, aggregate_global, build_memory_samples
 from app.calibration.xrpl_regime_detector import XRPLRegimeDetector
@@ -332,6 +333,16 @@ def main() -> None:
         requested_size=100.0,
     )
     simulated_intent_summary = summarize_order_intents(simulated_intents)
+    simulation_engine = XRPLPaperExecutionEngine()
+    latest_snapshots_by_token = {token_id: rows[-1] for token_id, rows in snapshots_by_token.items() if rows}
+    paper_simulations = [
+        simulation_engine.simulate(
+            intent=intent.to_dict(),
+            quality_levels=_dashboard_quality_levels(latest_snapshots_by_token.get(int(intent.to_dict()["token_id"]))),
+        ).to_dict()
+        for intent in simulated_intents
+    ]
+    paper_simulation_summary = summarize_simulations(paper_simulations)
     tokens_by_id = {int(token.id): token for token in tokens if token.id is not None}
     memory_samples = build_memory_samples(executions, tokens_by_id=tokens_by_id)
     memory_global = aggregate_global(memory_samples)
@@ -958,6 +969,32 @@ def main() -> None:
     else:
         st.info("No simulated order intents available from current validation and snapshot data.")
 
+    st.subheader("Paper Execution Simulation (XRPL)")
+    st.warning("Simulated XRPL execution only")
+    st.warning("Routing and fills are not guaranteed")
+    st.warning("Based on current ledger snapshot")
+    ps1, ps2, ps3, ps4 = st.columns(4)
+    ps1.metric("Avg Fill Ratio", f"{float(paper_simulation_summary['avg_fill_ratio']):.3f}")
+    ps2.metric("Avg Slippage", f"{float(paper_simulation_summary['avg_slippage']):.3f}")
+    ps3.metric("Failure Rate", f"{float(paper_simulation_summary['failure_rate']) * 100:.1f}%")
+    ps4.metric("Success Rate", f"{float(paper_simulation_summary['success_rate']) * 100:.1f}%")
+    simulation_rows = [
+        {
+            "simulation_id": row["simulation_id"],
+            "intent_id": row["intent_id"],
+            "fill_ratio": row["fill_ratio"],
+            "execution_status": row["execution_status"],
+            "slippage_realized": row["slippage_realized"],
+            "failure_reason": row["failure_reason"],
+            "quality_levels_consumed": row["xrpl_execution_context"]["quality_levels_consumed"],
+        }
+        for row in paper_simulations
+    ]
+    if simulation_rows:
+        st.dataframe(simulation_rows[:100], use_container_width=True)
+    else:
+        st.info("No paper execution simulations available from current intent and snapshot data.")
+
     st.subheader("XRPL Read-Only Ingestion Status")
     st.warning("Read-only XRPL observation only")
     st.warning("No transaction is created or submitted")
@@ -1266,6 +1303,25 @@ def main() -> None:
 
     st.subheader("Risk Events")
     st.dataframe([r.model_dump() for r in risk_events], use_container_width=True)
+
+
+def _dashboard_quality_levels(snapshot: XRPLOrderbookSnapshot | None) -> list[dict[str, object]]:
+    if snapshot is None:
+        return []
+    rows = snapshot.levels_json if isinstance(snapshot.levels_json, list) else []
+    levels = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        side = str(row.get("side", "ask")).lower()
+        if side not in {"ask", "sell", "offer"}:
+            continue
+        price = float(row.get("price", row.get("price_xrp_per_token", row.get("quality", snapshot.best_ask))) or 0.0)
+        size = float(row.get("xrp_value", row.get("available_size", row.get("token_amount", 0.0))) or 0.0)
+        levels.append({"quality": price, "price": price, "available_size": size, "funded": bool(row.get("funded", True))})
+    if levels:
+        return levels
+    return [{"quality": float(snapshot.best_ask), "price": float(snapshot.best_ask), "available_size": float(snapshot.ask_depth_xrp), "funded": True}]
 
 
 if __name__ == "__main__":
