@@ -28,6 +28,7 @@ from app.db.models import (
     RiskDecisionRecord,
     RiskEvent,
     ShadowDecisionRecord,
+    ShadowValidationRecord,
     Signal,
     WatchedToken,
     XRPLOrderbookSequence,
@@ -83,6 +84,11 @@ def main() -> None:
         shadow_decisions = session.exec(
             select(ShadowDecisionRecord)
             .order_by(ShadowDecisionRecord.observed_at.desc(), ShadowDecisionRecord.id.desc())
+            .limit(300)
+        ).all()
+        shadow_validations = session.exec(
+            select(ShadowValidationRecord)
+            .order_by(ShadowValidationRecord.created_at.desc(), ShadowValidationRecord.id.desc())
             .limit(300)
         ).all()
         perf_engine = PerformanceEngine(settings)
@@ -282,6 +288,20 @@ def main() -> None:
     )
     decision_feedback = DecisionFeedbackAggregator().aggregate_from_executions(executions)
     shadow_decision_summary = ShadowDecisionTracker().summarize(shadow_decisions)
+    validation_count = len(shadow_validations)
+    validation_avg_disagreement = (
+        0.0 if validation_count == 0 else sum(float(row.disagreement_score or 0.0) for row in shadow_validations) / validation_count
+    )
+    validation_avg_brier = 0.0 if validation_count == 0 else sum(float(row.brier_score or 0.0) for row in shadow_validations) / validation_count
+    validation_overconfidence = (
+        0.0 if validation_count == 0 else sum(1 for row in shadow_validations if row.overconfidence_flag) / validation_count
+    )
+    validation_underconfidence = (
+        0.0 if validation_count == 0 else sum(1 for row in shadow_validations if row.underconfidence_flag) / validation_count
+    )
+    validation_attribution: dict[str, int] = {}
+    for row in shadow_validations:
+        validation_attribution[row.attribution] = validation_attribution.get(row.attribution, 0) + 1
     tokens_by_id = {int(token.id): token for token in tokens if token.id is not None}
     memory_samples = build_memory_samples(executions, tokens_by_id=tokens_by_id)
     memory_global = aggregate_global(memory_samples)
@@ -770,6 +790,38 @@ def main() -> None:
         )
     else:
         st.info("No continuous shadow decisions recorded yet.")
+
+    st.subheader("XRPL Validation — Prediction vs Outcome Windows")
+    st.warning("No ground truth exists")
+    st.warning("Observed outcomes are probabilistic")
+    st.warning("Validation reflects disagreement, not correctness")
+    vx1, vx2, vx3, vx4 = st.columns(4)
+    vx1.metric("Disagreement Score", f"{validation_avg_disagreement:.3f}")
+    vx2.metric("Brier Score", f"{validation_avg_brier:.3f}")
+    vx3.metric("Overconfidence Rate", f"{validation_overconfidence * 100:.1f}%")
+    vx4.metric("Underconfidence Rate", f"{validation_underconfidence * 100:.1f}%")
+    validation_rows = [
+        {
+            "decision_id": int(row.decision_id),
+            "token_id": int(row.token_id),
+            "regime": row.predicted_regime,
+            "disagreement_score": float(row.disagreement_score),
+            "brier_score": float(row.brier_score),
+            "attribution": row.attribution,
+            "created_at": row.created_at,
+        }
+        for row in shadow_validations
+    ]
+    if validation_rows:
+        st.bar_chart(
+            [{"attribution": key, "count": value} for key, value in sorted(validation_attribution.items())],
+            x="attribution",
+            y="count",
+            use_container_width=True,
+        )
+        st.dataframe(validation_rows[:100], use_container_width=True)
+    else:
+        st.info("No shadow validation windows recorded yet.")
 
     st.subheader("XRPL Read-Only Ingestion Status")
     st.warning("Read-only XRPL observation only")

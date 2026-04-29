@@ -394,3 +394,33 @@ class ShadowDecisionRecord(SQLModel, table=True):
     calibration_snapshot_json: str = "{}"
     is_shadow: bool = True
     is_executable: bool = False
+
+
+class ShadowValidationRecord(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    decision_id: int = Field(default=0, index=True)
+    token_id: int = Field(default=0, index=True)
+    issuer: str = ""
+    predicted_regime: str = "UNKNOWN"
+
+    fill_probability_error: float = 0.0
+    effective_size_error: float = 0.0
+    ev_error: float = 0.0
+    liquidity_disappearance: float = 0.0
+    path_failure_rate: float = 0.0
+    competition_miss_rate: float = 0.0
+    latency_miss: float = 0.0
+    regime_mismatch: bool = False
+    disagreement_score: float = 0.0
+    brier_score: float = 0.0
+    overconfidence_flag: bool = False
+    underconfidence_flag: bool = False
+    confidence_error: float = 0.0
+    attribution: str = "unknown"
+
+    created_at: datetime = Field(default_factory=utcnow, index=True)
+    is_shadow: bool = True
+    is_advisory: bool = True
+    is_executable: bool = False
+    is_truth: bool = False

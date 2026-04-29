@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request
 from sqlmodel import select
 
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
-from app.db.models import ExecutionRecord, XRPLOrderbookSnapshot
+from app.db.models import ExecutionRecord, ShadowValidationRecord, XRPLOrderbookSnapshot
 from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
@@ -22,6 +22,57 @@ def _base_response_meta() -> dict[str, object]:
         "is_truth": False,
         "is_validation_only": True,
         "xrpl_warning": "Observed data may not reflect executable liquidity",
+    }
+
+
+def _shadow_meta() -> dict[str, object]:
+    return {
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
+        "xrpl_warning": "No ground truth exists; observed outcomes are probabilistic and validation measures disagreement, not correctness",
+    }
+
+
+def _safe_limit(raw: int) -> int:
+    return min(max(int(raw), 1), 5000)
+
+
+def _finite(raw: object) -> float:
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        return 0.0
+    return value if value == value and value not in (float("inf"), float("-inf")) else 0.0
+
+
+def _record_to_dict(row: ShadowValidationRecord) -> dict[str, object]:
+    return {
+        "id": int(row.id or 0),
+        "decision_id": int(row.decision_id),
+        "token_id": int(row.token_id),
+        "issuer": row.issuer,
+        "predicted_regime": row.predicted_regime,
+        "fill_probability_error": _finite(row.fill_probability_error),
+        "effective_size_error": _finite(row.effective_size_error),
+        "ev_error": _finite(row.ev_error),
+        "liquidity_disappearance": _finite(row.liquidity_disappearance),
+        "path_failure_rate": _finite(row.path_failure_rate),
+        "competition_miss_rate": _finite(row.competition_miss_rate),
+        "latency_miss": _finite(row.latency_miss),
+        "regime_mismatch": bool(row.regime_mismatch),
+        "disagreement_score": _finite(row.disagreement_score),
+        "brier_score": _finite(row.brier_score),
+        "overconfidence_flag": bool(row.overconfidence_flag),
+        "underconfidence_flag": bool(row.underconfidence_flag),
+        "confidence_error": _finite(row.confidence_error),
+        "attribution": row.attribution,
+        "created_at": row.created_at.astimezone(timezone.utc).isoformat(),
+        "is_shadow": bool(row.is_shadow),
+        "is_advisory": bool(row.is_advisory),
+        "is_executable": bool(row.is_executable),
+        "is_truth": bool(row.is_truth),
     }
 
 
@@ -134,3 +185,55 @@ def validation_from_calibration(request: Request, limit: int = 300) -> dict[str,
     _VALIDATION_RUNS.append(run)
 
     return {**_base_response_meta(), "run": run, "report": generated.get("report", {})}
+
+
+@router.get("/validation/shadow/results")
+def validation_shadow_results(request: Request, limit: int = 200) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    with request.app.state.container.session_factory() as session:
+        rows = session.exec(
+            select(ShadowValidationRecord).order_by(ShadowValidationRecord.created_at.desc(), ShadowValidationRecord.id.desc()).limit(safe_limit)
+        ).all()
+    return {
+        **_shadow_meta(),
+        "limit": safe_limit,
+        "count": len(rows),
+        "results": [_record_to_dict(row) for row in rows],
+    }
+
+
+@router.get("/validation/shadow/summary")
+def validation_shadow_summary(request: Request, limit: int = 500) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    with request.app.state.container.session_factory() as session:
+        rows = session.exec(
+            select(ShadowValidationRecord).order_by(ShadowValidationRecord.created_at.desc(), ShadowValidationRecord.id.desc()).limit(safe_limit)
+        ).all()
+    count = len(rows)
+    attribution: dict[str, int] = {}
+    regime_scores: dict[str, list[float]] = {}
+    token_scores: dict[str, list[float]] = {}
+    for row in rows:
+        attribution[row.attribution] = attribution.get(row.attribution, 0) + 1
+        regime_scores.setdefault(row.predicted_regime, []).append(_finite(row.disagreement_score))
+        token_scores.setdefault(str(row.token_id), []).append(_finite(row.disagreement_score))
+    return {
+        **_shadow_meta(),
+        "limit": safe_limit,
+        "sample_count": count,
+        "avg_disagreement_score": 0.0 if count == 0 else round(sum(_finite(row.disagreement_score) for row in rows) / count, 6),
+        "avg_brier_score": 0.0 if count == 0 else round(sum(_finite(row.brier_score) for row in rows) / count, 6),
+        "overconfidence_rate": 0.0 if count == 0 else round(sum(1 for row in rows if row.overconfidence_flag) / count, 6),
+        "underconfidence_rate": 0.0 if count == 0 else round(sum(1 for row in rows if row.underconfidence_flag) / count, 6),
+        "attribution_breakdown": dict(sorted(attribution.items())),
+        "worst_regimes": _worst(regime_scores),
+        "worst_tokens": _worst(token_scores),
+    }
+
+
+def _worst(groups: dict[str, list[float]]) -> list[dict[str, object]]:
+    rows = [
+        {"key": key, "avg_disagreement_score": round(sum(values) / max(len(values), 1), 6), "sample_count": len(values)}
+        for key, values in groups.items()
+    ]
+    return sorted(rows, key=lambda item: (-float(item["avg_disagreement_score"]), str(item["key"])))[:10]
