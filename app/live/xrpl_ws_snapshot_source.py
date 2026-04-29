@@ -33,7 +33,10 @@ class XRPLWebSocketSnapshotSource:
         self.stale_snapshot_count = 0
         self.rejected_snapshot_count = 0
         self.ledger_gap_count = 0
+        self.duplicate_ledger_count = 0
+        self.throttled_snapshot_count = 0
         self.snapshot_count = 0
+        self.unfunded_liquidity_estimate = 0.0
         self.last_snapshot_latency_ms = 0.0
         self._first_snapshot_at: datetime | None = None
         self._last_snapshot_at: datetime | None = None
@@ -57,6 +60,7 @@ class XRPLWebSocketSnapshotSource:
             self.reason = "LEDGER_REGRESSION"
             return None
         if ledger.ledger_index == self._last_snapshot_ledger_index:
+            self.duplicate_ledger_count += 1
             self.reason = "DUPLICATE_LEDGER_IGNORED"
             return None
         if self._last_ledger_index and ledger.ledger_index - self._last_ledger_index > self.max_ledger_gap:
@@ -69,6 +73,7 @@ class XRPLWebSocketSnapshotSource:
         if self._last_snapshot_at is not None:
             elapsed_ms = max(0.0, (now - self._last_snapshot_at).total_seconds() * 1000.0)
             if elapsed_ms < self.snapshot_throttle_ms:
+                self.throttled_snapshot_count += 1
                 self.reason = "SNAPSHOT_THROTTLED"
                 return None
         self._last_ledger_index = ledger.ledger_index
@@ -115,6 +120,7 @@ class XRPLWebSocketSnapshotSource:
         if self._first_snapshot_at is None:
             self._first_snapshot_at = now
         self.snapshot_count += 1
+        self.unfunded_liquidity_estimate += max(0.0, side_depth - observed_possible_fill)
         self.last_snapshot_latency_ms = max(0.0, (age_reference - book.observed_at).total_seconds() * 1000.0)
         self.reason = "SNAPSHOT_READY"
         return ShadowSnapshotInput(
@@ -149,9 +155,13 @@ class XRPLWebSocketSnapshotSource:
             backoff_seconds=ws.backoff_seconds,
             reason=self.reason,
             snapshot_rate_per_sec=self._snapshot_rate(),
+            snapshot_count=self.snapshot_count,
             last_snapshot_latency_ms=self.last_snapshot_latency_ms,
             ledger_gap_detected=self.ledger_gap_count > 0,
             ledger_gap_count=self.ledger_gap_count,
+            duplicate_ledger_count=self.duplicate_ledger_count,
+            throttled_snapshot_count=self.throttled_snapshot_count,
+            unfunded_liquidity_estimate=self.unfunded_liquidity_estimate,
             snapshot_rejection_rate=self._rejection_rate(),
             xrpl_warning=XRPL_INGESTION_WARNING,
         )
@@ -163,7 +173,14 @@ class XRPLWebSocketSnapshotSource:
         return round(self.snapshot_count / elapsed, 6)
 
     def _rejection_rate(self) -> float:
-        rejected = self.rejected_snapshot_count + self.stale_snapshot_count + self.book_adapter.rejected_snapshot_count + self.book_adapter.stale_snapshot_count
+        rejected = (
+            self.rejected_snapshot_count
+            + self.stale_snapshot_count
+            + self.duplicate_ledger_count
+            + self.throttled_snapshot_count
+            + self.book_adapter.rejected_snapshot_count
+            + self.book_adapter.stale_snapshot_count
+        )
         total = rejected + self.snapshot_count
         return 0.0 if total <= 0 else round(rejected / total, 6)
 

@@ -62,9 +62,13 @@ def test_live_ingestion_status_contract_fields_present() -> None:
         "ingestion_mode",
         "ingestion_source",
         "snapshot_rate_per_sec",
+        "snapshot_count",
         "last_snapshot_latency_ms",
         "ledger_gap_detected",
         "ledger_gap_count",
+        "duplicate_ledger_count",
+        "throttled_snapshot_count",
+        "unfunded_liquidity_estimate",
         "snapshot_rejection_rate",
     }
     assert expected | phase19_fields == set(body)

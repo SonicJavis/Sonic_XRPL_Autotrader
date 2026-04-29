@@ -139,7 +139,7 @@ class XRPLShadowLoop:
                 expected_profit=max(0.0, snapshot.requested_size * 0.05),
                 expected_loss=max(0.0, snapshot.requested_size * 0.03),
                 threshold=0.0,
-                execution_probability_floor=time_result.effective_fill_probability,
+                execution_probability_floor=self._probability_floor(snapshot, time_result),
                 slippage_multiplier=1.0 + snapshot.slippage_estimate,
                 liquidity_haircut=1.0 - aggregate.liquidity_reliability,
                 phantom_penalty=aggregate.avg_phantom_penalty,
@@ -202,10 +202,16 @@ class XRPLShadowLoop:
         xrpl_penalty = 0.0
         if snapshot.slippage_estimate > 0.08:
             xrpl_penalty += 0.15
+        if snapshot.slippage_estimate > 0.10:
+            xrpl_penalty += 0.10
+        if liquidity_decay < 0.35:
+            xrpl_penalty += 0.20
         if snapshot.path_complexity > 2:
             xrpl_penalty += 0.15
         if snapshot.snapshot_quality_score < 0.5:
             xrpl_penalty += 0.20
+        if snapshot.ledger_latency_proxy > 3000:
+            xrpl_penalty += 0.10
         if snapshot.ledger_latency_proxy > 5000:
             xrpl_penalty += 0.10
         phantom_penalty = _clamp_unit(phantom_penalty + xrpl_penalty)
@@ -246,6 +252,18 @@ class XRPLShadowLoop:
             regime_pressure_score=round(regime_pressure, 6),
             advisory_risk_level=_risk_level(regime_pressure),
         )
+
+    def _probability_floor(self, snapshot: ShadowSnapshotInput, time_result: XRPLTimeExecutionResult) -> float:
+        probability = _clamp_unit(time_result.effective_fill_probability)
+        if snapshot.ledger_latency_proxy > 3000:
+            probability *= 0.75
+        if snapshot.ledger_latency_proxy > 5000:
+            probability *= 0.75
+        if snapshot.path_complexity > 2:
+            probability *= max(0.0, 1.0 - (0.10 * (snapshot.path_complexity - 2)))
+        if snapshot.snapshot_quality_score < 0.5:
+            probability *= max(0.0, snapshot.snapshot_quality_score)
+        return round(_clamp_unit(probability), 6)
 
     def _record_from_outputs(
         self,

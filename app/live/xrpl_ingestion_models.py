@@ -138,9 +138,13 @@ class XRPLIngestionHealth:
     ingestion_mode: str = "disabled"
     ingestion_source: str = "static"
     snapshot_rate_per_sec: float = 0.0
+    snapshot_count: int = 0
     last_snapshot_latency_ms: float = 0.0
     ledger_gap_detected: bool = False
     ledger_gap_count: int = 0
+    duplicate_ledger_count: int = 0
+    throttled_snapshot_count: int = 0
+    unfunded_liquidity_estimate: float = 0.0
     snapshot_rejection_rate: float = 0.0
     is_live: bool = True
     is_shadow: bool = True
@@ -162,9 +166,13 @@ class XRPLIngestionHealth:
         self.ingestion_mode = str(self.ingestion_mode)
         self.ingestion_source = str(self.ingestion_source)
         self.snapshot_rate_per_sec = non_negative_float(self.snapshot_rate_per_sec)
+        self.snapshot_count = non_negative_int(self.snapshot_count)
         self.last_snapshot_latency_ms = non_negative_float(self.last_snapshot_latency_ms)
         self.ledger_gap_detected = bool(self.ledger_gap_detected)
         self.ledger_gap_count = non_negative_int(self.ledger_gap_count)
+        self.duplicate_ledger_count = non_negative_int(self.duplicate_ledger_count)
+        self.throttled_snapshot_count = non_negative_int(self.throttled_snapshot_count)
+        self.unfunded_liquidity_estimate = non_negative_float(self.unfunded_liquidity_estimate)
         self.snapshot_rejection_rate = clamp_unit(self.snapshot_rejection_rate)
         self.is_live = True
         self.is_shadow = True
