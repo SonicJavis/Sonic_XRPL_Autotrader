@@ -2,7 +2,12 @@ from datetime import datetime, timedelta, timezone
 from math import isfinite
 
 from app.db.models import ShadowValidationRecord
-from app.validation.xrpl_calibration_recommendations import XRPLCalibrationRecommendationEngine
+from app.validation.xrpl_calibration_recommendations import (
+    RECOMMENDATION_SCHEMA_VERSION,
+    XRPLCalibrationRecommendationEngine,
+    stable_recommendation_json,
+    validate_recommendation_payload,
+)
 
 
 def _record(
@@ -11,6 +16,7 @@ def _record(
     attribution: str = "liquidity_illusion",
     regime: str = "STABLE_SHADOW",
     token_id: int = 1,
+    issuer: str | None = None,
     disagreement: float = 0.4,
     brier: float = 0.3,
     over: bool = False,
@@ -20,7 +26,7 @@ def _record(
     return ShadowValidationRecord(
         decision_id=idx,
         token_id=token_id,
-        issuer=f"rIssuer{token_id}",
+        issuer=issuer or f"rIssuer{token_id}",
         predicted_regime=regime,
         disagreement_score=disagreement,
         brier_score=brier,
@@ -45,6 +51,8 @@ def test_low_sample_recommendations_are_low_confidence_and_manual_review_only() 
 
     assert recs
     assert all(row.confidence_level == "low" for row in recs)
+    assert all(row.recommendation_strength == "weak" for row in recs)
+    assert all(row.low_sample_warning for row in recs)
     assert all(row.requires_manual_approval for row in recs)
     assert all(row.is_shadow and row.is_advisory and not row.is_executable and not row.is_truth for row in recs)
 
@@ -82,6 +90,8 @@ def test_high_volatility_suppresses_strong_direction() -> None:
     body = [row.to_dict() for row in XRPLCalibrationRecommendationEngine().generate(rows, min_support=30)]
 
     assert any(row["volatility_flag"] for row in body)
+    assert any(row["high_variance_flag"] for row in body)
+    assert all(row["recommendation_strength"] == "weak" for row in body)
     assert all(row["confidence_level"] == "low" for row in body)
     assert all(row["suggestion_direction"] == "review" for row in body)
 
@@ -91,12 +101,55 @@ def test_deterministic_generation_for_identical_inputs() -> None:
     engine = XRPLCalibrationRecommendationEngine()
 
     assert [row.to_dict() for row in engine.generate(rows)] == [row.to_dict() for row in engine.generate(list(rows))]
+    assert engine.serialize(rows) == stable_recommendation_json(engine.generate(list(reversed(rows))))
+
+
+def test_strict_schema_rejects_unknown_fields() -> None:
+    row = XRPLCalibrationRecommendationEngine().generate([_record(i, over=True) for i in range(35)])[0].to_dict()
+
+    assert row["schema_version"] == RECOMMENDATION_SCHEMA_VERSION
+    validate_recommendation_payload(row)
+    row["unexpected"] = "blocked"
+    try:
+        validate_recommendation_payload(row)
+    except ValueError as exc:
+        assert "unknown" in str(exc)
+    else:
+        raise AssertionError("unknown fields must be rejected")
+
+
+def test_recommendations_never_cross_token_or_issuer_scope() -> None:
+    rows = [
+        *[_record(i, token_id=1, issuer="rIssuerA", attribution="latency", over=True) for i in range(35)],
+        *[_record(i + 100, token_id=1, issuer="rIssuerB", attribution="competition", under=True) for i in range(35)],
+        *[_record(i + 200, token_id=2, issuer="rIssuerA", attribution="path_instability", over=True) for i in range(35)],
+    ]
+
+    body = [row.to_dict() for row in XRPLCalibrationRecommendationEngine().generate(list(reversed(rows)), min_support=30)]
+
+    scopes = [row["scope"] for row in body]
+    assert all("token_id" in scope and "issuer" in scope for scope in scopes)
+    assert {"token_id": 1, "issuer": "rIssuerA", "attribution": "competition"} not in scopes
+    assert {"token_id": 1, "issuer": "rIssuerB", "attribution": "latency"} not in scopes
+
+
+def test_strong_strength_requires_support_and_stability() -> None:
+    rows = [_record(i, token_id=4, attribution="liquidity_illusion", over=True, disagreement=0.2, brier=0.2) for i in range(70)]
+
+    body = [row.to_dict() for row in XRPLCalibrationRecommendationEngine().generate(rows, min_support=30)]
+
+    assert any(row["recommendation_strength"] == "strong" for row in body)
+    assert all(0.0 <= row["stability_score"] <= 1.0 for row in body)
+    assert all(0.0 <= row["sample_decay_weight"] <= 1.0 for row in body)
 
 
 def test_recommendation_language_avoids_unsafe_certainty() -> None:
-    text = str([row.to_dict() for row in XRPLCalibrationRecommendationEngine().generate([_record(i, over=True) for i in range(35)])]).lower()
+    payload = [row.to_dict() for row in XRPLCalibrationRecommendationEngine().generate([_record(i, over=True) for i in range(35)])]
+    text = " ".join(f"{row['observation']} {row['rationale']}" for row in payload).lower()
     for phrase in _UNSAFE_PHRASES:
         assert phrase not in text
+    for phrase in ("observed disagreement", "probabilistic outcome", "uncertainty", "suggested review"):
+        assert phrase in text
 
 
 def _finite_json(value) -> bool:
@@ -110,8 +163,14 @@ def _finite_json(value) -> bool:
 
 
 _UNSAFE_PHRASES = (
+    "accurate",
+    "actual",
+    "confirmed",
+    "correct",
     "true fill",
     "actual fill",
+    "real",
+    "true",
     "guaranteed fill",
     "guaranteed execution",
     "real execution",

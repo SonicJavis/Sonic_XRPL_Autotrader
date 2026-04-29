@@ -12,6 +12,7 @@ from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBound
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
 from app.validation.report_engine import UncertaintyReportEngine, ValidationSample
 from app.validation.xrpl_calibration_recommendations import (
+    RECOMMENDATION_SCHEMA_VERSION,
     XRPL_CALIBRATION_WARNING,
     XRPLCalibrationRecommendationEngine,
 )
@@ -35,7 +36,7 @@ def _shadow_meta() -> dict[str, object]:
         "is_advisory": True,
         "is_executable": False,
         "is_truth": False,
-        "xrpl_warning": "No ground truth exists; observed outcomes are probabilistic and validation measures disagreement, not correctness",
+        "xrpl_warning": "No ground truth exists; observed outcomes are probabilistic and validation measures observed disagreement under uncertainty",
     }
 
 
@@ -243,8 +244,12 @@ def validation_calibration_recommendations(request: Request, limit: int = 5000, 
         rows = session.exec(
             select(ShadowValidationRecord).order_by(ShadowValidationRecord.created_at.desc(), ShadowValidationRecord.id.desc()).limit(safe_limit)
         ).all()
-    recommendations = XRPLCalibrationRecommendationEngine().generate(rows, min_support=min_support)
+    recommendations = XRPLCalibrationRecommendationEngine().generate(rows, min_support=min_support)[:safe_limit]
     return {
+        "schema_version": RECOMMENDATION_SCHEMA_VERSION,
+        "limit": safe_limit,
+        "min_support": min_support,
+        "effective_sample_size": len(rows),
         "count": len(recommendations),
         "recommendations": [row.to_dict() for row in recommendations],
         "is_shadow": True,

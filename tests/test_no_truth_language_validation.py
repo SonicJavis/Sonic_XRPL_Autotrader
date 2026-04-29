@@ -20,7 +20,8 @@ def test_validation_surface_keeps_uncertainty_framing() -> None:
 
     assert "No ground truth exists" in dashboard
     assert "Observed outcomes are probabilistic" in dashboard
-    assert "Validation reflects disagreement, not correctness" in dashboard
+    assert "Validation reflects observed disagreement under uncertainty" in dashboard
+    assert "Each item is a suggested review for a probabilistic outcome" in dashboard
     assert "No ground truth exists" in api
 
 

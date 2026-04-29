@@ -9,6 +9,7 @@ from app.main import create_app
 
 
 RECOMMENDATION_FIELDS = {
+    "schema_version",
     "type",
     "source_metric",
     "scope",
@@ -16,8 +17,14 @@ RECOMMENDATION_FIELDS = {
     "suggestion_direction",
     "target_component",
     "support_size",
+    "effective_sample_size",
+    "sample_decay_weight",
     "consistency_score",
+    "stability_score",
     "volatility_flag",
+    "high_variance_flag",
+    "low_sample_warning",
+    "recommendation_strength",
     "confidence_level",
     "rationale",
     "requires_manual_approval",
@@ -35,6 +42,9 @@ def test_calibration_recommendations_empty_state_safe() -> None:
     body = TestClient(app).get("/validation/calibration/recommendations").json()
 
     assert body["count"] == 0
+    assert body["schema_version"] == "1.0"
+    assert body["limit"] == 5000
+    assert body["effective_sample_size"] == 0
     assert body["recommendations"] == []
     assert body["low_sample_warning"] is True
     _assert_meta(body)
@@ -50,12 +60,31 @@ def test_calibration_recommendations_populated_contract_and_repeatability() -> N
     second = client.get("/validation/calibration/recommendations").json()
 
     assert first == second
+    assert first["schema_version"] == "1.0"
     assert first["count"] > 0
     assert first["low_sample_warning"] is False
     assert set(first["recommendations"][0]) == RECOMMENDATION_FIELDS
     assert all(row["requires_manual_approval"] is True for row in first["recommendations"])
     assert all(row["is_executable"] is False and row["is_truth"] is False for row in first["recommendations"])
+    assert all(row["scope"]["token_id"] == 7 for row in first["recommendations"])
+    assert all(row["recommendation_strength"] in {"weak", "moderate", "strong"} for row in first["recommendations"])
     assert _finite_json(first)
+
+
+def test_calibration_recommendations_limit_bounds() -> None:
+    app = create_app()
+    _clear(app)
+    _seed(app, 35, attribution="liquidity_illusion", over=True, token_id=7)
+    client = TestClient(app)
+
+    low = client.get("/validation/calibration/recommendations?limit=0").json()
+    negative = client.get("/validation/calibration/recommendations?limit=-5").json()
+    high = client.get("/validation/calibration/recommendations?limit=999999").json()
+
+    assert low["limit"] == 1
+    assert low["count"] <= 1
+    assert negative["limit"] == 1
+    assert high["limit"] == 5000
 
 
 def test_calibration_recommendations_do_not_mutate_config_or_rows() -> None:
@@ -94,9 +123,15 @@ def test_calibration_recommendations_language_is_uncertainty_framed() -> None:
     _seed(app, 35, attribution="path_instability", over=True, token_id=5)
 
     body = TestClient(app).get("/validation/calibration/recommendations").json()
-    text = str(body).lower()
+    text = " ".join(
+        f"{row['observation']} {row['rationale']}" for row in body["recommendations"]
+    ).lower()
 
     assert "manual" in text
+    assert "observed disagreement" in text
+    assert "probabilistic outcome" in text
+    assert "uncertainty" in text
+    assert "suggested review" in text
     for phrase in _UNSAFE_PHRASES:
         assert phrase not in text
 
@@ -152,6 +187,12 @@ def _finite_json(value) -> bool:
 
 
 _UNSAFE_PHRASES = (
+    "accurate",
+    "actual",
+    "confirmed",
+    "correct",
+    "real",
+    "true",
     "true fill",
     "actual fill",
     "guaranteed fill",

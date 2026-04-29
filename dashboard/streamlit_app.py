@@ -13,6 +13,7 @@ from app.calibration.temporal_comparison import compare_simulation_vs_sequence
 from app.config import Settings
 from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
+from app.validation.xrpl_calibration_recommendations import XRPLCalibrationRecommendationEngine
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
 from app.validation.report_engine import UncertaintyReportEngine, ValidationSample
 from app.db.models import (
@@ -302,6 +303,10 @@ def main() -> None:
     validation_attribution: dict[str, int] = {}
     for row in shadow_validations:
         validation_attribution[row.attribution] = validation_attribution.get(row.attribution, 0) + 1
+    calibration_recommendations = [
+        rec.to_dict()
+        for rec in XRPLCalibrationRecommendationEngine().generate(shadow_validations, min_support=30)
+    ]
     tokens_by_id = {int(token.id): token for token in tokens if token.id is not None}
     memory_samples = build_memory_samples(executions, tokens_by_id=tokens_by_id)
     memory_global = aggregate_global(memory_samples)
@@ -439,7 +444,7 @@ def main() -> None:
     st.dataframe(execution_bounds_rows[:50], use_container_width=True)
 
     st.subheader("XRPL Warnings")
-    st.caption("Observed liquidity is NOT guaranteed executable liquidity.")
+    st.caption("Observed liquidity remains non-executable observation.")
     st.caption("Shadow execution remains read-only and ledger-aligned.")
 
     st.subheader("Liquidity Decay Heatmap")
@@ -476,7 +481,7 @@ def main() -> None:
         st.caption(recommendation.reasoning)
 
     st.subheader("XRPL Bayesian Shadow Calibration")
-    st.warning("XRPL liquidity is not guaranteed executable")
+    st.warning("XRPL liquidity remains uncertain")
     st.warning("Observed orderbook data may be stale or unfunded")
     st.warning("Calibration is advisory only")
 
@@ -548,7 +553,7 @@ def main() -> None:
     )
 
     st.subheader("XRPL Trade Gate – Advisory Only")
-    st.warning("XRPL liquidity is not guaranteed executable")
+    st.warning("XRPL liquidity remains uncertain")
     st.warning("Paths may change between ledgers")
     st.warning("Observed fill is probabilistic")
     st.warning("Memory weighting is advisory only")
@@ -694,7 +699,7 @@ def main() -> None:
         st.info("No time execution samples available yet.")
 
     st.subheader("XRPL Memory + Regime Detection")
-    st.warning("XRPL liquidity is not guaranteed executable")
+    st.warning("XRPL liquidity remains uncertain")
     st.warning("Memory is derived from shadow observations")
     st.warning("Issuer behaviour may change abruptly")
     st.warning("Calibration is advisory only")
@@ -794,7 +799,7 @@ def main() -> None:
     st.subheader("XRPL Validation — Prediction vs Outcome Windows")
     st.warning("No ground truth exists")
     st.warning("Observed outcomes are probabilistic")
-    st.warning("Validation reflects disagreement, not correctness")
+    st.warning("Validation reflects observed disagreement under uncertainty")
     vx1, vx2, vx3, vx4 = st.columns(4)
     vx1.metric("Disagreement Score", f"{validation_avg_disagreement:.3f}")
     vx2.metric("Brier Score", f"{validation_avg_brier:.3f}")
@@ -822,6 +827,37 @@ def main() -> None:
         st.dataframe(validation_rows[:100], use_container_width=True)
     else:
         st.info("No shadow validation windows recorded yet.")
+
+    st.subheader("XRPL Calibration Recommendations - Human Review")
+    st.warning("Review surface only; no settings are changed")
+    st.warning("Recommendations summarize observed disagreement under uncertainty")
+    st.warning("Each item is a suggested review for a probabilistic outcome")
+    recommendation_rows = [
+        {
+            "schema_version": row["schema_version"],
+            "token_id": row["scope"].get("token_id"),
+            "issuer": row["scope"].get("issuer"),
+            "attribution": row["scope"].get("attribution", ""),
+            "regime": row["scope"].get("regime", ""),
+            "support_size": row["support_size"],
+            "effective_sample_size": row["effective_sample_size"],
+            "stability_score": row["stability_score"],
+            "recommendation_strength": row["recommendation_strength"],
+            "suggestion_direction": row["suggestion_direction"],
+            "target_component": row["target_component"],
+            "rationale": row["rationale"],
+        }
+        for row in calibration_recommendations
+    ]
+    if recommendation_rows:
+        st.dataframe(recommendation_rows[:100], use_container_width=True)
+        st.caption("Grouped by attribution")
+        st.dataframe(
+            sorted(recommendation_rows, key=lambda row: (str(row["attribution"]), str(row["regime"]), int(row["token_id"] or 0)))[:100],
+            use_container_width=True,
+        )
+    else:
+        st.info("No calibration recommendations available for human review yet.")
 
     st.subheader("XRPL Read-Only Ingestion Status")
     st.warning("Read-only XRPL observation only")
