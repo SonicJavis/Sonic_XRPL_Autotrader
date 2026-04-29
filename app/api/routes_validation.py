@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlmodel import select
 
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
-from app.db.models import CalibrationReviewRecord, ExecutionRecord, ShadowValidationRecord, XRPLOrderbookSnapshot
+from app.db.models import CalibrationReviewRecord, ExecutionRecord, ShadowValidationRecord, WatchedToken, XRPLOrderbookSnapshot
 from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
@@ -25,6 +25,13 @@ from app.validation.xrpl_calibration_recommendations import (
     RECOMMENDATION_SCHEMA_VERSION,
     XRPL_CALIBRATION_WARNING,
     XRPLCalibrationRecommendationEngine,
+)
+from app.validation.xrpl_order_intents import (
+    ORDER_INTENT_SCHEMA_VERSION,
+    XRPL_ORDER_INTENT_WARNING,
+    XRPLIntentSnapshot,
+    build_order_intents,
+    summarize_order_intents,
 )
 from app.live.xrpl_live_shadow_pipeline import default_live_drift, default_live_metrics, default_live_status
 
@@ -377,6 +384,41 @@ def validation_calibration_export(
     )
 
 
+@router.get("/validation/intents")
+def validation_intents(request: Request, limit: int = 500, requested_size: float = 100.0) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    intents = _build_intents(request, limit=safe_limit, requested_size=requested_size)
+    return {
+        **_intent_meta(),
+        "schema_version": ORDER_INTENT_SCHEMA_VERSION,
+        "limit": safe_limit,
+        "count": len(intents),
+        "intents": [intent.to_dict() for intent in intents[:safe_limit]],
+    }
+
+
+@router.get("/validation/intents/summary")
+def validation_intents_summary(request: Request, limit: int = 500, requested_size: float = 100.0) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    intents = _build_intents(request, limit=safe_limit, requested_size=requested_size)
+    return {
+        **_intent_meta(),
+        "limit": safe_limit,
+        "summary": summarize_order_intents(intents[:safe_limit]),
+    }
+
+
+@router.get("/validation/intents/{intent_id}")
+def validation_intent_detail(request: Request, intent_id: str, limit: int = 500, requested_size: float = 100.0) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    intents = _build_intents(request, limit=safe_limit, requested_size=requested_size)
+    for intent in intents:
+        body = intent.to_dict()
+        if body["intent_id"] == intent_id:
+            return {**_intent_meta(), "intent": body}
+    raise HTTPException(status_code=404, detail="intent not found")
+
+
 @router.get("/validation/live/status")
 def validation_live_status(request: Request) -> dict[str, object]:
     pipeline = getattr(request.app.state, "live_shadow_pipeline", None)
@@ -401,6 +443,42 @@ def validation_live_drift(request: Request) -> dict[str, object]:
     return pipeline.drift()
 
 
+def _build_intents(request: Request, *, limit: int, requested_size: float) -> list:
+    with request.app.state.container.session_factory() as session:
+        validation_rows = session.exec(
+            select(ShadowValidationRecord).order_by(ShadowValidationRecord.created_at.desc(), ShadowValidationRecord.id.desc()).limit(limit)
+        ).all()
+        recommendations = [
+            row.to_dict()
+            for row in XRPLCalibrationRecommendationEngine().generate(validation_rows, min_support=1)[:limit]
+        ]
+        token_rows = session.exec(select(WatchedToken)).all()
+        token_meta = {
+            int(row.id): row
+            for row in token_rows
+            if row.id is not None
+        }
+        latest_snapshots = session.exec(
+            select(XRPLOrderbookSnapshot).order_by(XRPLOrderbookSnapshot.ledger_index.desc(), XRPLOrderbookSnapshot.id.desc()).limit(5000)
+        ).all()
+    snapshots_by_token: dict[int, XRPLIntentSnapshot] = {}
+    for snapshot in latest_snapshots:
+        token_id = int(snapshot.token_id)
+        if token_id in snapshots_by_token:
+            continue
+        token = token_meta.get(token_id)
+        snapshots_by_token[token_id] = XRPLIntentSnapshot.from_row(
+            snapshot,
+            issuer="" if token is None else token.issuer,
+            currency="" if token is None else token.currency,
+        )
+    return build_order_intents(
+        recommendations=recommendations,
+        snapshots_by_token=snapshots_by_token,
+        requested_size=max(0.0, _finite(requested_size)),
+    )
+
+
 def _worst(groups: dict[str, list[float]]) -> list[dict[str, object]]:
     rows = [
         {"key": key, "avg_disagreement_score": round(sum(values) / max(len(values), 1), 6), "sample_count": len(values)}
@@ -416,6 +494,16 @@ def _review_meta() -> dict[str, object]:
         "is_executable": False,
         "is_truth": False,
         "xrpl_warning": REVIEW_WARNING,
+    }
+
+
+def _intent_meta() -> dict[str, object]:
+    return {
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
+        "xrpl_warning": XRPL_ORDER_INTENT_WARNING,
     }
 
 

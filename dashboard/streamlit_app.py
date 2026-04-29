@@ -15,6 +15,7 @@ from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
 from app.validation.xrpl_calibration_review import build_audit_export_bundle, build_review_record, review_to_dict
 from app.validation.xrpl_calibration_recommendations import XRPLCalibrationRecommendationEngine
+from app.validation.xrpl_order_intents import XRPLIntentSnapshot, build_order_intents, summarize_order_intents
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
 from app.validation.report_engine import UncertaintyReportEngine, ValidationSample
 from app.db.models import (
@@ -315,6 +316,22 @@ def main() -> None:
         rec.to_dict()
         for rec in XRPLCalibrationRecommendationEngine().generate(shadow_validations, min_support=30)
     ]
+    intent_snapshots_by_token = {}
+    for token_id, rows in snapshots_by_token.items():
+        if not rows:
+            continue
+        token = next((item for item in tokens if item.id == token_id), None)
+        intent_snapshots_by_token[token_id] = XRPLIntentSnapshot.from_row(
+            rows[-1],
+            issuer="" if token is None else token.issuer,
+            currency="" if token is None else token.currency,
+        )
+    simulated_intents = build_order_intents(
+        recommendations=calibration_recommendations,
+        snapshots_by_token=intent_snapshots_by_token,
+        requested_size=100.0,
+    )
+    simulated_intent_summary = summarize_order_intents(simulated_intents)
     tokens_by_id = {int(token.id): token for token in tokens if token.id is not None}
     memory_samples = build_memory_samples(executions, tokens_by_id=tokens_by_id)
     memory_global = aggregate_global(memory_samples)
@@ -911,6 +928,35 @@ def main() -> None:
         file_name="xrpl_calibration_review_summary.csv",
         mime="text/csv",
     )
+
+    st.subheader("XRPL Order Intent Simulation")
+    st.warning("Derived from validated ledger data only")
+    st.warning("Execution not guaranteed on XRPL")
+    st.warning("Estimates based on current snapshot only")
+    oi1, oi2, oi3, oi4 = st.columns(4)
+    oi1.metric("Intent Count", str(simulated_intent_summary["count"]))
+    oi2.metric("Avg Liquidity Score", f"{float(simulated_intent_summary['avg_liquidity_score']):.3f}")
+    oi3.metric("Avg Fill Ratio", f"{float(simulated_intent_summary['avg_expected_fill_ratio']):.3f}")
+    oi4.metric("Avg Path Viability", f"{float(simulated_intent_summary['avg_path_viability_score']):.3f}")
+    intent_rows = [
+        {
+            "intent_id": row["intent_id"],
+            "action": row["action"],
+            "token_id": row["token_id"],
+            "issuer": row["issuer"],
+            "ledger_index": row["xrpl_context"]["ledger_index"],
+            "liquidity_score": row["execution_estimates"]["liquidity_score"],
+            "estimated_slippage": row["execution_estimates"]["estimated_slippage"],
+            "expected_fill_ratio": row["execution_estimates"]["expected_fill_ratio"],
+            "path_viability_score": row["pathfinding"]["path_viability_score"],
+            "confidence_adjusted_fill": row["fill_model"]["confidence_adjusted_fill"],
+        }
+        for row in (intent.to_dict() for intent in simulated_intents)
+    ]
+    if intent_rows:
+        st.dataframe(intent_rows[:100], use_container_width=True)
+    else:
+        st.info("No simulated order intents available from current validation and snapshot data.")
 
     st.subheader("XRPL Read-Only Ingestion Status")
     st.warning("Read-only XRPL observation only")
