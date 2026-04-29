@@ -23,7 +23,14 @@ class ReplayBooks:
 
 
 def _run_sequence():
-    ws = XRPLReadOnlyWebSocketAdapter(ReplayWs([{"ledger_index": 100, "validated": True}, {"ledger_index": 101, "validated": True}]))
+    ws = XRPLReadOnlyWebSocketAdapter(
+        ReplayWs(
+            [
+                {"type": "ledgerClosed", "ledger_index": 100, "validated": True},
+                {"type": "ledgerClosed", "ledger_index": 101, "validated": True},
+            ]
+        )
+    )
     ws.connect()
     source = XRPLWebSocketSnapshotSource(
         ws_adapter=ws,
@@ -49,7 +56,13 @@ def test_same_fake_sequence_produces_same_snapshot_sequence() -> None:
 
 def test_duplicate_ledger_is_deterministic_and_large_gap_rejected() -> None:
     ws = XRPLReadOnlyWebSocketAdapter(
-        ReplayWs([{"ledger_index": 100, "validated": True}, {"ledger_index": 100, "validated": True}, {"ledger_index": 999, "validated": True}])
+        ReplayWs(
+            [
+                {"type": "ledgerClosed", "ledger_index": 100, "validated": True},
+                {"type": "ledgerClosed", "ledger_index": 100, "validated": True},
+                {"type": "ledgerClosed", "ledger_index": 999, "validated": True},
+            ]
+        )
     )
     ws.connect()
     source = XRPLWebSocketSnapshotSource(

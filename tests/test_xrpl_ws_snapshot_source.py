@@ -41,7 +41,7 @@ def test_no_ledger_event_returns_none() -> None:
 
 
 def test_no_watched_token_returns_none() -> None:
-    source = _source([{"ledger_index": 100, "validated": True}], {}, tokens=[])
+    source = _source([{"type": "ledgerClosed", "ledger_index": 100, "validated": True}], {}, tokens=[])
 
     assert source.next_snapshot() is None
     assert source.reason == "NO_WATCHED_TOKEN"
@@ -49,7 +49,7 @@ def test_no_watched_token_returns_none() -> None:
 
 def test_stale_snapshot_returns_none() -> None:
     source = _source(
-        [{"ledger_index": 100, "validated": True}],
+        [{"type": "ledgerClosed", "ledger_index": 100, "validated": True}],
         {"ledger_index": 90, "bids": [{"price": 0.9, "xrp_value": 10}], "asks": [{"price": 1.1, "xrp_value": 10}]},
     )
 
@@ -59,7 +59,7 @@ def test_stale_snapshot_returns_none() -> None:
 
 def test_valid_mock_ledger_and_book_emit_shadow_snapshot() -> None:
     source = _source(
-        [{"ledger_index": 100, "validated": True, "close_time_iso": "2026-04-28T12:00:00+00:00"}],
+        [{"type": "ledgerClosed", "ledger_index": 100, "validated": True, "close_time_iso": "2026-04-28T12:00:00+00:00"}],
         {"ledger_index": 100, "bids": [{"price": 0.9, "xrp_value": 80}], "asks": [{"price": 1.1, "xrp_value": 40}]},
     )
 
@@ -78,7 +78,11 @@ def test_valid_mock_ledger_and_book_emit_shadow_snapshot() -> None:
 
 def test_ledger_regression_and_gap_increment_counters() -> None:
     source = _source(
-        [{"ledger_index": 100, "validated": True}, {"ledger_index": 90, "validated": True}, {"ledger_index": 300, "validated": True}],
+        [
+            {"type": "ledgerClosed", "ledger_index": 100, "validated": True},
+            {"type": "ledgerClosed", "ledger_index": 90, "validated": True},
+            {"type": "ledgerClosed", "ledger_index": 300, "validated": True},
+        ],
         {"ledger_index": 100, "bids": [{"price": 0.9, "xrp_value": 80}], "asks": [{"price": 1.1, "xrp_value": 40}]},
     )
     assert source.next_snapshot() is not None

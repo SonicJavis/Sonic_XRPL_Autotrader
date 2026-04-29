@@ -38,10 +38,10 @@ def test_ingestion_counters_track_gaps_duplicates_and_throttle() -> None:
     payload = {"ledger_index": 100, "bids": [{"price": 0.9, "xrp_value": 120}], "asks": [{"price": 1.1, "xrp_value": 90}]}
     source = _source(
         [
-            {"ledger_index": 100, "validated": True},
-            {"ledger_index": 100, "validated": True},
-            {"ledger_index": 101, "validated": True},
-            {"ledger_index": 300, "validated": True},
+            {"type": "ledgerClosed", "ledger_index": 100, "validated": True},
+            {"type": "ledgerClosed", "ledger_index": 100, "validated": True},
+            {"type": "ledgerClosed", "ledger_index": 101, "validated": True},
+            {"type": "ledgerClosed", "ledger_index": 300, "validated": True},
         ],
         payload,
         snapshot_throttle_ms=5000,
@@ -64,7 +64,7 @@ def test_ingestion_counters_track_gaps_duplicates_and_throttle() -> None:
 
 def test_unfunded_liquidity_estimate_is_non_negative() -> None:
     source = _source(
-        [{"ledger_index": 100, "validated": True}],
+        [{"type": "ledgerClosed", "ledger_index": 100, "validated": True}],
         {"ledger_index": 100, "bids": [{"price": 0.9, "xrp_value": 200}], "asks": [{"price": 1.1, "xrp_value": 120}]},
     )
 

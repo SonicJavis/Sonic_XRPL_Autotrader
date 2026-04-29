@@ -77,3 +77,24 @@ def test_valid_ledger_event_updates_health() -> None:
 
     assert event.ledger_index == 50
     assert adapter.health().latest_validated_ledger_index == 50
+
+
+def test_only_ledgerclosed_messages_are_parsed_as_ledger_events() -> None:
+    adapter = XRPLReadOnlyWebSocketAdapter(
+        FakeWsClient(
+            messages=[
+                {"type": "transactions_proposed", "ledger_index": 51, "validated": True},
+                {"ledger_index": 52, "validated": True},
+                {"type": "ledgerClosed", "ledger_index": 53, "validated": True},
+            ]
+        )
+    )
+    adapter.connect()
+
+    assert adapter.next_ledger_event() is None
+    assert adapter.next_ledger_event() is None
+    event = adapter.next_ledger_event()
+
+    assert event is not None
+    assert event.ledger_index == 53
+    assert adapter.health().latest_validated_ledger_index == 53

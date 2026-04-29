@@ -101,7 +101,7 @@ class XRPLLedgerSequencer:
 
     def ingest(self, event: XRPLLedgerEvent, *, processing_time: datetime) -> list[LiveLedgerFrame | LedgerGapEvent]:
         processing_time = _utc(processing_time)
-        if not bool(event.validated):
+        if not _is_validated_ledger_closed(event):
             self.dropped_event_count += 1
             return []
         ledger_index = max(0, int(event.ledger_index))
@@ -510,3 +510,7 @@ def _meta() -> dict[str, object]:
         "is_truth": False,
         "xrpl_warning": LIVE_SHADOW_WARNING,
     }
+
+
+def _is_validated_ledger_closed(event: XRPLLedgerEvent) -> bool:
+    return bool(event.validated) and isinstance(event.raw, Mapping) and event.raw.get("type") == "ledgerClosed"

@@ -1,0 +1,24 @@
+{
+  "name": "phase23_2_soak",
+  "initial_expected_ledger": 200,
+  "window_size": 2,
+  "max_gap_ledgers": 2,
+  "max_buffer_size": 6,
+  "max_processed_ledgers": 16,
+  "runtime_hours": 0.001,
+  "base_time": "2026-04-29T12:00:00+00:00",
+  "events": [
+    {"type": "ledgerClosed", "ledger_index": 200, "processing_delay_ms": 120, "snapshot": {"observed_possible_fill": 80.0}},
+    {"type": "transaction", "ledger_index": 201, "validated": false, "processing_delay_ms": 130, "snapshot": {"observed_possible_fill": 95.0}},
+    {"type": "ledgerClosed", "ledger_index": 201, "processing_delay_ms": 140, "snapshot": {"observed_possible_fill": 76.0}},
+    {"type": "ledgerClosed", "ledger_index": 201, "processing_delay_ms": 145, "snapshot": {"observed_possible_fill": 76.0}},
+    {"type": "ledgerClosed", "ledger_index": 204, "processing_delay_ms": 900, "snapshot": {"observed_possible_fill": 12.0, "route_instability": 0.85}},
+    {"type": "ledgerClosed", "ledger_index": 205, "processing_delay_ms": 5100, "snapshot": null},
+    {"type": "ledgerClosed", "ledger_index": 206, "processing_delay_ms": 250, "snapshot": {"observed_possible_fill": 20.0, "competition_penalty": 0.9}},
+    {"type": "ledgerClosed", "ledger_index": 207, "processing_delay_ms": 275, "snapshot": {"observed_possible_fill": 18.0, "snapshot_derived_liquidity": 120.0}},
+    {"type": "ledgerClosed", "ledger_index": 208, "processing_delay_ms": 300, "snapshot": {"observed_possible_fill": 17.0}}
+  ],
+  "replay_results": [
+    {"decision_id": 9101, "disagreement_score": 0.08, "brier_score": 0.03, "error_attribution": "latency"}
+  ]
+}

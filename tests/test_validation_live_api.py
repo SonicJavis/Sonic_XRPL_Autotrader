@@ -113,6 +113,35 @@ def test_live_validation_api_reads_attached_pipeline_without_mutation() -> None:
     _assert_meta(drift)
 
 
+def test_live_validation_api_remains_idempotent_under_repeated_polling() -> None:
+    app = create_app()
+    pipeline = XRPLLiveShadowPipeline(
+        snapshot_provider=lambda frame: _snapshot(frame.ledger_index),
+        sequencer=XRPLLedgerSequencer(initial_expected_ledger=1),
+        window_size=1,
+        now_provider=lambda: BASE + timedelta(seconds=20),
+    )
+    for idx in range(1, 5):
+        pipeline.ingest_ledger_event(_ledger(idx), processing_time=BASE + timedelta(seconds=idx * 4), network_head=5)
+    app.state.live_shadow_pipeline = pipeline
+    client = TestClient(app)
+
+    first = (
+        client.get("/validation/live/status").json(),
+        client.get("/validation/live/metrics").json(),
+        client.get("/validation/live/drift").json(),
+    )
+    for _ in range(5):
+        assert client.get("/validation/live/status").json() == first[0]
+        assert client.get("/validation/live/metrics").json() == first[1]
+        assert client.get("/validation/live/drift").json() == first[2]
+
+    assert pipeline.status()["processed_ledger_count"] == 4
+    assert _finite_json(first[0])
+    assert _finite_json(first[1])
+    assert _finite_json(first[2])
+
+
 def _ledger(index: int) -> XRPLLedgerEvent:
     return XRPLLedgerEvent(
         ledger_index=index,

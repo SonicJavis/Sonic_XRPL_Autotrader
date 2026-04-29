@@ -132,13 +132,15 @@ class XRPLReadOnlyWebSocketAdapter:
     def _parse_ledger_event(self, message: object) -> XRPLLedgerEvent | None:
         if not isinstance(message, dict):
             return None
+        if message.get("type") != "ledgerClosed":
+            return None
         ledger_index = non_negative_int(
             message.get("ledger_index", message.get("ledger_indexvalidated", message.get("ledger_index_closed", 0)))
         )
         if ledger_index <= 0:
             return None
         close_time: datetime | None = utc_or_none(message.get("close_time_iso") or message.get("close_time"))
-        validated = bool(message.get("validated", message.get("type") == "ledgerClosed"))
+        validated = bool(message.get("validated", True))
         return XRPLLedgerEvent(
             ledger_index=ledger_index,
             ledger_hash=None if message.get("ledger_hash") is None else str(message.get("ledger_hash")),
