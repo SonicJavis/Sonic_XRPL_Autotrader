@@ -2,15 +2,25 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, ConfigDict
 from sqlmodel import select
 
 from app.calibration.temporal_comparison import compare_simulation_vs_sequence
-from app.db.models import ExecutionRecord, ShadowValidationRecord, XRPLOrderbookSnapshot
+from app.db.models import CalibrationReviewRecord, ExecutionRecord, ShadowValidationRecord, XRPLOrderbookSnapshot
 from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
 from app.validation.report_engine import UncertaintyReportEngine, ValidationSample
+from app.validation.xrpl_calibration_review import (
+    REVIEW_DECISIONS,
+    REVIEW_SCHEMA_VERSION,
+    REVIEW_WARNING,
+    build_audit_export_bundle,
+    build_review_record,
+    filter_review_rows,
+    review_to_dict,
+)
 from app.validation.xrpl_calibration_recommendations import (
     RECOMMENDATION_SCHEMA_VERSION,
     XRPL_CALIBRATION_WARNING,
@@ -20,6 +30,16 @@ from app.validation.xrpl_calibration_recommendations import (
 router = APIRouter()
 
 _VALIDATION_RUNS: list[dict[str, object]] = []
+
+
+class CalibrationReviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    recommendation: dict[str, object]
+    decision: str
+    review_notes: str = ""
+    reviewer_id: str | None = None
+    reviewed_at: datetime
 
 
 def _base_response_meta() -> dict[str, object]:
@@ -261,9 +281,123 @@ def validation_calibration_recommendations(request: Request, limit: int = 5000, 
     }
 
 
+@router.post("/validation/calibration/review")
+def validation_calibration_review(request: Request, payload: CalibrationReviewRequest) -> dict[str, object]:
+    try:
+        review = build_review_record(
+            recommendation=payload.recommendation,
+            decision=payload.decision,
+            review_notes=payload.review_notes,
+            reviewer_id=payload.reviewer_id,
+            reviewed_at=payload.reviewed_at,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    with request.app.state.container.session_factory() as session:
+        session.add(review)
+        session.commit()
+        session.refresh(review)
+        body = review_to_dict(review)
+    return {
+        **_review_meta(),
+        "review": body,
+        "decision_meanings": _decision_meanings(),
+    }
+
+
+@router.get("/validation/calibration/reviews")
+def validation_calibration_reviews(
+    request: Request,
+    limit: int = 500,
+    decision: str | None = None,
+    recommendation_id: str | None = None,
+    attribution: str | None = None,
+    regime: str | None = None,
+    token_id: int | None = None,
+    issuer: str | None = None,
+) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    safe_decision = decision.strip().lower() if decision else None
+    if safe_decision is not None and safe_decision not in REVIEW_DECISIONS:
+        raise HTTPException(status_code=400, detail="decision must be accepted, rejected, deferred, or noted")
+    with request.app.state.container.session_factory() as session:
+        rows = session.exec(
+            select(CalibrationReviewRecord)
+            .order_by(CalibrationReviewRecord.reviewed_at.desc(), CalibrationReviewRecord.id.desc())
+            .limit(5000)
+        ).all()
+    filtered = filter_review_rows(
+        rows,
+        decision=safe_decision,
+        recommendation_id=recommendation_id,
+        attribution=attribution,
+        regime=regime,
+        token_id=token_id,
+        issuer=issuer,
+    )[:safe_limit]
+    return {
+        **_review_meta(),
+        "schema_version": REVIEW_SCHEMA_VERSION,
+        "limit": safe_limit,
+        "count": len(filtered),
+        "reviews": [review_to_dict(row) for row in filtered],
+        "decision_meanings": _decision_meanings(),
+    }
+
+
+@router.get("/validation/calibration/export")
+def validation_calibration_export(
+    request: Request,
+    limit: int = 5000,
+    min_support: int = 30,
+    deterministic: bool = False,
+) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    min_support = max(30, int(min_support))
+    with request.app.state.container.session_factory() as session:
+        validation_rows = session.exec(
+            select(ShadowValidationRecord)
+            .order_by(ShadowValidationRecord.created_at.desc(), ShadowValidationRecord.id.desc())
+            .limit(safe_limit)
+        ).all()
+        review_rows = session.exec(
+            select(CalibrationReviewRecord)
+            .order_by(CalibrationReviewRecord.reviewed_at.desc(), CalibrationReviewRecord.id.desc())
+            .limit(safe_limit)
+        ).all()
+    recommendations = [
+        row.to_dict()
+        for row in XRPLCalibrationRecommendationEngine().generate(validation_rows, min_support=min_support)[:safe_limit]
+    ]
+    return build_audit_export_bundle(
+        recommendations=recommendations,
+        reviews=review_rows,
+        deterministic=deterministic,
+    )
+
+
 def _worst(groups: dict[str, list[float]]) -> list[dict[str, object]]:
     rows = [
         {"key": key, "avg_disagreement_score": round(sum(values) / max(len(values), 1), 6), "sample_count": len(values)}
         for key, values in groups.items()
     ]
     return sorted(rows, key=lambda item: (-float(item["avg_disagreement_score"]), str(item["key"])))[:10]
+
+
+def _review_meta() -> dict[str, object]:
+    return {
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
+        "xrpl_warning": REVIEW_WARNING,
+    }
+
+
+def _decision_meanings() -> dict[str, str]:
+    return {
+        "accepted": "human marked this for manual consideration only",
+        "rejected": "human disagreed with the recommendation framing",
+        "deferred": "human requested more evidence before consideration",
+        "noted": "informational review record only",
+    }

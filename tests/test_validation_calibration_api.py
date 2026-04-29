@@ -10,6 +10,7 @@ from app.main import create_app
 
 RECOMMENDATION_FIELDS = {
     "schema_version",
+    "recommendation_id",
     "type",
     "source_metric",
     "scope",

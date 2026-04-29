@@ -13,11 +13,13 @@ from app.calibration.temporal_comparison import compare_simulation_vs_sequence
 from app.config import Settings
 from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
+from app.validation.xrpl_calibration_review import build_audit_export_bundle, build_review_record, review_to_dict
 from app.validation.xrpl_calibration_recommendations import XRPLCalibrationRecommendationEngine
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
 from app.validation.report_engine import UncertaintyReportEngine, ValidationSample
 from app.db.models import (
     AlphaSignal,
+    CalibrationReviewRecord,
     ExecutionFillSlice,
     ExecutionRecord,
     MarketDepthLevel,
@@ -90,6 +92,11 @@ def main() -> None:
         shadow_validations = session.exec(
             select(ShadowValidationRecord)
             .order_by(ShadowValidationRecord.created_at.desc(), ShadowValidationRecord.id.desc())
+            .limit(300)
+        ).all()
+        calibration_reviews = session.exec(
+            select(CalibrationReviewRecord)
+            .order_by(CalibrationReviewRecord.reviewed_at.desc(), CalibrationReviewRecord.id.desc())
             .limit(300)
         ).all()
         perf_engine = PerformanceEngine(settings)
@@ -834,6 +841,7 @@ def main() -> None:
     st.warning("Each item is a suggested review for a probabilistic outcome")
     recommendation_rows = [
         {
+            "recommendation_id": row["recommendation_id"],
             "schema_version": row["schema_version"],
             "token_id": row["scope"].get("token_id"),
             "issuer": row["scope"].get("issuer"),
@@ -849,6 +857,7 @@ def main() -> None:
         }
         for row in calibration_recommendations
     ]
+    review_history_rows = [review_to_dict(row) for row in calibration_reviews]
     if recommendation_rows:
         st.dataframe(recommendation_rows[:100], use_container_width=True)
         st.caption("Grouped by attribution")
@@ -856,8 +865,51 @@ def main() -> None:
             sorted(recommendation_rows, key=lambda row: (str(row["attribution"]), str(row["regime"]), int(row["token_id"] or 0)))[:100],
             use_container_width=True,
         )
+        recommendation_by_id = {str(row["recommendation_id"]): row for row in calibration_recommendations}
+        with st.form("calibration_recommendation_review_form", clear_on_submit=False):
+            st.caption("Record review")
+            selected_recommendation_id = st.selectbox("Recommendation ID", sorted(recommendation_by_id))
+            review_decision = st.selectbox("Review decision", ["noted", "deferred", "rejected", "accepted"])
+            review_notes = st.text_area("Review notes", value="", max_chars=1000)
+            reviewer_id = st.text_input("Reviewer ID", value="", max_chars=120)
+            reviewed_at_text = st.text_input("Reviewed at UTC", value="1970-01-01T00:00:00+00:00")
+            if st.form_submit_button("Record review"):
+                try:
+                    reviewed_at = datetime.fromisoformat(reviewed_at_text)
+                    review_record = build_review_record(
+                        recommendation=recommendation_by_id[selected_recommendation_id],
+                        decision=review_decision,
+                        review_notes=review_notes,
+                        reviewer_id=(reviewer_id or None),
+                        reviewed_at=reviewed_at,
+                    )
+                    with Session(engine) as review_session:
+                        review_session.add(review_record)
+                        review_session.commit()
+                    st.success("Recorded review only; no settings changed.")
+                except ValueError as exc:
+                    st.error(f"Review was not recorded: {exc}")
     else:
         st.info("No calibration recommendations available for human review yet.")
+    st.caption("Current review history")
+    st.dataframe(review_history_rows[:100], use_container_width=True)
+    audit_bundle = build_audit_export_bundle(
+        recommendations=calibration_recommendations,
+        reviews=calibration_reviews,
+        deterministic=True,
+    )
+    st.download_button(
+        "Export audit bundle",
+        data=json.dumps(audit_bundle, sort_keys=True, indent=2),
+        file_name="xrpl_calibration_audit_bundle.json",
+        mime="application/json",
+    )
+    st.download_button(
+        "Export review summary CSV",
+        data=str(audit_bundle["csv_review_summary"]),
+        file_name="xrpl_calibration_review_summary.csv",
+        mime="text/csv",
+    )
 
     st.subheader("XRPL Read-Only Ingestion Status")
     st.warning("Read-only XRPL observation only")

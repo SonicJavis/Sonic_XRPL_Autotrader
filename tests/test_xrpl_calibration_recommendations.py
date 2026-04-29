@@ -5,6 +5,7 @@ from app.db.models import ShadowValidationRecord
 from app.validation.xrpl_calibration_recommendations import (
     RECOMMENDATION_SCHEMA_VERSION,
     XRPLCalibrationRecommendationEngine,
+    compute_recommendation_id,
     stable_recommendation_json,
     validate_recommendation_payload,
 )
@@ -108,6 +109,7 @@ def test_strict_schema_rejects_unknown_fields() -> None:
     row = XRPLCalibrationRecommendationEngine().generate([_record(i, over=True) for i in range(35)])[0].to_dict()
 
     assert row["schema_version"] == RECOMMENDATION_SCHEMA_VERSION
+    assert row["recommendation_id"] == compute_recommendation_id(row)
     validate_recommendation_payload(row)
     row["unexpected"] = "blocked"
     try:
@@ -131,6 +133,17 @@ def test_recommendations_never_cross_token_or_issuer_scope() -> None:
     assert all("token_id" in scope and "issuer" in scope for scope in scopes)
     assert {"token_id": 1, "issuer": "rIssuerA", "attribution": "competition"} not in scopes
     assert {"token_id": 1, "issuer": "rIssuerB", "attribution": "latency"} not in scopes
+
+
+def test_recommendation_id_is_stable_across_replay_order() -> None:
+    rows = [_record(i, token_id=8, attribution="competition", over=True) for i in range(40)]
+    engine = XRPLCalibrationRecommendationEngine()
+
+    first = [row.to_dict()["recommendation_id"] for row in engine.generate(rows, min_support=30)]
+    second = [row.to_dict()["recommendation_id"] for row in engine.generate(list(reversed(rows)), min_support=30)]
+
+    assert first == second
+    assert all(str(item).startswith("rec_") for item in first)
 
 
 def test_strong_strength_requires_support_and_stability() -> None:

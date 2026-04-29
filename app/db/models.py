@@ -424,3 +424,20 @@ class ShadowValidationRecord(SQLModel, table=True):
     is_advisory: bool = True
     is_executable: bool = False
     is_truth: bool = False
+
+
+class CalibrationReviewRecord(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+
+    recommendation_id: str = Field(default="", index=True)
+    recommendation_snapshot_json: str = "{}"
+    schema_version: str = "1.0"
+    decision: str = Field(default="noted", index=True)
+    review_notes: str = ""
+    reviewer_id: str | None = None
+    reviewed_at: datetime = Field(default_factory=utcnow, index=True)
+
+    is_shadow: bool = True
+    is_advisory: bool = True
+    is_executable: bool = False
+    is_truth: bool = False

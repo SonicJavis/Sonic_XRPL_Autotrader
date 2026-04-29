@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from math import isfinite
@@ -54,6 +55,7 @@ RECOMMENDATION_FIELDS = tuple(
             "is_truth",
             "low_sample_warning",
             "observation",
+            "recommendation_id",
             "rationale",
             "recommendation_strength",
             "requires_manual_approval",
@@ -97,6 +99,7 @@ class XRPLCalibrationRecommendation:
     source_metric: str
     scope: dict[str, object]
     observation: str
+    recommendation_id: str
     suggestion_direction: str
     target_component: str
     support_size: int
@@ -133,6 +136,7 @@ class XRPLCalibrationRecommendation:
         data["is_advisory"] = True
         data["is_executable"] = False
         data["is_truth"] = False
+        data["recommendation_id"] = compute_recommendation_id(data)
         validated = validate_recommendation_payload(data)
         return {key: validated[key] for key in RECOMMENDATION_FIELDS}
 
@@ -158,6 +162,29 @@ def stable_recommendation_json(recommendations: Iterable[XRPLCalibrationRecommen
     return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
 
+def compute_recommendation_id(data: Mapping[str, object]) -> str:
+    scope = dict(data.get("scope") or {}) if isinstance(data.get("scope"), dict) else {}
+    pattern = {
+        "schema_version": str(data.get("schema_version", RECOMMENDATION_SCHEMA_VERSION)),
+        "attribution": str(scope.get("attribution", "")),
+        "predicted_regime": str(scope.get("regime", "")),
+        "token_id": int(_finite(scope.get("token_id", 0))),
+        "issuer": str(scope.get("issuer", "")),
+        "target_component": str(data.get("target_component", "")),
+        "suggestion_direction": str(data.get("suggestion_direction", "")),
+        "pattern_signature": {
+            "source_metric": str(data.get("source_metric", "")),
+            "recommendation_strength": str(data.get("recommendation_strength", "")),
+            "low_sample_warning": bool(data.get("low_sample_warning", False)),
+            "high_variance_flag": bool(data.get("high_variance_flag", False)),
+            "consistency_score": round(_unit(data.get("consistency_score", 0.0)), 4),
+            "stability_score": round(_unit(data.get("stability_score", 0.0)), 4),
+        },
+    }
+    encoded = json.dumps(pattern, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return f"rec_{sha256(encoded).hexdigest()[:24]}"
+
+
 def validate_recommendation_payload(data: Mapping[str, object]) -> dict[str, object]:
     keys = set(data)
     expected = set(RECOMMENDATION_FIELDS)
@@ -169,6 +196,9 @@ def validate_recommendation_payload(data: Mapping[str, object]) -> dict[str, obj
     payload = dict(data)
     if payload["schema_version"] != RECOMMENDATION_SCHEMA_VERSION:
         raise ValueError("unsupported recommendation schema_version")
+    expected_id = compute_recommendation_id(payload)
+    if payload["recommendation_id"] != expected_id:
+        raise ValueError("recommendation_id does not match stable pattern hash")
     if payload["type"] != "calibration_recommendation":
         raise ValueError("invalid recommendation type")
     if payload["source_metric"] not in _SOURCE_METRICS:
@@ -475,6 +505,7 @@ def _build(
         source_metric=source_metric,
         scope=dict(sorted(scope.items())),
         observation=_with_required_framing(observation),
+        recommendation_id="",
         suggestion_direction=suggestion_direction,
         target_component=target_component,
         support_size=metrics.support_size,
