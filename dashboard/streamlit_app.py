@@ -749,7 +749,7 @@ def main() -> None:
     st.subheader("XRPL Continuous Shadow Loop")
     st.warning("Shadow decisions are advisory only")
     st.warning("No XRPL transaction is created or submitted")
-    st.warning("Observed liquidity is not executable truth")
+    st.warning("Observed liquidity is uncertain and may not execute")
     st.warning("book_offers is snapshot-based only")
     shadow_decision_rows = [
         {

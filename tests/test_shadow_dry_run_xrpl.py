@@ -22,6 +22,7 @@ def test_replay_dry_run_returns_safe_summary(tmp_path) -> None:
     assert summary["is_shadow"] is True
     assert summary["is_advisory"] is True
     assert summary["is_executable"] is False
+    assert summary["is_truth"] is False
 
 
 def test_replay_dry_run_validate_outputs_window_metrics(tmp_path) -> None:
@@ -37,5 +38,6 @@ def test_replay_dry_run_validate_outputs_window_metrics(tmp_path) -> None:
     assert "avg_disagreement_score" in summary
     assert "avg_brier_score" in summary
     assert "overconfidence_rate" in summary
+    assert "underconfidence_rate" in summary
     assert "attribution_breakdown" in summary
     assert summary["avg_disagreement_score"] >= 0.0

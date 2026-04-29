@@ -8,15 +8,33 @@ from app.validation.xrpl_validation_models import XRPLObservedOutcomeWindow
 
 
 def build_outcome_windows(snapshots: Iterable[ShadowSnapshotInput], window_size: int = 3) -> list[XRPLObservedOutcomeWindow]:
-    ordered = sorted(list(snapshots), key=lambda item: (item.token_id, item.issuer, item.ledger_index))
+    ordered = _dedupe_snapshots(
+        sorted(
+            list(snapshots),
+            key=lambda item: (
+                item.token_id,
+                item.issuer,
+                item.ledger_index,
+                item.observed_possible_fill,
+                -item.route_instability,
+                -item.competition_penalty,
+            ),
+        )
+    )
     window_size = max(1, int(window_size))
     windows: list[XRPLObservedOutcomeWindow] = []
     for idx, snapshot in enumerate(ordered):
-        forward = [
-            item
-            for item in ordered[idx + 1 :]
-            if item.token_id == snapshot.token_id and item.issuer == snapshot.issuer and item.ledger_index > snapshot.ledger_index
-        ][:window_size]
+        forward: list[ShadowSnapshotInput] = []
+        expected_ledger = snapshot.ledger_index + 1
+        for item in ordered[idx + 1 :]:
+            if item.token_id != snapshot.token_id or item.issuer != snapshot.issuer:
+                continue
+            if item.ledger_index != expected_ledger:
+                break
+            forward.append(item)
+            expected_ledger += 1
+            if len(forward) >= window_size:
+                break
         if not forward:
             continue
         fills = [max(0.0, min(item.observed_possible_fill, item.snapshot_derived_liquidity)) for item in forward]
@@ -43,3 +61,15 @@ def build_outcome_windows(snapshots: Iterable[ShadowSnapshotInput], window_size:
             )
         )
     return windows
+
+
+def _dedupe_snapshots(snapshots: list[ShadowSnapshotInput]) -> list[ShadowSnapshotInput]:
+    rows: list[ShadowSnapshotInput] = []
+    seen: set[tuple[int, str, int]] = set()
+    for snapshot in snapshots:
+        key = (int(snapshot.token_id), str(snapshot.issuer), int(snapshot.ledger_index))
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append(snapshot)
+    return rows

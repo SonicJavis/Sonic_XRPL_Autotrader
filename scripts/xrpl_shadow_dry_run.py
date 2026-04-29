@@ -74,6 +74,7 @@ def run_dry_run(*, replay_path: Path, ticks: int, database_url: str, validate: b
         "is_shadow": True,
         "is_advisory": True,
         "is_executable": False,
+        "is_truth": False,
     }
     if validate:
         summary.update(_validation_summary(replay_path=replay_path, records=records))
@@ -124,6 +125,7 @@ def _validation_summary(*, replay_path: Path, records: list[object]) -> dict[str
         "avg_disagreement_score": round(mean([item.disagreement_score for item in results]), 6) if results else 0.0,
         "avg_brier_score": round(mean([item.brier_score for item in results]), 6) if results else 0.0,
         "overconfidence_rate": round(sum(1 for item in results if item.overconfidence_flag) / count, 6) if count else 0.0,
+        "underconfidence_rate": round(sum(1 for item in results if item.underconfidence_flag) / count, 6) if count else 0.0,
         "attribution_breakdown": dict(sorted(attribution.items())),
     }
 
