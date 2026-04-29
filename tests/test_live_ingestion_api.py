@@ -57,4 +57,14 @@ def test_live_ingestion_status_contract_fields_present() -> None:
         "reason",
         "xrpl_warning",
     }
-    assert expected == set(body)
+    phase19_fields = {
+        "ingestion_enabled",
+        "ingestion_mode",
+        "ingestion_source",
+        "snapshot_rate_per_sec",
+        "last_snapshot_latency_ms",
+        "ledger_gap_detected",
+        "ledger_gap_count",
+        "snapshot_rejection_rate",
+    }
+    assert expected | phase19_fields == set(body)

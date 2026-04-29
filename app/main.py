@@ -24,6 +24,7 @@ from app.config import Settings
 from app.db.session import engine, init_db
 from app.execution.paper import PaperExecutor
 from app.execution.pipeline import ExecutionPipeline
+from app.live.xrpl_ingestion_bootstrap import initialize_xrpl_ingestion
 from app.market_data.token_registry import TokenRegistry
 from app.risk.kill_switch import KillSwitch
 from app.risk.risk_manager import RiskManager
@@ -64,6 +65,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(title="Sonic XRPL Autotrader API", version="0.2.0")
     app.state.container = AppContainer(settings)
+    initialize_xrpl_ingestion(app)
 
     app.include_router(health_router)
     app.include_router(feedback_router)

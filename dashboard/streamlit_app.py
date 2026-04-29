@@ -272,6 +272,9 @@ def main() -> None:
         reconnect_count=0,
         backoff_seconds=0.0,
         reason=("INGESTION_ENABLED_NOT_STARTED" if settings.XRPL_INGESTION_ENABLED else "INGESTION_DISABLED"),
+        ingestion_enabled=settings.XRPL_INGESTION_ENABLED,
+        ingestion_mode=settings.XRPL_INGESTION_MODE,
+        ingestion_source=settings.XRPL_SHADOW_SOURCE,
     )
     xrpl_shadow_calibration = build_xrpl_shadow_calibration_aggregate(
         executions=executions,
@@ -785,6 +788,21 @@ def main() -> None:
     ih7.metric("Reconnects", str(ingestion_health.reconnect_count))
     ih8.metric("Backoff Seconds", f"{ingestion_health.backoff_seconds:.1f}")
     st.caption(f"Ingestion reason: {ingestion_health.reason}")
+
+    st.subheader("XRPL Live Shadow Mode")
+    st.warning("XRPL orderbook is snapshot-based")
+    st.warning("Observed liquidity may not execute")
+    st.warning("No transaction is submitted")
+    st.warning("System is advisory only")
+    li1, li2, li3, li4 = st.columns(4)
+    li1.metric("Ingestion Mode", ingestion_health.ingestion_mode)
+    li2.metric("Source", ingestion_health.ingestion_source)
+    li3.metric("Snapshot Rate", f"{ingestion_health.snapshot_rate_per_sec:.3f}/s")
+    li4.metric("Avg Latency ms", f"{ingestion_health.last_snapshot_latency_ms:.1f}")
+    li5, li6, li7 = st.columns(3)
+    li5.metric("Rejection %", f"{ingestion_health.snapshot_rejection_rate * 100:.1f}%")
+    li6.metric("Stale Snapshots", str(ingestion_health.stale_snapshot_count))
+    li7.metric("Ledger Gaps", str(ingestion_health.ledger_gap_count))
 
     st.subheader("XRPL Decision Quality – Ledger Aware")
     dq1, dq2, dq3, dq4 = st.columns(4)

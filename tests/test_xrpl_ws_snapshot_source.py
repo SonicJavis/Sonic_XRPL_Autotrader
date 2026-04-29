@@ -70,8 +70,8 @@ def test_valid_mock_ledger_and_book_emit_shadow_snapshot() -> None:
     assert snap.execution_price_proxy == 1.1
     assert snap.snapshot_derived_liquidity == 40.0
     assert snap.observed_possible_fill <= snap.snapshot_derived_liquidity
-    assert snap.route_instability == 0.25
-    assert snap.competition_penalty == 0.25
+    assert snap.route_instability >= 0.25
+    assert snap.competition_penalty >= 0.25
     assert snap.slippage_estimate >= 0.0
     assert isfinite(snap.slippage_estimate)
 

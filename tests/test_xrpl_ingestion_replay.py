@@ -66,6 +66,7 @@ def test_duplicate_ledger_is_deterministic_and_large_gap_rejected() -> None:
     )
 
     assert source.next_snapshot() is not None
-    assert source.next_snapshot() is not None
+    assert source.next_snapshot() is None
+    assert source.reason == "DUPLICATE_LEDGER_IGNORED"
     assert source.next_snapshot() is None
     assert source.health().stale_snapshot_count >= 1

@@ -9,6 +9,7 @@ from sqlmodel import select
 
 from app.db.models import ShadowDecisionRecord
 from app.feedback.shadow_decision_tracker import ShadowDecisionTracker
+from app.live.xrpl_ingestion_models import XRPLIngestionHealth
 
 router = APIRouter()
 
@@ -108,8 +109,21 @@ def live_shadow_decisions(request: Request, limit: int = 200) -> dict[str, objec
 def live_shadow_summary(request: Request, limit: int = 500) -> dict[str, object]:
     rows = _load_rows(request, limit=limit)
     summary = ShadowDecisionTracker().summarize(rows)
+    settings = request.app.state.container.settings
+    adapter = getattr(request.app.state, "ingestion_adapter", None) or getattr(request.app.state, "xrpl_ingestion_adapter", None)
+    health = adapter.health() if adapter is not None and hasattr(adapter, "health") else XRPLIngestionHealth(
+        reason="INGESTION_NOT_CONFIGURED",
+        ingestion_enabled=bool(settings.XRPL_INGESTION_ENABLED),
+        ingestion_mode=str(settings.XRPL_INGESTION_MODE),
+        ingestion_source=str(settings.XRPL_SHADOW_SOURCE),
+    )
+    health_body = health.to_dict() if isinstance(health, XRPLIngestionHealth) else dict(health)
     return {
         **_meta(),
         "limit": _safe_limit(limit),
         "summary": summary.to_dict(),
+        "ingestion_enabled": bool(settings.XRPL_INGESTION_ENABLED),
+        "ingestion_mode": str(getattr(request.app.state, "ingestion_mode", settings.XRPL_INGESTION_MODE)),
+        "ingestion_source": str(settings.XRPL_SHADOW_SOURCE),
+        "ingestion_health_summary": health_body,
     }

@@ -45,6 +45,8 @@ class ShadowSnapshotInput:
     competition_penalty: float
     slippage_estimate: float
     observed_at: datetime
+    snapshot_quality_score: float = 1.0
+    ledger_latency_proxy: float = 0.0
 
 
 class ShadowSnapshotSource(Protocol):
@@ -77,4 +79,6 @@ class StaticShadowSnapshotSource:
             competition_penalty=max(0.0, min(1.0, _finite_float(snapshot.competition_penalty))),
             slippage_estimate=max(0.0, _finite_float(snapshot.slippage_estimate)),
             observed_at=_utc(snapshot.observed_at),
+            snapshot_quality_score=max(0.0, min(1.0, _finite_float(snapshot.snapshot_quality_score, default=1.0))),
+            ledger_latency_proxy=max(0.0, _finite_float(snapshot.ledger_latency_proxy)),
         )

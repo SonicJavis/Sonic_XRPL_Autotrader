@@ -66,13 +66,22 @@ class XRPLShadowLoop:
         self.memory_weighting = memory_weighting or XRPLMemoryWeighting()
         self.regime_detector = regime_detector or XRPLRegimeDetector()
         self.time_model = time_model or XRPLTimeExecutionModel()
+        self.skipped_snapshot_count = 0
+        self.rejected_snapshot_count = 0
+        self._last_ledger_index = 0
 
     def run_tick(self) -> XRPLShadowTickResult:
         snapshot = self.snapshot_source.next_snapshot()
         if snapshot is None:
+            self.skipped_snapshot_count += 1
             return XRPLShadowTickResult(stored=False, record=None, reason="NO_SNAPSHOT_AVAILABLE")
+        if snapshot.ledger_index < self._last_ledger_index:
+            self.rejected_snapshot_count += 1
+            return XRPLShadowTickResult(stored=False, record=None, reason="LEDGER_REGRESSION")
+        self._last_ledger_index = snapshot.ledger_index
         record = self.build_shadow_decision(snapshot)
         if not self._is_valid_record(record):
+            self.rejected_snapshot_count += 1
             logger.info(
                 "shadow_tick_rejected token_id=%s regime=%s probability=%.6f blocked=%s",
                 record.token_id,
@@ -190,10 +199,22 @@ class XRPLShadowLoop:
             phantom_penalty = _clamp_unit(
                 max(snapshot.snapshot_derived_liquidity - snapshot.observed_possible_fill, 0.0) / snapshot.requested_size
             )
-        liquidity_reliability = _clamp_unit(liquidity_decay * (1.0 - phantom_penalty))
+        xrpl_penalty = 0.0
+        if snapshot.slippage_estimate > 0.08:
+            xrpl_penalty += 0.15
+        if snapshot.path_complexity > 2:
+            xrpl_penalty += 0.15
+        if snapshot.snapshot_quality_score < 0.5:
+            xrpl_penalty += 0.20
+        if snapshot.ledger_latency_proxy > 5000:
+            xrpl_penalty += 0.10
+        phantom_penalty = _clamp_unit(phantom_penalty + xrpl_penalty)
+        route_instability = _clamp_unit(snapshot.route_instability + xrpl_penalty)
+        competition_penalty = _clamp_unit(snapshot.competition_penalty + (xrpl_penalty * 0.5))
+        liquidity_reliability = _clamp_unit(liquidity_decay * (1.0 - phantom_penalty) * snapshot.snapshot_quality_score)
         low_fill_bias = _clamp_unit(max(0.0, 0.85 - liquidity_decay))
         execution_reliability = _clamp_unit(
-            time_result.effective_fill_probability * (1.0 - low_fill_bias) * (1.0 - snapshot.competition_penalty)
+            time_result.effective_fill_probability * (1.0 - low_fill_bias) * (1.0 - competition_penalty)
         )
         latency_pressure = _clamp_unit(time_result.latency_seconds / 20.0)
         path_pressure = _clamp_unit(snapshot.path_complexity / 3.0)
@@ -201,8 +222,8 @@ class XRPLShadowLoop:
         regime_pressure = _clamp_unit(
             (1.0 - liquidity_reliability) * 0.30
             + (1.0 - execution_reliability) * 0.30
-            + snapshot.route_instability * 0.15
-            + snapshot.competition_penalty * 0.10
+            + route_instability * 0.15
+            + competition_penalty * 0.10
             + max(latency_pressure, path_pressure, drift_pressure) * 0.15
         )
         return XRPLMemoryAggregate(
@@ -211,11 +232,11 @@ class XRPLShadowLoop:
             sample_count=1,
             avg_phantom_penalty=round(phantom_penalty, 6),
             avg_liquidity_decay=round(liquidity_decay, 6),
-            avg_route_instability=round(_clamp_unit(snapshot.route_instability), 6),
+            avg_route_instability=round(route_instability, 6),
             avg_path_complexity=float(max(0, int(snapshot.path_complexity))),
             avg_routes_seen_count=float(max(1, int(snapshot.path_complexity))),
             avg_latency_seconds=time_result.latency_seconds,
-            avg_competition_penalty=round(_clamp_unit(snapshot.competition_penalty), 6),
+            avg_competition_penalty=round(competition_penalty, 6),
             avg_low_fill_bias=round(low_fill_bias, 6),
             avg_drift=time_result.price_drift,
             avg_drift_adjusted_ev=time_result.drift_adjusted_ev,

@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     XRPL_RPC_URL: str = "https://s1.ripple.com:51234"
     XRPL_WS_URL: str = "wss://s1.ripple.com"
     XRPL_INGESTION_ENABLED: bool = False
+    XRPL_INGESTION_MODE: str = "disabled"
+    XRPL_SHADOW_SOURCE: str = "static"
+    XRPL_SNAPSHOT_THROTTLE_MS: int = Field(default=500, ge=0)
+    XRPL_MAX_LEDGER_GAP: int = Field(default=128, ge=1)
     XRPL_DEFAULT_SHADOW_SIZE: float = Field(default=100.0, gt=0)
     XRPL_MAX_SNAPSHOT_AGE_MS: int = Field(default=15000, ge=1)
     XRPL_WALLET_SEED: SecretStr | None = Field(default=None, repr=False)
