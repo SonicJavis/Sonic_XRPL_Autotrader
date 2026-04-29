@@ -11,6 +11,10 @@ from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
 from app.validation.report_engine import UncertaintyReportEngine, ValidationSample
+from app.validation.xrpl_calibration_recommendations import (
+    XRPL_CALIBRATION_WARNING,
+    XRPLCalibrationRecommendationEngine,
+)
 
 router = APIRouter()
 
@@ -228,6 +232,27 @@ def validation_shadow_summary(request: Request, limit: int = 500) -> dict[str, o
         "attribution_breakdown": dict(sorted(attribution.items())),
         "worst_regimes": _worst(regime_scores),
         "worst_tokens": _worst(token_scores),
+    }
+
+
+@router.get("/validation/calibration/recommendations")
+def validation_calibration_recommendations(request: Request, limit: int = 5000, min_support: int = 30) -> dict[str, object]:
+    safe_limit = _safe_limit(limit)
+    min_support = max(30, int(min_support))
+    with request.app.state.container.session_factory() as session:
+        rows = session.exec(
+            select(ShadowValidationRecord).order_by(ShadowValidationRecord.created_at.desc(), ShadowValidationRecord.id.desc()).limit(safe_limit)
+        ).all()
+    recommendations = XRPLCalibrationRecommendationEngine().generate(rows, min_support=min_support)
+    return {
+        "count": len(recommendations),
+        "recommendations": [row.to_dict() for row in recommendations],
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
+        "xrpl_warning": XRPL_CALIBRATION_WARNING,
+        "low_sample_warning": len(rows) < min_support,
     }
 
 
