@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.config import Settings
+from app.execution.execution_guard import ExecutionGuard
 
 
 def build_trustset_tx(account: str, issuer: str, currency: str, limit: str) -> dict[str, Any]:
@@ -32,6 +33,4 @@ def build_self_swap_payment_placeholder(account: str, destination: str) -> dict[
 
 
 def submit_transaction(settings: Settings, tx_blob: dict[str, Any]) -> None:
-    if not settings.LIVE_TRADING_ENABLED:
-        raise NotImplementedError("Transaction submission disabled while LIVE_TRADING_ENABLED=false")
-    raise NotImplementedError("Live submission is not implemented in this phase")
+    ExecutionGuard(settings).enforce(operation="submit_transaction", payload=tx_blob)

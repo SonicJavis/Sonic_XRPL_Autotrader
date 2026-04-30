@@ -9,6 +9,7 @@ def test_config_defaults_to_paper_mode() -> None:
 def test_live_trading_disabled_by_default() -> None:
     settings = Settings()
     assert settings.LIVE_TRADING_ENABLED is False
+    assert settings.EXECUTION_ENABLED is False
 
 
 def test_wallet_seed_not_required_for_paper_mode() -> None:

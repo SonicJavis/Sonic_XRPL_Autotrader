@@ -14,6 +14,7 @@ from app.execution.xrpl_paper_execution import (
     XRPLPaperExecutionEngine,
     summarize_simulations,
 )
+from app.execution.execution_guard import assert_core_execution_disabled
 from app.validation.dual_error_engine import DualErrorEngine, DualErrorInput
 from app.validation.execution_bounds import ExecutionBoundsInput, ExecutionBoundsModel
 from app.validation.observation_uncertainty import ObservationSample, ObservationUncertaintyModel
@@ -108,10 +109,10 @@ def _record_to_dict(row: ShadowValidationRecord) -> dict[str, object]:
         "confidence_error": _finite(row.confidence_error),
         "attribution": row.attribution,
         "created_at": row.created_at.astimezone(timezone.utc).isoformat(),
-        "is_shadow": bool(row.is_shadow),
-        "is_advisory": bool(row.is_advisory),
-        "is_executable": bool(row.is_executable),
-        "is_truth": bool(row.is_truth),
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
     }
 
 
@@ -457,6 +458,12 @@ def validation_simulation_detail(request: Request, simulation_id: str, limit: in
         if simulation["simulation_id"] == simulation_id:
             return {**_simulation_meta(), "simulation": simulation}
     raise HTTPException(status_code=404, detail="simulation not found")
+
+
+@router.get("/validation/execution-guard")
+def validation_execution_guard(request: Request) -> dict[str, object]:
+    settings = request.app.state.container.settings
+    return assert_core_execution_disabled(settings).to_dict()
 
 
 @router.get("/validation/live/status")

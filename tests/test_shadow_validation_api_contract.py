@@ -95,6 +95,26 @@ def test_shadow_validation_api_contract_populated_sorting_and_idempotence() -> N
     assert _finite_json(summary)
 
 
+def test_shadow_validation_results_sanitize_persisted_truth_and_execution_flags() -> None:
+    app = create_app()
+    _clear(app)
+    now = datetime(2026, 4, 29, tzinfo=timezone.utc)
+    poisoned = _record(3, 30, now, disagreement_score=0.4, attribution="latency")
+    poisoned.is_executable = True
+    poisoned.is_truth = True
+    with app.state.container.session_factory() as session:
+        session.add(poisoned)
+        session.commit()
+    client = TestClient(app)
+
+    row = client.get("/validation/shadow/results?limit=10").json()["results"][0]
+
+    assert row["is_shadow"] is True
+    assert row["is_advisory"] is True
+    assert row["is_executable"] is False
+    assert row["is_truth"] is False
+
+
 def _record(decision_id: int, token_id: int, created_at: datetime, *, disagreement_score: float, attribution: str) -> ShadowValidationRecord:
     return ShadowValidationRecord(
         decision_id=decision_id,

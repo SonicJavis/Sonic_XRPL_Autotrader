@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from math import isfinite
 from typing import Any
 
 from app.live.xrpl_ingestion_models import XRPLIngestionHealth, XRPLLedgerEvent, non_negative_float, non_negative_int, utc_or_none
+
+_XRPL_EPOCH_OFFSET_SECONDS = 946684800
 
 
 def _blocked_terms() -> tuple[str, ...]:
@@ -139,7 +141,10 @@ class XRPLReadOnlyWebSocketAdapter:
         )
         if ledger_index <= 0:
             return None
-        close_time: datetime | None = utc_or_none(message.get("close_time_iso") or message.get("close_time"))
+        close_time: datetime | None = (
+            utc_or_none(message.get("close_time_iso") or message.get("close_time"))
+            or _xrpl_ledger_time(message.get("ledger_time"))
+        )
         validated = bool(message.get("validated", True))
         return XRPLLedgerEvent(
             ledger_index=ledger_index,
@@ -148,3 +153,13 @@ class XRPLReadOnlyWebSocketAdapter:
             validated=validated,
             raw=message,
         )
+
+
+def _xrpl_ledger_time(raw: object) -> datetime | None:
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if value < 0:
+        return None
+    return datetime.fromtimestamp(value + _XRPL_EPOCH_OFFSET_SECONDS, tz=timezone.utc)

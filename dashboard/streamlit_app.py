@@ -41,6 +41,7 @@ from app.db.models import (
 from app.db.session import engine, init_db
 from app.execution.pnl_attribution_engine import PnLAttributionEngine
 from app.execution.replay_engine import ReplayEngine
+from app.execution.execution_guard import assert_core_execution_disabled
 from app.execution.xrpl_paper_execution import XRPLPaperExecutionEngine, summarize_simulations
 from app.calibration.xrpl_bayesian_calibrator import build_xrpl_shadow_calibration_aggregate
 from app.calibration.xrpl_memory_model import aggregate_by_issuer, aggregate_by_token, aggregate_global, build_memory_samples
@@ -343,6 +344,7 @@ def main() -> None:
         for intent in simulated_intents
     ]
     paper_simulation_summary = summarize_simulations(paper_simulations)
+    execution_guard_status = assert_core_execution_disabled(settings).to_dict()
     tokens_by_id = {int(token.id): token for token in tokens if token.id is not None}
     memory_samples = build_memory_samples(executions, tokens_by_id=tokens_by_id)
     memory_global = aggregate_global(memory_samples)
@@ -994,6 +996,15 @@ def main() -> None:
         st.dataframe(simulation_rows[:100], use_container_width=True)
     else:
         st.info("No paper execution simulations available from current intent and snapshot data.")
+
+    st.subheader("Execution Boundary Guard")
+    st.warning("Core execution boundary is fail-closed")
+    st.warning("No signing or submission is available from this dashboard")
+    st.warning("Manual approval cannot mutate execution configuration")
+    eg1, eg2, eg3 = st.columns(3)
+    eg1.metric("Allowed", "YES" if execution_guard_status["allowed"] else "NO")
+    eg2.metric("Reason", str(execution_guard_status["reason"]))
+    eg3.metric("Executable", "YES" if execution_guard_status["is_executable"] else "NO")
 
     st.subheader("XRPL Read-Only Ingestion Status")
     st.warning("Read-only XRPL observation only")

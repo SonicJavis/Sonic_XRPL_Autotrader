@@ -9,8 +9,21 @@ def test_append_only_simulation_store_preserves_order_and_copying() -> None:
     first["fill_ratio"] = 0.0
 
     assert store.get("sim_a")["fill_ratio"] == 0.5
+    assert store.get("sim_a")["is_executable"] is False
+    assert store.get("sim_a")["is_truth"] is False
     assert store.get("sim_b") == second
     assert [row["simulation_id"] for row in store.list(limit=10)] == ["sim_b", "sim_a"]
+
+
+def test_append_only_simulation_store_sanitizes_external_flags() -> None:
+    store = AppendOnlySimulationStore()
+
+    row = store.append({"simulation_id": "sim_a", "is_executable": True, "is_truth": True})
+
+    assert row["is_shadow"] is True
+    assert row["is_advisory"] is True
+    assert row["is_executable"] is False
+    assert row["is_truth"] is False
 
 
 def test_append_only_simulation_store_limit_is_bounded() -> None:

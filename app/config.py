@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     BOT_MODE: BotMode = BotMode.PAPER_TRADING
     LIVE_TRADING_ENABLED: bool = False
+    EXECUTION_ENABLED: bool = False
     ALLOW_REMOTE_ACCESS: bool = False
 
     XRPL_RPC_URL: str = "https://s1.ripple.com:51234"

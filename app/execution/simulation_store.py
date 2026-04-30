@@ -11,6 +11,10 @@ class AppendOnlySimulationStore:
     def append(self, result: Mapping[str, object]) -> dict[str, object]:
         row = dict(result)
         row["append_index"] = len(self._rows) + 1
+        row["is_shadow"] = True
+        row["is_advisory"] = True
+        row["is_executable"] = False
+        row["is_truth"] = False
         self._rows.append(row)
         return dict(row)
 

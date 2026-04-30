@@ -79,6 +79,17 @@ def test_valid_ledger_event_updates_health() -> None:
     assert adapter.health().latest_validated_ledger_index == 50
 
 
+def test_ledger_time_uses_xrpl_epoch_seconds() -> None:
+    adapter = XRPLReadOnlyWebSocketAdapter(
+        FakeWsClient(messages=[{"type": "ledgerClosed", "ledger_index": 51, "ledger_time": 0, "validated": True}])
+    )
+    adapter.connect()
+
+    event = adapter.next_ledger_event()
+
+    assert event.close_time.isoformat() == "2000-01-01T00:00:00+00:00"
+
+
 def test_only_ledgerclosed_messages_are_parsed_as_ledger_events() -> None:
     adapter = XRPLReadOnlyWebSocketAdapter(
         FakeWsClient(
