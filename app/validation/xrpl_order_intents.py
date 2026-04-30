@@ -7,6 +7,10 @@ from hashlib import sha256
 from math import isfinite
 from typing import Iterable, Mapping
 
+from app.xrpl.execution_feasibility import evaluate_execution_feasibility
+from app.xrpl.orderbook_normalizer import normalize_book_offers
+from app.xrpl.pathfinding_model import evaluate_pathfinding_uncertainty
+
 
 ORDER_INTENT_SCHEMA_VERSION = "1.0"
 XRPL_ORDER_INTENT_WARNING = (
@@ -72,6 +76,7 @@ class XRPLOrderIntent:
     execution_estimates: dict[str, object]
     pathfinding: dict[str, object]
     fill_model: dict[str, object]
+    execution_feasibility: dict[str, object]
     is_shadow: bool = True
     is_advisory: bool = True
     is_executable: bool = False
@@ -92,6 +97,7 @@ class XRPLOrderIntent:
         data["execution_estimates"] = _sanitize_mapping(data["execution_estimates"])
         data["pathfinding"] = _sanitize_mapping(data["pathfinding"])
         data["fill_model"] = _sanitize_mapping(data["fill_model"])
+        data["execution_feasibility"] = _sanitize_mapping(data["execution_feasibility"])
         return {key: data[key] for key in sorted(data)}
 
 
@@ -146,6 +152,16 @@ def build_order_intent(
     min_fill_ratio = _unit(expected_fill_ratio * max(0.0, 1.0 - spread_penalty - (0.20 if path_required else 0.0)))
     max_fill_ratio = min(0.95, max(min_fill_ratio, _unit(expected_fill_ratio + liquidity_score * 0.20)))
     confidence_adjusted_fill = _unit(expected_fill_ratio * confidence)
+    execution_feasibility = _snapshot_feasibility(
+        snapshot=snapshot,
+        requested_size=requested,
+        confidence=confidence,
+    )
+    if execution_feasibility["decision"] == "avoid":
+        action = "avoid"
+        proposed_size = 0.0
+        confidence = min(confidence, float(execution_feasibility["execution_feasibility_score"]))
+        confidence_adjusted_fill = min(confidence_adjusted_fill, float(execution_feasibility["expected_fill_ratio"]))
     intent = XRPLOrderIntent(
         intent_id="",
         schema_version=ORDER_INTENT_SCHEMA_VERSION,
@@ -187,6 +203,7 @@ def build_order_intent(
             "max_fill_ratio": round(max_fill_ratio, 6),
             "confidence_adjusted_fill": round(confidence_adjusted_fill, 6),
         },
+        execution_feasibility=execution_feasibility,
     )
     return intent
 
@@ -292,9 +309,72 @@ def _sanitize_mapping(data: Mapping[str, object]) -> dict[str, object]:
             clean[str(key)] = int(value)
         elif isinstance(value, float):
             clean[str(key)] = round(_finite(value), 6)
+        elif isinstance(value, Mapping):
+            clean[str(key)] = _sanitize_mapping(value)
+        elif isinstance(value, list):
+            clean[str(key)] = [
+                _sanitize_mapping(item) if isinstance(item, Mapping) else item
+                for item in value
+            ]
         else:
             clean[str(key)] = value
     return clean
+
+
+def _snapshot_feasibility(*, snapshot: XRPLIntentSnapshot, requested_size: float, confidence: float) -> dict[str, object]:
+    source = {"currency": "XRP", "issuer": None}
+    destination = {"currency": snapshot.currency, "issuer": snapshot.issuer}
+    depth = min(snapshot.ask_depth_xrp, snapshot.bid_depth_xrp)
+    if (
+        not snapshot.validated
+        or not snapshot.snapshot_complete
+        or snapshot.recent_ledger_gap
+        or snapshot.best_ask <= 0.0
+        or depth <= 0.0
+    ):
+        path = {
+            "selected_path": "none",
+            "estimated_hops": 0,
+            "path_capacity": 0.0,
+            "estimated_slippage": 1.0,
+            "path_viability_score": 0.0,
+            "uncertainty_score": 1.0,
+            "liquidity_fragmentation_score": 1.0,
+            "liquidity_fragility_score": 1.0,
+            "failure_modes": ["NO_PATH_AVAILABLE"],
+        }
+        return evaluate_execution_feasibility(
+            source_asset=source,
+            destination_asset=destination,
+            requested_size=requested_size,
+            normalized_orderbooks=[],
+            pathfinding_result=path,
+            signal_strength=confidence,
+        )
+
+    book = normalize_book_offers(
+        [
+            {
+                "TakerGets": str(int(depth * 1_000_000)),
+                "TakerPays": {
+                    "currency": snapshot.currency,
+                    "issuer": snapshot.issuer,
+                    "value": str(depth / max(snapshot.best_ask, 1e-9)),
+                },
+                "owner": "snapshot_depth_proxy",
+            }
+        ],
+        spread_estimate=snapshot.spread_pct / 100.0,
+    )
+    path = evaluate_pathfinding_uncertainty([book], source, destination, requested_size)
+    return evaluate_execution_feasibility(
+        source_asset=source,
+        destination_asset=destination,
+        requested_size=requested_size,
+        normalized_orderbooks=[book],
+        pathfinding_result=path,
+        signal_strength=confidence,
+    )
 
 
 def _avg(values: Iterable[object]) -> float:

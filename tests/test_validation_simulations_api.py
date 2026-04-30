@@ -40,6 +40,9 @@ def test_validation_simulations_populated_contract_and_detail() -> None:
     assert simulation["intent_id"].startswith("intent_")
     assert simulation["execution_status"] in {"full", "partial", "failed"}
     assert simulation["xrpl_execution_context"]["funded_liquidity_only"] is True
+    assert "execution_feasibility" in simulation
+    assert simulation["execution_feasibility"]["schema_version"] == "1.0"
+    assert simulation["execution_feasibility"]["is_executable"] is False
     assert 0.0 <= simulation["fill_ratio"] <= 1.0
     assert simulation["is_executable"] is False
 
@@ -65,6 +68,18 @@ def test_validation_simulations_are_stable_and_summary_bounded() -> None:
     assert 0.0 <= summary["summary"]["success_rate"] <= 1.0
     assert _finite_json(first)
     assert _finite_json(summary)
+
+
+def test_validation_simulations_read_feasibility_idempotent_without_mutation() -> None:
+    app = create_app()
+    _seed(app)
+    client = TestClient(app)
+
+    first = client.get("/validation/simulations?limit=100").json()
+    second = client.get("/validation/simulations?limit=100").json()
+
+    assert first == second
+    assert all("execution_feasibility" in row for row in first["simulations"])
 
 
 def _seed(app) -> None:

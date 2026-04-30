@@ -971,6 +971,32 @@ def main() -> None:
     else:
         st.info("No simulated order intents available from current validation and snapshot data.")
 
+    st.subheader("XRPL Execution Feasibility")
+    st.warning("Feasibility is advisory only")
+    st.warning("No execution can be triggered from this panel")
+    st.warning("Scores are based on current normalized liquidity snapshot")
+    st.warning("XRPL routing and fills are not guaranteed")
+    st.warning("AMM/hybrid liquidity is not included until Phase 26.4")
+    feasibility_rows = [
+        {
+            "intent_id": row["intent_id"],
+            "score": row["execution_feasibility"]["execution_feasibility_score"],
+            "route_type": row["execution_feasibility"]["route_type"],
+            "expected_fill_ratio": row["execution_feasibility"]["expected_fill_ratio"],
+            "expected_slippage": row["execution_feasibility"]["expected_slippage"],
+            "weakest_hop_capacity": row["execution_feasibility"]["weakest_hop_capacity"],
+            "quality_levels_required": row["execution_feasibility"]["quality_levels_required"],
+            "decision": row["execution_feasibility"]["decision"],
+            "avoid_reason": row["execution_feasibility"]["avoid_reason"],
+            "failure_modes": ", ".join(row["execution_feasibility"]["failure_modes"]),
+        }
+        for row in (intent.to_dict() for intent in simulated_intents)
+    ]
+    if feasibility_rows:
+        st.dataframe(feasibility_rows[:100], use_container_width=True)
+    else:
+        st.info("No feasibility rows available from current normalized liquidity snapshots.")
+
     st.subheader("Paper Execution Simulation (XRPL)")
     st.warning("Simulated XRPL execution only")
     st.warning("Routing and fills are not guaranteed")

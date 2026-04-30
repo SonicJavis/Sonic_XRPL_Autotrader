@@ -42,9 +42,16 @@ def test_validation_intents_populated_contract_and_detail() -> None:
     assert intent["action"] in {"buy", "sell", "avoid"}
     assert intent["xrpl_context"]["validated"] is True
     assert "execution_estimates" in intent
+    assert "execution_feasibility" in intent
     assert "fill_model" in intent
     assert "pathfinding" in intent
     assert 0.0 <= intent["execution_estimates"]["expected_fill_ratio"] <= 0.95
+    feasibility = intent["execution_feasibility"]
+    assert feasibility["schema_version"] == "1.0"
+    assert feasibility["decision"] in {"feasible", "marginal", "avoid"}
+    assert feasibility["route_type"] in {"direct", "xrp_bridge", "multi_hop", "none"}
+    assert 0.0 <= feasibility["execution_feasibility_score"] <= 1.0
+    assert feasibility["is_executable"] is False
     assert intent["is_executable"] is False
 
     detail = client.get(f"/validation/intents/{intent['intent_id']}").json()
@@ -68,6 +75,18 @@ def test_validation_intents_are_stable_and_limit_bounded() -> None:
     assert "avg_liquidity_score" in summary["summary"]
     assert _finite_json(first)
     assert _finite_json(summary)
+
+
+def test_validation_intents_read_feasibility_idempotent_without_mutation() -> None:
+    app = create_app()
+    _seed(app)
+    client = TestClient(app)
+
+    first = client.get("/validation/intents?limit=100").json()
+    second = client.get("/validation/intents?limit=100").json()
+
+    assert first == second
+    assert all("execution_feasibility" in row for row in first["intents"])
 
 
 def _seed(app) -> int:

@@ -47,6 +47,7 @@ class XRPLPaperExecutionResult:
     xrpl_execution_context: dict[str, object]
     pathfinding: dict[str, object]
     issuer_friction: dict[str, object]
+    execution_feasibility: dict[str, object]
     is_shadow: bool = True
     is_advisory: bool = True
     is_executable: bool = False
@@ -64,6 +65,7 @@ class XRPLPaperExecutionResult:
         data["xrpl_execution_context"] = _sanitize_mapping(data["xrpl_execution_context"])
         data["pathfinding"] = _sanitize_mapping(data["pathfinding"])
         data["issuer_friction"] = _sanitize_mapping(data["issuer_friction"])
+        data["execution_feasibility"] = _sanitize_mapping(data["execution_feasibility"])
         data["is_shadow"] = True
         data["is_advisory"] = True
         data["is_executable"] = False
@@ -84,9 +86,11 @@ class XRPLPaperExecutionEngine:
         intent_id = str(intent.get("intent_id", ""))
         action = str(intent.get("action", "avoid")).lower()
         requested_size = _non_negative(intent.get("proposed_size", intent.get("requested_size", 0.0)))
+        original_requested_size = requested_size
         context = dict(intent.get("xrpl_context") or {}) if isinstance(intent.get("xrpl_context"), Mapping) else {}
         estimates = dict(intent.get("execution_estimates") or {}) if isinstance(intent.get("execution_estimates"), Mapping) else {}
         path = dict(intent.get("pathfinding") or {}) if isinstance(intent.get("pathfinding"), Mapping) else {}
+        feasibility = dict(intent.get("execution_feasibility") or {}) if isinstance(intent.get("execution_feasibility"), Mapping) else {}
         expected_price = _non_negative(estimates.get("reference_price", estimates.get("expected_price", 0.0)))
         path_required = bool(path.get("path_required", False))
         path_viability = _unit(path.get("path_viability_score", 1.0), default=1.0)
@@ -103,6 +107,8 @@ class XRPLPaperExecutionEngine:
         failure_reason = ""
         path_used = "direct"
         if action == "avoid":
+            failure_reason = "constraint"
+        elif feasibility.get("decision") == "avoid":
             failure_reason = "constraint"
         elif not validated or not snapshot_complete:
             failure_reason = "incomplete_snapshot"
@@ -122,9 +128,12 @@ class XRPLPaperExecutionEngine:
         levels_consumed = 0
         offers_consumed = 0
         if not failure_reason:
+            feasibility_cap = _non_negative(feasibility.get("weakest_hop_capacity", requested_size), default=requested_size)
+            expected_fill_ratio = _unit(feasibility.get("expected_fill_ratio", 1.0), default=1.0)
+            max_fill_size = min(requested_size, feasibility_cap, requested_size * expected_fill_ratio)
             path_multiplier = 1.0 if not path_required else max(0.0, min(0.85, path_viability))
             fee_multiplier = max(0.0, 1.0 - (fee_bps / 10_000.0))
-            target_gross = requested_size / max(fee_multiplier, 1e-9)
+            target_gross = max_fill_size / max(fee_multiplier, 1e-9)
             remaining_gross = target_gross
             for level in funded_levels:
                 if remaining_gross <= 0.0:
@@ -146,7 +155,7 @@ class XRPLPaperExecutionEngine:
         transfer_fee_slippage = fee_bps / 10_000.0
         slippage = 0.0 if expected_price <= 0.0 or avg_price <= 0.0 else max(0.0, (avg_price - expected_price) / expected_price)
         slippage += transfer_fee_slippage
-        fill_ratio = _unit(filled_size / max(requested_size, 1e-9))
+        fill_ratio = _unit(filled_size / max(original_requested_size, 1e-9))
         if fill_ratio <= 0.0 and not failure_reason:
             failure_reason = "liquidity"
         status = "failed"
@@ -162,8 +171,8 @@ class XRPLPaperExecutionEngine:
             intent_id=intent_id,
             schema_version=PAPER_EXECUTION_SCHEMA_VERSION,
             executed_action=action if action in {"buy", "sell", "avoid"} else "avoid",
-            requested_size=requested_size,
-            filled_size=min(filled_size, requested_size),
+            requested_size=original_requested_size,
+            filled_size=min(filled_size, original_requested_size),
             fill_ratio=fill_ratio,
             avg_execution_price=avg_price,
             slippage_realized=slippage,
@@ -184,6 +193,7 @@ class XRPLPaperExecutionEngine:
                 "transfer_fee_bps": fee_bps,
                 "trustline_available": bool(trustline_available),
             },
+            execution_feasibility=_simulation_feasibility_context(feasibility),
         )
         return result
 
@@ -237,9 +247,48 @@ def _sanitize_mapping(data: Mapping[str, object]) -> dict[str, object]:
             clean[str(key)] = int(value)
         elif isinstance(value, float):
             clean[str(key)] = round(_finite(value), 6)
+        elif isinstance(value, Mapping):
+            clean[str(key)] = _sanitize_mapping(value)
+        elif isinstance(value, list):
+            clean[str(key)] = [
+                _sanitize_mapping(item) if isinstance(item, Mapping) else item
+                for item in value
+            ]
         else:
             clean[str(key)] = value
     return clean
+
+
+def _simulation_feasibility_context(feasibility: Mapping[str, object]) -> dict[str, object]:
+    if not feasibility:
+        return {
+            "schema_version": "1.0",
+            "execution_feasibility_score": 0.0,
+            "decision": "avoid",
+            "route_type": "none",
+            "expected_fill_ratio": 0.0,
+            "expected_slippage": 0.0,
+            "weakest_hop_capacity": 0.0,
+            "avoid_reason": "missing_feasibility_context",
+            "is_shadow": True,
+            "is_advisory": True,
+            "is_executable": False,
+            "is_truth": False,
+        }
+    return {
+        "schema_version": str(feasibility.get("schema_version", "1.0")),
+        "execution_feasibility_score": _unit(feasibility.get("execution_feasibility_score", 0.0)),
+        "decision": str(feasibility.get("decision", "avoid")),
+        "route_type": str(feasibility.get("route_type", "none")),
+        "expected_fill_ratio": _unit(feasibility.get("expected_fill_ratio", 0.0)),
+        "expected_slippage": _unit(feasibility.get("expected_slippage", 0.0)),
+        "weakest_hop_capacity": _non_negative(feasibility.get("weakest_hop_capacity", 0.0)),
+        "avoid_reason": feasibility.get("avoid_reason"),
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
+    }
 
 
 def _avg(values: Iterable[object]) -> float:

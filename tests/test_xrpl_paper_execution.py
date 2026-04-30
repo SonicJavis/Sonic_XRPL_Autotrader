@@ -61,6 +61,26 @@ def test_pathfinding_failure_and_incomplete_snapshot_fail_closed() -> None:
     assert incomplete["failure_reason"] == "incomplete_snapshot"
 
 
+def test_feasibility_context_caps_paper_fill() -> None:
+    result = XRPLPaperExecutionEngine().simulate(
+        intent=_intent(size=100.0, feasibility={"decision": "marginal", "weakest_hop_capacity": 40.0, "expected_fill_ratio": 0.4}),
+        quality_levels=[XRPLQualityLevel(quality=1.0, price=1.0, available_size=100.0)],
+    ).to_dict()
+
+    assert result["filled_size"] == 40.0
+    assert result["execution_feasibility"]["decision"] == "marginal"
+
+
+def test_feasibility_avoid_blocks_paper_assumption() -> None:
+    result = XRPLPaperExecutionEngine().simulate(
+        intent=_intent(size=100.0, feasibility={"decision": "avoid", "weakest_hop_capacity": 100.0, "expected_fill_ratio": 1.0}),
+        quality_levels=[XRPLQualityLevel(quality=1.0, price=1.0, available_size=100.0)],
+    ).to_dict()
+
+    assert result["execution_status"] == "failed"
+    assert result["failure_reason"] == "constraint"
+
+
 def test_transfer_fee_reduces_fill_and_increases_slippage() -> None:
     no_fee = XRPLPaperExecutionEngine().simulate(
         intent=_intent(size=100.0),
@@ -104,7 +124,13 @@ def test_deterministic_replay_and_summary_are_bounded() -> None:
     assert _finite_json(summary)
 
 
-def _intent(*, size: float = 50.0, path_required: bool = False, path_viability: float = 1.0) -> dict[str, object]:
+def _intent(
+    *,
+    size: float = 50.0,
+    path_required: bool = False,
+    path_viability: float = 1.0,
+    feasibility: dict[str, object] | None = None,
+) -> dict[str, object]:
     return {
         "intent_id": "intent_test",
         "action": "buy",
@@ -112,6 +138,19 @@ def _intent(*, size: float = 50.0, path_required: bool = False, path_viability: 
         "xrpl_context": {"ledger_index": 100, "validated": True},
         "execution_estimates": {"expected_price": 1.0},
         "pathfinding": {"path_required": path_required, "path_viability_score": path_viability},
+        "execution_feasibility": feasibility or {
+            "schema_version": "1.0",
+            "decision": "feasible",
+            "route_type": "direct",
+            "expected_fill_ratio": 1.0,
+            "expected_slippage": 0.0,
+            "weakest_hop_capacity": size,
+            "execution_feasibility_score": 1.0,
+            "is_shadow": True,
+            "is_advisory": True,
+            "is_executable": False,
+            "is_truth": False,
+        },
     }
 
 
