@@ -90,5 +90,19 @@ def main():
     for l in dash.get("limitations", []):
         st.write(f"- {l}")
         
+    # 8. Market Fixtures (Phase 40 Optional)
+    m_info = dash.get("market_fixture_summary")
+    if m_info:
+        st.header("8. Market Fixture Quality (Phase 40)")
+        mq = m_info.get("quality_report", {})
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Quality Score", mq.get("quality_score", "N/A"))
+        col2.metric("Assets Covered", mq.get("assets_covered", 0))
+        col3.metric("Price Snapshots", mq.get("total_price_snapshots", 0))
+        col4.metric("Liquidity Snapshots", mq.get("total_liquidity_snapshots", 0))
+        
+        if mq.get("warnings"):
+            st.warning(f"Fixture Warnings: {', '.join(mq.get('warnings'))}")
+            
 if __name__ == "__main__":
     main()

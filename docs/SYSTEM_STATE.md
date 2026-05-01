@@ -1,6 +1,7 @@
 # System State
 
 ## Active Phases
+- **Phase 40**: Historical Market Fixture Engine + Paper Mark-to-Market Enrichment (CURRENT)
 - **Phase 39**: Operator Trust Dashboard + 7-Day Paper Campaign Runner (CURRENT BASELINE)
 - **Phase 38**: Risk Governor + Operator Trust Layer.
 - **Phase 37**: Strategy Performance Engine + Backtest Tournament.

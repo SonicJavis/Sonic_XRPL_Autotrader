@@ -62,7 +62,7 @@ def build_dashboard_data(
                             if r_data.get("severity") == "critical":
                                 risk_sum["critical"].append(r_data.get("rule_name"))
                                 
-    # Hardcoded Protocol contexts (we could pull from risk report if needed)
+    # Hardcoded Protocol contexts
     protocol_context = [
         "AMM context: Enabled",
         "Clawback / AMMClawback: Final / Draft",
@@ -76,6 +76,17 @@ def build_dashboard_data(
         "Missing price data creates unknown PnL."
     ])
 
+    # Phase 40 Optional enrichment
+    p40_path = p38_dir.parent / "phase40"
+    p40_summary = None
+    if p40_path.exists():
+        subs = sorted([d for d in p40_path.iterdir() if d.is_dir()], key=lambda x: x.stat().st_mtime)
+        if subs:
+            summ_file = subs[-1] / "market_fixture_summary.json"
+            if summ_file.exists():
+                with open(summ_file, "r") as f:
+                    p40_summary = json.load(f)
+
     return CampaignDashboardData(
         campaign=state.to_dict(),
         latest_cycle=latest_cycle.to_dict(),
@@ -84,8 +95,9 @@ def build_dashboard_data(
         paper_summary=paper_summary,
         strategy_summary=strat_sum,
         risk_summary=risk_sum,
-        trade_journal_preview=trade_journal[-5:], # Top 5
+        trade_journal_preview=trade_journal[-5:],
         protocol_context=protocol_context,
         limitations=list(set(limitations)),
-        safety_statement="PAPER ONLY. NO WALLET. NO SIGNING. NO SUBMISSION. NO XAMAN PAYLOAD CREATION. LIVE TRADING FORBIDDEN."
+        safety_statement="PAPER ONLY. NO WALLET. NO SIGNING. NO SUBMISSION. NO XAMAN PAYLOAD CREATION. LIVE TRADING FORBIDDEN.",
+        market_fixture_summary=p40_summary
     )
