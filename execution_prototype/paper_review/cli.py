@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from execution_prototype.paper_review.trade_journal import create_paper_trade
 from execution_prototype.paper_review.performance_analyzer import analyze_performance
-from execution_prototype.paper_review.report_writer import write_reports
+from execution_prototype.paper_review.lessons_writer import write_reports
 
 def main():
     parser = argparse.ArgumentParser(description="Phase 35 Paper Review Layer")
