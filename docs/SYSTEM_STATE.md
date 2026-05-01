@@ -1,7 +1,8 @@
 # System State
 
 ## Active Phases
-- **Phase 36**: Integrated 7-Day Autonomous PAPER Trading Operator. (CURRENT)
+- **Phase 37**: Strategy Performance Engine + Backtest Tournament. (CURRENT)
+- **Phase 36**: Integrated 7-Day Autonomous PAPER Trading Operator.
 - **Phase 35**: Paper Review Layer
 - **Phase 34**: XRPL Meme Discovery Engine
 - **Phase 33**: Drift Intelligence
