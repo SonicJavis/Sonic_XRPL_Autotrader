@@ -4,6 +4,7 @@ from typing import Callable, Mapping
 
 from execution_prototype.audit import append_audit_record
 from execution_prototype.intent_contract import ExecutionIntent, ensure_safety_gates, risk_summary
+from execution_prototype.wizard import RiskAcknowledgement, audit_context, require_risk_acknowledgement
 
 
 CONFIRMATION_PHRASE = "CONFIRM_EXECUTION"
@@ -19,13 +20,24 @@ def submit_manual(
     intent: ExecutionIntent,
     unsigned_tx: Mapping[str, object],
     confirmation: str,
+    trade_type_understood: bool = False,
+    partial_fill_accepted: bool = False,
+    price_impact_understood: bool = False,
     signed_blob: str | None = None,
     submitter: Callable[[str], Mapping[str, object]] | None = None,
     audit_path=None,
 ) -> dict[str, object]:
     ensure_safety_gates(intent)
-    require_manual_confirmation(confirmation)
+    require_risk_acknowledgement(
+        RiskAcknowledgement(
+            confirmation=confirmation,
+            trade_type_understood=trade_type_understood,
+            partial_fill_accepted=partial_fill_accepted,
+            price_impact_understood=price_impact_understood,
+        )
+    )
     summary = risk_summary(intent)
+    context = audit_context(intent)
     if signed_blob is None or submitter is None:
         append_audit_record(
             intent_id=intent.intent_id,
@@ -33,6 +45,7 @@ def submit_manual(
             tx_payload=unsigned_tx,
             user_confirmed=True,
             submitted=False,
+            **context,
             path=audit_path or _default_audit_path(),
         )
         return {
@@ -50,6 +63,7 @@ def submit_manual(
         user_confirmed=True,
         submitted=True,
         tx_hash=tx_hash or None,
+        **context,
         path=audit_path or _default_audit_path(),
     )
     return {

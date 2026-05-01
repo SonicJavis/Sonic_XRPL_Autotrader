@@ -28,6 +28,18 @@ def build_deep_link(payload: dict[str, object]) -> str:
     return f"xaman://xapp/sign/{encoded}"
 
 
+def build_qr_rendering_payload(deep_link: str) -> dict[str, object]:
+    return {
+        "format": "qr_source_text",
+        "qr_data": str(deep_link),
+        "instructions": [
+            "Scan with Xaman to sign.",
+            "Review transaction before approving.",
+        ],
+        "is_executable": False,
+    }
+
+
 def payload_identifier(unsigned_tx: dict[str, object]) -> str:
     encoded = json.dumps(unsigned_tx, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return f"xaman_{sha256(encoded).hexdigest()[:24]}"

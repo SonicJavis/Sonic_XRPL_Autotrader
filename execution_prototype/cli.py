@@ -7,6 +7,7 @@ from pathlib import Path
 from execution_prototype.audit import append_audit_record
 from execution_prototype.intent_contract import ensure_safety_gates, load_intent_file, risk_summary, validate_safety_gates
 from execution_prototype.submit import CONFIRMATION_PHRASE, require_manual_confirmation
+from execution_prototype.wizard import audit_context, build_wizard_package
 from execution_prototype.xaman_payload import build_deep_link, build_xaman_payload
 from execution_prototype.xrpl_tx_builder import build_unsigned_transaction, transaction_fingerprint
 
@@ -34,10 +35,18 @@ def main(argv: list[str] | None = None) -> int:
     xaman_parser.add_argument("--account", default="rMANUAL_ACCOUNT_PLACEHOLDER")
     xaman_parser.add_argument("--out")
 
+    wizard_parser = sub.add_parser("wizard-preview")
+    wizard_parser.add_argument("file")
+    wizard_parser.add_argument("--account", default="rMANUAL_ACCOUNT_PLACEHOLDER")
+    wizard_parser.add_argument("--out")
+
     submit_parser = sub.add_parser("submit")
     submit_parser.add_argument("file")
     submit_parser.add_argument("--account", default="rMANUAL_ACCOUNT_PLACEHOLDER")
     submit_parser.add_argument("--confirmation", required=True)
+    submit_parser.add_argument("--understand-type", action="store_true")
+    submit_parser.add_argument("--accept-partial-fill", action="store_true")
+    submit_parser.add_argument("--understand-price-impact", action="store_true")
     submit_parser.add_argument("--audit-log", default=str(Path(__file__).with_name("audit_log.jsonl")))
 
     args = parser.parse_args(argv)
@@ -64,9 +73,15 @@ def main(argv: list[str] | None = None) -> int:
         body = {"payload": payload, "deep_link": build_deep_link(payload), "is_executable": False}
         _write_or_print(body, args.out)
         return 0
+    if args.command == "wizard-preview":
+        body = build_wizard_package(intent, account=args.account)
+        _write_or_print(body, args.out)
+        return 0
     if args.command == "submit":
         ensure_safety_gates(intent)
         require_manual_confirmation(args.confirmation)
+        if not (args.understand_type and args.accept_partial_fill and args.understand_price_impact):
+            raise ValueError("risk acknowledgement flags are required")
         tx = build_unsigned_transaction(intent, account=args.account)
         append_audit_record(
             intent_id=intent.intent_id,
@@ -74,6 +89,7 @@ def main(argv: list[str] | None = None) -> int:
             tx_payload=tx,
             user_confirmed=True,
             submitted=False,
+            **audit_context(intent),
             path=args.audit_log,
         )
         print(_json({"submitted": False, "reason": "offline_cli_records_manual_confirmation_only", "is_executable": False}))

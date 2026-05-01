@@ -17,13 +17,23 @@ def append_audit_record(
     user_confirmed: bool,
     submitted: bool,
     tx_hash: str | None = None,
+    execution_type: str | None = None,
+    expected_fill_range: Mapping[str, object] | None = None,
+    liquidity_source: str | None = None,
+    decay_status: str | None = None,
+    user_acknowledged_risk: bool = False,
     path: str | Path = DEFAULT_AUDIT_PATH,
 ) -> dict[str, object]:
     record = {
+        "decay_status": str(decay_status or "unknown"),
+        "execution_type": str(execution_type or tx_type),
+        "expected_fill_range": _sorted(dict(expected_fill_range or {})),
         "intent_id": str(intent_id),
+        "liquidity_source": str(liquidity_source or "unknown"),
         "timestamp": datetime.now(tz=timezone.utc).isoformat(),
         "tx_type": str(tx_type),
         "tx_payload": _sorted(dict(tx_payload)),
+        "user_acknowledged_risk": bool(user_acknowledged_risk),
         "user_confirmed": bool(user_confirmed),
         "submitted": bool(submitted),
     }
