@@ -7,6 +7,7 @@ from typing import Mapping
 
 
 DEFAULT_AUDIT_PATH = Path(__file__).with_name("audit_log.jsonl")
+DEFAULT_LIFECYCLE_AUDIT_PATH = Path(__file__).with_name("lifecycle_audit_log.jsonl")
 
 
 def append_audit_record(
@@ -58,6 +59,30 @@ def read_audit_records(path: str | Path = DEFAULT_AUDIT_PATH) -> list[dict[str, 
         if isinstance(raw, dict):
             rows.append(raw)
     return rows
+
+
+def append_lifecycle_audit_record(
+    *,
+    event_type: str,
+    session_id: str,
+    intent_id: str,
+    tx_hash: str | None = None,
+    engine_result: str | None = None,
+    path: str | Path = DEFAULT_LIFECYCLE_AUDIT_PATH,
+) -> dict[str, object]:
+    record = {
+        "engine_result": str(engine_result) if engine_result else None,
+        "event_type": str(event_type),
+        "intent_id": str(intent_id),
+        "session_id": str(session_id),
+        "timestamp": datetime.now(tz=timezone.utc).isoformat(),
+        "tx_hash": str(tx_hash) if tx_hash else None,
+    }
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n")
+    return record
 
 
 def _sorted(raw: object) -> object:

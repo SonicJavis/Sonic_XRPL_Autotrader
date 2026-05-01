@@ -9,3 +9,5 @@ __pycache__/
 .vscode/
 *.db
 execution_prototype/audit_log.jsonl
+execution_prototype/lifecycle_audit_log.jsonl
+execution_prototype/payload_sessions.jsonl

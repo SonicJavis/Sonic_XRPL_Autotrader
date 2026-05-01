@@ -8,6 +8,16 @@ import pytest
 from execution_prototype.audit import append_audit_record, read_audit_records
 from execution_prototype.cli import main
 from execution_prototype.intent_contract import ensure_safety_gates, parse_intent, validate_safety_gates
+from execution_prototype.payload_session import (
+    create_session,
+    load_session,
+    mark_failed,
+    mark_signed,
+    mark_validated,
+    record_result,
+    record_submission,
+    stable_session_id,
+)
 from execution_prototype.submit import CONFIRMATION_PHRASE, require_manual_confirmation, submit_manual
 from execution_prototype.wizard import (
     RiskAcknowledgement,
@@ -20,6 +30,7 @@ from execution_prototype.wizard import (
 )
 from execution_prototype.xaman_payload import build_deep_link, build_xaman_payload
 from execution_prototype.xrpl_tx_builder import build_unsigned_transaction, transaction_fingerprint
+from execution_prototype.xrpl_lookup import check_tx
 
 
 def test_no_import_leakage_from_main_system() -> None:
@@ -291,6 +302,125 @@ def test_upgraded_risk_acknowledgement_requires_all_flags() -> None:
             price_impact_understood=True,
         )
     )
+
+
+def test_payload_session_id_is_deterministic(tmp_path) -> None:
+    intent = parse_intent(_intent(preferred_source="orderbook"))
+    tx = build_unsigned_transaction(intent)
+
+    first = create_session(intent, session_log=tmp_path / "sessions_a.jsonl", audit_log=tmp_path / "audit_a.jsonl")
+    second = create_session(intent, session_log=tmp_path / "sessions_b.jsonl", audit_log=tmp_path / "audit_b.jsonl")
+
+    assert first.session_id == second.session_id
+    assert first.session_id == stable_session_id(intent=intent, unsigned_tx=tx)
+    assert first.status == "created"
+    assert first.xrpl_state["submitted"] is False
+    assert first.xrpl_state["validated"] is False
+
+
+def test_payload_lifecycle_transitions_and_audit(tmp_path) -> None:
+    intent = parse_intent(_intent(preferred_source="amm"))
+    session_log = tmp_path / "sessions.jsonl"
+    audit_log = tmp_path / "lifecycle_audit.jsonl"
+
+    created = create_session(intent, session_log=session_log, audit_log=audit_log)
+    signed = mark_signed(created.session_id, session_log=session_log, audit_log=audit_log)
+    submitted = record_submission(signed.session_id, "ABC123", session_log=session_log, audit_log=audit_log)
+    result = record_result(
+        submitted.session_id,
+        "tesSUCCESS",
+        engine_result_message="manual user entry",
+        session_log=session_log,
+        audit_log=audit_log,
+    )
+    validated = mark_validated(result.session_id, ledger_index=12345, session_log=session_log, audit_log=audit_log)
+
+    assert validated.status == "validated"
+    assert validated.tx_hash == "ABC123"
+    assert validated.xrpl_state["engine_result"] == "tesSUCCESS"
+    assert validated.xrpl_state["validated"] is True
+    assert validated.xrpl_state["ledger_index"] == 12345
+    assert load_session(created.session_id, session_log=session_log).status == "validated"
+
+    events = [json.loads(line)["event_type"] for line in audit_log.read_text(encoding="utf-8").splitlines()]
+    assert events == [
+        "SESSION_CREATED",
+        "SESSION_SIGNED",
+        "SESSION_SUBMITTED",
+        "SESSION_RESULT_RECORDED",
+        "SESSION_VALIDATED",
+    ]
+
+
+def test_payload_invalid_transitions_are_rejected(tmp_path) -> None:
+    intent = parse_intent(_intent(preferred_source="orderbook"))
+    session_log = tmp_path / "sessions.jsonl"
+    audit_log = tmp_path / "audit.jsonl"
+    created = create_session(intent, session_log=session_log, audit_log=audit_log)
+
+    with pytest.raises(ValueError):
+        mark_validated(created.session_id, ledger_index=1, session_log=session_log, audit_log=audit_log)
+
+    signed = mark_signed(created.session_id, session_log=session_log, audit_log=audit_log)
+    failed = mark_failed(signed.session_id, engine_result="tecPATH_DRY", session_log=session_log, audit_log=audit_log)
+    assert failed.status == "failed"
+    assert failed.xrpl_state["engine_result"] == "tecPATH_DRY"
+
+    with pytest.raises(ValueError):
+        record_submission(failed.session_id, "AFTERFAIL", session_log=session_log, audit_log=audit_log)
+
+
+def test_xrpl_lookup_is_manual_only() -> None:
+    passive = check_tx("ABC123")
+    assert passive["checked"] is False
+    assert passive["is_executable"] is False
+
+    calls: list[str] = []
+
+    def manual_lookup(tx_hash: str) -> dict[str, object]:
+        calls.append(tx_hash)
+        return {"engine_result": "tecPATH_DRY", "validated": False, "ledger_index": 55}
+
+    checked = check_tx("ABC123", manual_lookup)
+    assert calls == ["ABC123"]
+    assert checked["checked"] is True
+    assert checked["engine_result"] == "tecPATH_DRY"
+
+
+def test_cli_payload_session_flow_is_manual_and_passive(tmp_path, capsys) -> None:
+    intent_file = tmp_path / "intent.json"
+    session_log = tmp_path / "sessions.jsonl"
+    audit_log = tmp_path / "audit.jsonl"
+    intent_file.write_text(json.dumps(_intent(preferred_source="orderbook")), encoding="utf-8")
+
+    assert (
+        main(
+            [
+                "create-session",
+                str(intent_file),
+                "--confirmation",
+                CONFIRMATION_PHRASE,
+                "--session-log",
+                str(session_log),
+                "--audit-log",
+                str(audit_log),
+            ]
+        )
+        == 0
+    )
+    created = json.loads(capsys.readouterr().out)
+    session_id = created["session_id"]
+
+    assert main(["mark-signed", session_id, "--confirmation", CONFIRMATION_PHRASE, "--session-log", str(session_log), "--audit-log", str(audit_log)]) == 0
+    assert main(["record-submission", session_id, "ABC123", "--confirmation", CONFIRMATION_PHRASE, "--session-log", str(session_log), "--audit-log", str(audit_log)]) == 0
+    assert main(["record-result", session_id, "tesSUCCESS", "--confirmation", CONFIRMATION_PHRASE, "--session-log", str(session_log), "--audit-log", str(audit_log)]) == 0
+    assert main(["mark-validated", session_id, "--ledger-index", "77", "--confirmation", CONFIRMATION_PHRASE, "--session-log", str(session_log), "--audit-log", str(audit_log)]) == 0
+    capsys.readouterr()
+    assert main(["show-session", session_id, "--confirmation", CONFIRMATION_PHRASE, "--session-log", str(session_log)]) == 0
+
+    shown = json.loads(capsys.readouterr().out)
+    assert shown["status"] == "validated"
+    assert shown["tx_hash"] == "ABC123"
 
 
 def _intent(
