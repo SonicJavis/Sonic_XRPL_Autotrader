@@ -43,6 +43,7 @@ def test_validation_intents_populated_contract_and_detail() -> None:
     assert intent["xrpl_context"]["validated"] is True
     assert "execution_estimates" in intent
     assert "execution_feasibility" in intent
+    assert "liquidity_source_model" in intent
     assert "fill_model" in intent
     assert "pathfinding" in intent
     assert 0.0 <= intent["execution_estimates"]["expected_fill_ratio"] <= 0.95
@@ -52,6 +53,11 @@ def test_validation_intents_populated_contract_and_detail() -> None:
     assert feasibility["route_type"] in {"direct", "xrp_bridge", "multi_hop", "none"}
     assert 0.0 <= feasibility["execution_feasibility_score"] <= 1.0
     assert feasibility["is_executable"] is False
+    liquidity = intent["liquidity_source_model"]
+    assert liquidity["schema_version"] == "1.0"
+    assert liquidity["liquidity_source"] in {"orderbook", "amm", "hybrid", "unknown"}
+    assert liquidity["preferred_source"] in {"orderbook", "amm", "unknown"}
+    assert liquidity["is_executable"] is False
     assert intent["is_executable"] is False
 
     detail = client.get(f"/validation/intents/{intent['intent_id']}").json()
@@ -87,6 +93,7 @@ def test_validation_intents_read_feasibility_idempotent_without_mutation() -> No
 
     assert first == second
     assert all("execution_feasibility" in row for row in first["intents"])
+    assert all("liquidity_source_model" in row for row in first["intents"])
 
 
 def _seed(app) -> int:

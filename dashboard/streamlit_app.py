@@ -997,6 +997,31 @@ def main() -> None:
     else:
         st.info("No feasibility rows available from current normalized liquidity snapshots.")
 
+    st.subheader("XRPL Liquidity Source")
+    st.warning("XRPL uses both orderbooks and AMMs")
+    st.warning("Best execution is not guaranteed")
+    st.warning("Liquidity conditions change per ledger")
+    st.warning("No execution is triggered from this panel")
+    liquidity_source_rows = [
+        {
+            "intent_id": row["intent_id"],
+            "source_type": row["liquidity_source_model"]["liquidity_source"],
+            "preferred_source": row["liquidity_source_model"]["preferred_source"],
+            "orderbook_score": row["liquidity_source_model"]["orderbook_score"],
+            "amm_score": row["liquidity_source_model"]["amm_score"],
+            "hybrid_score": row["liquidity_source_model"]["hybrid_score"],
+            "price_impact": row["liquidity_source_model"]["expected_price_impact"],
+            "fill_ratio": row["liquidity_source_model"]["expected_fill_ratio"],
+            "decision": row["liquidity_source_model"]["decision"],
+            "warnings": ", ".join(row["liquidity_source_model"]["liquidity_warnings"]),
+        }
+        for row in (intent.to_dict() for intent in simulated_intents)
+    ]
+    if liquidity_source_rows:
+        st.dataframe(liquidity_source_rows[:100], use_container_width=True)
+    else:
+        st.info("No liquidity source rows available from current snapshots.")
+
     st.subheader("Paper Execution Simulation (XRPL)")
     st.warning("Simulated XRPL execution only")
     st.warning("Routing and fills are not guaranteed")

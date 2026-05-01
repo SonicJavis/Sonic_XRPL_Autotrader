@@ -8,6 +8,7 @@ from math import isfinite
 from typing import Iterable, Mapping
 
 from app.xrpl.execution_feasibility import evaluate_execution_feasibility
+from app.xrpl.liquidity_source_model import evaluate_liquidity_sources
 from app.xrpl.orderbook_normalizer import normalize_book_offers
 from app.xrpl.pathfinding_model import evaluate_pathfinding_uncertainty
 
@@ -77,6 +78,7 @@ class XRPLOrderIntent:
     pathfinding: dict[str, object]
     fill_model: dict[str, object]
     execution_feasibility: dict[str, object]
+    liquidity_source_model: dict[str, object]
     is_shadow: bool = True
     is_advisory: bool = True
     is_executable: bool = False
@@ -98,6 +100,7 @@ class XRPLOrderIntent:
         data["pathfinding"] = _sanitize_mapping(data["pathfinding"])
         data["fill_model"] = _sanitize_mapping(data["fill_model"])
         data["execution_feasibility"] = _sanitize_mapping(data["execution_feasibility"])
+        data["liquidity_source_model"] = _sanitize_mapping(data["liquidity_source_model"])
         return {key: data[key] for key in sorted(data)}
 
 
@@ -157,6 +160,11 @@ def build_order_intent(
         requested_size=requested,
         confidence=confidence,
     )
+    liquidity_source_model = _snapshot_liquidity_source(
+        snapshot=snapshot,
+        requested_size=requested,
+        execution_feasibility=execution_feasibility,
+    )
     if execution_feasibility["decision"] == "avoid":
         action = "avoid"
         proposed_size = 0.0
@@ -204,6 +212,7 @@ def build_order_intent(
             "confidence_adjusted_fill": round(confidence_adjusted_fill, 6),
         },
         execution_feasibility=execution_feasibility,
+        liquidity_source_model=liquidity_source_model,
     )
     return intent
 
@@ -374,6 +383,58 @@ def _snapshot_feasibility(*, snapshot: XRPLIntentSnapshot, requested_size: float
         normalized_orderbooks=[book],
         pathfinding_result=path,
         signal_strength=confidence,
+    )
+
+
+def _snapshot_liquidity_source(
+    *,
+    snapshot: XRPLIntentSnapshot,
+    requested_size: float,
+    execution_feasibility: Mapping[str, object],
+) -> dict[str, object]:
+    source = {"currency": "XRP", "issuer": None}
+    destination = {"currency": snapshot.currency, "issuer": snapshot.issuer}
+    depth = min(snapshot.ask_depth_xrp, snapshot.bid_depth_xrp)
+    if (
+        not snapshot.validated
+        or not snapshot.snapshot_complete
+        or snapshot.recent_ledger_gap
+        or snapshot.best_ask <= 0.0
+        or depth <= 0.0
+    ):
+        path = {"selected_path": "none", "estimated_hops": 0, "failure_modes": ["NO_PATH_AVAILABLE"]}
+        return evaluate_liquidity_sources(
+            source_asset=source,
+            destination_asset=destination,
+            requested_size=requested_size,
+            normalized_orderbooks=[],
+            pathfinding_result=path,
+            execution_feasibility=execution_feasibility,
+            amm_snapshot=None,
+        )
+    book = normalize_book_offers(
+        [
+            {
+                "TakerGets": str(int(depth * 1_000_000)),
+                "TakerPays": {
+                    "currency": snapshot.currency,
+                    "issuer": snapshot.issuer,
+                    "value": str(depth / max(snapshot.best_ask, 1e-9)),
+                },
+                "owner": "snapshot_depth_proxy",
+            }
+        ],
+        spread_estimate=snapshot.spread_pct / 100.0,
+    )
+    path = evaluate_pathfinding_uncertainty([book], source, destination, requested_size)
+    return evaluate_liquidity_sources(
+        source_asset=source,
+        destination_asset=destination,
+        requested_size=requested_size,
+        normalized_orderbooks=[book],
+        pathfinding_result=path,
+        execution_feasibility=execution_feasibility,
+        amm_snapshot=None,
     )
 
 

@@ -39,6 +39,11 @@ def test_dashboard_live_observability_panel_is_review_only() -> None:
     assert "Scores are based on current normalized liquidity snapshot" in source
     assert "XRPL routing and fills are not guaranteed" in source
     assert "AMM/hybrid liquidity is not included until Phase 26.4" in source
+    assert "XRPL Liquidity Source" in source
+    assert "XRPL uses both orderbooks and AMMs" in source
+    assert "Best execution is not guaranteed" in source
+    assert "Liquidity conditions change per ledger" in source
+    assert "No execution is triggered from this panel" in source
     live_panel = source[source.index("XRPL Live Probabilistic Observatory") :]
     for phrase in ("execute trade", "auto trade", "wallet connect", "approve-and-apply"):
         assert phrase not in live_panel.lower()

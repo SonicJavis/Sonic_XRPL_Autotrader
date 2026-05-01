@@ -51,6 +51,7 @@ def test_low_liquidity_and_low_path_viability_avoid_behaviour() -> None:
     assert low_path["pathfinding"]["path_required"] is True
     assert low_path["pathfinding"]["path_viability_score"] < 0.35
     assert low_liquidity["execution_feasibility"]["decision"] == "avoid"
+    assert low_liquidity["liquidity_source_model"]["decision"] == "avoid"
 
 
 def test_high_signal_with_low_feasibility_downgrades_to_avoid() -> None:
@@ -63,6 +64,7 @@ def test_high_signal_with_low_feasibility_downgrades_to_avoid() -> None:
     assert body["action"] == "avoid"
     assert body["execution_feasibility"]["decision"] == "avoid"
     assert body["execution_feasibility"]["execution_feasibility_score"] < 0.40
+    assert body["liquidity_source_model"]["liquidity_source"] in {"orderbook", "unknown"}
 
 
 def test_partial_fill_model_is_bounded_and_never_assumes_full_fill() -> None:
@@ -73,6 +75,7 @@ def test_partial_fill_model_is_bounded_and_never_assumes_full_fill() -> None:
     assert 0.0 <= fill_model["confidence_adjusted_fill"] <= 1.0
     assert 0.0 <= body["execution_estimates"]["expected_fill_ratio"] <= 0.95
     assert 0.0 <= body["execution_feasibility"]["expected_fill_ratio"] <= 1.0
+    assert 0.0 <= body["liquidity_source_model"]["expected_fill_ratio"] <= 1.0
     assert _finite_json(body)
 
 

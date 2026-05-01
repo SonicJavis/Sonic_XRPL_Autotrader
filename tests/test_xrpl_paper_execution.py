@@ -69,6 +69,7 @@ def test_feasibility_context_caps_paper_fill() -> None:
 
     assert result["filled_size"] == 40.0
     assert result["execution_feasibility"]["decision"] == "marginal"
+    assert result["liquidity_source_model"]["is_executable"] is False
 
 
 def test_feasibility_avoid_blocks_paper_assumption() -> None:

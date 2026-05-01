@@ -48,6 +48,7 @@ class XRPLPaperExecutionResult:
     pathfinding: dict[str, object]
     issuer_friction: dict[str, object]
     execution_feasibility: dict[str, object]
+    liquidity_source_model: dict[str, object]
     is_shadow: bool = True
     is_advisory: bool = True
     is_executable: bool = False
@@ -66,6 +67,7 @@ class XRPLPaperExecutionResult:
         data["pathfinding"] = _sanitize_mapping(data["pathfinding"])
         data["issuer_friction"] = _sanitize_mapping(data["issuer_friction"])
         data["execution_feasibility"] = _sanitize_mapping(data["execution_feasibility"])
+        data["liquidity_source_model"] = _sanitize_mapping(data["liquidity_source_model"])
         data["is_shadow"] = True
         data["is_advisory"] = True
         data["is_executable"] = False
@@ -91,6 +93,7 @@ class XRPLPaperExecutionEngine:
         estimates = dict(intent.get("execution_estimates") or {}) if isinstance(intent.get("execution_estimates"), Mapping) else {}
         path = dict(intent.get("pathfinding") or {}) if isinstance(intent.get("pathfinding"), Mapping) else {}
         feasibility = dict(intent.get("execution_feasibility") or {}) if isinstance(intent.get("execution_feasibility"), Mapping) else {}
+        liquidity_source = dict(intent.get("liquidity_source_model") or {}) if isinstance(intent.get("liquidity_source_model"), Mapping) else {}
         expected_price = _non_negative(estimates.get("reference_price", estimates.get("expected_price", 0.0)))
         path_required = bool(path.get("path_required", False))
         path_viability = _unit(path.get("path_viability_score", 1.0), default=1.0)
@@ -194,6 +197,7 @@ class XRPLPaperExecutionEngine:
                 "trustline_available": bool(trustline_available),
             },
             execution_feasibility=_simulation_feasibility_context(feasibility),
+            liquidity_source_model=_simulation_liquidity_context(liquidity_source),
         )
         return result
 
@@ -284,6 +288,42 @@ def _simulation_feasibility_context(feasibility: Mapping[str, object]) -> dict[s
         "expected_slippage": _unit(feasibility.get("expected_slippage", 0.0)),
         "weakest_hop_capacity": _non_negative(feasibility.get("weakest_hop_capacity", 0.0)),
         "avoid_reason": feasibility.get("avoid_reason"),
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
+    }
+
+
+def _simulation_liquidity_context(liquidity_source: Mapping[str, object]) -> dict[str, object]:
+    if not liquidity_source:
+        return {
+            "schema_version": "1.0",
+            "liquidity_source": "unknown",
+            "preferred_source": "unknown",
+            "orderbook_score": 0.0,
+            "amm_score": 0.0,
+            "hybrid_score": 0.0,
+            "expected_price_impact": 1.0,
+            "expected_fill_ratio": 0.0,
+            "decision": "avoid",
+            "avoid_reason": "missing_liquidity_source_context",
+            "is_shadow": True,
+            "is_advisory": True,
+            "is_executable": False,
+            "is_truth": False,
+        }
+    return {
+        "schema_version": str(liquidity_source.get("schema_version", "1.0")),
+        "liquidity_source": str(liquidity_source.get("liquidity_source", "unknown")),
+        "preferred_source": str(liquidity_source.get("preferred_source", "unknown")),
+        "orderbook_score": _unit(liquidity_source.get("orderbook_score", 0.0)),
+        "amm_score": _unit(liquidity_source.get("amm_score", 0.0)),
+        "hybrid_score": _unit(liquidity_source.get("hybrid_score", 0.0)),
+        "expected_price_impact": _unit(liquidity_source.get("expected_price_impact", 1.0), default=1.0),
+        "expected_fill_ratio": _unit(liquidity_source.get("expected_fill_ratio", 0.0)),
+        "decision": str(liquidity_source.get("decision", "avoid")),
+        "avoid_reason": liquidity_source.get("avoid_reason"),
         "is_shadow": True,
         "is_advisory": True,
         "is_executable": False,
