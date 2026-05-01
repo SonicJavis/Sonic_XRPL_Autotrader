@@ -25,3 +25,5 @@ The main integration branch now contains the consolidated code for Phases 30 thr
 ## Current Readiness
 - Live Trading: 0/100
 - Paper Trading Autonomy: Fully Integrated
+
+⚠️ **Legacy scaffold branch `copilot/create-project-scaffold` is historical only and contains unsafe wallet/signing code – do not merge.**
