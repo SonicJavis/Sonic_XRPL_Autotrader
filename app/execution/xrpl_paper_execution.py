@@ -49,6 +49,7 @@ class XRPLPaperExecutionResult:
     issuer_friction: dict[str, object]
     execution_feasibility: dict[str, object]
     liquidity_source_model: dict[str, object]
+    liquidity_decay: dict[str, object]
     is_shadow: bool = True
     is_advisory: bool = True
     is_executable: bool = False
@@ -68,6 +69,7 @@ class XRPLPaperExecutionResult:
         data["issuer_friction"] = _sanitize_mapping(data["issuer_friction"])
         data["execution_feasibility"] = _sanitize_mapping(data["execution_feasibility"])
         data["liquidity_source_model"] = _sanitize_mapping(data["liquidity_source_model"])
+        data["liquidity_decay"] = _sanitize_mapping(data["liquidity_decay"])
         data["is_shadow"] = True
         data["is_advisory"] = True
         data["is_executable"] = False
@@ -94,6 +96,7 @@ class XRPLPaperExecutionEngine:
         path = dict(intent.get("pathfinding") or {}) if isinstance(intent.get("pathfinding"), Mapping) else {}
         feasibility = dict(intent.get("execution_feasibility") or {}) if isinstance(intent.get("execution_feasibility"), Mapping) else {}
         liquidity_source = dict(intent.get("liquidity_source_model") or {}) if isinstance(intent.get("liquidity_source_model"), Mapping) else {}
+        liquidity_decay = dict(intent.get("liquidity_decay") or {}) if isinstance(intent.get("liquidity_decay"), Mapping) else {}
         expected_price = _non_negative(estimates.get("reference_price", estimates.get("expected_price", 0.0)))
         path_required = bool(path.get("path_required", False))
         path_viability = _unit(path.get("path_viability_score", 1.0), default=1.0)
@@ -110,6 +113,8 @@ class XRPLPaperExecutionEngine:
         failure_reason = ""
         path_used = "direct"
         if action == "avoid":
+            failure_reason = "constraint"
+        elif liquidity_decay.get("decision") in {"stale", "invalid"}:
             failure_reason = "constraint"
         elif feasibility.get("decision") == "avoid":
             failure_reason = "constraint"
@@ -198,6 +203,7 @@ class XRPLPaperExecutionEngine:
             },
             execution_feasibility=_simulation_feasibility_context(feasibility),
             liquidity_source_model=_simulation_liquidity_context(liquidity_source),
+            liquidity_decay=_simulation_decay_context(liquidity_decay),
         )
         return result
 
@@ -324,6 +330,42 @@ def _simulation_liquidity_context(liquidity_source: Mapping[str, object]) -> dic
         "expected_fill_ratio": _unit(liquidity_source.get("expected_fill_ratio", 0.0)),
         "decision": str(liquidity_source.get("decision", "avoid")),
         "avoid_reason": liquidity_source.get("avoid_reason"),
+        "is_shadow": True,
+        "is_advisory": True,
+        "is_executable": False,
+        "is_truth": False,
+    }
+
+
+def _simulation_decay_context(liquidity_decay: Mapping[str, object]) -> dict[str, object]:
+    if not liquidity_decay:
+        return {
+            "schema_version": "1.0",
+            "snapshot_age_ledgers": 0,
+            "snapshot_age_seconds": None,
+            "staleness_score": 1.0,
+            "decay_factor": 0.0,
+            "decayed_feasibility_score": 0.0,
+            "decayed_fill_confidence": 0.0,
+            "stale": True,
+            "decision": "invalid",
+            "warnings": ["missing_decay_context"],
+            "is_shadow": True,
+            "is_advisory": True,
+            "is_executable": False,
+            "is_truth": False,
+        }
+    return {
+        "schema_version": str(liquidity_decay.get("schema_version", "1.0")),
+        "snapshot_age_ledgers": max(0, int(_finite(liquidity_decay.get("snapshot_age_ledgers", 0)))),
+        "snapshot_age_seconds": liquidity_decay.get("snapshot_age_seconds"),
+        "staleness_score": _unit(liquidity_decay.get("staleness_score", 0.0)),
+        "decay_factor": _unit(liquidity_decay.get("decay_factor", 0.0)),
+        "decayed_feasibility_score": _unit(liquidity_decay.get("decayed_feasibility_score", 0.0)),
+        "decayed_fill_confidence": _unit(liquidity_decay.get("decayed_fill_confidence", 0.0)),
+        "stale": bool(liquidity_decay.get("stale", False)),
+        "decision": str(liquidity_decay.get("decision", "invalid")),
+        "warnings": sorted(str(item) for item in liquidity_decay.get("warnings", []) if str(item)) if isinstance(liquidity_decay.get("warnings"), list) else [],
         "is_shadow": True,
         "is_advisory": True,
         "is_executable": False,

@@ -509,7 +509,13 @@ def _build_intents(request: Request, *, limit: int, requested_size: float) -> li
             select(XRPLOrderbookSnapshot).order_by(XRPLOrderbookSnapshot.ledger_index.desc(), XRPLOrderbookSnapshot.id.desc()).limit(5000)
         ).all()
     snapshots_by_token: dict[int, XRPLIntentSnapshot] = {}
+    current_ledger_index = 0
+    current_ledger_time: int | None = None
     for snapshot in latest_snapshots:
+        if int(snapshot.ledger_index) > current_ledger_index:
+            current_ledger_index = int(snapshot.ledger_index)
+            if isinstance(snapshot.observed_at, datetime):
+                current_ledger_time = int(snapshot.observed_at.astimezone(timezone.utc).timestamp())
         token_id = int(snapshot.token_id)
         if token_id in snapshots_by_token:
             continue
@@ -523,6 +529,8 @@ def _build_intents(request: Request, *, limit: int, requested_size: float) -> li
         recommendations=recommendations,
         snapshots_by_token=snapshots_by_token,
         requested_size=max(0.0, _finite(requested_size)),
+        current_ledger_index=current_ledger_index,
+        current_ledger_time=current_ledger_time,
     )
 
 

@@ -46,6 +46,9 @@ def test_validation_simulations_populated_contract_and_detail() -> None:
     assert "liquidity_source_model" in simulation
     assert simulation["liquidity_source_model"]["schema_version"] == "1.0"
     assert simulation["liquidity_source_model"]["is_executable"] is False
+    assert "liquidity_decay" in simulation
+    assert simulation["liquidity_decay"]["schema_version"] == "1.0"
+    assert simulation["liquidity_decay"]["is_executable"] is False
     assert 0.0 <= simulation["fill_ratio"] <= 1.0
     assert simulation["is_executable"] is False
 
@@ -84,6 +87,7 @@ def test_validation_simulations_read_feasibility_idempotent_without_mutation() -
     assert first == second
     assert all("execution_feasibility" in row for row in first["simulations"])
     assert all("liquidity_source_model" in row for row in first["simulations"])
+    assert all("liquidity_decay" in row for row in first["simulations"])
 
 
 def _seed(app) -> None:

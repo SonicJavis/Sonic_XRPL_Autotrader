@@ -976,7 +976,7 @@ def main() -> None:
     st.warning("No execution can be triggered from this panel")
     st.warning("Scores are based on current normalized liquidity snapshot")
     st.warning("XRPL routing and fills are not guaranteed")
-    st.warning("AMM/hybrid liquidity is not included until Phase 26.4")
+    st.warning("AMM/hybrid liquidity is modelled as advisory context only")
     feasibility_rows = [
         {
             "intent_id": row["intent_id"],
@@ -1021,6 +1021,28 @@ def main() -> None:
         st.dataframe(liquidity_source_rows[:100], use_container_width=True)
     else:
         st.info("No liquidity source rows available from current snapshots.")
+
+    st.subheader("XRPL Liquidity Freshness")
+    st.warning("XRPL data validity is ledger-based")
+    st.warning("Liquidity decays with ledger progression")
+    st.warning("AMM liquidity changes rapidly per ledger")
+    st.warning("No execution is triggered from this panel")
+    freshness_rows = [
+        {
+            "intent_id": row["intent_id"],
+            "ledger_age": row["liquidity_decay"]["snapshot_age_ledgers"],
+            "decay_factor": row["liquidity_decay"]["decay_factor"],
+            "decayed_feasibility": row["liquidity_decay"]["decayed_feasibility_score"],
+            "decayed_fill_confidence": row["liquidity_decay"]["decayed_fill_confidence"],
+            "decision": row["liquidity_decay"]["decision"],
+            "warnings": ", ".join(row["liquidity_decay"]["warnings"]),
+        }
+        for row in (intent.to_dict() for intent in simulated_intents)
+    ]
+    if freshness_rows:
+        st.dataframe(freshness_rows[:100], use_container_width=True)
+    else:
+        st.info("No freshness rows available from current ledger snapshots.")
 
     st.subheader("Paper Execution Simulation (XRPL)")
     st.warning("Simulated XRPL execution only")

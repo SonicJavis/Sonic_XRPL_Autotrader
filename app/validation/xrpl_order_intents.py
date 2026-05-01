@@ -8,6 +8,7 @@ from math import isfinite
 from typing import Iterable, Mapping
 
 from app.xrpl.execution_feasibility import evaluate_execution_feasibility
+from app.xrpl.liquidity_decay import evaluate_liquidity_decay
 from app.xrpl.liquidity_source_model import evaluate_liquidity_sources
 from app.xrpl.orderbook_normalizer import normalize_book_offers
 from app.xrpl.pathfinding_model import evaluate_pathfinding_uncertainty
@@ -79,6 +80,7 @@ class XRPLOrderIntent:
     fill_model: dict[str, object]
     execution_feasibility: dict[str, object]
     liquidity_source_model: dict[str, object]
+    liquidity_decay: dict[str, object]
     is_shadow: bool = True
     is_advisory: bool = True
     is_executable: bool = False
@@ -101,6 +103,7 @@ class XRPLOrderIntent:
         data["fill_model"] = _sanitize_mapping(data["fill_model"])
         data["execution_feasibility"] = _sanitize_mapping(data["execution_feasibility"])
         data["liquidity_source_model"] = _sanitize_mapping(data["liquidity_source_model"])
+        data["liquidity_decay"] = _sanitize_mapping(data["liquidity_decay"])
         return {key: data[key] for key in sorted(data)}
 
 
@@ -111,6 +114,11 @@ def build_order_intent(
     requested_size: float = 100.0,
     liquidity_threshold: float = 0.20,
     path_threshold: float = 0.35,
+    current_ledger_index: int | None = None,
+    current_ledger_time: int | None = None,
+    recent_gap_count: int = 0,
+    recent_duplicate_count: int = 0,
+    recent_latency_ms: float | None = None,
 ) -> XRPLOrderIntent:
     scope = recommendation.get("scope") if isinstance(recommendation.get("scope"), Mapping) else {}
     scope_map = dict(scope)
@@ -165,11 +173,33 @@ def build_order_intent(
         requested_size=requested,
         execution_feasibility=execution_feasibility,
     )
+    snapshot_ledger_time = int(_utc(snapshot.ledger_time).timestamp())
+    liquidity_decay = evaluate_liquidity_decay(
+        snapshot_ledger_index=int(snapshot.ledger_index),
+        snapshot_ledger_time=snapshot_ledger_time,
+        current_ledger_index=int(snapshot.ledger_index if current_ledger_index is None else current_ledger_index),
+        current_ledger_time=snapshot_ledger_time if current_ledger_time is None else current_ledger_time,
+        processing_time=None,
+        execution_feasibility=execution_feasibility,
+        liquidity_source_model=liquidity_source_model,
+        recent_gap_count=recent_gap_count,
+        recent_duplicate_count=recent_duplicate_count,
+        recent_latency_ms=recent_latency_ms,
+    )
     if execution_feasibility["decision"] == "avoid":
         action = "avoid"
         proposed_size = 0.0
         confidence = min(confidence, float(execution_feasibility["execution_feasibility_score"]))
         confidence_adjusted_fill = min(confidence_adjusted_fill, float(execution_feasibility["expected_fill_ratio"]))
+    if liquidity_decay["decision"] in {"stale", "invalid"}:
+        action = "avoid"
+        proposed_size = 0.0
+        confidence = min(confidence, float(liquidity_decay["decayed_feasibility_score"]))
+        confidence_adjusted_fill = min(confidence_adjusted_fill, float(liquidity_decay["decayed_fill_confidence"]))
+    elif liquidity_decay["decision"] == "degraded":
+        confidence = min(confidence, float(liquidity_decay["decayed_feasibility_score"]))
+        proposed_size *= float(liquidity_decay["decay_factor"])
+        confidence_adjusted_fill = min(confidence_adjusted_fill, float(liquidity_decay["decayed_fill_confidence"]))
     intent = XRPLOrderIntent(
         intent_id="",
         schema_version=ORDER_INTENT_SCHEMA_VERSION,
@@ -213,6 +243,7 @@ def build_order_intent(
         },
         execution_feasibility=execution_feasibility,
         liquidity_source_model=liquidity_source_model,
+        liquidity_decay=liquidity_decay,
     )
     return intent
 
@@ -223,6 +254,11 @@ def build_order_intents(
     snapshots_by_token: Mapping[int, XRPLIntentSnapshot],
     requested_size: float = 100.0,
     recent_ledger_gap: bool = False,
+    current_ledger_index: int | None = None,
+    current_ledger_time: int | None = None,
+    recent_gap_count: int = 0,
+    recent_duplicate_count: int = 0,
+    recent_latency_ms: float | None = None,
 ) -> list[XRPLOrderIntent]:
     rows: list[XRPLOrderIntent] = []
     seen: set[str] = set()
@@ -248,7 +284,16 @@ def build_order_intents(
                 recent_ledger_gap=True,
                 snapshot_complete=snapshot.snapshot_complete,
             )
-        intent = build_order_intent(recommendation=recommendation, snapshot=snapshot, requested_size=requested_size)
+        intent = build_order_intent(
+            recommendation=recommendation,
+            snapshot=snapshot,
+            requested_size=requested_size,
+            current_ledger_index=current_ledger_index,
+            current_ledger_time=current_ledger_time,
+            recent_gap_count=recent_gap_count,
+            recent_duplicate_count=recent_duplicate_count,
+            recent_latency_ms=recent_latency_ms,
+        )
         intent_id = intent.to_dict()["intent_id"]
         if intent_id in seen:
             continue

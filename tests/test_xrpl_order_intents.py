@@ -52,6 +52,7 @@ def test_low_liquidity_and_low_path_viability_avoid_behaviour() -> None:
     assert low_path["pathfinding"]["path_viability_score"] < 0.35
     assert low_liquidity["execution_feasibility"]["decision"] == "avoid"
     assert low_liquidity["liquidity_source_model"]["decision"] == "avoid"
+    assert low_liquidity["liquidity_decay"]["is_executable"] is False
 
 
 def test_high_signal_with_low_feasibility_downgrades_to_avoid() -> None:
@@ -65,6 +66,19 @@ def test_high_signal_with_low_feasibility_downgrades_to_avoid() -> None:
     assert body["execution_feasibility"]["decision"] == "avoid"
     assert body["execution_feasibility"]["execution_feasibility_score"] < 0.40
     assert body["liquidity_source_model"]["liquidity_source"] in {"orderbook", "unknown"}
+    assert body["liquidity_decay"]["decision"] in {"fresh", "degraded", "stale", "invalid"}
+
+
+def test_stale_liquidity_decay_downgrades_intent_to_avoid() -> None:
+    body = build_order_intent(
+        recommendation=_recommendation(),
+        snapshot=_snapshot(),
+        current_ledger_index=520,
+    ).to_dict()
+
+    assert body["action"] == "avoid"
+    assert body["proposed_size"] == 0.0
+    assert body["liquidity_decay"]["decision"] == "invalid"
 
 
 def test_partial_fill_model_is_bounded_and_never_assumes_full_fill() -> None:
@@ -76,6 +90,7 @@ def test_partial_fill_model_is_bounded_and_never_assumes_full_fill() -> None:
     assert 0.0 <= body["execution_estimates"]["expected_fill_ratio"] <= 0.95
     assert 0.0 <= body["execution_feasibility"]["expected_fill_ratio"] <= 1.0
     assert 0.0 <= body["liquidity_source_model"]["expected_fill_ratio"] <= 1.0
+    assert 0.0 <= body["liquidity_decay"]["decay_factor"] <= 1.0
     assert _finite_json(body)
 
 
