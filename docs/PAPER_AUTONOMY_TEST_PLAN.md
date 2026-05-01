@@ -19,7 +19,9 @@ To validate the 7-day autonomous paper trading integration from Phase 36.
 - The test must not trigger live API connections.
 - The output files must be append-only.
 
-## Phase 37 & 38 Extensions
+## Phase 37, 38 & 39 Extensions
 - Run strategy performance tournaments on offline mock fixtures.
 - Evaluate the Operator Trust Score deterministically.
 - Verify `allow_paper` or `halt_paper` conditions mathematically.
+- Aggregate all state to `campaign_dashboard_data.json`.
+- Visualize via Phase 39 Streamlit operator dashboard.

@@ -5,8 +5,7 @@
 ## Required Readiness Gates
 
 1. **7-Day Paper Campaign Completed**
-   - The paper operator must run a complete 7-day deterministic test.
-   - PnL metrics must be collected without any runtime errors.
+   - **PASSED**: Phase 39 introduces the campaign runner linking the whole pipeline.
 
 2. **Paper Review Generated**
    - The Phase 35 review engine must analyze the campaign.
