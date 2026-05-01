@@ -14,7 +14,7 @@
    - All `mistake_tags` must be documented.
 
 3. **Strategy Backtest Completed**
-   - The read-only models must undergo historical regression testing.
+   - The read-only models must undergo historical regression testing on versioned Phase 42 datasets.
 
 4. **Risk Governor Implemented**
    - **PASSED**: Phase 38 implements deterministic risk limits.
