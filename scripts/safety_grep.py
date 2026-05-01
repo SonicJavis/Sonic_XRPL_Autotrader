@@ -62,7 +62,8 @@ WHITELIST = {
     'wallet_seed': "Config property name, properly masked",
     'Execution boundary is fail-closed': "Execution guard warning string",
     'observed liquidity is not executable': "Observation string",
-    'WalletInfo': "Class name for safe read-only info wrapper"
+    'WalletInfo': "Class name for safe read-only info wrapper",
+    'safety_statement': "Phase 39 Dashboard safety text string"
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

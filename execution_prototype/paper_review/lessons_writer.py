@@ -30,7 +30,8 @@ def _write_markdown(path: Path, trades: List[PaperTradeHistory], review: Perform
         f.write("## 1. Campaign Overview\n")
         f.write(f"- **Campaign ID**: {review.campaign_id}\n")
         f.write(f"- **Total Trades**: {review.total_trades}\n")
-        f.write(f"- **Win Rate**: {review.win_rate:.2f}% if {review.win_rate is not None} else 'N/A'\n")
+        wr_str = f"{review.win_rate:.2f}%" if review.win_rate is not None else "N/A"
+        f.write(f"- **Win Rate**: {wr_str}\n")
         f.write(f"- **Wins/Losses/Breakevens**: {review.wins}/{review.losses}/{review.breakevens}\n")
         f.write(f"- **Unknown Outcomes**: {review.unknown_outcomes}\n\n")
         

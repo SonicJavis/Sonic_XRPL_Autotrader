@@ -1,7 +1,8 @@
 # System State
 
 ## Active Phases
-- **Phase 38**: Risk Governor + Operator Trust Layer. (CURRENT)
+- **Phase 39**: Operator Trust Dashboard + 7-Day Paper Campaign Runner (CURRENT)
+- **Phase 38**: Risk Governor + Operator Trust Layer.
 - **Phase 37**: Strategy Performance Engine + Backtest Tournament.
 - **Phase 36**: Integrated 7-Day Autonomous PAPER Trading Operator.
 - **Phase 35**: Paper Review Layer
