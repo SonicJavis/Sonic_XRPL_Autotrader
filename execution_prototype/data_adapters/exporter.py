@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Any
-from dataclasses import as_dict
+from dataclasses import asdict
 
 def export_fixtures(
     output_dir: Path,
@@ -17,7 +17,7 @@ def export_fixtures(
     # Write Raw Records
     with open(out_path / "raw_source_records.jsonl", "w") as f:
         for r in raw_records:
-            f.write(json.dumps(as_dict(r)) + "\n")
+            f.write(json.dumps(asdict(r)) + "\n")
             
     # Write Normalized Fixtures (Phase 40 compatible)
     # Group by fixture type
@@ -38,6 +38,6 @@ def export_fixtures(
                 
     # Write Summary
     with open(out_path / "adapter_run_summary.json", "w") as f:
-        json.dump(as_dict(summary), f, indent=2)
+        json.dump(asdict(summary), f, indent=2)
         
     return out_path
