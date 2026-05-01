@@ -1,0 +1,73 @@
+name: XRPL Safety CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest pydantic fastjsonschema
+      - name: Run pytest
+        run: |
+          python -m pytest execution_prototype/ --junitxml=pytest-report.xml
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-results
+          path: pytest-report.xml
+
+  safety-grep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Run Safety Grep
+        run: |
+          python scripts/safety_grep.py
+
+  deterministic-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install pytest pydantic
+      - name: Run Deterministic Checks
+        run: |
+          python -m pytest execution_prototype/tests/test_reconciliation.py::test_deterministic_ids
+          python -m pytest execution_prototype/tests/test_calibration_recommendations.py::test_deterministic_ids
+
+  report-artifacts:
+    needs: [test, safety-grep, deterministic-check]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Upload Safety Check summary
+        run: echo "Safety Check and Tests Completed." > safety_summary.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: safety-summary
+          path: safety_summary.txt
