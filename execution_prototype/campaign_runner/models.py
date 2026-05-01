@@ -95,6 +95,7 @@ class CampaignDashboardData:
     protocol_context: List[str]
     limitations: List[str]
     safety_statement: str
+    market_fixture_summary: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -108,5 +109,6 @@ class CampaignDashboardData:
             "trade_journal_preview": self.trade_journal_preview,
             "protocol_context": self.protocol_context,
             "limitations": self.limitations,
-            "safety_statement": self.safety_statement
+            "safety_statement": self.safety_statement,
+            "market_fixture_summary": self.market_fixture_summary
         }

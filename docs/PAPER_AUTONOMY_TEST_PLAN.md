@@ -25,3 +25,4 @@ To validate the 7-day autonomous paper trading integration from Phase 36.
 - Verify `allow_paper` or `halt_paper` conditions mathematically.
 - Aggregate all state to `campaign_dashboard_data.json`.
 - Visualize via Phase 39 Streamlit operator dashboard.
+- Enrich paper positions with Phase 40 Historical Market Fixtures (Mark-to-Market).
