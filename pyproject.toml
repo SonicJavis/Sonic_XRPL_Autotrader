@@ -35,6 +35,6 @@ dashboard = "dashboard.streamlit_app:main"
 include = ["app*", "dashboard*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "execution_prototype/tests"]
 pythonpath = ["."]
 addopts = "-q"
