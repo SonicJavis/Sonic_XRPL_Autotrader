@@ -26,3 +26,4 @@ To validate the 7-day autonomous paper trading integration from Phase 36.
 - Aggregate all state to `campaign_dashboard_data.json`.
 - Visualize via Phase 39 Streamlit operator dashboard.
 - Enrich paper positions with Phase 40 Historical Market Fixtures (Mark-to-Market).
+- Collect and normalize historical fixtures via Phase 41 Read-Only Adapters.
