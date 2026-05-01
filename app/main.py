@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
 
 from app.alpha.engine import AlphaEngine
@@ -30,6 +31,8 @@ from app.risk.kill_switch import KillSwitch
 from app.risk.risk_manager import RiskManager
 from app.strategies.new_token_scanner import NewTokenScannerStrategy
 from app.strategies.strategy_registry import StrategyRegistry
+from app.config.runtime_mode import validate_runtime_or_raise
+from app.security.auth import APIAuthMiddleware
 from app.xrpl_core.client import XRPLReadOnlyClient
 
 
@@ -61,10 +64,21 @@ class AppContainer:
 
 def create_app() -> FastAPI:
     settings = Settings()
+    runtime_profile = validate_runtime_or_raise(settings)
     init_db()
 
-    app = FastAPI(title="Sonic XRPL Autotrader API", version="0.2.0")
+    app = FastAPI(title="Sonic XRPL Intelligence API", version="0.2.0", debug=runtime_profile.debug)
     app.state.container = AppContainer(settings)
+    app.state.runtime_profile = runtime_profile
+    if runtime_profile.allowed_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=list(runtime_profile.allowed_origins),
+            allow_credentials=False,
+            allow_methods=["GET", "POST", "OPTIONS"],
+            allow_headers=["Authorization", "X-API-Token", "Content-Type"],
+        )
+    app.add_middleware(APIAuthMiddleware, settings=settings, profile=runtime_profile)
     initialize_xrpl_ingestion(app)
 
     app.include_router(health_router)

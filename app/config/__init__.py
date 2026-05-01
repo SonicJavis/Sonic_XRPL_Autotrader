@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     LIVE_TRADING_ENABLED: bool = False
     EXECUTION_ENABLED: bool = False
     ALLOW_REMOTE_ACCESS: bool = False
+    ENV_MODE: str = "LOCAL_DEV"
+    DEBUG: bool = False
+    API_AUTH_TOKEN: SecretStr | None = Field(default=None, repr=False)
+    ALLOWED_ORIGINS: str = "http://localhost:8501,http://127.0.0.1:8501"
+    API_RATE_LIMIT_PER_MINUTE: int = Field(default=120, ge=1)
 
     XRPL_RPC_URL: str = "https://s1.ripple.com:51234"
     XRPL_WS_URL: str = "wss://s1.ripple.com"

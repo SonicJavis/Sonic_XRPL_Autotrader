@@ -59,11 +59,23 @@ from app.risk.kill_switch import KillSwitch
 
 def main() -> None:
     settings = Settings()
-    init_db()
 
     st.set_page_config(page_title="Sonic XRPL Autotrader", page_icon="S", layout="wide")
     st.title("Sonic XRPL Autotrader Dashboard")
     st.caption("Paper/scanner visibility dashboard. Live trading controls are intentionally disabled.")
+    st.warning("Validated XRPL data only")
+    st.warning("Execution disabled in hosted mode")
+    st.warning("No wallet or signing capability available")
+    st.warning("All outputs are advisory")
+    st.caption(f"Runtime mode: {settings.ENV_MODE}")
+    if str(settings.ENV_MODE).upper() == "PRODUCTION":
+        supplied_token = st.text_input("API access token", type="password")
+        expected_token = settings.API_AUTH_TOKEN.get_secret_value() if settings.API_AUTH_TOKEN else ""
+        if not expected_token or supplied_token != expected_token:
+            st.error("Authentication required before loading hosted dashboard data.")
+            st.stop()
+
+    init_db()
 
     kill_switch = KillSwitch()
 

@@ -48,6 +48,10 @@ def test_dashboard_live_observability_panel_is_review_only() -> None:
     assert "XRPL data validity is ledger-based" in source
     assert "Liquidity decays with ledger progression" in source
     assert "AMM liquidity changes rapidly per ledger" in source
+    assert "Validated XRPL data only" in source
+    assert "Execution disabled in hosted mode" in source
+    assert "No wallet or signing capability available" in source
+    assert "All outputs are advisory" in source
     live_panel = source[source.index("XRPL Live Probabilistic Observatory") :]
     for phrase in ("execute trade", "auto trade", "wallet connect", "approve-and-apply"):
         assert phrase not in live_panel.lower()

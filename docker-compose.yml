@@ -1,0 +1,32 @@
+services:
+  api:
+    build: .
+    env_file:
+      - .env
+    environment:
+      ENV_MODE: ${ENV_MODE:-PRODUCTION}
+      EXECUTION_ENABLED: "false"
+      LIVE_TRADING_ENABLED: "false"
+      XRPL_INGESTION_ENABLED: ${XRPL_INGESTION_ENABLED:-false}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./sonic_autotrader.db:/app/sonic_autotrader.db
+    restart: unless-stopped
+
+  dashboard:
+    build: .
+    command: ["streamlit", "run", "dashboard/streamlit_app.py", "--server.address=0.0.0.0", "--server.port=8501"]
+    env_file:
+      - .env
+    environment:
+      ENV_MODE: ${ENV_MODE:-PRODUCTION}
+      EXECUTION_ENABLED: "false"
+      LIVE_TRADING_ENABLED: "false"
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./sonic_autotrader.db:/app/sonic_autotrader.db
+    depends_on:
+      - api
+    restart: unless-stopped
