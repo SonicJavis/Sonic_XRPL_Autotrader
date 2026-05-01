@@ -1,7 +1,8 @@
 # System State
 
 ## Active Phases
-- **Phase 41**: Read-Only Historical Data Collection Adapter (CURRENT)
+- **Phase 42**: Historical Backtest Dataset Builder (CURRENT)
+- **Phase 41**: Read-Only Historical Data Collection Adapter
 - **Phase 40**: Historical Market Fixture Engine + Paper Mark-to-Market Enrichment (CURRENT BASELINE)
 - **Phase 39**: Operator Trust Dashboard + 7-Day Paper Campaign Runner.
 - **Phase 37**: Strategy Performance Engine + Backtest Tournament.

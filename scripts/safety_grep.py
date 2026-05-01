@@ -64,7 +64,8 @@ WHITELIST = {
     'observed liquidity is not executable': "Observation string",
     'WalletInfo': "Class name for safe read-only info wrapper",
     'safety_statement': "Phase 39 Dashboard safety text string",
-    'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.': "Phase 41 adapter report safety text"
+    'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.': "Phase 41 adapter report safety text",
+    'It does not contain signing logic, private keys, or submission primitives': "Phase 42 dataset report safety text"
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

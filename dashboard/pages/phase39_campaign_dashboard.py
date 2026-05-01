@@ -104,5 +104,29 @@ def main():
         if mq.get("warnings"):
             st.warning(f"Fixture Warnings: {', '.join(mq.get('warnings'))}")
             
+    # 9. Backtest Dataset Quality (Phase 42 Optional)
+    ds_info = dash.get("backtest_dataset_summary")
+    if ds_info:
+        st.header("9. Backtest Dataset Quality (Phase 42)")
+        dq = ds_info.get("quality_report", {})
+        dm = ds_info.get("manifest", {})
+        
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Dataset Quality", dq.get("quality_score", "N/A"))
+        col2.metric("Assets", dm.get("asset_count", 0))
+        col3.metric("Candidates", dm.get("candidate_count", 0))
+        col4.metric("Leakage Events", dq.get("future_leakage_count", 0))
+        
+        st.write(f"**Dataset ID:** `{dm.get('dataset_id')}`")
+        st.write(f"**Version:** {dm.get('dataset_version')}")
+        st.write(f"**Split Strategy:** {dm.get('split_strategy')}")
+        
+        if dq.get("critical_issues"):
+            st.error(f"Critical Issues: {', '.join(dq.get('critical_issues'))}")
+        if dq.get("warnings"):
+            st.warning(f"Dataset Warnings: {', '.join(dq.get('warnings'))}")
+        if dm.get("limitations"):
+            st.info(f"Dataset Limitations: {', '.join(dm.get('limitations'))}")
+
 if __name__ == "__main__":
     main()
