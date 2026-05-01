@@ -7,6 +7,7 @@
 1. **7-Day Paper Campaign Completed**
    - **PASSED**: Phase 39 introduces the campaign runner linking the whole pipeline.
    - **ENHANCED**: Phase 40 adds historical price/liquidity truth for accurate MtM valuation.
+   - **ROBUST**: Phase 41 provides standardized, read-only collection of this historical truth.
 
 2. **Paper Review Generated**
    - The Phase 35 review engine must analyze the campaign.
