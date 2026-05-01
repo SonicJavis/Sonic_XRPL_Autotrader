@@ -63,7 +63,8 @@ WHITELIST = {
     'Execution boundary is fail-closed': "Execution guard warning string",
     'observed liquidity is not executable': "Observation string",
     'WalletInfo': "Class name for safe read-only info wrapper",
-    'safety_statement': "Phase 39 Dashboard safety text string"
+    'safety_statement': "Phase 39 Dashboard safety text string",
+    'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.': "Phase 41 adapter report safety text"
 }
 
 def is_allowed_dir(file_path: Path) -> bool:
