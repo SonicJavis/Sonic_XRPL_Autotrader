@@ -4,6 +4,18 @@ def test_dashboard_import_does_not_execute_ui() -> None:
     assert callable(app.main)
 
 
+def test_dashboard_does_not_shadow_root_app_package() -> None:
+    from pathlib import Path
+
+    assert not Path("dashboard/app.py").exists()
+    assert Path("dashboard/dashboard_entry.py").exists()
+
+    source = Path("dashboard/streamlit_app.py").read_text(encoding="utf-8")
+    root_guard = source.index("sys.path.insert(0, ROOT)")
+    first_app_import = source.index("from app.")
+    assert root_guard < first_app_import
+
+
 def test_dashboard_validation_wording_is_uncertainty_framed() -> None:
     from pathlib import Path
 
