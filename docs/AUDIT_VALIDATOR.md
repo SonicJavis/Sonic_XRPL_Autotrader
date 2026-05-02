@@ -106,3 +106,5 @@ a non-zero exit code as a failing CI step.
 | `.github/workflows/audit-validator.yml` | CI workflow that runs the validator on every PR and push to `main`. |
 | `artifacts/audit_validator_report.json` | Generated report – useful for CI artifact archiving. |
 | `execution_prototype.dataset_strategy_tournament` | Phase 43 – Dataset-Driven Strategy Tournament; evaluates strategies across train/validation/test windows with overfitting detection. |
+
+| `execution_prototype.walk_forward_replay` | Phase 44 – Walk-Forward Replay Engine; evaluates strategy stability across rolling temporal windows from Phase 42 datasets. |

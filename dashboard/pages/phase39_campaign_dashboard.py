@@ -155,5 +155,61 @@ def main():
         for lim in ts_info.get("limitations", []):
             st.caption(f"⚠ {lim}")
 
+    # 11. Walk-Forward Strategy Stability (Phase 44 Optional)
+    _render_walk_forward_panel(dash)
+
 if __name__ == "__main__":
     main()
+
+
+def _load_walk_forward_summary():
+    """Load the most recent Phase 44 walk-forward replay summary if present."""
+    try:
+        reports_dir = Path("reports/phase44")
+        if not reports_dir.exists():
+            return None
+        ts_dirs = sorted([d for d in reports_dir.iterdir() if d.is_dir()], key=lambda x: x.name, reverse=True)
+        for ts_dir in ts_dirs:
+            summary_path = ts_dir / "walk_forward_replay_summary.json"
+            if summary_path.exists():
+                import json
+                with open(summary_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+    except Exception:
+        pass
+    return None
+
+
+def _render_walk_forward_panel(dash):
+    """Render optional Phase 44 Walk-Forward Strategy Stability panel."""
+    wf_summary = _load_walk_forward_summary()
+    if wf_summary is None:
+        return
+
+    import streamlit as st
+    st.header("11. Walk-Forward Strategy Stability (Phase 44)")
+    w1, w2, w3, w4, w5 = st.columns(5)
+    w1.metric("Strategies Evaluated", wf_summary.get("strategies_evaluated", 0))
+    w2.metric("Walk-Forward Windows", wf_summary.get("walk_forward_windows", 0))
+    w3.metric("Stable", wf_summary.get("stable_strategy_count", 0))
+    w4.metric("Watch", wf_summary.get("watch_strategy_count", 0))
+    w5.metric("Unstable", wf_summary.get("unstable_strategy_count", 0))
+
+    st.write(f"**Dataset Quality:** {wf_summary.get('dataset_quality_score', 'N/A')}/100")
+    st.write(f"**Live Trading Readiness:** {wf_summary.get('live_trading_readiness', '0/100')}")
+
+    critical = wf_summary.get("critical_warning_count", 0)
+    if critical > 0:
+        st.error(f"Critical degradation warnings: {critical}. Human review mandatory.")
+    else:
+        st.success("No critical degradation warnings.")
+
+    rec_counts = wf_summary.get("lifecycle_recommendation_counts", {})
+    if rec_counts:
+        st.write("**Lifecycle Recommendation Breakdown:**")
+        for status, count in rec_counts.items():
+            st.write(f"- {status}: {count}")
+
+    for lim in wf_summary.get("limitations", []):
+        st.caption(f"⚠ {lim}")
+
