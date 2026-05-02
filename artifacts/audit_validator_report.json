@@ -1,0 +1,75 @@
+{
+  "checks": {
+    "branch_hygiene": {
+      "details": {
+        "git_log": "002bbf9 Merge pull request #16 from SonicJavis/feature/phase42-backtest-datasets\n9becbe5 Phase 42: Historical Backtest Dataset Builder\n23db6b3 Merge Phase 41: Read-Only Historical Data Adapters",
+        "git_status": "M execution_prototype/market_fixtures/report_writer.py\n M execution_prototype/risk_governor/trust_score.py\n?? artifacts/\n?? scripts/audit_validator.py",
+        "uncommitted_files": 4
+      },
+      "passed": true
+    },
+    "cli_help": {
+      "details": {
+        "failure_count": 0,
+        "failures": [],
+        "success_count": 13,
+        "total": 13
+      },
+      "passed": true
+    },
+    "doc_disclosures": {
+      "details": {
+        "checked": [
+          {
+            "file": "docs/SYSTEM_STATE.md",
+            "found": true,
+            "string": "paper-only"
+          },
+          {
+            "file": "docs/SYSTEM_STATE.md",
+            "found": true,
+            "string": "0/100"
+          },
+          {
+            "file": "docs/SYSTEM_STATE.md",
+            "found": true,
+            "string": "Fail-Closed"
+          },
+          {
+            "file": "README.md",
+            "found": true,
+            "string": "paper"
+          },
+          {
+            "file": "README.md",
+            "found": true,
+            "string": "No wallet"
+          }
+        ],
+        "failures": []
+      },
+      "passed": true
+    },
+    "import_smoke": {
+      "details": {
+        "failure_count": 0,
+        "failures": [],
+        "success_count": 16,
+        "total": 16
+      },
+      "passed": true
+    },
+    "safety_grep": {
+      "details": {
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "--- ALLOWED MATCHES REPORT ---\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/xaman_payload.py:13: Allowed '\\bsubmit\\b' because '\"submit\": false' (Configuration string disabling submission)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/xaman_payload.py:28: Allowed '\\bsign\\b' because 'xaman://xapp/sign' (Xaman deep link string for UX flows)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/xaman_payload.py:36: Allowed '\\bsign\\b' because 'scan with xaman to sign' (User instruction string)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/cli.py:18: Allowed '\\bsubmit\\b' because 'execution_prototype.submit' (Module import name for manual submission)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/cli.py:52: Allowed '\\bsubmit\\b' because 'add_parser(\"submit\")' (CLI command definition)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/cli.py:148: Allowed '\\bsubmit\\b' because 'args.command == \"submit\"' (CLI command router)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/wizard.py:131: Allowed '\\bsign\\b' because 'scan with xaman to sign' (User instruction string)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/wizard.py:140: Allowed '\\bsigning\\b' because 'post_signing_prompt' (Function name for UX flows)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/dashboard/streamlit_app.py:75: Allowed '\\bwallet\\b' because 'st.warning' (Streamlit UI warning syntax)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/dashboard/streamlit_app.py:75: Allowed 'Wallet' because 'st.warning' (Streamlit UI warning syntax)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/dashboard/streamlit_app.py:75: Allowed '\\bsigning\\b' because 'st.warning' (Streamlit UI warning syntax)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/dashboard/streamlit_app.py:1094: Allowed '\\bsigning\\b' because 'st.warning' (Streamlit UI warning syntax)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/dashboard/streamlit_app.py:1104: Allowed 'polling' because 'st.warning' (Streamlit UI warning syntax)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:13: Allowed '\\bwallet\\b' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:13: Allowed 'Wallet' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:13: Allowed '\\bsigning\\b' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:50: Allowed '\\bwallet\\b' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:50: Allowed 'Wallet' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:50: Allowed '\\bsigning\\b' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:71: Allowed '\\bwallet\\b' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:71: Allowed 'Wallet' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/models.py:71: Allowed '\\bsigning\\b' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/backtest_datasets/report_writer.py:103: Allowed '\\bsigning\\b' because 'It does not contain signing logic, private keys, or submission primitives' (Phase 42 dataset report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/campaign_runner/summary_builder.py:101: Allowed '\\bwallet\\b' because 'safety_statement' (Phase 39 Dashboard safety text string)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/campaign_runner/summary_builder.py:101: Allowed 'Wallet' because 'safety_statement' (Phase 39 Dashboard safety text string)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/campaign_runner/summary_builder.py:101: Allowed '\\bsigning\\b' because 'safety_statement' (Phase 39 Dashboard safety text string)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/data_adapters/report_writer.py:11: Allowed '\\bwallet\\b' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/data_adapters/report_writer.py:11: Allowed 'Wallet' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/execution_prototype/data_adapters/report_writer.py:11: Allowed '\\bsigning\\b' because 'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.' (Phase 41 adapter report safety text)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/config/__init__.py:36: Allowed 'Wallet' because 'XRPL_WALLET_SEED' (Config property name, properly masked)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/config/__init__.py:93: Allowed 'Wallet' because 'wallet_seed' (Config property name, properly masked)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/config/__init__.py:94: Allowed 'Wallet' because 'XRPL_WALLET_SEED' (Config property name, properly masked)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/alpha/engine.py:108: Allowed '\\bsign\\b' because 'sign = ' (Variable assignment in tests)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/alpha/engine.py:110: Allowed '\\bsign\\b' because 'sign = ' (Variable assignment in tests)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/alpha/engine.py:111: Allowed '\\bsign\\b' because 'sign !=' (Variable comparison in tests)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/alpha/engine.py:113: Allowed '\\bsign\\b' because 'sign !=' (Variable comparison in tests)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/alpha/engine.py:114: Allowed '\\bsign\\b' because 'sign = ' (Variable assignment in tests)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/xrpl_core/wallet.py:6: Allowed 'Wallet' because 'WalletInfo' (Class name for safe read-only info wrapper)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/xrpl_core/wallet.py:11: Allowed 'Wallet' because 'wallet_seed' (Config property name, properly masked)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/xrpl_core/wallet.py:14: Allowed 'Wallet' because 'wallet_seed' (Config property name, properly masked)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/live/xrpl_ingestion_models.py:9: Allowed 'polling' because 'observed liquidity is not executable' (Observation string)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/live/xrpl_ingestion_models.py:64: Allowed 'private_key' because 'private_key' (String literal used in test payloads)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/execution/execution_guard.py:9: Allowed 'autofill' because 'execution_guard_warning' (Warning flag name)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/execution/execution_guard.py:9: Allowed '\\bsign\\b' because 'execution_guard_warning' (Warning flag name)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/execution/execution_guard.py:9: Allowed '\\bsubmit\\b' because 'execution_guard_warning' (Warning flag name)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/execution/execution_guard.py:14: Allowed '\\bwallet\\b' because 'xrpl.wallet' (Import used strictly in tests to ensure it fails)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/execution/execution_guard.py:14: Allowed 'Wallet' because 'xrpl.wallet' (Import used strictly in tests to ensure it fails)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/telemetry/logging.py:21: Allowed 'Wallet' because 'XRPL_WALLET_SEED' (Config property name, properly masked)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/app/telemetry/logging.py:22: Allowed 'private_key' because 'private_key' (String literal used in test payloads)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/dashboard/pages/phase39_campaign_dashboard.py:33: Allowed '\\bwallet\\b' because 'safety_statement' (Phase 39 Dashboard safety text string)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/dashboard/pages/phase39_campaign_dashboard.py:33: Allowed 'Wallet' because 'safety_statement' (Phase 39 Dashboard safety text string)\n/home/runner/work/Sonic_XRPL_Autotrader/Sonic_XRPL_Autotrader/dashboard/pages/phase39_campaign_dashboard.py:33: Allowed '\\bsigning\\b' because 'safety_statement' (Phase 39 Dashboard safety text string)\n------------------------------\nSAFETY GREP PASSED. No execution logic found in runtime code."
+      },
+      "passed": true
+    }
+  },
+  "generated_at": "2026-05-02T03:41:39.950629+00:00",
+  "overall_passed": true,
+  "phase": "42.2",
+  "schema_version": "1.0"
+}
