@@ -1,0 +1,171 @@
+{
+  "timestamp": "2026-05-02T19:31:22.853334+00:00",
+  "overall_passed": true,
+  "passed_count": 27,
+  "failed_count": 0,
+  "warning_count": 0,
+  "checks": [
+    {
+      "name": "doc:docs/PROJECT_BLUEPRINT.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/PROJECT_BLUEPRINT.md"
+    },
+    {
+      "name": "doc:docs/V2_ARCHITECTURE.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/V2_ARCHITECTURE.md"
+    },
+    {
+      "name": "doc:docs/PHASE_LEDGER.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/PHASE_LEDGER.md"
+    },
+    {
+      "name": "doc:docs/AGENT_OPERATING_RULES.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/AGENT_OPERATING_RULES.md"
+    },
+    {
+      "name": "doc:docs/SAFETY_MODEL.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/SAFETY_MODEL.md"
+    },
+    {
+      "name": "doc:docs/ROADMAP.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/ROADMAP.md"
+    },
+    {
+      "name": "doc:docs/research/XRPL_RESEARCH_BASELINE.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/research/XRPL_RESEARCH_BASELINE.md"
+    },
+    {
+      "name": "doc:docs/audit/pre_v2_repository_audit.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/audit/pre_v2_repository_audit.md"
+    },
+    {
+      "name": "doc:docs/audit/latest_audit_report.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/audit/latest_audit_report.md"
+    },
+    {
+      "name": "doc:docs/audit/latest_audit_report.json",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/audit/latest_audit_report.json"
+    },
+    {
+      "name": "import:sonic_xrpl",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: sonic_xrpl"
+    },
+    {
+      "name": "import:sonic_xrpl.core.modes",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: sonic_xrpl.core.modes"
+    },
+    {
+      "name": "import:sonic_xrpl.core.errors",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: sonic_xrpl.core.errors"
+    },
+    {
+      "name": "import:sonic_xrpl.protocol.amendments",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: sonic_xrpl.protocol.amendments"
+    },
+    {
+      "name": "import:sonic_xrpl.protocol.capability_matrix",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: sonic_xrpl.protocol.capability_matrix"
+    },
+    {
+      "name": "import:sonic_xrpl.execution.live_guard",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: sonic_xrpl.execution.live_guard"
+    },
+    {
+      "name": "import:sonic_xrpl.providers.mocks",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: sonic_xrpl.providers.mocks"
+    },
+    {
+      "name": "import:sonic_xrpl.reconciliation.legacy_phase30_adapter",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: sonic_xrpl.reconciliation.legacy_phase30_adapter"
+    },
+    {
+      "name": "cli:main --help",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: CLI --help works"
+    },
+    {
+      "name": "mode:default_is_intelligence_only",
+      "passed": true,
+      "severity": "pass",
+      "message": "Default mode: intelligence_only"
+    },
+    {
+      "name": "live_guard:submit_blocked",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: assert_can_submit(LIVE) raises as expected"
+    },
+    {
+      "name": "capability_matrix:exists",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: 20 capabilities"
+    },
+    {
+      "name": "capability_matrix:obsolete_not_enabled",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: no obsolete amendments marked enabled"
+    },
+    {
+      "name": "reconciliation:bridge_exists",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: legacy_phase30_adapter.py exists"
+    },
+    {
+      "name": "reconciliation:bridge_importable",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: LEGACY_AVAILABLE=True"
+    },
+    {
+      "name": "dep:xrpl.js check",
+      "passed": true,
+      "severity": "pass",
+      "message": "No package.json/lockfile found \u2014 no xrpl.js to check"
+    },
+    {
+      "name": "security:no_seed_impl",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: no seed/private-key implementation found in src/sonic_xrpl/"
+    }
+  ]
+}

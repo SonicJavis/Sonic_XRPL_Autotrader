@@ -1,0 +1,85 @@
+"""Import smoke tests — verify all sonic_xrpl modules import without error."""
+
+from __future__ import annotations
+
+import importlib
+import pytest
+
+
+V2_MODULES = [
+    "sonic_xrpl",
+    "sonic_xrpl.core",
+    "sonic_xrpl.core.config",
+    "sonic_xrpl.core.modes",
+    "sonic_xrpl.core.errors",
+    "sonic_xrpl.core.result",
+    "sonic_xrpl.core.events",
+    "sonic_xrpl.core.ids",
+    "sonic_xrpl.protocol",
+    "sonic_xrpl.protocol.networks",
+    "sonic_xrpl.protocol.amendments",
+    "sonic_xrpl.protocol.xls_registry",
+    "sonic_xrpl.protocol.feature_gates",
+    "sonic_xrpl.protocol.capability_matrix",
+    "sonic_xrpl.protocol.ledger_truth",
+    "sonic_xrpl.protocol.assets",
+    "sonic_xrpl.providers",
+    "sonic_xrpl.providers.base",
+    "sonic_xrpl.providers.health",
+    "sonic_xrpl.providers.failover",
+    "sonic_xrpl.providers.mocks",
+    "sonic_xrpl.providers.fixture_ledger",
+    "sonic_xrpl.ingestion",
+    "sonic_xrpl.ingestion.fixtures",
+    "sonic_xrpl.intelligence",
+    "sonic_xrpl.intelligence.token_profile",
+    "sonic_xrpl.intelligence.confidence",
+    "sonic_xrpl.strategy",
+    "sonic_xrpl.strategy.base",
+    "sonic_xrpl.strategy.signals",
+    "sonic_xrpl.strategy.registry",
+    "sonic_xrpl.risk",
+    "sonic_xrpl.risk.policy",
+    "sonic_xrpl.risk.pretrade_checks",
+    "sonic_xrpl.risk.circuit_breakers",
+    "sonic_xrpl.simulation",
+    "sonic_xrpl.simulation.fill_model",
+    "sonic_xrpl.simulation.slippage",
+    "sonic_xrpl.simulation.fees",
+    "sonic_xrpl.simulation.latency",
+    "sonic_xrpl.execution",
+    "sonic_xrpl.execution.live_guard",
+    "sonic_xrpl.execution.intent",
+    "sonic_xrpl.execution.plan",
+    "sonic_xrpl.execution.lifecycle",
+    "sonic_xrpl.execution.paper_executor",
+    "sonic_xrpl.reconciliation",
+    "sonic_xrpl.reconciliation.models",
+    "sonic_xrpl.reconciliation.comparator",
+    "sonic_xrpl.reconciliation.legacy_phase30_adapter",
+    "sonic_xrpl.telemetry",
+    "sonic_xrpl.telemetry.metrics",
+    "sonic_xrpl.telemetry.health",
+    "sonic_xrpl.telemetry.audit_log",
+    "sonic_xrpl.storage",
+    "sonic_xrpl.storage.models",
+    "sonic_xrpl.storage.sqlite",
+    "sonic_xrpl.cli",
+    "sonic_xrpl.cli.main",
+    "sonic_xrpl.audit",
+    "sonic_xrpl.audit.safety_scan",
+    "sonic_xrpl.audit.docs_check",
+    "sonic_xrpl.audit.dependency_check",
+    "sonic_xrpl.audit.phase_check",
+    "sonic_xrpl.audit.architecture_check",
+    "sonic_xrpl.audit.validator",
+    "sonic_xrpl.compatibility",
+    "sonic_xrpl.compatibility.legacy_imports",
+    "sonic_xrpl.compatibility.execution_prototype_bridge",
+]
+
+
+@pytest.mark.parametrize("module_path", V2_MODULES)
+def test_module_imports(module_path: str):
+    """Every V2 module must import without error."""
+    importlib.import_module(module_path)
