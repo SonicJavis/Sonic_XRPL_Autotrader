@@ -1,6 +1,6 @@
 import hashlib
 import json
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 from execution_prototype.risk_governor.models import OperatorTrustScore
 
 def _generate_trust_score_id(components: Dict[str, Any]) -> str:

@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Any
-from dataclasses import as_dict
+from dataclasses import asdict as as_dict
 
 def write_reports(
     output_dir: Path,
