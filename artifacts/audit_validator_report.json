@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "4b0c749 Phase 43: start implementation plan\ne3da358 Merge pull request #18 from SonicJavis/copilot/docs-phase-30-to-phase-42-breakdown\n0886255 fix(phase-42.2): add errors='ignore' to read_text for Windows cp1252 compatibility\necd97a7 Merge pull request #17 from SonicJavis/feature/phase42-audit-validator",
-        "git_status": "M dashboard/pages/phase39_campaign_dashboard.py\n M docs/AUDIT_VALIDATOR.md\n M docs/LIVE_TRADING_READINESS_GATES.md\n M docs/PAPER_AUTONOMY_TEST_PLAN.md\n M docs/SYSTEM_STATE.md\n M scripts/audit_validator.py\n?? docs/PHASE43_DATASET_STRATEGY_TOURNAMENT.md\n?? execution_prototype/dataset_strategy_tournament/\n?? execution_prototype/tests/test_dataset_strategy_tournament.py",
-        "uncommitted_files": 9
+        "git_log": "4e48e34 fix: address code review feedback for Phase 43\n745cc76 feat: Phase 43 Dataset-Driven Strategy Tournament\n4b0c749 Phase 43: start implementation plan\ne3da358 Merge pull request #18 from SonicJavis/copilot/docs-phase-30-to-phase-42-breakdown\n0886255 fix(phase-42.2): add errors='ignore' to read_text for Windows cp1252 compatibility\necd97a7 Merge pull request #17 from SonicJavis/feature/phase42-audit-validator",
+        "git_status": "(clean)",
+        "uncommitted_files": 0
       },
       "passed": true
     },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-02T08:02:55.284697+00:00",
+  "generated_at": "2026-05-02T08:12:22.675012+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"
