@@ -1,6 +1,7 @@
 # System State
 
 ## Active Phases
+- **Phase 44**: Walk-Forward Backtest Replay Engine + Strategy Stability Tracking (CURRENT)
 - **Phase 42**: Historical Backtest Dataset Builder (CURRENT)
 - **Phase 43**: Dataset-Driven Strategy Tournament (CURRENT)
 - **Phase 41**: Read-Only Historical Data Collection Adapter
@@ -17,7 +18,9 @@
 - **Phase 1-29**: Core Read-Only Abstractions
 
 ## Capability Summary
-The main integration branch now contains the consolidated code for Phases 30 through 43. The system is strictly **paper-only**. Live trading readiness remains at **0/100**, and live trading is completely forbidden. The dashboard is entirely read-only. The campaign runner is manual-cycle only—there is absolutely no hidden offline daemon or continuous interval_scan loop. No handling of keys, generation of keys, transaction authorization, or payload transmission logic exists in this system.
+The main integration branch now contains the consolidated code for Phases 30 through 44. The system is strictly **paper-only**. Live trading readiness remains at **0/100**, and live trading is completely forbidden. The dashboard is entirely read-only. The campaign runner is manual-cycle only—there is absolutely no hidden offline daemon or continuous interval_scan loop. No handling of keys, generation of keys, transaction authorization, or payload transmission logic exists in this system.
+
+Phase 44 adds walk-forward backtest replay: rolling train/eval windows from Phase 42 datasets, per-strategy evaluation scores, stability profiles, degradation warnings, and paper lifecycle recommendations. It never produces live trading authorization.
 
 ## Safety Posture
 - **Fail-Closed Execution**: The entire system is physically incapable of submitting a transaction. The `safety_grep.py` script strictly blocks `submit`, `sign`, `Wallet`, `seed`, and other live execution primitives.

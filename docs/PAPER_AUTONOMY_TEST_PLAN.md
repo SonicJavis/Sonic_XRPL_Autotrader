@@ -32,3 +32,10 @@ To validate the 7-day autonomous paper trading integration from Phase 36.
 - Confirm overfitting warnings are generated for degraded strategies.
 - Confirm live_trading_readiness remains "0/100" in all tournament summaries.
 - Verify promotion decisions require human approval and are paper-only.
+
+## Phase 44 Walk-Forward Replay Extensions
+- Run walk-forward replay on Phase 42 dataset output with Phase 43 scores as input.
+- Verify rolling windows are strictly chronological (no future leakage into training).
+- Confirm degradation warnings are generated for score drops below threshold.
+- Verify stability caps: future leakage ≤40, low quality ≤50, Batch/Xahau ≤60.
+- Confirm all lifecycle statuses are paper-only and live_trading_readiness remains 0/100.

@@ -154,3 +154,12 @@ This will not change until:
 - This system cannot predict future XRPL market behavior
 - Xahau hooks context is not supported and triggers a quality penalty
 - Unsupported batch context triggers a quality penalty
+
+## Next Phase
+
+**Phase 44: Walk-Forward Backtest Replay Engine + Strategy Stability Tracking**
+
+Phase 44 consumes Phase 43 tournament output as optional input to compute per-strategy
+walk-forward evaluation scores. It builds rolling temporal windows from Phase 42 datasets
+and assesses whether strategies are stable, degrading, or insufficient across time.
+See `docs/PHASE44_WALK_FORWARD_REPLAY.md` for full documentation.
