@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 
 
 def get_deterministic_id(inputs: List[Any]) -> str:
-    combined = "|".join(str(x) for x in sorted(str(i) for i in inputs))
+    combined = "|".join(sorted(str(i) for i in inputs))
     return hashlib.sha256(combined.encode()).hexdigest()
 
 

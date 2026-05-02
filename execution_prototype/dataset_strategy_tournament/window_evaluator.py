@@ -141,10 +141,10 @@ class WindowEvaluator:
                 unknown_outcomes += 1
             elif str(outcome).lower() in ("win", "1", "true"):
                 win_count += 1
+            elif str(outcome).lower() in ("breakeven", "be", "0.0"):
+                breakeven_count += 1
             elif str(outcome).lower() in ("loss", "-1", "false", "0"):
                 loss_count += 1
-            elif str(outcome).lower() in ("breakeven", "be", "0.0", "0"):
-                breakeven_count += 1
             else:
                 unknown_outcomes += 1
 
