@@ -27,3 +27,8 @@ To validate the 7-day autonomous paper trading integration from Phase 36.
 - Visualize via Phase 39 Streamlit operator dashboard.
 - Enrich paper positions with Phase 40 Historical Market Fixtures (Mark-to-Market).
 - Collect and normalize historical fixtures via Phase 41 Read-Only Adapters.
+- Run Phase 43 Dataset Strategy Tournament on Phase 42 dataset output.
+- Verify all 6 strategy families are evaluated across train/validation/test windows.
+- Confirm overfitting warnings are generated for degraded strategies.
+- Confirm live_trading_readiness remains "0/100" in all tournament summaries.
+- Verify promotion decisions require human approval and are paper-only.
