@@ -213,7 +213,7 @@ def check_doc_disclosures() -> dict:
         if not doc_path.exists():
             failures.append(f"{rel_path}: file not found")
             continue
-        content = doc_path.read_text(encoding="utf-8")
+        content = doc_path.read_text(encoding="utf-8", errors="ignore")
         for s in required_strings:
             if s.lower() not in content.lower():
                 failures.append(f"{rel_path}: missing required string '{s}'")

@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "c10995c merge: resolve add/add conflict in audit_validator.py; keep structured version\necd97a7 Merge pull request #17 from SonicJavis/feature/phase42-audit-validator\n152c2fd feat(phase-42.2): add audit_validator.py and fix pre-existing bugs\nf5bb6cf Phase 42.2: Add Automated Audit Validator and legacy scaffold warning\n002bbf9 Merge pull request #16 from SonicJavis/feature/phase42-backtest-datasets\n9becbe5 Phase 42: Historical Backtest Dataset Builder\n23db6b3 Merge Phase 41: Read-Only Historical Data Adapters\na225f41 Phase 41: Fix dataclasses asdict import\nf565907 Phase 41: Whitelist safety statement in safety_grep.py\n5a2b77d Merge branch 'main' of https://github.com/SonicJavis/Sonic_XRPL_Autotrader into feature/phase41-data-adapters",
-        "git_status": "?? docs/AUDIT_VALIDATOR.md\n?? execution_prototype/tests/test_audit_validator.py",
-        "uncommitted_files": 2
+        "git_log": "5dbb2b7 feat(phase-42.2): add AUDIT_VALIDATOR.md, tests, fix SYSTEM_STATE duplicate, merge main\nc10995c merge: resolve add/add conflict in audit_validator.py; keep structured version",
+        "git_status": "M scripts/audit_validator.py",
+        "uncommitted_files": 1
       },
       "passed": true
     },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-02T03:50:13.913393+00:00",
+  "generated_at": "2026-05-02T04:01:14.801078+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"
