@@ -65,7 +65,11 @@ WHITELIST = {
     'WalletInfo': "Class name for safe read-only info wrapper",
     'safety_statement': "Phase 39 Dashboard safety text string",
     'READ-ONLY. NO WALLET. NO SIGNING. NO SUBMISSION.': "Phase 41 adapter report safety text",
-    'It does not contain signing logic, private keys, or submission primitives': "Phase 42 dataset report safety text"
+    'It does not contain signing logic, private keys, or submission primitives': "Phase 42 dataset report safety text",
+    'no wallet, no signing, no submission': "Phase 44 module docstring safety declaration",
+    'no wallet. no signing.': "Phase 44 module docstring safety declaration",
+    'wallet references, or submission primitives': "Phase 44 report safety note",
+    'it does not contain signing logic': "Phase 44 report safety note",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

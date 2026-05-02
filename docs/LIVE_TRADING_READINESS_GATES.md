@@ -36,3 +36,8 @@
    - Zero critical overfitting warnings allowed for promotion.
    - Dataset quality score >= 60/100 required.
    - Live trading readiness remains at 0/100 regardless of tournament outcome.
+
+10. **Phase 44 Walk-Forward Stability Assessment**
+   - Phase 44 adds walk-forward stability tracking. It adds **zero live readiness**.
+   - All lifecycle recommendations remain paper-only.
+   - live_trading_readiness remains 0/100 regardless of stability scores.
