@@ -30,3 +30,9 @@
 
 8. **CI Safety Gates Updated**
    - `safety_grep.py` must be upgraded to support a "controlled execution mode" isolated from the standard logic flow.
+
+9. **Phase 43 Dataset Strategy Tournament Completed**
+   - At least one strategy must be promoted to `promote_to_more_paper_tests` status.
+   - Zero critical overfitting warnings allowed for promotion.
+   - Dataset quality score >= 60/100 required.
+   - Live trading readiness remains at 0/100 regardless of tournament outcome.

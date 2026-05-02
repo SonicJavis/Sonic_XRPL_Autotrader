@@ -128,5 +128,32 @@ def main():
         if dm.get("limitations"):
             st.info(f"Dataset Limitations: {', '.join(dm.get('limitations'))}")
 
+    # 10. Strategy Tournament (Phase 43 Optional)
+    ts_info = dash.get("tournament_summary")
+    if ts_info:
+        st.header("10. Strategy Tournament (Phase 43)")
+        t1, t2, t3, t4 = st.columns(4)
+        t1.metric("Dataset Quality", ts_info.get("dataset_quality_score", "N/A"))
+        t2.metric("Strategies Evaluated", ts_info.get("strategies_evaluated", 0))
+        t3.metric("Windows Evaluated", ts_info.get("windows_evaluated", 0))
+        t4.metric("Critical Warnings", ts_info.get("critical_warning_count", 0))
+
+        st.write(f"**Best Strategy:** `{ts_info.get('best_strategy_id') or 'N/A'}`")
+        st.write(f"**Live Trading Readiness:** {ts_info.get('live_trading_readiness', '0/100')}")
+
+        rec_counts = ts_info.get("recommendation_counts", {})
+        if rec_counts:
+            st.write("**Promotion Breakdown:**")
+            for status, count in rec_counts.items():
+                st.write(f"- {status}: {count}")
+
+        if ts_info.get("critical_warning_count", 0) > 0:
+            st.error(f"Critical overfitting warnings detected: {ts_info.get('critical_warning_count')}. Human review mandatory.")
+        else:
+            st.success("No critical overfitting warnings.")
+
+        for lim in ts_info.get("limitations", []):
+            st.caption(f"⚠ {lim}")
+
 if __name__ == "__main__":
     main()

@@ -66,6 +66,7 @@ PROTOTYPE_PACKAGES = [
     "execution_prototype.pipeline",
     "execution_prototype.quality",
     "execution_prototype.strategy",
+    "execution_prototype.dataset_strategy_tournament",
 ]
 
 # Mapping of human-readable label → dotted module path for every cli.py that
@@ -85,6 +86,7 @@ CLI_MODULES: dict[str, str] = {
     "data_adapters": "execution_prototype.data_adapters.cli",
     "backtest_datasets": "execution_prototype.backtest_datasets.cli",
     "pipeline": "execution_prototype.pipeline.cli",
+    "dataset_strategy_tournament": "execution_prototype.dataset_strategy_tournament.cli",
 }
 
 # ---------------------------------------------------------------------------

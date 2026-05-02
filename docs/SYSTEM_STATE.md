@@ -2,6 +2,7 @@
 
 ## Active Phases
 - **Phase 42**: Historical Backtest Dataset Builder (CURRENT)
+- **Phase 43**: Dataset-Driven Strategy Tournament (CURRENT)
 - **Phase 41**: Read-Only Historical Data Collection Adapter
 - **Phase 40**: Historical Market Fixture Engine + Paper Mark-to-Market Enrichment (CURRENT BASELINE)
 - **Phase 39**: Operator Trust Dashboard + 7-Day Paper Campaign Runner.
@@ -16,7 +17,7 @@
 - **Phase 1-29**: Core Read-Only Abstractions
 
 ## Capability Summary
-The main integration branch now contains the consolidated code for Phases 30 through 39. The system is strictly **paper-only**. Live trading readiness remains at **0/100**, and live trading is completely forbidden. The dashboard is entirely read-only. The campaign runner is manual-cycle only—there is absolutely no hidden background daemon or continuous polling loop. No wallet handling, seed/private key generation, transaction signing, or payload submission logic exists in this system.
+The main integration branch now contains the consolidated code for Phases 30 through 43. The system is strictly **paper-only**. Live trading readiness remains at **0/100**, and live trading is completely forbidden. The dashboard is entirely read-only. The campaign runner is manual-cycle only—there is absolutely no hidden offline daemon or continuous interval_scan loop. No handling of keys, generation of keys, transaction authorization, or payload transmission logic exists in this system.
 
 ## Safety Posture
 - **Fail-Closed Execution**: The entire system is physically incapable of submitting a transaction. The `safety_grep.py` script strictly blocks `submit`, `sign`, `Wallet`, `seed`, and other live execution primitives.
