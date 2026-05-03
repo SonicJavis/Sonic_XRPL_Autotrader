@@ -24,7 +24,31 @@ Safety-first modular XRPL trading-system foundation with paper execution only an
 
 ## Run Tests
 
-- `python -m pytest`
+**Windows (recommended):** Use the virtual-environment interpreter so that
+project dependencies (`sqlmodel`, `xrpl-py`, etc.) are available:
+
+```powershell
+# Create and activate the venv once:
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -e ".[dev]"
+
+# Then run tests with the venv interpreter (not the global `python`):
+.venv\Scripts\python.exe -m pytest
+```
+
+**Linux / macOS (with venv activated):**
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+python -m pytest
+```
+
+> **Note:** Running bare `python -m pytest` without installing into the venv
+> will fail if the global Python interpreter does not have `sqlmodel`, `xrpl`,
+> or other project dependencies.  Always use the venv interpreter or activate
+> the venv first.
 
 ## Run API
 

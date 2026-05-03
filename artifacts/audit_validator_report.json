@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "cec1708 Merge pull request #25 from SonicJavis/copilot/v2-capability-aware-market-snapshot-engine\nd99df29 Phase 47: update docs \u2014 PHASE_LEDGER, V2_ARCHITECTURE\n9e80b90 Merge pull request #24 from SonicJavis/copilot/merge-pr-23-verify-phase-46",
-        "git_status": "M docs/AGENT_WORKFLOW.md\n M docs/AUDIT_VALIDATOR.md\n M scripts/safety_grep.py\n M src/sonic_xrpl/audit/safety_scan.py",
-        "uncommitted_files": 4
+        "git_log": "4bed3d2 Merge pull request #26 from SonicJavis/copilot/fix-post-merge-verification-issues\nfe7480d Phase 47.1: Exclude ECC reference source from safety scans\ncec1708 Merge pull request #25 from SonicJavis/copilot/v2-capability-aware-market-snapshot-engine",
+        "git_status": "M README.md\n M artifacts/audit_validator_report.json\n M docs/SAFETY_MODEL.md\n?? docs/PHASE47_2_WINDOWS_VALIDATION_ENVIRONMENT.md\n?? scripts/windows_validate.ps1",
+        "uncommitted_files": 5
       },
       "passed": true
     },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-03T11:04:51.889409+00:00",
+  "generated_at": "2026-05-03T12:04:18.760968+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"
