@@ -9,65 +9,121 @@ on:
 
 jobs:
   test:
+    name: Tests & Safety Checks (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest pydantic fastjsonschema
-      - name: Run pytest
-        run: |
-          python -m pytest execution_prototype/ --junitxml=pytest-report.xml
+          python -m pip install -e ".[dev]"
+
+      - name: Run pytest (full suite)
+        run: python -m pytest --junitxml=pytest-report.xml
 
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-results
+          name: pytest-results-${{ matrix.python-version }}
           path: pytest-report.xml
 
   safety-grep:
+    name: Safety Grep
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Run Safety Grep
-        run: |
-          python scripts/safety_grep.py
+      - uses: actions/checkout@v4
 
-  deterministic-check:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run safety_grep
+        run: python scripts/safety_grep.py
+
+  audit-validator:
+    name: Audit Validator
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.11"
+
       - name: Install dependencies
         run: |
-          python -m pip install pytest pydantic
-      - name: Run Deterministic Checks
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run audit_validator
+        run: python scripts/audit_validator.py
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-validator-report
+          path: artifacts/audit_validator_report.json
+
+  v2-cli-smoke:
+    name: V2 CLI Smoke Checks
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
         run: |
-          python -m pytest execution_prototype/tests/test_reconciliation.py::test_deterministic_ids
-          python -m pytest execution_prototype/tests/test_calibration_recommendations.py::test_deterministic_ids
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: CLI --help
+        run: python -m sonic_xrpl.cli.main --help
+
+      - name: CLI health
+        run: python -m sonic_xrpl.cli.main health
+
+      - name: CLI capabilities
+        run: python -m sonic_xrpl.cli.main capabilities
+
+      - name: CLI safety-scan
+        run: python -m sonic_xrpl.cli.main safety-scan
+
+      - name: CLI market-snapshot
+        run: python -m sonic_xrpl.cli.main market-snapshot --path tests/fixtures/xrpl
+
+      - name: CLI market-snapshot-report
+        run: python -m sonic_xrpl.cli.main market-snapshot-report --path tests/fixtures/xrpl
 
   report-artifacts:
-    needs: [test, safety-grep, deterministic-check]
+    name: Report Summary
+    needs: [test, safety-grep, audit-validator, v2-cli-smoke]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Upload Safety Check summary
+      - name: Write safety summary
         run: echo "Safety Check and Tests Completed." > safety_summary.txt
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: safety-summary
           path: safety_summary.txt
+

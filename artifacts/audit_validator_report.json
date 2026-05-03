@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "4bed3d2 Merge pull request #26 from SonicJavis/copilot/fix-post-merge-verification-issues\nfe7480d Phase 47.1: Exclude ECC reference source from safety scans\ncec1708 Merge pull request #25 from SonicJavis/copilot/v2-capability-aware-market-snapshot-engine",
-        "git_status": "M README.md\n M artifacts/audit_validator_report.json\n M docs/SAFETY_MODEL.md\n?? docs/PHASE47_2_WINDOWS_VALIDATION_ENVIRONMENT.md\n?? scripts/windows_validate.ps1",
-        "uncommitted_files": 5
+        "git_log": "b480fff Phase 47.3: initial checklist\n48f154a Phase 47.2: Clarify Windows validation environment\n4bed3d2 Merge pull request #26 from SonicJavis/copilot/fix-post-merge-verification-issues",
+        "git_status": "M .github/workflows/audit-validator.yml\n M .github/workflows/ci.yml\n?? docs/PHASE47_3_CI_ENVIRONMENT_HARDENING.md",
+        "uncommitted_files": 3
       },
       "passed": true
     },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-03T12:04:18.760968+00:00",
+  "generated_at": "2026-05-03T12:18:25.794802+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"
