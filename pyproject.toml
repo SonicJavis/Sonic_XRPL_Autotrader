@@ -32,9 +32,13 @@ autotrader = "app.main:main"
 dashboard = "dashboard.streamlit_app:main"
 
 [tool.setuptools.packages.find]
+where = ["."]
 include = ["app*", "dashboard*"]
+
+[tool.setuptools.package-dir]
+"sonic_xrpl" = "src/sonic_xrpl"
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "execution_prototype/tests"]
-pythonpath = ["."]
+pythonpath = [".", "src"]
 addopts = "-q"
