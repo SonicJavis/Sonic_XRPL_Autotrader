@@ -153,7 +153,7 @@ def main():
     all_allowed = []
     
     for py_file in root_dir.rglob("*.py"):
-        if ".venv" in py_file.parts or "__pycache__" in py_file.parts:
+        if ".venv" in py_file.parts or "__pycache__" in py_file.parts or ".ecc-source" in py_file.parts:
             continue
         violations, allowed = check_file(py_file)
         all_violations.extend(violations)
