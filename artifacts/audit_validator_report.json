@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "9e80b90 Merge pull request #24 from SonicJavis/copilot/merge-pr-23-verify-phase-46\n1473649 Phase 46 verification: merge PR #23 and confirm all checks pass\n49edb5c Merge pull request #23 from SonicJavis/copilot/phase-46-v2-provider-integration",
-        "git_status": "M src/sonic_xrpl/cli/main.py\n?? docs/research/PHASE47_MARKET_SNAPSHOT_RESEARCH.md\n?? reports/\n?? src/sonic_xrpl/market/\n?? tests/unit/test_market_snapshot_account.py\n?? tests/unit/test_market_snapshot_amm.py\n?? tests/unit/test_market_snapshot_builder.py\n?? tests/unit/test_market_snapshot_manifest.py\n?? tests/unit/test_market_snapshot_models.py\n?? tests/unit/test_market_snapshot_mpt.py\n?? tests/unit/test_market_snapshot_orderbook.py\n?? tests/unit/test_market_snapshot_quality.py\n?? tests/unit/test_market_snapshot_signals.py",
-        "uncommitted_files": 13
+        "git_log": "f403a47 Phase 47: implement V2 Capability-Aware Market Snapshot Engine\n9e80b90 Merge pull request #24 from SonicJavis/copilot/merge-pr-23-verify-phase-46\n1473649 Phase 46 verification: merge PR #23 and confirm all checks pass\n49edb5c Merge pull request #23 from SonicJavis/copilot/phase-46-v2-provider-integration",
+        "git_status": "M docs/PHASE_LEDGER.md\n M docs/V2_ARCHITECTURE.md",
+        "uncommitted_files": 2
       },
       "passed": true
     },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-03T10:40:33.530395+00:00",
+  "generated_at": "2026-05-03T10:42:06.862968+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"
