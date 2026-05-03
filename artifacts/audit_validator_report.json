@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "f403a47 Phase 47: implement V2 Capability-Aware Market Snapshot Engine\n9e80b90 Merge pull request #24 from SonicJavis/copilot/merge-pr-23-verify-phase-46\n1473649 Phase 46 verification: merge PR #23 and confirm all checks pass\n49edb5c Merge pull request #23 from SonicJavis/copilot/phase-46-v2-provider-integration",
-        "git_status": "M docs/PHASE_LEDGER.md\n M docs/V2_ARCHITECTURE.md",
-        "uncommitted_files": 2
+        "git_log": "cec1708 Merge pull request #25 from SonicJavis/copilot/v2-capability-aware-market-snapshot-engine\nd99df29 Phase 47: update docs \u2014 PHASE_LEDGER, V2_ARCHITECTURE\n9e80b90 Merge pull request #24 from SonicJavis/copilot/merge-pr-23-verify-phase-46",
+        "git_status": "M docs/AGENT_WORKFLOW.md\n M docs/AUDIT_VALIDATOR.md\n M scripts/safety_grep.py\n M src/sonic_xrpl/audit/safety_scan.py",
+        "uncommitted_files": 4
       },
       "passed": true
     },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-03T10:42:06.862968+00:00",
+  "generated_at": "2026-05-03T11:04:51.889409+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"

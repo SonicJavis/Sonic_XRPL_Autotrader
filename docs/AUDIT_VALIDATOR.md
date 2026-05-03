@@ -36,6 +36,14 @@ network calls.  It only writes to the `artifacts/` directory.
 python scripts/audit_validator.py
 ```
 
+**Windows (recommended):** Use the virtual-environment interpreter explicitly so
+that project dependencies (`sqlmodel`, `xrpl`, etc.) are available:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.venv\Scripts\python.exe scripts\audit_validator.py
+```
+
 The script adds the repository root to `sys.path` automatically, so it works
 regardless of which directory you invoke it from.
 

@@ -214,6 +214,7 @@ EXCLUDED_DIR_PARTS = {
     ".venv",
     "venv",
     "env",
+    ".ecc-source",  # local reference-only clone, not part of the project runtime
     "__pycache__",
     ".pytest_cache",
     ".mypy_cache",
