@@ -17,6 +17,8 @@ REQUIRED_DOCS = [
     "docs/audit/latest_audit_report.json",
     "docs/PHASE46_PROVIDER_FIXTURES.md",
     "docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md",
+    "docs/PHASE48_DEPENDENCY_AUDIT.md",
+    "docs/research/PHASE48_DEPENDENCY_AUDIT_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -34,6 +36,7 @@ REQUIRED_TEST_FILES = [
     "tests/unit/test_live_guard.py",
     "tests/unit/test_capability_matrix.py",
     "tests/safety/test_safety_scan.py",
+    "tests/safety/test_dependency_audit.py",
     "tests/smoke/test_imports.py",
 ]
 

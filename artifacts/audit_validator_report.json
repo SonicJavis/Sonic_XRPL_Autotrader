@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "783d00c Merge pull request #27 from SonicJavis/copilot/fix-windows-validation-consistency\n4061db2 Phase 47.3: Harden CI validation environment\n4bed3d2 Merge pull request #26 from SonicJavis/copilot/fix-post-merge-verification-issues",
-        "git_status": "M artifacts/audit_validator_report.json",
-        "uncommitted_files": 1
+        "git_log": "11085ff Phase 48: Start dependency audit and supply-chain guardrails\n783d00c Merge pull request #27 from SonicJavis/copilot/fix-windows-validation-consistency\n4061db2 Phase 47.3: Harden CI validation environment\n4bed3d2 Merge pull request #26 from SonicJavis/copilot/fix-post-merge-verification-issues",
+        "git_status": "MM .github/workflows/ci.yml\nM  artifacts/audit_validator_report.json\nM  docs/AUDIT_VALIDATOR.md\nA  docs/PHASE48_DEPENDENCY_AUDIT.md\nM  docs/PHASE_LEDGER.md\nM  docs/ROADMAP.md\nM  docs/SAFETY_MODEL.md\nA  docs/audit/latest_dependency_audit.json\nA  docs/audit/latest_dependency_audit.md\nA  docs/research/PHASE48_DEPENDENCY_AUDIT_RESEARCH.md\nM  pyproject.toml\nA  scripts/dependency_audit.py\nM  src/sonic_xrpl/audit/docs_check.py\nA  tests/safety/test_dependency_audit.py",
+        "uncommitted_files": 14
       },
       "passed": true
     },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-03T12:48:43.214964+00:00",
+  "generated_at": "2026-05-03T13:01:40.663730+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"

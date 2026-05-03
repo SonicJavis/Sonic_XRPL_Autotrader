@@ -122,3 +122,24 @@ These phases may exist but cannot be verified without documentation evidence.
 
 **Test count**: 1024 passed (919 baseline + 105 new Phase 47 tests)  
 **Safety impact**: Live trading STILL BLOCKED. Snapshot engine is offline fixture reads only. No submission, no wallet construction, no mutation.
+
+---
+
+## Phase 48 — Dependency Audit and Supply-Chain Guardrails (2026-05-03)
+
+**Objective**: Add a safe, read-only dependency and supply-chain audit layer. Make dependency risks visible and testable without changing runtime trading behaviour.
+
+**Key deliverables**:
+
+- `scripts/dependency_audit.py` — standalone dependency audit script (pip check, pip-audit, xrpl.js detection)
+- `tests/safety/test_dependency_audit.py` — offline tests for dependency audit logic
+- `docs/PHASE48_DEPENDENCY_AUDIT.md` — documentation
+- `docs/research/PHASE48_DEPENDENCY_AUDIT_RESEARCH.md` — research baseline with sources
+- `docs/audit/latest_dependency_audit.json` — generated JSON report
+- `docs/audit/latest_dependency_audit.md` — generated Markdown report
+- `pyproject.toml` — `pip-audit>=2.7.0` added to dev dependencies
+- `.github/workflows/ci.yml` — `dependency-audit` CI job added
+
+**Safety impact**: Supply-chain visibility improved. Live trading remains blocked. No runtime behaviour changed. No wallet, signing, or submission code added.
+
+**Status**: Complete only after tests pass.
