@@ -1,0 +1,17 @@
+{
+  "TransactionResult": "tesSUCCESS",
+  "AffectedNodes": [
+    {
+      "CreatedNode": {
+        "LedgerEntryType": "AMM",
+        "LedgerIndex": "CCCC",
+        "NewFields": {
+          "Asset": "XRP",
+          "Asset2": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111"},
+          "AMMAccount": "rAMMAccount111111111111111111111111",
+          "TradingFee": 500
+        }
+      }
+    }
+  ]
+}

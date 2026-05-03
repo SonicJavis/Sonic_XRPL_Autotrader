@@ -1,52 +1,36 @@
-"""Fixture-backed ledger provider — loads data from JSON fixture files.
+"""Fixture-backed LedgerProvider using FixtureStore.
 
-Useful for deterministic replay testing without network access.
+Raises FixtureMissingError when fixture not found — no fallback to mock.
 """
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
 from sonic_xrpl.providers.base import LedgerProvider, ProviderType
-from sonic_xrpl.providers.mocks import MockLedgerProvider
+from sonic_xrpl.providers.fixture_store import FixtureStore
 
 
 class FixtureLedgerProvider(LedgerProvider):
-    """A LedgerProvider backed by JSON fixture files.
+    """A LedgerProvider backed by structured JSON fixture files via FixtureStore."""
 
-    Falls back to MockLedgerProvider data if fixture not found.
-    """
+    provider_type = ProviderType.FIXTURE
 
-    provider_type = ProviderType.MOCK
-
-    def __init__(self, fixture_dir: Path | None = None) -> None:
-        self._fixture_dir = fixture_dir or Path("tests/fixtures")
-        self._fallback = MockLedgerProvider()
-
-    def _load(self, name: str) -> dict[str, Any] | None:
-        """Load a fixture by name. Returns None if not found."""
-        path = self._fixture_dir / f"{name}.json"
-        if path.exists():
-            with path.open() as f:
-                return json.load(f)
-        return None
+    def __init__(self, fixture_dir: Path) -> None:
+        self._store = FixtureStore(fixture_dir)
 
     def get_server_info(self) -> dict[str, Any]:
-        return self._load("server_info") or self._fallback.get_server_info()
+        return self._store.load_server_info()
 
     def get_latest_validated_ledger(self) -> dict[str, Any]:
-        return (
-            self._load("latest_validated_ledger")
-            or self._fallback.get_latest_validated_ledger()
-        )
+        return self._store.load_latest_ledger()
 
     def get_account_info(self, account: str) -> dict[str, Any]:
-        return (
-            self._load(f"account_info_{account}")
-            or self._fallback.get_account_info(account)
-        )
+        return self._store.load_account_info(account)
+
+    def get_account_lines(self, account: str) -> dict[str, Any]:
+        return self._store.load_account_lines(account)
 
     def get_account_tx(
         self,
@@ -54,22 +38,27 @@ class FixtureLedgerProvider(LedgerProvider):
         ledger_min: int | None = None,
         ledger_max: int | None = None,
     ) -> dict[str, Any]:
-        return (
-            self._load(f"account_tx_{account}")
-            or self._fallback.get_account_tx(account, ledger_min, ledger_max)
-        )
+        return self._store.load_account_tx(account, ledger_min=ledger_min, ledger_max=ledger_max)
 
     def get_ledger_entry(self, **kwargs: Any) -> dict[str, Any]:
-        return self._fallback.get_ledger_entry(**kwargs)
+        ledger_index = kwargs.get("ledger_index")
+        if ledger_index is not None:
+            return self._store.load_ledger(int(ledger_index))
+        return self._store.load_latest_ledger()
 
     def get_orderbook(self, **kwargs: Any) -> dict[str, Any]:
-        return self._load("orderbook") or self._fallback.get_orderbook(**kwargs)
+        asset_a = str(kwargs.get("taker_gets", "XRP"))
+        asset_b = str(kwargs.get("taker_pays", "USD"))
+        return self._store.load_orderbook(asset_a, asset_b)
 
     def get_amm_info(self, **kwargs: Any) -> dict[str, Any]:
-        return self._load("amm_info") or self._fallback.get_amm_info(**kwargs)
+        asset_a = str(kwargs.get("asset", kwargs.get("asset_a", "XRP")))
+        asset_b = str(kwargs.get("asset2", kwargs.get("asset_b", "USD")))
+        return self._store.load_amm_info(asset_a, asset_b)
 
     def get_mpt_holders(self, **kwargs: Any) -> dict[str, Any]:
-        return self._fallback.get_mpt_holders(**kwargs)
+        mpt_issuance_id = str(kwargs.get("mpt_issuance_id", ""))
+        return self._store.load_mpt_holders(mpt_issuance_id)
 
     def close(self) -> None:
         pass

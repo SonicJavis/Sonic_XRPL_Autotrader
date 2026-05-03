@@ -1,0 +1,7 @@
+{
+  "hash": "D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5",
+  "ledger_index": 1000,
+  "transaction_type": "AMMCreate",
+  "account": "rIssuer1111111111111111111111111111",
+  "metadata": {"TransactionResult": "tesSUCCESS", "AffectedNodes": []}
+}

@@ -69,3 +69,27 @@ The following phase documents were NOT found in the repository:
 - No `docs/PHASE42_BACKTEST_DATASETS.md`
 
 These phases may exist but cannot be verified without documentation evidence.
+
+---
+
+## Phase 46 — Provider Fixtures (2025)
+
+**Objective**: Implement a structured, file-based fixture system for offline XRPL provider testing. Replace the mock-fallback `FixtureLedgerProvider` with a strict fixture-backed implementation that raises errors rather than returning arbitrary mock data.
+
+**Key deliverables**:
+
+- `src/sonic_xrpl/providers/errors.py` — `ProviderUnavailableError`, `DataQualityError`, `FixtureMissingError`, `FixtureCorruptError`, `StaleFixtureError`
+- `src/sonic_xrpl/providers/fixture_models.py` — typed dataclasses for fixture data
+- `src/sonic_xrpl/providers/fixture_manifest.py` — `FixtureManifest` with SHA256 checksums
+- `src/sonic_xrpl/providers/fixture_store.py` — `FixtureStore` directory loader with secret scan
+- `src/sonic_xrpl/providers/fixture_ledger.py` — `FixtureLedgerProvider` (no mock fallback)
+- `src/sonic_xrpl/providers/fixture_market_data.py` — `FixtureMarketDataProvider`
+- `src/sonic_xrpl/providers/metadata_parser.py` — offline metadata parsing with limitation flags
+- `src/sonic_xrpl/providers/balance_changes.py` — balance change extraction from `AffectedNodes`
+- `src/sonic_xrpl/providers/normalizers.py` — asset/identifier normalization
+- `src/sonic_xrpl/providers/safety_scan_fixtures.py` — fixture secret scanner
+- `tests/fixtures/xrpl/` — synthetic test fixture set with manifest
+- CLI commands: `fixtures`, `fixture-health`, `fixture-account`, `fixture-amm`, `fixture-balance-changes`
+- `docs/PHASE46_PROVIDER_FIXTURES.md`, `docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md`
+
+**Safety impact**: Live trading STILL BLOCKED. No signing, submission, or wallet construction. Fixture system is read-only offline data only.

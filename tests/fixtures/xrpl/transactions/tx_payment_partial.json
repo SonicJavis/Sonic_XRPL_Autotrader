@@ -1,0 +1,11 @@
+{
+  "hash": "A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2",
+  "ledger_index": 1000,
+  "transaction_type": "Payment",
+  "account": "rTrader1111111111111111111111111111",
+  "metadata": {
+    "TransactionResult": "tesSUCCESS",
+    "delivered_amount": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111", "value": "50"},
+    "AffectedNodes": []
+  }
+}

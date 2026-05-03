@@ -1,0 +1,16 @@
+{
+  "name": "synthetic_test_fixture",
+  "version": "1.0.0",
+  "network": "synthetic",
+  "created_at": "2025-01-01T00:00:00Z",
+  "source_summary": "Synthetic test fixtures for unit testing",
+  "source_urls": [],
+  "ledger_min": 1000,
+  "ledger_max": 1001,
+  "account_count": 2,
+  "transaction_count": 2,
+  "amm_count": 1,
+  "orderbook_count": 1,
+  "mpt_snapshot_count": 1,
+  "limitations": ["synthetic data only, not real XRPL data"]
+}

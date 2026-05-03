@@ -15,6 +15,8 @@ REQUIRED_DOCS = [
     "docs/audit/pre_v2_repository_audit.md",
     "docs/audit/latest_audit_report.md",
     "docs/audit/latest_audit_report.json",
+    "docs/PHASE46_PROVIDER_FIXTURES.md",
+    "docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [

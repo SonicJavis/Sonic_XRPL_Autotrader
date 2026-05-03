@@ -1,0 +1,33 @@
+{
+  "TransactionResult": "tesSUCCESS",
+  "delivered_amount": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111", "value": "50"},
+  "AffectedNodes": [
+    {
+      "ModifiedNode": {
+        "LedgerEntryType": "AccountRoot",
+        "LedgerIndex": "AAAA",
+        "FinalFields": {
+          "Account": "rTrader1111111111111111111111111111",
+          "Balance": "900000000"
+        },
+        "PreviousFields": {
+          "Balance": "1000000000"
+        }
+      }
+    },
+    {
+      "ModifiedNode": {
+        "LedgerEntryType": "RippleState",
+        "LedgerIndex": "BBBB",
+        "FinalFields": {
+          "Balance": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111", "value": "50"},
+          "HighLimit": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111", "value": "0"},
+          "LowLimit": {"currency": "USD", "issuer": "rTrader1111111111111111111111111111", "value": "1000"}
+        },
+        "PreviousFields": {
+          "Balance": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111", "value": "0"}
+        }
+      }
+    }
+  ]
+}

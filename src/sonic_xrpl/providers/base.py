@@ -26,6 +26,7 @@ class ProviderType(str, Enum):
     PUBLIC_RPC = "public_rpc"
     MOCK = "mock"
     XAHAU_RESEARCH = "xahau_research"
+    FIXTURE = "fixture"
 
 
 class LedgerProvider(ABC):
@@ -44,6 +45,10 @@ class LedgerProvider(ABC):
     @abstractmethod
     def get_account_info(self, account: str) -> dict[str, Any]:
         """Return account_info for the given account address."""
+
+    def get_account_lines(self, account: str) -> dict[str, Any]:
+        """Return account_lines (trust lines) for the given account. Override as needed."""
+        return {"account": account, "lines": [], "validated": True}
 
     @abstractmethod
     def get_account_tx(

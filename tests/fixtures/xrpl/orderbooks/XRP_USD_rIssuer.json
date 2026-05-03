@@ -1,0 +1,12 @@
+{
+  "taker_gets": "XRP",
+  "taker_pays": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111"},
+  "offers": [
+    {
+      "account": "rTrader1111111111111111111111111111",
+      "quality": "0.000001",
+      "taker_gets": "1000000",
+      "taker_pays": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111", "value": "1"}
+    }
+  ]
+}
