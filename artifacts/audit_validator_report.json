@@ -2,7 +2,7 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "a4192e4 Phase 46: fix safety_grep violations \u2014 move scan_fixture_files to audit, rename secret strings\n88ad90d Phase 46: provider fixtures \u2014 FixtureStore, metadata parser, balance changes, normalizers, CLI\nf17cd05 Refresh audit validator report\n416aeac Add safe ECC reference-first agent workflow",
+        "git_log": "49edb5c Merge pull request #23 from SonicJavis/copilot/phase-46-v2-provider-integration\ndbf99cf Phase 46: Add V2 offline fixture providers\nf17cd05 Refresh audit validator report",
         "git_status": "(clean)",
         "uncommitted_files": 0
       },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-03T08:27:38.896730+00:00",
+  "generated_at": "2026-05-03T09:49:23.831373+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"
