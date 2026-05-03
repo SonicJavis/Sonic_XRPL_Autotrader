@@ -67,7 +67,21 @@ src/sonic_xrpl/
 │   ├── models.py                       # StoredRecord
 │   └── sqlite.py                       # SQLiteStore (stdlib sqlite3)
 ├── cli/
-│   └── main.py                         # CLI: health, audit, capabilities, safety-scan, simulate, reconcile
+│   └── main.py                         # CLI: health, audit, capabilities, safety-scan, simulate, reconcile, market-snapshot
+├── market/
+│   ├── __init__.py                     # Package root
+│   ├── models.py                       # Frozen dataclasses: MarketSnapshot, AssetSnapshot, AMMSnapshot, etc.
+│   ├── snapshot_builder.py             # build_market_snapshot() — main orchestrator
+│   ├── amm_snapshot.py                 # AMMSnapshot builder with capability check
+│   ├── orderbook_snapshot.py           # OrderbookSnapshot builder
+│   ├── account_context.py              # AccountContext builder
+│   ├── trustline_context.py            # TrustlineContext builder (NoRipple, freeze, clawback)
+│   ├── mpt_snapshot.py                 # MPTSnapshot builder with MPTokensV1 capability check
+│   ├── metadata_signals.py             # MetadataSignal extraction from Phase 46 parsers
+│   ├── quality.py                      # SnapshotQuality scorer (0–100) with recommendation
+│   ├── manifest.py                     # SnapshotManifest with deterministic snapshot_id
+│   ├── report_writer.py                # JSON + Markdown report output
+│   └── errors.py                       # MarketSnapshotError, SnapshotBuildError, FixtureHealthError
 ├── audit/
 │   ├── validator.py                    # run_full_audit(), write_reports() — 15 checks
 │   ├── safety_scan.py                  # run_safety_scan(), SafetyClassification
@@ -89,6 +103,7 @@ src/sonic_xrpl/
 | core | Configuration, modes, errors, IDs | N/A |
 | protocol | XRPL protocol knowledge and capability checks | No — read-only |
 | providers | Data access (current ledger, history) | No — read-only |
+| market | Offline market snapshot engine (Phase 47) | No — snapshot/read only |
 | ingestion | Load fixture data | No — data loading |
 | intelligence | Token profiling, confidence scoring | No — analysis only |
 | strategy | Signal generation | No — signals only |
@@ -113,6 +128,7 @@ Each module may import from:
 | core | stdlib only |
 | protocol | core |
 | providers | core, protocol |
+| market | core, protocol, providers |
 | ingestion | core |
 | intelligence | core, protocol |
 | strategy | core |
@@ -122,7 +138,7 @@ Each module may import from:
 | reconciliation | core, execution |
 | telemetry | core, protocol |
 | storage | core |
-| cli | core, protocol, simulation, execution, reconciliation, telemetry, audit |
+| cli | core, protocol, simulation, execution, reconciliation, telemetry, audit, market |
 | audit | core, protocol |
 | compatibility | core |
 

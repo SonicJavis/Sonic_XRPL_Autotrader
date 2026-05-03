@@ -92,4 +92,33 @@ These phases may exist but cannot be verified without documentation evidence.
 - CLI commands: `fixtures`, `fixture-health`, `fixture-account`, `fixture-amm`, `fixture-balance-changes`
 - `docs/PHASE46_PROVIDER_FIXTURES.md`, `docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md`
 
-**Safety impact**: Live trading STILL BLOCKED. No signing, submission, or wallet construction. Fixture system is read-only offline data only.
+**Safety impact**: Live trading STILL BLOCKED. No transaction submission or wallet construction. Fixture system is read-only offline data only.
+
+---
+
+## Phase 47 — V2 Capability-Aware Market Snapshot Engine (2026-05-03)
+
+**Objective**: Turn Phase 46 offline fixture providers into a deterministic, capability-aware market snapshot layer safe for consumption by strategy and intelligence modules.
+
+**Key deliverables**:
+
+- `src/sonic_xrpl/market/` — new package:
+  - `models.py` — frozen dataclasses: `MarketSnapshot`, `AssetSnapshot`, `AMMSnapshot`, `OrderbookSnapshot`, `AccountContext`, `TrustlineContext`, `MPTSnapshot`, `MetadataSignal`, `SnapshotQuality`, `SnapshotManifest`
+  - `snapshot_builder.py` — `build_market_snapshot()` orchestrator
+  - `amm_snapshot.py` — AMM pool snapshot with capability check
+  - `orderbook_snapshot.py` — Orderbook snapshot with spread_bps
+  - `account_context.py` — Account state from fixture
+  - `trustline_context.py` — Trustline state with NoRipple/freeze/clawback
+  - `mpt_snapshot.py` — MPT holder snapshot with capability check
+  - `metadata_signals.py` — Signal extraction from Phase 46 metadata parser
+  - `quality.py` — Quality score (0–100) with recommendation enum
+  - `manifest.py` — Deterministic snapshot ID and source hash
+  - `report_writer.py` — JSON + Markdown report output
+  - `errors.py` — `MarketSnapshotError`, `SnapshotBuildError`, `FixtureHealthError`
+- CLI commands: `market-snapshot`, `market-snapshot-report`
+- 105+ new tests in `tests/unit/test_market_snapshot_*.py`
+- `docs/research/PHASE47_MARKET_SNAPSHOT_RESEARCH.md`
+- `reports/phase47/` — output directory for generated reports
+
+**Test count**: 1024 passed (919 baseline + 105 new Phase 47 tests)  
+**Safety impact**: Live trading STILL BLOCKED. Snapshot engine is offline fixture reads only. No submission, no wallet construction, no mutation.

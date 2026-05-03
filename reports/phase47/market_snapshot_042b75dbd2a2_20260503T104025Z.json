@@ -1,0 +1,232 @@
+{
+  "snapshot_id": "042b75dbd2a2e0cf9f79d68bd8aed197",
+  "created_at": "2026-05-03T10:40:25.428890+00:00",
+  "fixture_id": "4e2f57105b9fc6cf79c71fce5849d7dd043c270a5b71a37c3af9213a00791b85",
+  "ledger_index": 1001,
+  "network": "synthetic",
+  "assets": [
+    {
+      "asset_key": "USD:rIssuer1111111111111111111111111111",
+      "asset_type": "iou",
+      "issuer": "rIssuer1111111111111111111111111111",
+      "currency": "USD",
+      "mpt_id": null,
+      "capability_requirements": [],
+      "risk_flags": [
+        "clawback_possible",
+        "deep_freeze_possible"
+      ],
+      "limitations": []
+    },
+    {
+      "asset_key": "XRP",
+      "asset_type": "xrp",
+      "issuer": null,
+      "currency": "XRP",
+      "mpt_id": null,
+      "capability_requirements": [],
+      "risk_flags": [],
+      "limitations": []
+    }
+  ],
+  "amms": [
+    {
+      "amm_id": "df8353fd11ac142c",
+      "asset_a": "XRP",
+      "asset_b": "USD:rIssuer1111111111111111111111111111",
+      "trading_fee": 500,
+      "lp_token": {
+        "currency": "039C99CD9AB0B9C62",
+        "issuer": "rAMMAccount111111111111111111111111",
+        "value": "100"
+      },
+      "reserves": {
+        "asset_a_key": "XRP",
+        "asset_b_key": "USD:rIssuer1111111111111111111111111111",
+        "amount_a_raw": "1000000000",
+        "amount_b_raw": {
+          "currency": "USD",
+          "issuer": "rIssuer1111111111111111111111111111",
+          "value": "1000"
+        }
+      },
+      "ledger_index": 1001,
+      "capability_requirements": [
+        "AMM"
+      ],
+      "limitations": []
+    }
+  ],
+  "orderbooks": [
+    {
+      "orderbook_id": "1ddda1e951f3989b",
+      "taker_gets": "XRP",
+      "taker_pays": "USD:rIssuer1111111111111111111111111111",
+      "offers": [
+        {
+          "account": "rTrader1111111111111111111111111111",
+          "taker_gets": "1000000",
+          "taker_pays": {
+            "currency": "USD",
+            "issuer": "rIssuer1111111111111111111111111111",
+            "value": "1"
+          },
+          "quality": "0.000001"
+        }
+      ],
+      "best_bid": "1e-06",
+      "best_ask": null,
+      "spread_bps": null,
+      "depth_summary": {
+        "offer_count": 1,
+        "has_data": true
+      },
+      "ledger_index": 1001,
+      "limitations": [
+        "only one offer \u2014 cannot compute spread",
+        "spread_bps could not be computed from available offers"
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "account": "rIssuer1111111111111111111111111111",
+      "ledger_index": 1001,
+      "flags": 0,
+      "balance_drops": "5000000000",
+      "owner_count": 0,
+      "sequence": 1,
+      "previous_txn_id": null,
+      "limitations": []
+    },
+    {
+      "account": "rTrader1111111111111111111111111111",
+      "ledger_index": 1001,
+      "flags": 0,
+      "balance_drops": "1000000000",
+      "owner_count": 0,
+      "sequence": 5,
+      "previous_txn_id": null,
+      "limitations": []
+    }
+  ],
+  "trustlines": [
+    {
+      "account": "rTrader1111111111111111111111111111",
+      "issuer": "rIssuer1111111111111111111111111111",
+      "currency": "USD",
+      "balance": "100",
+      "limit": "1000",
+      "flags": 0,
+      "no_ripple": false,
+      "freeze_state": "none",
+      "clawback_relevant": false,
+      "limitations": []
+    }
+  ],
+  "mpt_holders": [
+    {
+      "mpt_id": "0000000000000000000000000000000000000000000000000000000000000001",
+      "holder_count": 1,
+      "holders_sample": [
+        {
+          "account": "rTrader1111111111111111111111111111",
+          "amount": "1000"
+        }
+      ],
+      "capability_requirements": [
+        "MPTokensV1"
+      ],
+      "limitations": []
+    }
+  ],
+  "metadata_signals": [
+    {
+      "tx_hash": "amm_create_metadata",
+      "tx_type": "Unknown",
+      "ledger_index": 0,
+      "delivered_amount": null,
+      "affected_node_count": 1,
+      "balance_changes": [],
+      "signal_flags": [
+        "amm_changed"
+      ],
+      "limitations": []
+    },
+    {
+      "tx_hash": "payment_partial_metadata",
+      "tx_type": "Unknown",
+      "ledger_index": 0,
+      "delivered_amount": {
+        "currency": "USD",
+        "issuer": "rIssuer1111111111111111111111111111",
+        "value": "50"
+      },
+      "affected_node_count": 2,
+      "balance_changes": [
+        {
+          "account": "rTrader1111111111111111111111111111",
+          "currency": "XRP",
+          "issuer": null,
+          "value": "-100000000",
+          "asset_key": "XRP"
+        },
+        {
+          "account": "rTrader1111111111111111111111111111",
+          "currency": "USD",
+          "issuer": "rIssuer1111111111111111111111111111",
+          "value": "50.0",
+          "asset_key": "USD:rIssuer1111111111111111111111111111"
+        }
+      ],
+      "signal_flags": [
+        "trustline_changed",
+        "account_balance_changed"
+      ],
+      "limitations": []
+    }
+  ],
+  "capabilities": {
+    "AMM": true,
+    "AMMClawback": true,
+    "Clawback": true,
+    "Credentials": true,
+    "DID": true,
+    "DeepFreeze": true,
+    "ExpandedSignerList": true,
+    "MPTokensV1": true,
+    "PriceOracle": true,
+    "LendingProtocol": false,
+    "SingleAssetVault": false,
+    "PermissionedDEX": false,
+    "PermissionedDomains": false,
+    "TokenEscrow": false,
+    "Batch": false,
+    "PermissionDelegation": false,
+    "fixBatchInnerSigs": false,
+    "HooksOnMainnet": false,
+    "XahauHooks": false,
+    "SmartContractsXLS101": false
+  },
+  "quality": {
+    "score": 100,
+    "coverage": {
+      "manifest": true,
+      "amm": true,
+      "orderbook": true,
+      "metadata": true,
+      "metadata_sufficient_truth": true,
+      "mpt": true,
+      "accounts": true
+    },
+    "missing_sections": [],
+    "stale_sections": [],
+    "protocol_warnings": [],
+    "fixture_warnings": [],
+    "recommendation": "usable_for_simulation"
+  },
+  "limitations": [
+    "synthetic data only, not real XRPL data"
+  ],
+  "source_hash": "88ef85168fa5a5c79ab6352cea532ba1bc4405fd10a4848fa28b0eea3e128ec0"
+}
