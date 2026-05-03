@@ -88,7 +88,9 @@ The following are **unconditionally prohibited** in Phase 45:
 
 ## CI / Audit Safety Checks
 
-The following must pass before any phase is marked complete:
+The following must pass before any phase is marked complete.
+
+**CI (Linux, venv active or GitHub Actions Python):**
 
 ```bash
 python -m pytest                           # All tests pass
@@ -97,6 +99,28 @@ python scripts/audit_validator.py         # Existing audit validator passes
 python -m sonic_xrpl.cli.main health      # CLI works offline
 python -m sonic_xrpl.cli.main capabilities # Capability matrix accessible
 ```
+
+**Windows local validation (use venv interpreter explicitly):**
+
+```powershell
+.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.venv\Scripts\python.exe -m pytest
+.venv\Scripts\python.exe scripts\safety_grep.py
+.venv\Scripts\python.exe scripts\audit_validator.py
+$env:PYTHONPATH = "src"
+.venv\Scripts\python.exe -m sonic_xrpl.cli.main health
+.venv\Scripts\python.exe -m sonic_xrpl.cli.main capabilities
+.venv\Scripts\python.exe -m sonic_xrpl.cli.main safety-scan
+.venv\Scripts\python.exe -m sonic_xrpl.cli.main market-snapshot --path tests/fixtures/xrpl
+.venv\Scripts\python.exe -m sonic_xrpl.cli.main market-snapshot-report --path tests/fixtures/xrpl
+Remove-Item Env:\PYTHONPATH
+```
+
+> **Windows note:** Do **not** use bare `python` for local validation — the
+> system interpreter may not have `sqlmodel`, `xrpl`, or other project
+> dependencies installed.  Use `.venv\Scripts\python.exe` or activate the
+> venv first (`.\.venv\Scripts\Activate.ps1`).
+> For a one-command validation block see `scripts/windows_validate.ps1`.
 
 ---
 
