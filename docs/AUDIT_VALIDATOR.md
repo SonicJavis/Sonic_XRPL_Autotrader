@@ -104,6 +104,30 @@ a non-zero exit code as a failing CI step.
 
 ---
 
+## Additional Local Validation Commands (Phase 48+)
+
+In addition to the root audit validator's 5 checks, Phase 48 introduces a separate dependency audit command:
+
+```powershell
+# Windows (recommended):
+.venv\Scripts\python.exe scripts\dependency_audit.py --write-report
+
+# Linux/CI:
+python scripts/dependency_audit.py --write-report
+```
+
+This runs **independently** from `scripts/audit_validator.py` and performs:
+
+1. `pip check` — verifies no broken requirements
+2. `pip-audit` — checks installed packages against the OSV/PyPI Advisory DB
+3. xrpl.js compromised version detection in any Node dependency files
+
+Reports are written to `docs/audit/latest_dependency_audit.json` and `docs/audit/latest_dependency_audit.md`.
+
+**Note**: The dependency audit is a separate script and separate CI job. It does **not** replace or modify the 5 checks in `scripts/audit_validator.py`.
+
+---
+
 ## Related Files
 
 | File | Role |

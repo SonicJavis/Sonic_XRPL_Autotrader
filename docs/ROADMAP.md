@@ -31,17 +31,15 @@ All existing tests preserved. Live trading blocked.
 
 ---
 
-## Phase 48 — AMM/Orderbook Intelligence Layer
+## Phase 48 — Dependency Audit / Supply-Chain Guardrails ✅
 
-- AMM constant-product fill model (replace Phase 45 placeholder)
-- Orderbook depth-based fill model
-- Multi-hop routing placeholder
-- Spread and liquidity quality scoring
-- AMM vs orderbook routing decision
+Read-only audit of Python and Node dependency supply chain.
+Detects compromised xrpl.js versions. Runs pip check and pip-audit.
+Produces CI artifact reports. No runtime trading behaviour changed.
 
 ---
 
-## Phase 49 — MPT/Issuer Risk Intelligence Layer
+## Phase 49 — Strategy Signal Contracts over Market Snapshots
 
 - MPT issuer profiling
 - Clawback and freeze risk scoring

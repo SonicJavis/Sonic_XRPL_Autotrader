@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-03T12:55:52.246688+00:00",
+  "phase": "48",
+  "overall_status": "warning",
+  "python_dependency_check": {
+    "status": "pass",
+    "passed": true,
+    "message": "No broken requirements found.",
+    "exit_code": 0
+  },
+  "pip_audit": {
+    "status": "skipped",
+    "passed": true,
+    "message": "pip-audit skipped by --skip-pip-audit flag.",
+    "vulnerabilities": []
+  },
+  "node_dependency_check": {
+    "status": "not_applicable",
+    "passed": true,
+    "message": "No Node dependency files found \u2014 xrpl.js audit not applicable.",
+    "findings": [],
+    "warnings": []
+  },
+  "python_dependency_files": {
+    "status": "info",
+    "passed": true,
+    "message": "Python dependency files found: ['pyproject.toml']",
+    "files_found": [
+      "pyproject.toml"
+    ]
+  },
+  "findings": [],
+  "warnings": []
+}
