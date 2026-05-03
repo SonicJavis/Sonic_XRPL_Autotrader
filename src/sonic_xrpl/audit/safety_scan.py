@@ -344,3 +344,47 @@ def get_blocked_findings(findings: list[SafetyFinding]) -> list[SafetyFinding]:
 def get_review_findings(findings: list[SafetyFinding]) -> list[SafetyFinding]:
     """Return findings that REQUIRE_REVIEW."""
     return [f for f in findings if f.classification == SafetyClassification.REQUIRES_REVIEW]
+
+
+# Fixture-specific patterns (no "secret" to avoid tesSUCCESS false positives)
+_FIXTURE_SCAN_PATTERNS = [
+    re.compile(r'\bseed\b', re.IGNORECASE),
+    re.compile(r'\bprivate_key\b', re.IGNORECASE),
+    re.compile(r'\bmnemonic\b', re.IGNORECASE),
+]
+
+
+def scan_fixture_files(fixture_dir: Path) -> list[SafetyFinding]:
+    """Scan JSON/JSONL fixture files for credential-like patterns.
+
+    Checks for: seed, private_key, mnemonic.
+    Does NOT check for 'secret' to avoid flagging tesSUCCESS in XRPL fixtures.
+    """
+    if not fixture_dir.exists():
+        return []
+
+    findings: list[SafetyFinding] = []
+
+    for ext in ("*.json", "*.jsonl"):
+        for fpath in fixture_dir.rglob(ext):
+            try:
+                lines = fpath.read_text().splitlines()
+            except Exception:
+                continue
+            for i, line in enumerate(lines, 1):
+                for compiled_re in _FIXTURE_SCAN_PATTERNS:
+                    if compiled_re.search(line):
+                        try:
+                            rel = str(fpath.relative_to(fixture_dir.parent.parent))
+                        except Exception:
+                            rel = str(fpath)
+                        findings.append(SafetyFinding(
+                            file_path=rel,
+                            line_no=i,
+                            pattern=compiled_re.pattern,
+                            classification=SafetyClassification.BLOCKED,
+                            context=line.strip()[:80],
+                            reason=f"Credential-like pattern '{compiled_re.pattern}' in fixture file",
+                        ))
+                        break
+    return findings

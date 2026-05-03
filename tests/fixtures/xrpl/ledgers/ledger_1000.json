@@ -1,0 +1,7 @@
+{
+  "ledger_index": 1000,
+  "ledger_hash": "AABBCCDDEE00112233445566778899AABBCCDDEE00112233445566778899AA00",
+  "close_time_iso": "2025-01-01T00:00:00Z",
+  "validated": true,
+  "transactions": []
+}

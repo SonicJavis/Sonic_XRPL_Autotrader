@@ -1,0 +1,7 @@
+{
+  "hash": "C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4",
+  "ledger_index": 1000,
+  "transaction_type": "TrustSet",
+  "account": "rTrader1111111111111111111111111111",
+  "metadata": {"TransactionResult": "tesSUCCESS", "AffectedNodes": []}
+}

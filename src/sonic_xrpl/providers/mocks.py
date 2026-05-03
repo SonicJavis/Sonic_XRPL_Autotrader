@@ -56,6 +56,9 @@ class MockLedgerProvider(LedgerProvider):
             "validated": True,
         }
 
+    def get_account_lines(self, account: str) -> dict[str, Any]:
+        return {"account": account, "lines": [], "validated": True}
+
     def get_account_tx(
         self,
         account: str,

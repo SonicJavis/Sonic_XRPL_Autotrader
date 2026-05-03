@@ -1,0 +1,10 @@
+{
+  "amm": {
+    "amount": "1000000000",
+    "amount2": {"currency": "USD", "issuer": "rIssuer1111111111111111111111111111", "value": "1000"},
+    "lp_token": {"currency": "039C99CD9AB0B9C62", "issuer": "rAMMAccount111111111111111111111111", "value": "100"},
+    "trading_fee": 500,
+    "amm_account": "rAMMAccount111111111111111111111111"
+  },
+  "validated": true
+}

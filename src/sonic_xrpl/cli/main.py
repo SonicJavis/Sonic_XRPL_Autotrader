@@ -102,6 +102,29 @@ def main(argv: list[str] | None = None) -> int:
         help="Fill model type",
     )
 
+    # fixtures
+    fixtures_parser = subparsers.add_parser("fixtures", help="Show fixture manifest info")
+    fixtures_parser.add_argument("--path", required=True, help="Path to fixture directory")
+
+    # fixture-health
+    fixture_health_parser = subparsers.add_parser("fixture-health", help="Run fixture health check")
+    fixture_health_parser.add_argument("--path", required=True, help="Path to fixture directory")
+
+    # fixture-account
+    fixture_account_parser = subparsers.add_parser("fixture-account", help="Show account info from fixture")
+    fixture_account_parser.add_argument("--path", required=True, help="Path to fixture directory")
+    fixture_account_parser.add_argument("--account", required=True, help="Account identifier (prefix match)")
+
+    # fixture-amm
+    fixture_amm_parser = subparsers.add_parser("fixture-amm", help="Show AMM info from fixture")
+    fixture_amm_parser.add_argument("--path", required=True, help="Path to fixture directory")
+    fixture_amm_parser.add_argument("--asset-a", required=True, help="Asset A (e.g. XRP)")
+    fixture_amm_parser.add_argument("--asset-b", required=True, help="Asset B (e.g. USD_rIssuer)")
+
+    # fixture-balance-changes
+    fixture_bc_parser = subparsers.add_parser("fixture-balance-changes", help="Parse metadata and show balance changes")
+    fixture_bc_parser.add_argument("--metadata", required=True, help="Path to metadata JSON file")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -120,6 +143,16 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_reconcile(args)
     if args.command == "simulate":
         return _cmd_simulate(args)
+    if args.command == "fixtures":
+        return _cmd_fixtures(args)
+    if args.command == "fixture-health":
+        return _cmd_fixture_health(args)
+    if args.command == "fixture-account":
+        return _cmd_fixture_account(args)
+    if args.command == "fixture-amm":
+        return _cmd_fixture_amm(args)
+    if args.command == "fixture-balance-changes":
+        return _cmd_fixture_balance_changes(args)
 
     parser.print_help()
     return 0
@@ -324,6 +357,145 @@ def _cmd_simulate(args) -> int:
 
     print()
     print("  NOTE: Simulation only — no guaranteed fills. Live submission is BLOCKED.")
+    return 0
+
+
+def _cmd_fixtures(args) -> int:
+    """Show fixture manifest info."""
+    from pathlib import Path
+    from sonic_xrpl.providers.fixture_manifest import load_manifest
+    from sonic_xrpl.providers.errors import FixtureMissingError
+
+    fixture_dir = Path(args.path)
+    try:
+        manifest = load_manifest(fixture_dir)
+    except FixtureMissingError as exc:
+        print(f"❌ {exc}")
+        return 1
+
+    print("=== Fixture Manifest ===")
+    print(f"  Name       : {manifest.name}")
+    print(f"  Version    : {manifest.version}")
+    print(f"  Network    : {manifest.network}")
+    print(f"  Created    : {manifest.created_at}")
+    print(f"  Ledger range: {manifest.ledger_min} – {manifest.ledger_max}")
+    print(f"  Accounts   : {manifest.account_count}")
+    print(f"  Transactions: {manifest.transaction_count}")
+    print(f"  AMM pools  : {manifest.amm_count}")
+    print(f"  Orderbooks : {manifest.orderbook_count}")
+    if manifest.limitations:
+        print(f"  Limitations: {'; '.join(manifest.limitations)}")
+    return 0
+
+
+def _cmd_fixture_health(args) -> int:
+    """Run fixture health check."""
+    from pathlib import Path
+    from sonic_xrpl.providers.health import check_fixture_health, HealthStatus
+
+    fixture_dir = Path(args.path)
+    report = check_fixture_health(fixture_dir)
+
+    print("=== Fixture Health ===")
+    print(f"  Status     : {report.status.value.upper()}")
+    print(f"  Manifest OK: {report.manifest_ok}")
+    print(f"  Security scan: {'OK' if report.secret_scan_ok else 'ISSUES'}")
+    for d, ok in report.dirs_ok.items():
+        print(f"  dir/{d}: {'✅' if ok else '❌'}")
+    if report.issues:
+        print("  Issues:")
+        for issue in report.issues:
+            print(f"    - {issue}")
+    return 0 if report.status == HealthStatus.HEALTHY else 1
+
+
+def _cmd_fixture_account(args) -> int:
+    """Show account info from fixture."""
+    import json
+    from pathlib import Path
+    from sonic_xrpl.providers.fixture_store import FixtureStore
+    from sonic_xrpl.providers.errors import FixtureMissingError
+
+    fixture_dir = Path(args.path)
+    store = FixtureStore(fixture_dir)
+    account = args.account
+
+    info = None
+    try:
+        info = store.load_account_info(account)
+    except FixtureMissingError:
+        accounts_dir = fixture_dir / "accounts"
+        if accounts_dir.exists():
+            for f in accounts_dir.glob("*.json"):
+                if account.lower() in f.stem.lower():
+                    try:
+                        info = json.loads(f.read_text())
+                        break
+                    except Exception:
+                        continue
+
+    if info is None:
+        print(f"❌ Account not found: {account}")
+        return 1
+
+    print("=== Account Info ===")
+    acct = info.get("account_data", {})
+    print(f"  Account  : {acct.get('Account', account)}")
+    print(f"  Balance  : {acct.get('Balance', '?')} drops")
+    print(f"  Sequence : {acct.get('Sequence', '?')}")
+    print(f"  Flags    : {acct.get('Flags', '?')}")
+    return 0
+
+
+def _cmd_fixture_amm(args) -> int:
+    """Show AMM info from fixture."""
+    from pathlib import Path
+    from sonic_xrpl.providers.fixture_store import FixtureStore
+    from sonic_xrpl.providers.errors import FixtureMissingError
+
+    fixture_dir = Path(args.path)
+    store = FixtureStore(fixture_dir)
+    asset_a = args.asset_a
+    asset_b = args.asset_b
+
+    try:
+        amm = store.load_amm_info(asset_a, asset_b)
+    except FixtureMissingError as exc:
+        print(f"❌ {exc}")
+        return 1
+
+    print("=== AMM Info ===")
+    amm_data = amm.get("amm", amm)
+    print(f"  Account    : {amm_data.get('amm_account', '?')}")
+    print(f"  Amount     : {amm_data.get('amount', '?')}")
+    print(f"  Amount2    : {amm_data.get('amount2', '?')}")
+    print(f"  Trading fee: {amm_data.get('trading_fee', '?')}")
+    return 0
+
+
+def _cmd_fixture_balance_changes(args) -> int:
+    """Parse metadata file and show balance changes."""
+    import json
+    from pathlib import Path
+    from sonic_xrpl.providers.balance_changes import extract_balance_changes
+
+    metadata_path = Path(args.metadata)
+    if not metadata_path.exists():
+        print(f"❌ Metadata file not found: {metadata_path}")
+        return 1
+
+    try:
+        metadata = json.loads(metadata_path.read_text())
+    except Exception as exc:
+        print(f"❌ Failed to parse metadata: {exc}")
+        return 1
+
+    changes = extract_balance_changes(metadata)
+    print("=== Balance Changes ===")
+    if not changes:
+        print("  (none)")
+    for ch in changes:
+        print(f"  {ch.account}: {ch.value} {ch.asset_key}")
     return 0
 
 

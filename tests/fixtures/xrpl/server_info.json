@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "info": {
+    "build_version": "1.12.0-fixture",
+    "complete_ledgers": "1000-1001",
+    "validated_ledger": {
+      "hash": "AABBCCDDEE00112233445566778899AABBCCDDEE00112233445566778899AABB",
+      "ledger_index": 1001,
+      "close_time": 768000000
+    },
+    "server_state": "full"
+  }
+}

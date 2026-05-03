@@ -1,0 +1,2 @@
+{"hash": "A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2", "ledger_index": 1000, "transaction_type": "Payment", "account": "rTrader1111111111111111111111111111", "metadata": {"TransactionResult": "tesSUCCESS"}}
+{"hash": "B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3D4E5F6A1B2C3", "ledger_index": 1001, "transaction_type": "OfferCreate", "account": "rTrader1111111111111111111111111111", "metadata": {"TransactionResult": "tesSUCCESS"}}

@@ -21,14 +21,21 @@ class FailoverProvider(LedgerProvider):
         if not providers:
             raise ValueError("FailoverProvider requires at least one provider")
         self._providers = providers
+        self._failover_reasons: list[str] = []
+
+    @property
+    def last_failover_reasons(self) -> list[str]:
+        return list(self._failover_reasons)
 
     def _call(self, method: str, **kwargs: Any) -> dict[str, Any]:
         """Try each provider in order, returning the first success."""
+        self._failover_reasons = []
         last_error: Exception | None = None
         for provider in self._providers:
             try:
                 return getattr(provider, method)(**kwargs)
             except Exception as exc:
+                self._failover_reasons.append(f"{type(provider).__name__}: {exc}")
                 last_error = exc
         raise ProviderError(
             f"All providers failed for {method!r}: {last_error}"
@@ -42,6 +49,9 @@ class FailoverProvider(LedgerProvider):
 
     def get_account_info(self, account: str) -> dict[str, Any]:
         return self._call("get_account_info", account=account)
+
+    def get_account_lines(self, account: str) -> dict[str, Any]:
+        return self._call("get_account_lines", account=account)
 
     def get_account_tx(
         self,
