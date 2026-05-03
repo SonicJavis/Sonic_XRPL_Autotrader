@@ -399,7 +399,7 @@ def _cmd_fixture_health(args) -> int:
     print("=== Fixture Health ===")
     print(f"  Status     : {report.status.value.upper()}")
     print(f"  Manifest OK: {report.manifest_ok}")
-    print(f"  Secret scan: {'OK' if report.secret_scan_ok else 'ISSUES'}")
+    print(f"  Security scan: {'OK' if report.secret_scan_ok else 'ISSUES'}")
     for d, ok in report.dirs_ok.items():
         print(f"  dir/{d}: {'✅' if ok else '❌'}")
     if report.issues:

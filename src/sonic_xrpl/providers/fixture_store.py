@@ -221,7 +221,7 @@ class FixtureStore:
                     text = f.read_text()
                     for pat in _SECRET_PATTERNS:
                         if pat.search(text):
-                            issues.append(f"Potential secret in {f.name}")
+                            issues.append(f"Sensitive credential-like pattern in {f.name}")
                             secret_scan_ok = False
                             break
                 except Exception:

@@ -1,7 +1,7 @@
 """Safety tests for fixture files."""
 from __future__ import annotations
 from pathlib import Path
-from sonic_xrpl.providers.safety_scan_fixtures import scan_fixture_files
+from sonic_xrpl.audit.safety_scan import scan_fixture_files, SafetyClassification
 
 FIXTURE_DIR = Path(__file__).parent.parent / "fixtures" / "xrpl"
 
