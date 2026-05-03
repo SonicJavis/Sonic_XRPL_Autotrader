@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "b480fff Phase 47.3: initial checklist\n48f154a Phase 47.2: Clarify Windows validation environment\n4bed3d2 Merge pull request #26 from SonicJavis/copilot/fix-post-merge-verification-issues",
-        "git_status": "M .github/workflows/audit-validator.yml\n M .github/workflows/ci.yml\n?? docs/PHASE47_3_CI_ENVIRONMENT_HARDENING.md",
-        "uncommitted_files": 3
+        "git_log": "783d00c Merge pull request #27 from SonicJavis/copilot/fix-windows-validation-consistency\n4061db2 Phase 47.3: Harden CI validation environment\n4bed3d2 Merge pull request #26 from SonicJavis/copilot/fix-post-merge-verification-issues",
+        "git_status": "M artifacts/audit_validator_report.json",
+        "uncommitted_files": 1
       },
       "passed": true
     },
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-03T12:18:25.794802+00:00",
+  "generated_at": "2026-05-03T12:48:43.214964+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"
