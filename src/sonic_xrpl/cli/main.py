@@ -54,6 +54,31 @@ def main(argv: list[str] | None = None) -> int:
         "safety-scan", help="Run V2 safety scan"
     )
     safety_parser.add_argument("--verbose", action="store_true")
+    safety_parser.add_argument(
+        "--path",
+        action="append",
+        dest="scan_dirs",
+        metavar="DIR",
+        help=(
+            "Scan only this directory (relative to repo root). "
+            "May be specified multiple times. "
+            "Defaults to the standard source-controlled directories."
+        ),
+    )
+    safety_parser.add_argument(
+        "--max-files",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Stop after scanning N files (default: unlimited).",
+    )
+    safety_parser.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=None,
+        metavar="T",
+        help="Abort the scan after T seconds (default: no limit).",
+    )
 
     # reconcile
     reconcile_parser = subparsers.add_parser(
@@ -183,6 +208,7 @@ def _cmd_capabilities() -> int:
 
 def _cmd_safety_scan(args) -> int:
     """Run V2 safety scan."""
+    import signal
     from pathlib import Path
     from sonic_xrpl.audit.safety_scan import (
         SafetyClassification,
@@ -192,8 +218,34 @@ def _cmd_safety_scan(args) -> int:
     )
 
     repo_root = Path(__file__).resolve().parent.parent.parent.parent
+
+    scan_dirs = getattr(args, "scan_dirs", None)  # None → default source dirs
+    max_files = getattr(args, "max_files", None)
+    timeout_seconds = getattr(args, "timeout_seconds", None)
+
     print("=== V2 Safety Scan ===")
-    findings = run_safety_scan(repo_root)
+
+    # Optional hard timeout via SIGALRM (Unix only; skipped on Windows).
+    if timeout_seconds is not None:
+        try:
+            limit = timeout_seconds
+
+            def _timeout_handler(signum, frame, _limit=limit):
+                raise TimeoutError(f"Safety scan aborted after {_limit}s")
+
+            signal.signal(signal.SIGALRM, _timeout_handler)
+            signal.alarm(timeout_seconds)
+        except (AttributeError, OSError):
+            pass  # SIGALRM not available on Windows
+
+    try:
+        findings = run_safety_scan(repo_root, scan_dirs=scan_dirs, max_files=max_files)
+    finally:
+        if timeout_seconds is not None:
+            try:
+                signal.alarm(0)
+            except (AttributeError, OSError):
+                pass
 
     blocked = get_blocked_findings(findings)
     review = get_review_findings(findings)
