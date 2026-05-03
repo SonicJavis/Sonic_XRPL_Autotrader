@@ -196,27 +196,118 @@ def classify_finding(
     )
 
 
-def run_safety_scan(repo_root: Path) -> list[SafetyFinding]:
+# Source-controlled directories to scan by default.
+# These are the only directories that contain project code.
+DEFAULT_SCAN_DIRS = [
+    "src/sonic_xrpl",
+    "execution_prototype",
+    "app",
+    "scripts",
+    "docs",
+    "dashboard",
+    "tests",
+]
+
+# Directory name components to unconditionally skip during traversal.
+EXCLUDED_DIR_PARTS = {
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "node_modules",
+    "dist",
+    "build",
+    "artifacts",
+    "reports",
+    "datasets",
+    "data",
+    ".idea",
+    ".vscode",
+    ".tox",
+    "site-packages",
+}
+
+
+def _collect_scan_paths(
+    root: Path,
+    *,
+    scan_dirs: list[str] | None = None,
+    max_files: int | None = None,
+) -> list[Path]:
+    """Collect files to scan from bounded source-controlled directories.
+
+    Only '.py' and '.md' files are returned.  Traversal skips any directory
+    whose name is in
+    EXCLUDED_DIR_PARTS so that virtual-envs, caches, and build artefacts
+    are never walked.
+
+    Args:
+        root: Repository root directory.
+        scan_dirs: List of subdirectory paths (relative to *root*) to scan.
+            Defaults to DEFAULT_SCAN_DIRS.  Only directories that actually
+            exist are scanned.
+        max_files: Optional upper limit on the number of files returned.
+
+    Returns:
+        Sorted list of Path objects to scan.
+    """
+    if scan_dirs is None:
+        scan_dirs = DEFAULT_SCAN_DIRS
+
+    allowed_extensions = {".py", ".md"}
+    collected: list[Path] = []
+
+    for rel_dir in scan_dirs:
+        target = root / rel_dir
+        if not target.exists():
+            continue
+        if target.is_file():
+            if target.suffix in allowed_extensions:
+                collected.append(target)
+            continue
+        for filepath in target.rglob("*"):
+            if not filepath.is_file():
+                continue
+            if filepath.suffix not in allowed_extensions:
+                continue
+            # Skip excluded directory components anywhere in the path
+            if any(part in EXCLUDED_DIR_PARTS for part in filepath.parts):
+                continue
+            collected.append(filepath)
+            if max_files is not None and len(collected) >= max_files:
+                return collected
+
+    return collected
+
+
+def run_safety_scan(
+    repo_root: Path,
+    *,
+    scan_dirs: list[str] | None = None,
+    max_files: int | None = None,
+) -> list[SafetyFinding]:
     """Scan the repository for safety-sensitive patterns.
+
+    Only source-controlled project directories are scanned by default (see
+    DEFAULT_SCAN_DIRS).  Virtual-envs, caches, build artefacts, and binary
+    directories are excluded so the scan completes quickly and
+    deterministically offline.
 
     Args:
         repo_root: Root directory of the repository.
+        scan_dirs: Override the list of directories to scan (relative paths).
+        max_files: Stop collecting files after this many files have been found.
 
     Returns:
         List of SafetyFinding objects classified by context.
     """
     findings: list[SafetyFinding] = []
 
-    # Collect Python and Markdown files
-    scan_paths: list[Path] = []
-    for ext in (".py", ".md"):
-        scan_paths.extend(repo_root.rglob(f"*{ext}"))
-
-    # Skip .git and __pycache__
-    scan_paths = [
-        p for p in scan_paths
-        if ".git" not in p.parts and "__pycache__" not in p.parts
-    ]
+    scan_paths = _collect_scan_paths(repo_root, scan_dirs=scan_dirs, max_files=max_files)
 
     compiled_patterns = [re.compile(p) for p in SAFETY_PATTERNS]
 
