@@ -8,6 +8,8 @@ Usage:
   python -m sonic_xrpl.cli.main safety-scan
   python -m sonic_xrpl.cli.main reconcile --help
   python -m sonic_xrpl.cli.main simulate --help
+  python -m sonic_xrpl.cli.main market-snapshot --path tests/fixtures/xrpl
+  python -m sonic_xrpl.cli.main market-snapshot-report --path tests/fixtures/xrpl
 
 All commands work offline. No network access required by default.
 """
@@ -125,6 +127,24 @@ def main(argv: list[str] | None = None) -> int:
     fixture_bc_parser = subparsers.add_parser("fixture-balance-changes", help="Parse metadata and show balance changes")
     fixture_bc_parser.add_argument("--metadata", required=True, help="Path to metadata JSON file")
 
+    # market-snapshot
+    ms_parser = subparsers.add_parser("market-snapshot", help="Build and display a market snapshot from fixtures")
+    ms_parser.add_argument("--path", required=True, help="Path to fixture directory")
+    ms_parser.add_argument("--ledger-index", type=int, default=None, help="Ledger index to snapshot (default: latest)")
+    ms_parser.add_argument("--account", action="append", dest="accounts", metavar="ACCOUNT", help="Account to include context for (may be repeated)")
+    ms_parser.add_argument("--no-metadata", action="store_true", help="Skip metadata signal parsing")
+    ms_parser.add_argument("--no-mpt", action="store_true", help="Skip MPT holder context")
+    ms_parser.add_argument("--strict", action="store_true", help="Fail if fixture health check fails")
+    ms_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
+    # market-snapshot-report
+    msr_parser = subparsers.add_parser("market-snapshot-report", help="Build market snapshot and write report files")
+    msr_parser.add_argument("--path", required=True, help="Path to fixture directory")
+    msr_parser.add_argument("--ledger-index", type=int, default=None, help="Ledger index to snapshot (default: latest)")
+    msr_parser.add_argument("--account", action="append", dest="accounts", metavar="ACCOUNT", help="Account to include context for (may be repeated)")
+    msr_parser.add_argument("--output-dir", default=None, help="Output directory for report files (default: reports/phase47/)")
+    msr_parser.add_argument("--strict", action="store_true", help="Fail if fixture health check fails")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -153,6 +173,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_fixture_amm(args)
     if args.command == "fixture-balance-changes":
         return _cmd_fixture_balance_changes(args)
+    if args.command == "market-snapshot":
+        return _cmd_market_snapshot(args)
+    if args.command == "market-snapshot-report":
+        return _cmd_market_snapshot_report(args)
 
     parser.print_help()
     return 0
@@ -496,6 +520,106 @@ def _cmd_fixture_balance_changes(args) -> int:
         print("  (none)")
     for ch in changes:
         print(f"  {ch.account}: {ch.value} {ch.asset_key}")
+    return 0
+
+
+def _cmd_market_snapshot(args) -> int:
+    """Build and display a market snapshot from fixture data."""
+    import json as _json
+    from pathlib import Path
+    from sonic_xrpl.market.snapshot_builder import build_market_snapshot
+    from sonic_xrpl.market.errors import SnapshotBuildError, FixtureHealthError
+
+    fixture_path = Path(args.path)
+    accounts = getattr(args, "accounts", None) or []
+    ledger_index = getattr(args, "ledger_index", None)
+    include_metadata = not getattr(args, "no_metadata", False)
+    include_mpt = not getattr(args, "no_mpt", False)
+    strict = getattr(args, "strict", False)
+    as_json = getattr(args, "json", False)
+
+    try:
+        snapshot = build_market_snapshot(
+            fixture_path,
+            ledger_index=ledger_index,
+            accounts=accounts,
+            include_metadata=include_metadata,
+            include_mpt=include_mpt,
+            strict=strict,
+        )
+    except (SnapshotBuildError, FixtureHealthError) as exc:
+        print(f"❌ {exc}")
+        return 1
+
+    if as_json:
+        from dataclasses import asdict
+        print(_json.dumps(asdict(snapshot), indent=2, default=str))
+        return 0
+
+    print("=== Market Snapshot ===")
+    print(f"  Snapshot ID  : {snapshot.snapshot_id}")
+    print(f"  Created      : {snapshot.created_at}")
+    print(f"  Fixture ID   : {snapshot.fixture_id}")
+    print(f"  Ledger index : {snapshot.ledger_index}")
+    print(f"  Network      : {snapshot.network}")
+    print()
+    print(f"  Assets       : {len(snapshot.assets)}")
+    print(f"  AMM pools    : {len(snapshot.amms)}")
+    print(f"  Orderbooks   : {len(snapshot.orderbooks)}")
+    print(f"  Accounts     : {len(snapshot.accounts)}")
+    print(f"  Trustlines   : {len(snapshot.trustlines)}")
+    print(f"  MPT holders  : {len(snapshot.mpt_holders)}")
+    print(f"  Metadata signals: {len(snapshot.metadata_signals)}")
+    print()
+    print(f"  Quality score: {snapshot.quality.score}/100")
+    print(f"  Recommendation: {snapshot.quality.recommendation.value}")
+    if snapshot.quality.missing_sections:
+        print(f"  Missing sections: {', '.join(snapshot.quality.missing_sections)}")
+    if snapshot.quality.protocol_warnings:
+        print(f"  Protocol warnings:")
+        for w in snapshot.quality.protocol_warnings:
+            print(f"    ⚠️  {w}")
+    if snapshot.limitations:
+        print(f"  Limitations:")
+        for lim in snapshot.limitations[:5]:
+            print(f"    - {lim}")
+    print()
+    print("  NOTE: Offline snapshot only — no live data, no execution.")
+    return 0
+
+
+def _cmd_market_snapshot_report(args) -> int:
+    """Build a market snapshot and write JSON + Markdown report files."""
+    from pathlib import Path
+    from sonic_xrpl.market.snapshot_builder import build_market_snapshot
+    from sonic_xrpl.market.report_writer import write_snapshot_report, write_snapshot_summary
+    from sonic_xrpl.market.errors import SnapshotBuildError, FixtureHealthError
+
+    fixture_path = Path(args.path)
+    accounts = getattr(args, "accounts", None) or []
+    ledger_index = getattr(args, "ledger_index", None)
+    output_dir = getattr(args, "output_dir", None)
+    strict = getattr(args, "strict", False)
+
+    try:
+        snapshot = build_market_snapshot(
+            fixture_path,
+            ledger_index=ledger_index,
+            accounts=accounts,
+            strict=strict,
+        )
+    except (SnapshotBuildError, FixtureHealthError) as exc:
+        print(f"❌ {exc}")
+        return 1
+
+    json_path = write_snapshot_report(snapshot, output_dir)
+    md_path = write_snapshot_summary(snapshot, output_dir)
+
+    print("=== Market Snapshot Report ===")
+    print(f"  Snapshot ID  : {snapshot.snapshot_id}")
+    print(f"  Quality score: {snapshot.quality.score}/100 ({snapshot.quality.recommendation.value})")
+    print(f"  JSON report  : {json_path}")
+    print(f"  Summary      : {md_path}")
     return 0
 
 
