@@ -17,5 +17,5 @@ def test_fixture_health_command():
     )
     
     assert result.returncode == 0, f"CLI failed: {result.stderr or 'No stderr'}"
-    assert any(phrase in (result.stdout or "") for phrase in ["HEALTHY", "[OK]", "Fixture"]), \
-        f"Expected message not found. Got: {result.stdout}"
+    stdout = result.stdout or ""
+    assert any(phrase in stdout for phrase in ["HEALTHY", "[OK]", "Fixture"]), f"Expected message not found. Got: {stdout}"
