@@ -92,3 +92,25 @@ def test_parse_firstledger_fixture_has_deterministic_ids_and_ordering():
 
     assert [event.event_id for event in first] == [event.event_id for event in second]
     assert [event.ledger_index for event in first] == [11, 12]
+
+
+def test_parse_firstledger_fixture_keeps_observed_at_empty_when_missing():
+    rows = [
+        {
+            "event_type": "amm_create",
+            "issuer": "rIssuer",
+            "currency": "MEME",
+            "ledger_index": 123,
+            "tx_hash": "ABC123",
+            "validated": True,
+            "metadata_present": True,
+        }
+    ]
+
+    events = parse_firstledger_fixture(rows)
+    events_second_pass = parse_firstledger_fixture(rows)
+
+    assert len(events) == 1
+    assert events[0].observed_at == ""
+    assert "observed_at_missing" in events[0].limitations
+    assert events_second_pass[0].observed_at == ""
