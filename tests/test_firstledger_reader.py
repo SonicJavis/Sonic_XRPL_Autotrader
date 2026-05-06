@@ -92,3 +92,27 @@ def test_parse_firstledger_fixture_has_deterministic_ids_and_ordering():
 
     assert [event.event_id for event in first] == [event.event_id for event in second]
     assert [event.ledger_index for event in first] == [11, 12]
+
+
+def test_parse_firstledger_fixture_preserves_missing_observed_at_without_synthesis():
+    rows = [
+        {
+            "type": "trustline",
+            "issuer": "rIssuer",
+            "currency_code": "MISS_TIME",
+            "ledger_index": 777,
+            "tx_hash": "MISSINGTIME777",
+            "validated": True,
+            "metadata_present": True,
+        }
+    ]
+
+    first = parse_firstledger_fixture(rows)
+    second = parse_firstledger_fixture(rows)
+
+    assert len(first) == 1
+    assert first[0].observed_at == ""
+    assert second[0].observed_at == ""
+    assert first[0].observed_at == second[0].observed_at
+    assert "observed_at_missing" in first[0].limitations
+    assert "observed_at_missing_generated_by_parser" not in first[0].limitations

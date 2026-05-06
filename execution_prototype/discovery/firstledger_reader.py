@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 from execution_prototype.discovery.models import RawDiscoveryEvent
@@ -105,8 +104,7 @@ def parse_firstledger_fixture(data: Iterable[Mapping[str, Any]]) -> List[RawDisc
         if not tx_hash:
             continue
         if not observed_at:
-            observed_at = datetime.now(timezone.utc).isoformat()
-            limitations.append("observed_at_missing_generated_by_parser")
+            limitations.append("observed_at_missing")
         if not validated:
             limitations.append("not_validated_do_not_treat_as_final")
         if not metadata_present:
