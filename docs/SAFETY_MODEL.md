@@ -148,3 +148,9 @@ Live trading is blocked until **all of the following** are complete:
 5. Full re-run of audit validator and safety scan with live context
 
 This path is not implemented and is not planned until Phase 57 minimum.
+
+## Phase 49 FirstLedger signal safety boundary
+
+Phase 49 signals are advisory evidence contracts only. They do not authorize live trading, do not create Xaman payloads, do not sign, do not submit, and do not place orders. `BUY_CANDIDATE` is not a buy order; it means the offline minimum evidence contract passed. All outputs include `live_execution_allowed=False`.
+
+The FirstLedger accuracy boundary is permanent: no fake token names, symbols, issuers, liquidity, holder counts, dev holdings, volume, socials, launch age, moonshot labels, or buy recommendations may be generated from missing data.

@@ -146,3 +146,7 @@ Output: `docs/audit/latest_audit_report.{md,json}`
 ## Roadmap
 
 See `docs/ROADMAP.md` for full phase roadmap.
+
+## Phase 49 blueprint addendum
+
+The project now includes a Phase 49 signal/evidence layer for FirstLedger candidate risk review. This layer prepares future simulation and paper-review workflows by producing deterministic, explainable, non-executing signals. It preserves source provenance, missing-data limitations, and the live execution boundary.

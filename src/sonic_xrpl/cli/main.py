@@ -10,6 +10,8 @@ Usage:
   python -m sonic_xrpl.cli.main simulate --help
   python -m sonic_xrpl.cli.main market-snapshot --path tests/fixtures/xrpl
   python -m sonic_xrpl.cli.main market-snapshot-report --path tests/fixtures/xrpl
+  python -m sonic_xrpl.cli.main firstledger-signals --fixture tests/fixtures/firstledger/source_backed_candidates.json
+  python -m sonic_xrpl.cli.main firstledger-signal-report --fixture tests/fixtures/firstledger/source_backed_candidates.json --output-dir reports/phase49
 
 All commands work offline. No network access required by default.
 """
@@ -145,6 +147,13 @@ def main(argv: list[str] | None = None) -> int:
     msr_parser.add_argument("--output-dir", default=None, help="Output directory for report files (default: reports/phase47/)")
     msr_parser.add_argument("--strict", action="store_true", help="Fail if fixture health check fails")
 
+    fls_parser = subparsers.add_parser("firstledger-signals", help="Generate offline FirstLedger candidate signals from a fixture")
+    fls_parser.add_argument("--fixture", required=True, help="Path to FirstLedger candidate fixture JSON")
+
+    flr_parser = subparsers.add_parser("firstledger-signal-report", help="Write offline FirstLedger signal reports")
+    flr_parser.add_argument("--fixture", required=True, help="Path to FirstLedger candidate fixture JSON")
+    flr_parser.add_argument("--output-dir", required=True, help="Output directory for report files")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -177,6 +186,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_market_snapshot(args)
     if args.command == "market-snapshot-report":
         return _cmd_market_snapshot_report(args)
+    if args.command == "firstledger-signals":
+        return _cmd_firstledger_signals(args)
+    if args.command == "firstledger-signal-report":
+        return _cmd_firstledger_signal_report(args)
 
     parser.print_help()
     return 0
@@ -620,6 +633,47 @@ def _cmd_market_snapshot_report(args) -> int:
     print(f"  Quality score: {snapshot.quality.score}/100 ({snapshot.quality.recommendation.value})")
     print(f"  JSON report  : {json_path}")
     print(f"  Summary      : {md_path}")
+    return 0
+
+
+def _cmd_firstledger_signals(args) -> int:
+    """Generate deterministic offline FirstLedger candidate signals."""
+    from sonic_xrpl.signals.firstledger_candidate import EMPTY_STATE, load_firstledger_candidate_evidence
+    from sonic_xrpl.signals.classifier import classify_candidates
+
+    candidates = load_firstledger_candidate_evidence(args.fixture)
+    signals = classify_candidates(candidates)
+    print("=== Phase 49 FirstLedger Signals ===")
+    print("  Offline/read-only: yes")
+    print("  Live execution    : BLOCKED")
+    if not signals:
+        print(f"  {EMPTY_STATE}")
+        return 0
+    for candidate, signal in zip(sorted(candidates, key=lambda c: c.candidate_id), signals):
+        label = "synthetic fixture" if candidate.synthetic else "source-backed fixture"
+        print(f"  - {signal.candidate_id}: {signal.signal_type.value} confidence={signal.confidence_score}/100 risk={signal.risk_score}/100 ({label})")
+        print(f"    source={candidate.source_url or candidate.source_type or 'unknown'}")
+        if signal.missing_required_evidence:
+            print(f"    missing={', '.join(signal.missing_required_evidence)}")
+        if signal.limitations:
+            print(f"    limitations={'; '.join(signal.limitations)}")
+        print("    live_execution_allowed=False")
+    return 0
+
+
+def _cmd_firstledger_signal_report(args) -> int:
+    """Write deterministic offline FirstLedger signal reports."""
+    from sonic_xrpl.signals.firstledger_candidate import generate_firstledger_signals
+    from sonic_xrpl.signals.report_writer import write_signal_report
+
+    signals = generate_firstledger_signals(args.fixture)
+    json_path, md_path = write_signal_report(signals, args.output_dir)
+    print("=== Phase 49 FirstLedger Signal Report ===")
+    print("  Offline/read-only: yes")
+    print("  Live execution    : BLOCKED")
+    print(f"  Signals          : {len(signals)}")
+    print(f"  JSON report      : {json_path}")
+    print(f"  Summary          : {md_path}")
     return 0
 
 

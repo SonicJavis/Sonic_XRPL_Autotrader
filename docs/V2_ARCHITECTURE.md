@@ -195,3 +195,9 @@ Legacy bridge:
   else:
     raise ReconciliationError("Phase 30 not available")
 ```
+
+## Phase 49 signal contract layer
+
+`src/sonic_xrpl/signals/` sits between FirstLedger discovery evidence, Phase 47 market snapshots, protocol capability evidence, and future simulation/paper strategy review. It is intentionally non-executing. It produces deterministic advisory `CandidateRiskSignal` records with `live_execution_allowed=False` and explicit reasons/limitations.
+
+The layer must not import wallet, signing, submission, Xaman, or live order placement functionality. Unknown evidence remains unknown, and synthetic fixtures are labelled synthetic.

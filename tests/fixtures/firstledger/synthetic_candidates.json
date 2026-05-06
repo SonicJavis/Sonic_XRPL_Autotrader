@@ -1,0 +1,19 @@
+{
+  "description": "Synthetic contract fixture; never real FirstLedger launch data.",
+  "candidates": [
+    {
+      "candidate_id": "fixture_synthetic_candidate",
+      "event_type": "offer",
+      "issuer": "rSyntheticIssuer111111111111111111111",
+      "currency": "SYN",
+      "ledger_index": 900004,
+      "tx_hash": "DDDDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890",
+      "validated": true,
+      "metadata_present": true,
+      "observed_at": "2026-05-05T11:04:00+00:00",
+      "source_url": "synthetic://phase49/contract-test",
+      "source_type": "synthetic_fixture",
+      "synthetic": true
+    }
+  ]
+}

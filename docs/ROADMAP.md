@@ -122,3 +122,9 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 - Dependency audit
 - Submission path implementation (behind new safety gates)
 - **First phase where live trading may be considered**
+
+## Roadmap reconciliation addendum — Phases 48–50
+
+- **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.
+- **Phase 49**: Evidence-backed FirstLedger candidate risk + strategy signal contracts. This phase is signal/evidence only and does not execute trades.
+- **Phase 50+**: Future work may add deeper simulation, paper-trading review, dashboard presentation, live-readiness review, and security review. Live execution remains out of scope unless a future named phase explicitly authorizes it and passes safety review.
