@@ -1,0 +1,20 @@
+{
+  "description": "Explicit risk fixture; deterministic AVOID.",
+  "candidates": [
+    {
+      "candidate_id": "fixture_avoid_explicit_risk",
+      "event_type": "issuer",
+      "issuer": "rRiskIssuer1111111111111111111111111",
+      "currency": "RISK",
+      "ledger_index": 900005,
+      "tx_hash": "EEEEEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890",
+      "validated": true,
+      "metadata_present": true,
+      "observed_at": "2026-05-05T11:05:00+00:00",
+      "source_url": "https://example.invalid/firstledger/avoid-risk",
+      "source_type": "fixture",
+      "synthetic": false,
+      "limitations": ["explicit_risk:issuer_freeze_detected"]
+    }
+  ]
+}

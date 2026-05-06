@@ -19,6 +19,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md",
     "docs/PHASE48_DEPENDENCY_AUDIT.md",
     "docs/research/PHASE48_DEPENDENCY_AUDIT_RESEARCH.md",
+    "docs/PHASE49_FIRSTLEDGER_SIGNAL_CONTRACTS.md",
+    "docs/research/PHASE49_FIRSTLEDGER_SIGNAL_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -29,6 +31,8 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/protocol/amendments.py",
     "src/sonic_xrpl/protocol/capability_matrix.py",
     "src/sonic_xrpl/reconciliation/legacy_phase30_adapter.py",
+    "src/sonic_xrpl/signals/models.py",
+    "src/sonic_xrpl/signals/classifier.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -38,6 +42,9 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_safety_scan.py",
     "tests/safety/test_dependency_audit.py",
     "tests/smoke/test_imports.py",
+    "tests/unit/test_firstledger_signal_classifier.py",
+    "tests/smoke/test_firstledger_signal_cli.py",
+    "tests/safety/test_firstledger_signal_safety.py",
 ]
 
 

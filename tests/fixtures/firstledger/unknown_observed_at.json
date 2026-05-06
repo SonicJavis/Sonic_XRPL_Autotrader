@@ -1,0 +1,17 @@
+{
+  "description": "Observed time intentionally missing and must remain unknown.",
+  "candidates": [
+    {
+      "candidate_id": "fixture_unknown_observed_at",
+      "event_type": "trustline",
+      "issuer": "rUnknownObservedIssuer11111111111111111",
+      "currency": "UNK",
+      "ledger_index": 900003,
+      "tx_hash": "CCCCEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890",
+      "validated": true,
+      "metadata_present": true,
+      "source_url": "https://example.invalid/firstledger/unknown-observed-at",
+      "synthetic": false
+    }
+  ]
+}

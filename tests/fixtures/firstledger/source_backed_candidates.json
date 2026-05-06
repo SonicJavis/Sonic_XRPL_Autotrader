@@ -1,0 +1,20 @@
+{
+  "description": "Deterministic Phase 49 fixture. Not current live market data.",
+  "candidates": [
+    {
+      "candidate_id": "fixture_source_backed_watch",
+      "event_type": "amm_create",
+      "issuer": "rSourceBackedIssuer11111111111111111111",
+      "currency": "SRC",
+      "ledger_index": 900001,
+      "tx_hash": "ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890",
+      "validated": true,
+      "metadata_present": true,
+      "observed_at": "2026-05-05T11:00:00+00:00",
+      "source_url": "https://example.invalid/firstledger/source-backed-fixture",
+      "source_type": "fixture",
+      "synthetic": false,
+      "limitations": ["fixture_source_not_live_market_data", "market_snapshot_context_required_for_buy_candidate"]
+    }
+  ]
+}

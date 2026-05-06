@@ -156,3 +156,14 @@ These phases may exist but cannot be verified without documentation evidence.
 **Safety impact**: Supply-chain visibility improved. Live trading remains blocked. No runtime behaviour changed. No wallet, signing, or submission code added.
 
 **Status**: Reconciled locally on `codex/phase-reconciliation-audit`; complete after validation passes and branch is merged.
+
+## Phase 49 — Evidence-Backed FirstLedger Candidate Risk + Strategy Signal Contracts
+
+- **Status**: Implemented on `feature/phase49-firstledger-signal-contracts`.
+- **Objective completed**: Added deterministic offline signal contracts for FirstLedger candidate evidence: `BUY_CANDIDATE`, `WATCH`, `AVOID`, and `INSUFFICIENT_EVIDENCE`.
+- **Files changed**: `src/sonic_xrpl/signals/`, `src/sonic_xrpl/compatibility/firstledger_bridge.py`, CLI command registration, fixtures, tests, and Phase 49 documentation/research.
+- **Validation target**: Run targeted signal tests, CLI smoke tests, safety scan, audit validator, and dependency audit.
+- **Safety/risk notes**: No wallet, Xaman, signing, submit, auto-buy, live order placement, polling loop, or streaming loop added. `live_execution_allowed` is always `False`.
+- **Accuracy notes**: Missing candidate evidence remains explicit. Synthetic fixtures are labelled synthetic and blocked from buy-candidate classification. No fake FirstLedger launch metrics are generated.
+- **Rollback notes**: `git revert <merge_commit_sha>`; no DB migrations or runtime trading state changes.
+- **Next recommended step**: Simulation/paper-only signal review workflow with source-backed market snapshots.

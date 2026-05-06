@@ -1,0 +1,16 @@
+{
+  "description": "Missing issuer/currency fields; must not create BUY_CANDIDATE.",
+  "candidates": [
+    {
+      "candidate_id": "fixture_missing_required",
+      "event_type": "trustline",
+      "ledger_index": 900002,
+      "tx_hash": "BBBBEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890",
+      "validated": true,
+      "metadata_present": true,
+      "observed_at": "2026-05-05T11:02:00+00:00",
+      "source_url": "https://example.invalid/firstledger/missing-required",
+      "synthetic": false
+    }
+  ]
+}
