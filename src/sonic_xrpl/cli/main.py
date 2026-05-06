@@ -154,6 +154,18 @@ def main(argv: list[str] | None = None) -> int:
     flr_parser.add_argument("--fixture", required=True, help="Path to FirstLedger candidate fixture JSON")
     flr_parser.add_argument("--output-dir", required=True, help="Output directory for report files")
 
+    # Phase 50: signal review workflow (paper-only)
+    sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
+    sigreview_parser.add_argument("--fixture", required=True, help="Path to Phase 49 signals fixture (JSON file or FirstLedger evidence)" )
+    sigreview_parser.add_argument("--output-dir", default="reports/phase50", help="Output directory for review results")
+
+    sigreview_report_parser = subparsers.add_parser("signal-review-report", help="Write Phase 50 signal review report (PDF/Markdown/JSON)")
+    sigreview_report_parser.add_argument("--fixture", required=True, help="Path to Phase 49 signals fixture")
+    sigreview_report_parser.add_argument("--output-dir", required=True, help="Output directory for the report")
+
+    paper_intents_parser = subparsers.add_parser("paper-intents", help="Generate offline paper intents from Phase 49 signals")
+    paper_intents_parser.add_argument("--fixture", required=True, help="Path to Phase 49 signals fixture")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -190,6 +202,13 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_firstledger_signals(args)
     if args.command == "firstledger-signal-report":
         return _cmd_firstledger_signal_report(args)
+
+    if args.command == "signal-review":
+        return _cmd_signal_review(args)
+    if args.command == "signal-review-report":
+        return _cmd_signal_review_report(args)
+    if args.command == "paper-intents":
+        return _cmd_paper_intents(args)
 
     parser.print_help()
     return 0
@@ -674,6 +693,81 @@ def _cmd_firstledger_signal_report(args) -> int:
     print(f"  Signals          : {len(signals)}")
     print(f"  JSON report      : {json_path}")
     print(f"  Summary          : {md_path}")
+    return 0
+
+def _cmd_signal_review(args) -> int:
+    """Run Phase 50 signal review from Phase 49 fixtures (offline)."""
+    from pathlib import Path
+    from sonic_xrpl.signals.evidence import load_candidate_rows, evidence_from_rows
+    from sonic_xrpl.signals.classifier import classify_candidates
+    from sonic_xrpl.review.decision_policy import classify_candidate_for_phase50
+    # Attempt to build review items from evidence
+    rows = load_candidate_rows(args.fixture)
+    evidences = evidence_from_rows(rows)
+    # Build Phase 49 signals
+    signals = classify_candidates(evidences)
+
+    reviews = []
+    papers = []
+    intents = []
+    for sig in signals:
+        review_item, paper_decision, paper_intent = classify_candidate_for_phase50(sig)
+        reviews.append(review_item)
+        papers.append(paper_decision)
+        intents.append(paper_intent)
+
+    # Simple output for users
+    print("=== Phase 50 Paper Review: Summary ===")
+    print(f"Total candidates: {len(signals)}")
+    class_counts = {}
+    for r in reviews:
+        class_counts[r.classification] = class_counts.get(r.classification, 0) + 1
+    print("Classification counts:")
+    for k, v in class_counts.items():
+        print(f"- {k}: {v}")
+    print("Live execution: BLOCKED (paper-only)")
+    return 0
+
+def _cmd_signal_review_report(args) -> int:
+    """Generate a Phase 50 signal review report from fixture data."""
+    from sonic_xrpl.review.report_writer import write_review_report
+    from sonic_xrpl.signals.evidence import load_candidate_rows, evidence_from_rows
+    from sonic_xrpl.signals.classifier import classify_candidates
+    from sonic_xrpl.review.decision_policy import classify_candidate_for_phase50
+    path = Path(args.fixture)
+    rows = load_candidate_rows(path)
+    evidences = evidence_from_rows(rows)
+    signals = classify_candidates(evidences)
+    # Minimal output: just build items
+    review_items = []
+    paper_decisions = []
+    paper_intents = []
+    for sig in signals:
+        ri, pd, pi = classify_candidate_for_phase50(sig)
+        review_items.append(ri)
+        paper_decisions.append(pd)
+        paper_intents.append(pi)
+    # Create a small deterministic queue-like object
+    from sonic_xrpl.review.models import ReviewQueue
+    queue = ReviewQueue(queue_id=signals[0].signal_id if signals else "phase50", items=tuple(review_items), generated_at="1970-01-01T00:00:00+00:00", source_fixture=str(path))
+    json_path, md_path = write_review_report(queue, review_items, paper_decisions, paper_intents, Path(args.output_dir))
+    print(f"Wrote review JSON: {json_path}")
+    print(f"Wrote review Markdown: {md_path}")
+    return 0
+
+def _cmd_paper_intents(args) -> int:
+    """Generate offline paper intents for Phase 49 signals (no live actions)."""
+    from pathlib import Path
+    from sonic_xrpl.signals.evidence import load_candidate_rows, evidence_from_rows
+    from sonic_xrpl.signals.classifier import classify_candidates
+    from sonic_xrpl.review.decision_policy import classify_candidate_for_phase50
+    path = Path(args.fixture)
+    rows = load_candidate_rows(path)
+    evidences = evidence_from_rows(rows)
+    signals = classify_candidates(evidences)
+    for sig in signals:
+        _, _, pi = classify_candidate_for_phase50(sig)
+        print(f"PaperIntent: {pi.intent_id} for candidate {sig.candidate_id} side={pi.side}")
     return 0
 
 
