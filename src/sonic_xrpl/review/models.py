@@ -33,13 +33,13 @@ class PaperDecision:
     review_id: str
     candidate_id: str
     signal_id: str
+    generated_at: str
     decision: str  # PAPER_APPROVE / PAPER_WATCH / PAPER_REJECT / NEEDS_MORE_EVIDENCE
     reason_codes: Tuple[str, ...]
     human_review_required: bool
+    limitations: Tuple[str, ...]
     live_execution_allowed: bool = False
     paper_only: bool = True
-    generated_at: str
-    limitations: Tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -54,9 +54,9 @@ class PaperTradeIntent:
     notional_xrp: float | int | None
     max_slippage_bps: float | None
     created_from_signal_id: str
+    execution_block_reason: str
     live_execution_allowed: bool = False
     requires_human_review: bool = True
-    execution_block_reason: str
 
 
 @dataclass(frozen=True)
