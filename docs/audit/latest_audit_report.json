@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-05-02T19:31:22.853334+00:00",
+  "timestamp": "2026-05-06T11:39:26.565682+00:00",
   "overall_passed": true,
-  "passed_count": 27,
+  "passed_count": 29,
   "failed_count": 0,
   "warning_count": 0,
   "checks": [
@@ -64,6 +64,18 @@
       "passed": true,
       "severity": "pass",
       "message": "OK: docs/audit/latest_audit_report.json"
+    },
+    {
+      "name": "doc:docs/PHASE46_PROVIDER_FIXTURES.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/PHASE46_PROVIDER_FIXTURES.md"
+    },
+    {
+      "name": "doc:docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md",
+      "passed": true,
+      "severity": "pass",
+      "message": "OK: docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md"
     },
     {
       "name": "import:sonic_xrpl",

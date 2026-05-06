@@ -378,7 +378,7 @@ class TestReportWriting:
         report = self._base_report()
         out = write_json_report(report, tmp_path)
         assert out.exists()
-        data = json.loads(out.read_text())
+        data = json.loads(out.read_text(encoding="utf-8"))
         assert data["overall_status"] == "pass"
         assert data["phase"] == "48"
 
@@ -386,7 +386,7 @@ class TestReportWriting:
         report = self._base_report()
         out = write_md_report(report, tmp_path)
         assert out.exists()
-        content = out.read_text()
+        content = out.read_text(encoding="utf-8")
         assert "Phase 48" in content
         assert "overall_status" in content.lower() or "PASS" in content
 

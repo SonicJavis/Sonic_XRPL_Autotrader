@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress.
+Merged in PR #32 on 2026-05-06.
 
 ## Purpose
 
@@ -44,6 +44,7 @@ The parser is intentionally strict:
 - unsupported event types are ignored
 - unvalidated events are marked with a limitation
 - missing metadata is marked as low confidence
+- missing `observed_at` remains empty and is marked with `observed_at_missing`
 - deterministic event IDs are generated from source-backed fields only
 
 ## Supported Discovery Event Types

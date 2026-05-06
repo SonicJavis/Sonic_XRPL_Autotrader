@@ -26,6 +26,19 @@ FORBIDDEN_PATTERNS = [
 
 ALLOWED_DIRS = ["docs", "tests", "execution_prototype/tests", "scripts", "src/sonic_xrpl/audit"]
 ALLOWED_EXTENSIONS = [".py"]
+SKIPPED_DIR_PARTS = {
+    ".ecc-source",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".tox",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+}
 
 # Exact whitelist strings with reasons
 WHITELIST = {
@@ -148,12 +161,15 @@ def check_file(file_path: Path) -> tuple[list, list]:
     return violations, allowed_matches
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
     root_dir = Path.cwd()
     all_violations = []
     all_allowed = []
     
     for py_file in root_dir.rglob("*.py"):
-        if ".venv" in py_file.parts or "__pycache__" in py_file.parts or ".ecc-source" in py_file.parts:
+        if any(part in SKIPPED_DIR_PARTS for part in py_file.parts):
             continue
         violations, allowed = check_file(py_file)
         all_violations.extend(violations)

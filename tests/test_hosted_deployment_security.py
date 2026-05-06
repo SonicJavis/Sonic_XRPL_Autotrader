@@ -127,6 +127,19 @@ def test_rate_limit_is_basic_and_fail_closed(monkeypatch) -> None:
     assert second.json()["is_executable"] is False
 
 
+def test_rate_limit_counts_failed_auth_attempts(monkeypatch) -> None:
+    _prod_env(monkeypatch)
+    monkeypatch.setenv("API_RATE_LIMIT_PER_MINUTE", "1")
+    client = TestClient(create_app())
+
+    first = client.get("/metrics", headers={"X-API-Token": "wrong"})
+    second = client.get("/metrics", headers={"X-API-Token": "wrong"})
+
+    assert first.status_code == 401
+    assert second.status_code == 429
+    assert second.json()["is_executable"] is False
+
+
 def test_public_payloads_do_not_expose_raw_xrpl_fields(monkeypatch) -> None:
     _prod_env(monkeypatch)
     client = TestClient(create_app())

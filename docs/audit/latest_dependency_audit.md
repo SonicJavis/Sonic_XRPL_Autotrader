@@ -1,25 +1,25 @@
 # Dependency Audit Report (Phase 48)
 
-**Generated**: 2026-05-03T12:55:52.246688+00:00
-**Overall Status**: ⚠️ WARNING
+**Generated**: 2026-05-06T11:52:02.745820+00:00
+**Overall Status**: PASS PASS
 
 ---
 
 ## Python Dependency Checks
 
-### pip check: ✅
+### pip check: PASS
 ```
 No broken requirements found.
 ```
 
-### pip-audit: ⏭️ (skipped)
+### pip-audit: PASS (pass)
 ```
-pip-audit skipped by --skip-pip-audit flag.
+pip-audit: no known vulnerabilities found.
 ```
 
 ## Node / xrpl.js Checks
 
-### xrpl.js audit: ℹ️ (not_applicable)
+### xrpl.js audit: INFO (not_applicable)
 ```
 No Node dependency files found — xrpl.js audit not applicable.
 ```

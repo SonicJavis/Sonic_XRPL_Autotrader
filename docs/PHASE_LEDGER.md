@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-02 (Phase 45)
+**Last updated**: 2026-05-06 (Phase 48)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -41,7 +41,7 @@ Phases with no code/docs evidence are not recorded.
 
 ## Phase 45 — V2 Foundation Architecture Rebuild
 
-**Status**: In progress (this phase)  
+**Status**: Verified complete
 **Name**: V2 Foundation Architecture Rebuild  
 **Evidence**:
 - `src/sonic_xrpl/` — V2 package created
@@ -125,7 +125,20 @@ These phases may exist but cannot be verified without documentation evidence.
 
 ---
 
-## Phase 48 — Dependency Audit and Supply-Chain Guardrails (2026-05-03)
+## Phase 48 — Accurate FirstLedger Discovery Boundary (2026-05-06)
+
+**Status**: Merged in PR #32
+**Evidence**:
+- `execution_prototype/discovery/firstledger_reader.py` — strict source-backed FirstLedger fixture parser
+- `tests/test_firstledger_reader.py` — parser regression coverage, including missing `observed_at`
+- `docs/PHASE48_FIRSTLEDGER_DISCOVERY.md` — accuracy boundary and validation notes
+- GitHub PR #32 merged `feature/phase48-accurate-firstledger-discovery` into `main` at `eb6eed0`
+
+**Safety impact**: Read-only discovery only. No wallet handling, seed/private-key handling, signing, Xaman payload creation, transaction submission, auto-buy, or live sniper execution.
+
+---
+
+## Phase 48 Addendum — Dependency Audit and Supply-Chain Guardrails (2026-05-06)
 
 **Objective**: Add a safe, read-only dependency and supply-chain audit layer. Make dependency risks visible and testable without changing runtime trading behaviour.
 
@@ -142,4 +155,4 @@ These phases may exist but cannot be verified without documentation evidence.
 
 **Safety impact**: Supply-chain visibility improved. Live trading remains blocked. No runtime behaviour changed. No wallet, signing, or submission code added.
 
-**Status**: Complete only after tests pass.
+**Status**: Reconciled locally on `codex/phase-reconciliation-audit`; complete after validation passes and branch is merged.

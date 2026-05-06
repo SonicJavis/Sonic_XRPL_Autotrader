@@ -30,6 +30,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -459,7 +464,7 @@ def write_md_report(report: dict, repo_root: Path) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / MD_REPORT_NAME
 
-    status_icon = {"pass": "✅", "warning": "⚠️", "fail": "❌"}.get(report["overall_status"], "❓")
+    status_icon = {"pass": "PASS", "warning": "WARN", "fail": "FAIL"}.get(report["overall_status"], "UNKNOWN")
 
     lines = [
         "# Dependency Audit Report (Phase 48)",
@@ -474,7 +479,7 @@ def write_md_report(report: dict, repo_root: Path) -> Path:
     ]
 
     pc = report["python_dependency_check"]
-    pc_icon = "✅" if pc["passed"] else "❌"
+    pc_icon = "PASS" if pc["passed"] else "FAIL"
     lines += [
         f"### pip check: {pc_icon}",
         f"```",
@@ -484,7 +489,7 @@ def write_md_report(report: dict, repo_root: Path) -> Path:
     ]
 
     pa = report["pip_audit"]
-    pa_icon = {"pass": "✅", "warning": "⚠️", "fail": "❌", "skipped": "⏭️"}.get(pa["status"], "❓")
+    pa_icon = {"pass": "PASS", "warning": "WARN", "fail": "FAIL", "skipped": "SKIP"}.get(pa["status"], "UNKNOWN")
     lines += [
         f"### pip-audit: {pa_icon} ({pa['status']})",
         f"```",
@@ -499,7 +504,7 @@ def write_md_report(report: dict, repo_root: Path) -> Path:
     lines.append("")
 
     nd = report["node_dependency_check"]
-    nd_icon = {"pass": "✅", "warning": "⚠️", "fail": "❌", "not_applicable": "ℹ️"}.get(nd["status"], "❓")
+    nd_icon = {"pass": "PASS", "warning": "WARN", "fail": "FAIL", "not_applicable": "INFO"}.get(nd["status"], "UNKNOWN")
     lines += [
         "## Node / xrpl.js Checks",
         "",
@@ -512,20 +517,20 @@ def write_md_report(report: dict, repo_root: Path) -> Path:
         lines.append("")
         lines.append("**Findings:**")
         for f in nd["findings"]:
-            sev_icon = "🔴" if f.get("severity") == "critical" else "ℹ️"
+            sev_icon = "CRITICAL" if f.get("severity") == "critical" else "INFO"
             lines.append(f"- {sev_icon} {f['message']}")
     lines.append("")
 
     if report["findings"]:
         lines += ["## Security Findings", ""]
         for f in report["findings"]:
-            lines.append(f"- ❌ **{f.get('source', 'unknown')}**: {f.get('message', '')}")
+            lines.append(f"- FAIL **{f.get('source', 'unknown')}**: {f.get('message', '')}")
         lines.append("")
 
     if report["warnings"]:
         lines += ["## Warnings", ""]
         for w in report["warnings"]:
-            lines.append(f"- ⚠️ {w}")
+            lines.append(f"- WARN {w}")
         lines.append("")
 
     lines += [
@@ -573,12 +578,12 @@ def print_summary(report: dict) -> None:
     if report["findings"]:
         print("\n--- SECURITY FINDINGS ---")
         for f in report["findings"]:
-            print(f"  ❌ {f.get('source')}: {f.get('message')}")
+            print(f"  FAIL {f.get('source')}: {f.get('message')}")
 
     if report["warnings"]:
         print("\n--- WARNINGS ---")
         for w in report["warnings"]:
-            print(f"  ⚠️  {w}")
+            print(f"  WARN {w}")
 
     print(f"\n{sep}")
     print(f"  OVERALL: {status}")
