@@ -76,6 +76,19 @@ The following are **unconditionally prohibited** in Phase 45:
 
 ---
 
+## Supply-Chain Policy (Phase 48)
+
+Phase 48 establishes explicit supply-chain guardrails:
+
+1. **Dev dependencies are audited on every CI run** via `pip-audit` in the `dependency-audit` CI job.
+2. **Compromised xrpl.js versions are blocked**: Versions 4.2.1, 4.2.2, 4.2.3, 4.2.4, and 2.14.2 of the `xrpl` npm package are detected and flagged as failures by `scripts/dependency_audit.py` and `src/sonic_xrpl/audit/dependency_check.py`.
+3. **No key-material libraries should be introduced casually**: Any new dependency that handles private keys, mnemonics, or wallet seeds must be reviewed explicitly and will be caught by `scripts/safety_grep.py`.
+4. **Runtime live submission remains permanently blocked** by `src/sonic_xrpl/execution/live_guard.py` regardless of dependency changes.
+5. **pip-audit warning policy**: If pip-audit cannot reach the vulnerability DB (network issue), the audit records a warning but does not produce a false pass. A positive vulnerability identification always fails.
+6. **Audit reports are CI artifacts**: `docs/audit/latest_dependency_audit.json` and `docs/audit/latest_dependency_audit.md` are uploaded as artifacts on every CI run.
+
+---
+
 ## Provider / Network Policy
 
 - `LedgerProvider` is read-only current state (rippled, public RPC, mocks).

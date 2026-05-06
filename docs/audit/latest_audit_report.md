@@ -1,8 +1,8 @@
 # V2 Audit Report
 
-**Timestamp**: 2026-05-02T19:31:22.853334+00:00
+**Timestamp**: 2026-05-06T11:39:26.565682+00:00
 **Overall**: ✅ PASSED
-**Checks**: 27 passed / 0 failed / 0 warnings
+**Checks**: 29 passed / 0 failed / 0 warnings
 
 ## Check Results
 
@@ -16,6 +16,8 @@
 - ✅ `doc:docs/audit/pre_v2_repository_audit.md`: OK: docs/audit/pre_v2_repository_audit.md
 - ✅ `doc:docs/audit/latest_audit_report.md`: OK: docs/audit/latest_audit_report.md
 - ✅ `doc:docs/audit/latest_audit_report.json`: OK: docs/audit/latest_audit_report.json
+- ✅ `doc:docs/PHASE46_PROVIDER_FIXTURES.md`: OK: docs/PHASE46_PROVIDER_FIXTURES.md
+- ✅ `doc:docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md`: OK: docs/research/PHASE46_PROVIDER_FIXTURE_RESEARCH.md
 - ✅ `import:sonic_xrpl`: OK: sonic_xrpl
 - ✅ `import:sonic_xrpl.core.modes`: OK: sonic_xrpl.core.modes
 - ✅ `import:sonic_xrpl.core.errors`: OK: sonic_xrpl.core.errors

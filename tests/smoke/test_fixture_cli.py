@@ -4,7 +4,14 @@ from pathlib import Path
 
 def test_fixture_health_command():
     """Test that the fixture health CLI command runs cleanly on Windows."""
-    cmd = [sys.executable, "-m", "sonic_xrpl.cli.main"]
+    cmd = [
+        sys.executable,
+        "-m",
+        "sonic_xrpl.cli.main",
+        "fixture-health",
+        "--path",
+        "tests/fixtures/xrpl",
+    ]
     
     result = subprocess.run(
         cmd,
@@ -18,4 +25,5 @@ def test_fixture_health_command():
     
     assert result.returncode == 0, f"CLI failed: {result.stderr or 'No stderr'}"
     stdout = result.stdout or ""
-    assert any(phrase in stdout for phrase in ["HEALTHY", "[OK]", "Fixture"]), f"Expected message not found. Got: {stdout}"
+    assert "Fixture Health" in stdout
+    assert "HEALTHY" in stdout

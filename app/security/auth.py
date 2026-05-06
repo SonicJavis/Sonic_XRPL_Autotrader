@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from secrets import compare_digest
 from time import monotonic
 from typing import Callable
 
@@ -30,7 +31,21 @@ class APIAuthMiddleware(BaseHTTPMiddleware):
         if request.method.upper() == "OPTIONS":
             response = await call_next(request)
             return _with_security_headers(response)
-        if self.profile.auth_required and request.url.path not in PUBLIC_PATHS:
+        protected_path = request.url.path not in PUBLIC_PATHS
+        if self.profile.auth_required and protected_path and not self._within_rate_limit(request):
+            return _with_security_headers(
+                JSONResponse(
+                    status_code=429,
+                    content={
+                        "detail": "rate limit exceeded",
+                        "is_shadow": True,
+                        "is_advisory": True,
+                        "is_executable": False,
+                        "is_truth": False,
+                    },
+                )
+            )
+        if self.profile.auth_required and protected_path:
             if not self._authorized(request):
                 return _with_security_headers(
                     JSONResponse(
@@ -44,19 +59,6 @@ class APIAuthMiddleware(BaseHTTPMiddleware):
                         },
                     )
                 )
-        if self.profile.auth_required and not self._within_rate_limit(request):
-            return _with_security_headers(
-                JSONResponse(
-                    status_code=429,
-                    content={
-                        "detail": "rate limit exceeded",
-                        "is_shadow": True,
-                        "is_advisory": True,
-                        "is_executable": False,
-                        "is_truth": False,
-                    },
-                )
-            )
         response = await call_next(request)
         return _with_security_headers(response)
 
@@ -68,7 +70,7 @@ class APIAuthMiddleware(BaseHTTPMiddleware):
         auth = request.headers.get("authorization", "")
         if auth.lower().startswith("bearer "):
             supplied = auth.split(" ", 1)[1].strip()
-        return bool(supplied) and supplied == expected
+        return bool(supplied) and compare_digest(supplied, expected)
 
     def _within_rate_limit(self, request: Request) -> bool:
         limit = int(self.settings.API_RATE_LIMIT_PER_MINUTE)

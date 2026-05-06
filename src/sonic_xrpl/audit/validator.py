@@ -132,7 +132,7 @@ def _check_cli_smoke(report: AuditReport) -> None:
     env = os.environ.copy()
     src_dir = str(REPO_ROOT / "src")
     existing_pp = env.get("PYTHONPATH", "")
-    env["PYTHONPATH"] = f"{src_dir}:{existing_pp}" if existing_pp else src_dir
+    env["PYTHONPATH"] = f"{src_dir}{os.pathsep}{existing_pp}" if existing_pp else src_dir
     try:
         result = subprocess.run(
             [sys.executable, "-m", "sonic_xrpl.cli.main", "--help"],
@@ -285,7 +285,7 @@ def _check_no_seed_impl(report: AuditReport, repo_root: Path) -> None:
     for py_file in v2_dir.rglob("*.py"):
         if "test" in py_file.name or "mock" in py_file.name:
             continue
-        text = py_file.read_text()
+        text = py_file.read_text(encoding="utf-8", errors="ignore")
         for pat in dangerous_patterns:
             if re.search(pat, text):
                 # Check it's not in a comment or docstring line
@@ -348,7 +348,7 @@ def write_reports(report: AuditReport, repo_root: Path | None = None) -> None:
             for c in report.checks
         ],
     }
-    json_path.write_text(json.dumps(json_data, indent=2))
+    json_path.write_text(json.dumps(json_data, indent=2), encoding="utf-8")
 
     # Markdown report
     md_path = audit_dir / "latest_audit_report.md"
@@ -366,4 +366,4 @@ def write_reports(report: AuditReport, repo_root: Path | None = None) -> None:
         icon = "✅" if check.passed else ("⚠️" if check.severity == "warning" else "❌")
         lines.append(f"- {icon} `{check.name}`: {check.message}")
 
-    md_path.write_text("\n".join(lines))
+    md_path.write_text("\n".join(lines), encoding="utf-8")
