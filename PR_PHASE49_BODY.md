@@ -1,0 +1,1 @@
+Phase 49 offline signals: offline FirstLedger evidence-based signals; read-only; no live submission. Branch codex/phase49-firstledger-signal-contracts prepared from origin/main with changes merged from codex/implement-phase-49-signal-contracts. Validation: V2 audit 33/0/0; safety findings 107 require review (334 total). Next steps: CI gating and merge when ready.
