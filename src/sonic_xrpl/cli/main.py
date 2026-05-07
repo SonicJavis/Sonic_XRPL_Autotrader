@@ -12,6 +12,7 @@ Usage:
   python -m sonic_xrpl.cli.main market-snapshot-report --path tests/fixtures/xrpl
   python -m sonic_xrpl.cli.main firstledger-signals --fixture tests/fixtures/firstledger/source_backed_candidates.json
   python -m sonic_xrpl.cli.main firstledger-signal-report --fixture tests/fixtures/firstledger/source_backed_candidates.json --output-dir reports/phase49
+  python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
 
 All commands work offline. No network access required by default.
 """
@@ -166,6 +167,20 @@ def main(argv: list[str] | None = None) -> int:
     paper_intents_parser = subparsers.add_parser("paper-intents", help="Generate offline paper intents from Phase 49 signals")
     paper_intents_parser.add_argument("--fixture", required=True, help="Path to Phase 49 signals fixture")
 
+    paper_outcomes_parser = subparsers.add_parser("paper-outcomes", help="Attribute paper outcomes to Phase 49 signals")
+    paper_outcomes_parser.add_argument("--signals-fixture", required=True, help="Path to Phase 49 signal source fixture")
+    paper_outcomes_parser.add_argument("--outcomes-fixture", required=True, help="Path to Phase 51 paper observations fixture")
+
+    paper_outcome_report_parser = subparsers.add_parser("paper-outcome-report", help="Write Phase 51 paper outcome reports")
+    paper_outcome_report_parser.add_argument("--signals-fixture", required=True, help="Path to Phase 49 signal source fixture")
+    paper_outcome_report_parser.add_argument("--outcomes-fixture", required=True, help="Path to Phase 51 paper observations fixture")
+    paper_outcome_report_parser.add_argument("--output-dir", required=True, help="Output directory for report files")
+
+    signal_feedback_report_parser = subparsers.add_parser("signal-feedback-report", help="Write Phase 51 signal feedback reports")
+    signal_feedback_report_parser.add_argument("--signals-fixture", required=True, help="Path to Phase 49 signal source fixture")
+    signal_feedback_report_parser.add_argument("--outcomes-fixture", required=True, help="Path to Phase 51 paper observations fixture")
+    signal_feedback_report_parser.add_argument("--output-dir", required=True, help="Output directory for report files")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -209,6 +224,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_signal_review_report(args)
     if args.command == "paper-intents":
         return _cmd_paper_intents(args)
+    if args.command == "paper-outcomes":
+        return _cmd_paper_outcomes(args)
+    if args.command == "paper-outcome-report":
+        return _cmd_paper_outcome_report(args)
+    if args.command == "signal-feedback-report":
+        return _cmd_signal_feedback_report(args)
 
     parser.print_help()
     return 0
@@ -730,6 +751,7 @@ def _cmd_signal_review(args) -> int:
 
 def _cmd_signal_review_report(args) -> int:
     """Generate a Phase 50 signal review report from fixture data."""
+    from pathlib import Path
     from sonic_xrpl.review.report_writer import write_review_report
     from sonic_xrpl.signals.evidence import load_candidate_rows, evidence_from_rows
     from sonic_xrpl.signals.classifier import classify_candidates
@@ -768,6 +790,63 @@ def _cmd_paper_intents(args) -> int:
     for sig in signals:
         _, _, pi = classify_candidate_for_phase50(sig)
         print(f"PaperIntent: {pi.intent_id} for candidate {sig.candidate_id} side={pi.side}")
+    return 0
+
+
+def _phase51_attributions(args):
+    from sonic_xrpl.outcomes.attribution import build_outcome_attributions
+    from sonic_xrpl.outcomes.observation import load_outcome_observations
+    from sonic_xrpl.signals.firstledger_candidate import generate_firstledger_signals
+
+    signals = generate_firstledger_signals(args.signals_fixture)
+    observations = load_outcome_observations(args.outcomes_fixture)
+    return build_outcome_attributions(signals, observations)
+
+
+def _cmd_paper_outcomes(args) -> int:
+    """Attribute paper outcomes to Phase 49 signal records."""
+    attributions = _phase51_attributions(args)
+    print("=== Phase 51 Paper Outcomes ===")
+    print("  Offline/read-only: yes")
+    print("  Live execution    : BLOCKED")
+    print(f"  Attributions     : {len(attributions)}")
+    for item in attributions:
+        print(
+            f"  - {item.candidate_id}: {item.signal_type} -> {item.outcome_label.value} "
+            f"return_bps={item.observed_return_bps} window={item.window}"
+        )
+        print("    live_execution_allowed=False")
+    return 0
+
+
+def _cmd_paper_outcome_report(args) -> int:
+    """Write Phase 51 paper outcome attribution reports."""
+    from sonic_xrpl.outcomes.report_writer import write_outcome_report
+
+    attributions = _phase51_attributions(args)
+    json_path, md_path = write_outcome_report(attributions, args.output_dir)
+    print("=== Phase 51 Paper Outcome Report ===")
+    print("  Offline/read-only: yes")
+    print("  Live execution    : BLOCKED")
+    print(f"  JSON report      : {json_path}")
+    print(f"  Summary          : {md_path}")
+    return 0
+
+
+def _cmd_signal_feedback_report(args) -> int:
+    """Write Phase 51 paper-only signal feedback reports."""
+    from sonic_xrpl.outcomes.feedback import build_signal_feedback
+    from sonic_xrpl.outcomes.report_writer import write_feedback_report
+
+    attributions = _phase51_attributions(args)
+    feedback = build_signal_feedback(attributions)
+    json_path, md_path = write_feedback_report(feedback, args.output_dir)
+    print("=== Phase 51 Signal Feedback Report ===")
+    print("  Offline/read-only: yes")
+    print("  Live execution    : BLOCKED")
+    print(f"  Total attributed : {feedback.total_attributed}")
+    print(f"  JSON report      : {json_path}")
+    print(f"  Summary          : {md_path}")
     return 0
 
 

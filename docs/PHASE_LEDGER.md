@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-06 (Phase 48)
+**Last updated**: 2026-05-07 (Phase 51)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -167,3 +167,28 @@ These phases may exist but cannot be verified without documentation evidence.
 - **Accuracy notes**: Missing candidate evidence remains explicit. Synthetic fixtures are labelled synthetic and blocked from buy-candidate classification. No fake FirstLedger launch metrics are generated.
 - **Rollback notes**: `git revert <merge_commit_sha>`; no DB migrations or runtime trading state changes.
 - **Next recommended step**: Simulation/paper-only signal review workflow with source-backed market snapshots.
+
+---
+
+## Phase 50 — Signal Review Workflow
+
+- **Status**: Implemented and merged in PR #38.
+- **Objective completed**: Added a paper-only workflow that consumes Phase 49 signals and creates review items, paper decisions, and paper intents.
+- **Files changed**: `src/sonic_xrpl/review/`, CLI command registration, Phase 50 tests, and Phase 50 documentation/research.
+- **Safety/risk notes**: Live execution remains blocked. Paper intents are not live orders and include `live_execution_allowed=False`.
+- **Accuracy notes**: Phase 50 preserves Phase 49 evidence limitations and does not promote missing evidence into approval.
+- **Rollback notes**: Revert the Phase 50 merge commit if needed; no database migrations or live trading state changes.
+- **Next recommended step**: Attribute paper outcomes to reviewed signals and produce an advisory feedback loop.
+
+---
+
+## Phase 51 — Paper Outcome Attribution + Signal Feedback Loop
+
+- **Status**: Implemented on `codex/phase51-paper-outcome-attribution` pending PR validation.
+- **Objective completed**: Added deterministic paper outcome observations, attribution records, signal feedback summaries, reports, fixtures, and CLI commands.
+- **Files changed**: `src/sonic_xrpl/outcomes/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/outcomes/`, Phase 51 tests, docs, audit doc registry, and `pyproject.toml` dependency safety pin.
+- **Validation target**: Run targeted Phase 51 tests, CLI smoke checks, safety grep, audit validator, and broader pytest when feasible.
+- **Safety/risk notes**: No live execution path, no transaction construction, no background loop, and no automatic scoring mutation added.
+- **Accuracy notes**: Missing observations remain `NO_OBSERVATION`; fixture prices are paper observations only and do not claim executable fills.
+- **Rollback notes**: Revert the Phase 51 merge commit if needed; no DB migrations or live trading state changes.
+- **Next recommended step**: Run paper-outcome attribution against a larger source-backed fixture set before considering any scoring calibration proposal.

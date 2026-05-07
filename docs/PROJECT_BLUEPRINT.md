@@ -36,6 +36,7 @@ src/sonic_xrpl/
   ingestion/      — Fixture loading and data ingestion
   intelligence/   — Token profiling, confidence scoring (read-only)
   strategy/       — Signal generation (no execution)
+  outcomes/       — Paper outcome attribution and advisory feedback
   risk/           — Risk policy, pre-trade checks, circuit breakers
   simulation/     — Fill models, slippage, fees, latency (deterministic)
   execution/      — Intent, plan, lifecycle, live_guard, paper_executor
@@ -150,3 +151,7 @@ See `docs/ROADMAP.md` for full phase roadmap.
 ## Phase 49 blueprint addendum
 
 The project now includes a Phase 49 signal/evidence layer for FirstLedger candidate risk review. This layer prepares future simulation and paper-review workflows by producing deterministic, explainable, non-executing signals. It preserves source provenance, missing-data limitations, and the live execution boundary.
+
+## Phase 51 blueprint addendum
+
+Phase 51 adds an offline paper outcome attribution layer under `src/sonic_xrpl/outcomes/`. It links local paper observations back to Phase 49 signal records, emits explicit `NO_OBSERVATION` outcomes when evidence is missing, and aggregates advisory feedback without changing strategy scoring automatically.

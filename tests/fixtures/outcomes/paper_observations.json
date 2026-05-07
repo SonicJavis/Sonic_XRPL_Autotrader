@@ -1,0 +1,21 @@
+{
+  "description": "Deterministic Phase 51 paper outcome observations. Not current market data.",
+  "observations": [
+    {
+      "observation_id": "obs_fixture_source_backed_watch_24h",
+      "candidate_id": "fixture_source_backed_watch",
+      "signal_id": "",
+      "window": "24h",
+      "observed_at": "2026-05-06T11:00:00+00:00",
+      "entry_price_xrp": 1.0,
+      "exit_price_xrp": 1.12,
+      "baseline_exit_price_xrp": 1.05,
+      "liquidity_score": 62,
+      "evidence_quality": "fixture_observation",
+      "limitations": [
+        "fixture_not_live_market_data",
+        "paper_observation_no_fill_claim"
+      ]
+    }
+  ]
+}

@@ -107,6 +107,7 @@ src/sonic_xrpl/
 | ingestion | Load fixture data | No — data loading |
 | intelligence | Token profiling, confidence scoring | No — analysis only |
 | strategy | Signal generation | No — signals only |
+| outcomes | Paper outcome attribution and feedback | No — paper analysis only |
 | risk | Pre-trade checks, circuit breakers | No — approval/rejection only |
 | simulation | Deterministic trade simulation | No — simulation only |
 | execution | Intent/plan/lifecycle, live_guard, paper_executor | Paper mode only |
@@ -132,6 +133,7 @@ Each module may import from:
 | ingestion | core |
 | intelligence | core, protocol |
 | strategy | core |
+| outcomes | signals |
 | risk | core, strategy |
 | simulation | core |
 | execution | core, risk, simulation |
@@ -201,3 +203,7 @@ Legacy bridge:
 `src/sonic_xrpl/signals/` sits between FirstLedger discovery evidence, Phase 47 market snapshots, protocol capability evidence, and future simulation/paper strategy review. It is intentionally non-executing. It produces deterministic advisory `CandidateRiskSignal` records with `live_execution_allowed=False` and explicit reasons/limitations.
 
 The layer must not import wallet, signing, submission, Xaman, or live order placement functionality. Unknown evidence remains unknown, and synthetic fixtures are labelled synthetic.
+
+## Phase 51 outcome attribution layer
+
+`src/sonic_xrpl/outcomes/` sits after Phase 49 signal generation and Phase 50 paper review. It consumes deterministic signal records plus local paper observation fixtures, produces attribution records, and aggregates advisory feedback by signal type. It is analysis-only and keeps `live_execution_allowed=False` on generated records.
