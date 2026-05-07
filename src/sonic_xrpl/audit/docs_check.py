@@ -21,6 +21,10 @@ REQUIRED_DOCS = [
     "docs/research/PHASE48_DEPENDENCY_AUDIT_RESEARCH.md",
     "docs/PHASE49_FIRSTLEDGER_SIGNAL_CONTRACTS.md",
     "docs/research/PHASE49_FIRSTLEDGER_SIGNAL_RESEARCH.md",
+    "docs/PHASE50_SIGNAL_REVIEW_WORKFLOW.md",
+    "docs/research/PHASE50_SIGNAL_REVIEW_RESEARCH.md",
+    "docs/PHASE51_PAPER_OUTCOME_ATTRIBUTION.md",
+    "docs/research/PHASE51_PAPER_OUTCOME_ATTRIBUTION_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -33,6 +37,10 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/reconciliation/legacy_phase30_adapter.py",
     "src/sonic_xrpl/signals/models.py",
     "src/sonic_xrpl/signals/classifier.py",
+    "src/sonic_xrpl/review/models.py",
+    "src/sonic_xrpl/outcomes/models.py",
+    "src/sonic_xrpl/outcomes/attribution.py",
+    "src/sonic_xrpl/outcomes/feedback.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -45,6 +53,10 @@ REQUIRED_TEST_FILES = [
     "tests/unit/test_firstledger_signal_classifier.py",
     "tests/smoke/test_firstledger_signal_cli.py",
     "tests/safety/test_firstledger_signal_safety.py",
+    "tests/unit/test_phase50_review_models.py",
+    "tests/unit/test_phase50_review_policy.py",
+    "tests/unit/test_phase51_outcome_attribution.py",
+    "tests/smoke/test_phase51_outcome_cli.py",
 ]
 
 

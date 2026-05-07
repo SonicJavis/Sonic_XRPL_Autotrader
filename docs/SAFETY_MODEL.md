@@ -154,3 +154,7 @@ This path is not implemented and is not planned until Phase 57 minimum.
 Phase 49 signals are advisory evidence contracts only. They do not authorize live trading, do not create Xaman payloads, do not sign, do not submit, and do not place orders. `BUY_CANDIDATE` is not a buy order; it means the offline minimum evidence contract passed. All outputs include `live_execution_allowed=False`.
 
 The FirstLedger accuracy boundary is permanent: no fake token names, symbols, issuers, liquidity, holder counts, dev holdings, volume, socials, launch age, moonshot labels, or buy recommendations may be generated from missing data.
+
+## Phase 51 paper outcome safety boundary
+
+Phase 51 outcome attribution is fixture-backed and paper-only. It reads local Phase 49 signal fixtures and local Phase 51 paper observation fixtures, then writes advisory attribution and feedback reports. It does not change classifiers, does not mutate thresholds automatically, does not poll networks, and does not create an execution path. All Phase 51 output records keep `paper_only=True` and `live_execution_allowed=False`.

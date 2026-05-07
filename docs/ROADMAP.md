@@ -39,32 +39,31 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 
 ---
 
-## Phase 49 — Strategy Signal Contracts over Market Snapshots
+## Phase 49 — Evidence-Backed FirstLedger Candidate Signals ✅
 
-- MPT issuer profiling
-- Clawback and freeze risk scoring
-- AMMClawback risk assessment
-- DeepFreeze trust-line risk
-- Token trust score enrichment
-
----
-
-## Phase 50 — Strategy Signal Contracts
-
-- Implement first concrete strategy (e.g. simple AMM arbitrage signal)
-- Strategy backtesting harness using walk-forward replay (Phase 44)
-- Strategy registry with version tracking
-- Signal confidence calibration
+- Source-backed FirstLedger fixture boundary
+- Deterministic candidate risk signals
+- Explicit missing-evidence limitations
+- Synthetic fixture labelling
+- No execution approval
 
 ---
 
-## Phase 51 — Risk Engine and Portfolio Constraints
+## Phase 50 — Signal Review Workflow ✅
 
-- Position sizing constraints
-- Portfolio-level risk limits
-- Multi-asset exposure constraints
-- Circuit breaker integration with strategy layer
-- Risk approval audit trail
+- Paper-only signal review queue
+- Deterministic paper decisions
+- Paper trade intents with live execution blocked
+- Offline reports for operator review
+
+---
+
+## Phase 51 — Paper Outcome Attribution + Signal Feedback Loop ✅
+
+- Paper outcome observations from fixtures
+- Deterministic attribution to Phase 49 signals
+- Signal feedback aggregation by signal type
+- Offline reports for paper review and calibration planning
 
 ---
 
@@ -127,4 +126,6 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.
 - **Phase 49**: Evidence-backed FirstLedger candidate risk + strategy signal contracts. This phase is signal/evidence only and does not execute trades.
-- **Phase 50+**: Future work may add deeper simulation, paper-trading review, dashboard presentation, live-readiness review, and security review. Live execution remains out of scope unless a future named phase explicitly authorizes it and passes safety review.
+- **Phase 50**: Paper-only signal review workflow. This phase turns signal records into review items, paper decisions, and paper intents without live execution.
+- **Phase 51**: Paper outcome attribution and signal feedback. This phase links deterministic paper observations back to signals and keeps feedback advisory.
+- **Phase 52+**: Future work may add deeper simulation, paper-trading review, dashboard presentation, live-readiness review, and security review. Live execution remains out of scope unless a future named phase explicitly authorizes it and passes safety review.
