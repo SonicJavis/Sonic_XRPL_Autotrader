@@ -108,6 +108,7 @@ src/sonic_xrpl/
 | intelligence | Token profiling, confidence scoring | No — analysis only |
 | strategy | Signal generation | No — signals only |
 | outcomes | Paper outcome attribution and feedback | No — paper analysis only |
+| outcome_corpus | Paper observation replay corpus and quality reports | No — paper analysis only |
 | risk | Pre-trade checks, circuit breakers | No — approval/rejection only |
 | simulation | Deterministic trade simulation | No — simulation only |
 | execution | Intent/plan/lifecycle, live_guard, paper_executor | Paper mode only |
@@ -140,7 +141,7 @@ Each module may import from:
 | reconciliation | core, execution |
 | telemetry | core, protocol |
 | storage | core |
-| cli | core, protocol, simulation, execution, reconciliation, telemetry, audit, market |
+| cli | core, protocol, simulation, execution, reconciliation, telemetry, audit, market, outcomes, outcome_corpus |
 | audit | core, protocol |
 | compatibility | core |
 
@@ -207,3 +208,7 @@ The layer must not import wallet, signing, submission, Xaman, or live order plac
 ## Phase 51 outcome attribution layer
 
 `src/sonic_xrpl/outcomes/` sits after Phase 49 signal generation and Phase 50 paper review. It consumes deterministic signal records plus local paper observation fixtures, produces attribution records, and aggregates advisory feedback by signal type. It is analysis-only and keeps `live_execution_allowed=False` on generated records.
+
+## Phase 52 outcome corpus layer
+
+`src/sonic_xrpl/outcome_corpus/` sits after the paper outcome layer as an offline replay corpus foundation. It loads local paper observation fixture sets, validates source/provenance and missing fields, builds deterministic replay cases over canonical windows, scores corpus quality, and writes JSON/Markdown reports. It does not calibrate scoring thresholds, fetch live data, or enable live execution.

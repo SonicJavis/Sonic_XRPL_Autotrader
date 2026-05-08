@@ -158,3 +158,9 @@ The FirstLedger accuracy boundary is permanent: no fake token names, symbols, is
 ## Phase 51 paper outcome safety boundary
 
 Phase 51 outcome attribution is fixture-backed and paper-only. It reads local Phase 49 signal fixtures and local Phase 51 paper observation fixtures, then writes advisory attribution and feedback reports. It does not change classifiers, does not mutate thresholds automatically, does not poll networks, and does not create an execution path. All Phase 51 output records keep `paper_only=True` and `live_execution_allowed=False`.
+
+## Phase 52 outcome corpus safety boundary
+
+Phase 52 outcome corpus tooling is fixture-backed and paper-only. It loads local observation fixtures, records missing evidence explicitly, builds replay cases, scores dataset quality, and writes JSON/Markdown reports.
+
+It does not fetch live FirstLedger data, call XRPL network APIs, use Xaman, construct transactions, sign transactions, submit transactions, calibrate strategy thresholds, or start background replay loops. Corpus and replay case objects keep `paper_only=True` and `live_execution_allowed=False`.

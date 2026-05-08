@@ -1,0 +1,12 @@
+{
+  "average_windows_present": 5.0,
+  "complete_cases": 1,
+  "limitation_counts": {},
+  "missing_observation_cases": 0,
+  "partial_cases": 0,
+  "quality_grade": "A",
+  "recommendation": "Use corpus for Phase 53 calibration review planning only; do not change strategy settings automatically.",
+  "source_backed_cases": 1,
+  "synthetic_cases": 0,
+  "total_cases": 1
+}
