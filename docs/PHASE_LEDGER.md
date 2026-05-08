@@ -184,7 +184,7 @@ These phases may exist but cannot be verified without documentation evidence.
 
 ## Phase 51 — Paper Outcome Attribution + Signal Feedback Loop
 
-- **Status**: Implemented on `codex/phase51-paper-outcome-attribution` pending PR validation.
+- **Status**: Merged in PR #41.
 - **Objective completed**: Added deterministic paper outcome observations, attribution records, signal feedback summaries, reports, fixtures, and CLI commands.
 - **Files changed**: `src/sonic_xrpl/outcomes/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/outcomes/`, Phase 51 tests, docs, audit doc registry, and `pyproject.toml` dependency safety pin.
 - **Validation target**: Run targeted Phase 51 tests, CLI smoke checks, safety grep, audit validator, and broader pytest when feasible.
@@ -192,3 +192,16 @@ These phases may exist but cannot be verified without documentation evidence.
 - **Accuracy notes**: Missing observations remain `NO_OBSERVATION`; fixture prices are paper observations only and do not claim executable fills.
 - **Rollback notes**: Revert the Phase 51 merge commit if needed; no DB migrations or live trading state changes.
 - **Next recommended step**: Run paper-outcome attribution against a larger source-backed fixture set before considering any scoring calibration proposal.
+
+---
+
+## Phase 52 — Source-Backed Paper Observation Dataset Expansion + Outcome Replay Corpus
+
+- **Status**: Implemented on `codex/phase52-outcome-replay-corpus` pending PR validation.
+- **Objective completed**: Added a deterministic, offline paper outcome corpus layer that loads multiple fixture sets, validates provenance/missing evidence, builds replay cases across canonical windows, scores corpus quality, and writes JSON/Markdown reports.
+- **Files changed**: `src/sonic_xrpl/outcome_corpus/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/outcome_corpus/`, Phase 52 unit/smoke/safety tests, docs, research notes, and audit doc registry.
+- **Validation target**: Run targeted Phase 52 tests, CLI smoke checks, safety grep, audit validator, dependency audit, and broader pytest when feasible.
+- **Safety/risk notes**: Paper-only and offline. No live data fetch, Xaman use, transaction construction, signing, submission, auto-buy, polling loop, streaming loop, threshold mutation, or automatic calibration added.
+- **Accuracy notes**: Missing windows and fields remain explicit; synthetic observations are labelled and penalized; source-backed status requires provenance.
+- **Rollback notes**: Revert the Phase 52 merge commit if needed; no DB migrations or live trading state changes.
+- **Next recommended step**: Use the corpus quality reports to decide whether Phase 53 calibration review has enough source-backed paper evidence.

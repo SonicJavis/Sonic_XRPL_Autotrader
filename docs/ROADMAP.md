@@ -67,18 +67,20 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 
 ---
 
-## Phase 52 — Realistic Simulation and Replay Harness
+## Phase 52 — Source-Backed Paper Observation Dataset Expansion + Outcome Replay Corpus ✅
 
-- AMM impact model using real pool state from fixtures
-- Orderbook depth model using real fixture depth
-- Fee escalation model (real load factor from fixture)
-- Full end-to-end simulation pipeline with fixture-backed providers
-- Deterministic replay across Phase 44 walk-forward dataset
+- Larger deterministic paper observation fixture sets
+- Source/provenance validation and explicit missing evidence
+- Replayable paper outcome cases across canonical windows
+- Conservative corpus quality scoring and reports
+- Offline CLI commands for corpus validation and reporting
+- No threshold calibration and no live execution
 
 ---
 
-## Phase 53 — Paper Trading Sandbox
+## Phase 53 — Calibration Review and Paper Trading Sandbox
 
+- Review Phase 52 corpus quality before any calibration proposal
 - Full paper trading mode with realistic fill models
 - Paper trade persistence (SQLite storage)
 - Paper trade performance reporting
@@ -128,4 +130,5 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 - **Phase 49**: Evidence-backed FirstLedger candidate risk + strategy signal contracts. This phase is signal/evidence only and does not execute trades.
 - **Phase 50**: Paper-only signal review workflow. This phase turns signal records into review items, paper decisions, and paper intents without live execution.
 - **Phase 51**: Paper outcome attribution and signal feedback. This phase links deterministic paper observations back to signals and keeps feedback advisory.
-- **Phase 52+**: Future work may add deeper simulation, paper-trading review, dashboard presentation, live-readiness review, and security review. Live execution remains out of scope unless a future named phase explicitly authorizes it and passes safety review.
+- **Phase 52**: Source-backed paper observation corpus and replay readiness. This phase expands deterministic paper observation data and quality reporting without calibration or live execution.
+- **Phase 53+**: Future work may add calibration review, deeper simulation, paper-trading review, dashboard presentation, live-readiness review, and security review. Live execution remains out of scope unless a future named phase explicitly authorizes it and passes safety review.

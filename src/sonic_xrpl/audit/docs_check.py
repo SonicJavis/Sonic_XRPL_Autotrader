@@ -25,6 +25,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE50_SIGNAL_REVIEW_RESEARCH.md",
     "docs/PHASE51_PAPER_OUTCOME_ATTRIBUTION.md",
     "docs/research/PHASE51_PAPER_OUTCOME_ATTRIBUTION_RESEARCH.md",
+    "docs/PHASE52_OUTCOME_REPLAY_CORPUS.md",
+    "docs/research/PHASE52_PAPER_OBSERVATION_CORPUS_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -41,6 +43,10 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/outcomes/models.py",
     "src/sonic_xrpl/outcomes/attribution.py",
     "src/sonic_xrpl/outcomes/feedback.py",
+    "src/sonic_xrpl/outcome_corpus/models.py",
+    "src/sonic_xrpl/outcome_corpus/builder.py",
+    "src/sonic_xrpl/outcome_corpus/quality.py",
+    "src/sonic_xrpl/outcome_corpus/report_writer.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -57,6 +63,11 @@ REQUIRED_TEST_FILES = [
     "tests/unit/test_phase50_review_policy.py",
     "tests/unit/test_phase51_outcome_attribution.py",
     "tests/smoke/test_phase51_outcome_cli.py",
+    "tests/unit/test_phase52_outcome_corpus_models.py",
+    "tests/unit/test_phase52_outcome_corpus_builder.py",
+    "tests/unit/test_phase52_outcome_corpus_quality.py",
+    "tests/smoke/test_phase52_outcome_corpus_cli.py",
+    "tests/safety/test_phase52_outcome_corpus_safety.py",
 ]
 
 

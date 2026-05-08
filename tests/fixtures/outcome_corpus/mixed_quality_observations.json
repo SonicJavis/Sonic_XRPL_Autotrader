@@ -1,0 +1,55 @@
+{
+  "fixture_id": "phase52_mixed_quality_observations_v1",
+  "description": "Mixed source-backed and limited paper observations for quality scoring tests.",
+  "observations": [
+    {
+      "candidate_id": "phase52_mixed_candidate_d",
+      "observed_at": "2026-05-07T00:05:00+00:00",
+      "window_label": "5m",
+      "reference_price": "0.0400",
+      "observed_price": "0.0402",
+      "observed_return_pct": "0.5",
+      "liquidity_state": "known",
+      "volume_state": "known",
+      "source": "phase52_fixture_mixed_quality",
+      "source_url": "https://xrpl.org/docs/references/protocol/transactions/metadata",
+      "source_backed": true,
+      "synthetic": false,
+      "limitations": [],
+      "missing_fields": []
+    },
+    {
+      "candidate_id": "phase52_mixed_candidate_d",
+      "observed_at": "",
+      "window_label": "15m",
+      "reference_price": "0.0400",
+      "observed_price": null,
+      "observed_return_pct": null,
+      "liquidity_state": "unknown",
+      "volume_state": "unknown",
+      "source": "phase52_fixture_mixed_quality",
+      "source_url": null,
+      "source_backed": true,
+      "synthetic": false,
+      "limitations": ["observed_at_missing", "observed_price_missing"],
+      "missing_fields": ["observed_at", "observed_price"]
+    },
+    {
+      "candidate_id": "phase52_mixed_candidate_e",
+      "observed_at": "2026-05-07T00:05:00+00:00",
+      "window_label": "5m",
+      "reference_price": null,
+      "observed_price": null,
+      "observed_return_pct": null,
+      "liquidity_state": "unknown",
+      "volume_state": "unknown",
+      "source": "",
+      "source_url": null,
+      "source_backed": false,
+      "synthetic": false,
+      "limitations": ["source_missing", "reference_price_missing", "observed_price_missing"],
+      "missing_fields": ["source", "reference_price", "observed_price"]
+    }
+  ]
+}
+

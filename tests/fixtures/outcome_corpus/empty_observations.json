@@ -1,0 +1,5 @@
+{
+  "fixture_id": "phase52_empty_observations_v1",
+  "description": "Empty paper observation fixture for insufficient quality tests.",
+  "observations": []
+}

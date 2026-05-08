@@ -13,6 +13,7 @@ Usage:
   python -m sonic_xrpl.cli.main firstledger-signals --fixture tests/fixtures/firstledger/source_backed_candidates.json
   python -m sonic_xrpl.cli.main firstledger-signal-report --fixture tests/fixtures/firstledger/source_backed_candidates.json --output-dir reports/phase49
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
+  python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
 
 All commands work offline. No network access required by default.
 """
@@ -181,6 +182,16 @@ def main(argv: list[str] | None = None) -> int:
     signal_feedback_report_parser.add_argument("--outcomes-fixture", required=True, help="Path to Phase 51 paper observations fixture")
     signal_feedback_report_parser.add_argument("--output-dir", required=True, help="Output directory for report files")
 
+    outcome_corpus_parser = subparsers.add_parser("outcome-corpus", help="Build a Phase 52 paper observation replay corpus")
+    outcome_corpus_parser.add_argument("--fixture", action="append", required=True, help="Outcome corpus fixture file or directory; may be repeated")
+
+    outcome_corpus_report_parser = subparsers.add_parser("outcome-corpus-report", help="Write Phase 52 outcome corpus reports")
+    outcome_corpus_report_parser.add_argument("--fixture", action="append", required=True, help="Outcome corpus fixture file or directory; may be repeated")
+    outcome_corpus_report_parser.add_argument("--output-dir", default="reports/phase52", help="Output directory for report files")
+
+    outcome_corpus_quality_parser = subparsers.add_parser("outcome-corpus-quality", help="Print Phase 52 outcome corpus quality")
+    outcome_corpus_quality_parser.add_argument("--fixture", action="append", required=True, help="Outcome corpus fixture file or directory; may be repeated")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -230,6 +241,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_paper_outcome_report(args)
     if args.command == "signal-feedback-report":
         return _cmd_signal_feedback_report(args)
+    if args.command == "outcome-corpus":
+        return _cmd_outcome_corpus(args)
+    if args.command == "outcome-corpus-report":
+        return _cmd_outcome_corpus_report(args)
+    if args.command == "outcome-corpus-quality":
+        return _cmd_outcome_corpus_quality(args)
 
     parser.print_help()
     return 0
@@ -270,7 +287,7 @@ def _cmd_audit(args) -> int:
     report = run_full_audit(repo_root)
 
     for check in report.checks:
-        icon = "✅" if check.passed else ("⚠️ " if check.severity == "warning" else "❌")
+        icon = "✅" if check.passed else ("WARN" if check.severity == "warning" else "❌")
         print(f"  {icon} {check.name}: {check.message}")
 
     print()
@@ -366,7 +383,7 @@ def _cmd_safety_scan(args) -> int:
             print(f"  {f.file_path}:{f.line_no}: {f.pattern} — {f.reason}")
 
     if review:
-        print(f"\n⚠️  REQUIRES REVIEW ({len(review)} findings):")
+        print(f"\nWARN REQUIRES REVIEW ({len(review)} findings):")
         for f in review[:10]:
             print(f"  {f.file_path}:{f.line_no}: {f.pattern}")
 
@@ -396,7 +413,7 @@ def _cmd_reconcile(args) -> int:
 
     if getattr(args, "legacy", False):
         if not LEGACY_AVAILABLE:
-            print(f"  ⚠️  Legacy Phase 30 not available: {status['import_error']}")
+            print(f"  WARN Legacy Phase 30 not available: {status['import_error']}")
             return 2
         print("  Using Phase 30 legacy reconciliation (bridge)")
     else:
@@ -631,7 +648,7 @@ def _cmd_market_snapshot(args) -> int:
     if snapshot.quality.protocol_warnings:
         print(f"  Protocol warnings:")
         for w in snapshot.quality.protocol_warnings:
-            print(f"    ⚠️  {w}")
+            print(f"    WARN {w}")
     if snapshot.limitations:
         print(f"  Limitations:")
         for lim in snapshot.limitations[:5]:
@@ -847,6 +864,71 @@ def _cmd_signal_feedback_report(args) -> int:
     print(f"  Total attributed : {feedback.total_attributed}")
     print(f"  JSON report      : {json_path}")
     print(f"  Summary          : {md_path}")
+    return 0
+
+
+def _phase52_corpus(args):
+    from sonic_xrpl.outcome_corpus.builder import build_outcome_corpus
+
+    return build_outcome_corpus(list(args.fixture))
+
+
+def _cmd_outcome_corpus(args) -> int:
+    """Build and summarize a Phase 52 paper observation corpus."""
+    corpus = _phase52_corpus(args)
+    print("=== Phase 52 Outcome Corpus ===")
+    print("  Paper-only       : True")
+    print("  Offline          : True")
+    print("  Live execution    : BLOCKED")
+    print(f"  Corpus ID        : {corpus.corpus_id}")
+    print(f"  Replay cases     : {corpus.total_cases}")
+    print(f"  Source-backed    : {corpus.source_backed_cases}")
+    print(f"  Synthetic        : {corpus.synthetic_cases}")
+    print(f"  Quality grade    : {corpus.quality_summary.quality_grade}")
+    for case in corpus.replay_cases:
+        print(
+            f"  - {case.candidate_id}: windows={','.join(case.windows_present) or 'none'} "
+            f"missing={','.join(case.windows_missing) or 'none'}"
+        )
+        print("    live_execution_allowed=False")
+    return 0
+
+
+def _cmd_outcome_corpus_report(args) -> int:
+    """Write Phase 52 paper observation corpus reports."""
+    from sonic_xrpl.outcome_corpus.report_writer import write_outcome_corpus_report
+
+    corpus = _phase52_corpus(args)
+    report = write_outcome_corpus_report(corpus, args.output_dir)
+    print("=== Phase 52 Outcome Corpus Report ===")
+    print("  Paper-only       : True")
+    print("  Offline          : True")
+    print("  Live execution    : BLOCKED")
+    print(f"  Corpus ID        : {corpus.corpus_id}")
+    print(f"  Quality grade    : {corpus.quality_summary.quality_grade}")
+    for label, path in report.generated_files.items():
+        print(f"  {label}: {path}")
+    return 0
+
+
+def _cmd_outcome_corpus_quality(args) -> int:
+    """Print Phase 52 paper observation corpus quality."""
+    corpus = _phase52_corpus(args)
+    quality = corpus.quality_summary
+    print("=== Phase 52 Outcome Corpus Quality ===")
+    print("  Paper-only       : True")
+    print("  Offline          : True")
+    print("  Live execution    : BLOCKED")
+    print(f"  Quality grade    : {quality.quality_grade}")
+    print(f"  Total cases      : {quality.total_cases}")
+    print(f"  Complete cases   : {quality.complete_cases}")
+    print(f"  Partial cases    : {quality.partial_cases}")
+    print(f"  Missing cases    : {quality.missing_observation_cases}")
+    print(f"  Recommendation   : {quality.recommendation}")
+    if quality.limitation_counts:
+        print("  Limitation counts:")
+        for limitation, count in quality.limitation_counts.items():
+            print(f"    - {limitation}: {count}")
     return 0
 
 

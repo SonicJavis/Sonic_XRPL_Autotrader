@@ -1,0 +1,39 @@
+{
+  "fixture_id": "phase52_synthetic_observations_v1",
+  "description": "Synthetic paper observation fixture for negative quality tests. Not real market data.",
+  "observations": [
+    {
+      "candidate_id": "phase52_synthetic_candidate_c",
+      "observed_at": "2026-05-07T00:05:00+00:00",
+      "window_label": "5m",
+      "reference_price": "0.0300",
+      "observed_price": "0.0310",
+      "observed_return_pct": "3.3333",
+      "liquidity_state": "synthetic",
+      "volume_state": "synthetic",
+      "source": "synthetic_phase52_fixture",
+      "source_url": null,
+      "source_backed": false,
+      "synthetic": true,
+      "limitations": ["synthetic_fixture_not_real_market_data"],
+      "missing_fields": []
+    },
+    {
+      "candidate_id": "phase52_synthetic_candidate_c",
+      "observed_at": "2026-05-07T00:15:00+00:00",
+      "window_label": "15m",
+      "reference_price": "0.0300",
+      "observed_price": "0.0290",
+      "observed_return_pct": "-3.3333",
+      "liquidity_state": "synthetic",
+      "volume_state": "synthetic",
+      "source": "synthetic_phase52_fixture",
+      "source_url": null,
+      "source_backed": false,
+      "synthetic": true,
+      "limitations": ["synthetic_fixture_not_real_market_data"],
+      "missing_fields": []
+    }
+  ]
+}
+

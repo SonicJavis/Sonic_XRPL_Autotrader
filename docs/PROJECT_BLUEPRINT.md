@@ -37,6 +37,7 @@ src/sonic_xrpl/
   intelligence/   — Token profiling, confidence scoring (read-only)
   strategy/       — Signal generation (no execution)
   outcomes/       — Paper outcome attribution and advisory feedback
+  outcome_corpus/ — Paper observation replay corpus and quality reports
   risk/           — Risk policy, pre-trade checks, circuit breakers
   simulation/     — Fill models, slippage, fees, latency (deterministic)
   execution/      — Intent, plan, lifecycle, live_guard, paper_executor
@@ -155,3 +156,7 @@ The project now includes a Phase 49 signal/evidence layer for FirstLedger candid
 ## Phase 51 blueprint addendum
 
 Phase 51 adds an offline paper outcome attribution layer under `src/sonic_xrpl/outcomes/`. It links local paper observations back to Phase 49 signal records, emits explicit `NO_OBSERVATION` outcomes when evidence is missing, and aggregates advisory feedback without changing strategy scoring automatically.
+
+## Phase 52 blueprint addendum
+
+Phase 52 adds an offline outcome replay corpus layer under `src/sonic_xrpl/outcome_corpus/`. It expands deterministic paper observation fixtures, models missing windows and missing fields explicitly, labels synthetic evidence, scores corpus quality conservatively, and writes replay corpus reports. It prepares Phase 53 calibration review but does not perform calibration or enable live execution.

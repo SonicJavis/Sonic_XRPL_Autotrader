@@ -1,0 +1,39 @@
+{
+  "fixture_id": "phase52_missing_windows_v1",
+  "description": "Source-backed paper observation fixture with explicit missing canonical windows.",
+  "observations": [
+    {
+      "candidate_id": "phase52_partial_candidate_b",
+      "observed_at": "2026-05-07T00:05:00+00:00",
+      "window_label": "5m",
+      "reference_price": "0.0200",
+      "observed_price": "0.0201",
+      "observed_return_pct": "0.5",
+      "liquidity_state": "limited_fixture_liquidity",
+      "volume_state": "unknown",
+      "source": "phase52_fixture_missing_windows",
+      "source_url": "https://xrpl.org/docs/references/protocol/transactions/metadata",
+      "source_backed": true,
+      "synthetic": false,
+      "limitations": ["limited_observation_window_set"],
+      "missing_fields": []
+    },
+    {
+      "candidate_id": "phase52_partial_candidate_b",
+      "observed_at": "2026-05-07T01:00:00+00:00",
+      "window_label": "1h",
+      "reference_price": "0.0200",
+      "observed_price": "0.0190",
+      "observed_return_pct": "-5.0",
+      "liquidity_state": "limited_fixture_liquidity",
+      "volume_state": "unknown",
+      "source": "phase52_fixture_missing_windows",
+      "source_url": "https://xrpl.org/docs/references/http-websocket-apis/public-api-methods/account-methods/account_tx",
+      "source_backed": true,
+      "synthetic": false,
+      "limitations": ["limited_observation_window_set"],
+      "missing_fields": []
+    }
+  ]
+}
+
