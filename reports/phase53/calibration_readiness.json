@@ -1,0 +1,329 @@
+{
+  "accuracy_statement": "Fixture outcomes are not executable fill claims, not profitability evidence, and not execution approval. Synthetic evidence can test code paths but cannot support calibration readiness.",
+  "generated_files": {},
+  "live_execution_allowed": false,
+  "paper_only": true,
+  "readiness_result": {
+    "blockers": [],
+    "confidence": 1.0,
+    "evidence_snapshot": {
+      "attributed_outcome_count": 4,
+      "corpus_case_count": 4,
+      "created_at": "1970-01-01T00:00:00+00:00",
+      "favorable_outcome_counts": {
+        "BUY_CANDIDATE": 2,
+        "WATCH": 1
+      },
+      "invalid_observation_count": 0,
+      "limitations": [],
+      "live_enabled_records": [],
+      "live_execution_allowed": false,
+      "missing_observation_count": 0,
+      "outcome_counts": {
+        "FLAT": 1,
+        "WIN": 3
+      },
+      "paper_decision_count": 3,
+      "paper_intent_count": 2,
+      "paper_only": true,
+      "provenance_refs": [
+        "tests/fixtures/firstledger/source_backed_candidates.json",
+        "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+        "tests/fixtures/outcomes/paper_observations.json",
+        "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json",
+        "reports/phase52/outcome_corpus.json",
+        "reports/phase52/outcome_corpus_quality.json"
+      ],
+      "quality_summary": {
+        "average_windows_present": 5.0,
+        "complete_cases": 4,
+        "limitation_counts": {},
+        "missing_observation_cases": 0,
+        "partial_cases": 0,
+        "quality_grade": "A",
+        "recommendation": "Use for Phase 53 readiness review only.",
+        "source_backed_cases": 4,
+        "synthetic_cases": 0,
+        "total_cases": 4
+      },
+      "review_count": 3,
+      "signal_count": 6,
+      "signal_type_counts": {
+        "AVOID": 1,
+        "BUY_CANDIDATE": 2,
+        "INSUFFICIENT_EVIDENCE": 1,
+        "WATCH": 2
+      },
+      "snapshot_id": "crs_6b37cbd3a6b0632cfa49b9e7",
+      "source_backed_case_count": 4,
+      "source_files": [
+        "tests/fixtures/firstledger/source_backed_candidates.json",
+        "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+        "tests/fixtures/outcomes/paper_observations.json",
+        "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+      ],
+      "synthetic_case_count": 0
+    },
+    "live_execution_allowed": false,
+    "paper_only": true,
+    "readiness_id": "cr_d13d8925adbf9e0177123fa9",
+    "rules": [
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "minimum_corpus_size",
+        "passed": true,
+        "reason": "Corpus cases 4; required 3.",
+        "rule_id": "crr_7d008acfd094d7f40ab69cc5",
+        "severity": "blocker"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "source_backed_ratio",
+        "passed": true,
+        "reason": "Source-backed ratio 1.00; required 0.80.",
+        "rule_id": "crr_b866b9f5e9255f633063e1ff",
+        "severity": "blocker"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "missing_observation",
+        "passed": true,
+        "reason": "Missing observation ratio 0.00; maximum 0.25.",
+        "rule_id": "crr_d85b87cb03d6423c10f981d0",
+        "severity": "warning"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "invalid_numeric_observation",
+        "passed": true,
+        "reason": "Invalid numeric observations: 0.",
+        "rule_id": "crr_931f6f5aefd82db7d03b8bcc",
+        "severity": "blocker"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "outcome_coverage",
+        "passed": true,
+        "reason": "Attributed outcomes 4; required 3.",
+        "rule_id": "crr_7bdb8273bfa0f1fffd39b080",
+        "severity": "blocker"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "signal_classification_coverage",
+        "passed": true,
+        "reason": "Sparse signal classes: none",
+        "rule_id": "crr_3d97161f80c8fca4c6642b8e",
+        "severity": "warning"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "safety_invariants",
+        "passed": true,
+        "reason": "All reviewed records must remain paper-only with live execution blocked.",
+        "rule_id": "crr_adf6210059e26d461668c1f3",
+        "severity": "blocker"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "synthetic_fixture",
+        "passed": true,
+        "reason": "Synthetic corpus cases: 0.",
+        "rule_id": "crr_b6d1aa9ad54067c0ff4b6c7c",
+        "severity": "blocker"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "non_mutating_review",
+        "passed": true,
+        "reason": "Review layer is advisory and does not write runtime configuration.",
+        "rule_id": "crr_e6db43f6875da67149f47abb",
+        "severity": "blocker"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "human_review_required",
+        "passed": true,
+        "reason": "Recommendations require human review and are not execution approval.",
+        "rule_id": "crr_5d2585144cce1ce930ded002",
+        "severity": "blocker"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json",
+          "reports/phase52/outcome_corpus.json",
+          "reports/phase52/outcome_corpus_quality.json"
+        ],
+        "limitations": [],
+        "name": "provenance_consistency",
+        "passed": true,
+        "reason": "Provenance references must be present for reviewed evidence.",
+        "rule_id": "crr_9f20d073ed4da8ef45b27a46",
+        "severity": "warning"
+      },
+      {
+        "evidence_refs": [
+          "tests/fixtures/firstledger/source_backed_candidates.json",
+          "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+          "tests/fixtures/outcomes/paper_observations.json",
+          "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+        ],
+        "limitations": [],
+        "name": "report_reproducibility",
+        "passed": true,
+        "reason": "Snapshot timestamp must be deterministic for fixture-backed reports.",
+        "rule_id": "crr_f8b26cc710d47176e9e1a396",
+        "severity": "blocker"
+      }
+    ],
+    "status": "READY_FOR_HUMAN_REVIEW",
+    "warnings": []
+  },
+  "recommendations": [
+    {
+      "confidence": 0.65,
+      "direction": "REVIEW_DECREASE",
+      "evidence_refs": [
+        "tests/fixtures/firstledger/source_backed_candidates.json",
+        "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+        "tests/fixtures/outcomes/paper_observations.json",
+        "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+      ],
+      "live_execution_allowed": false,
+      "non_mutating": true,
+      "rationale": "WATCH paper outcomes look favorable enough to consider a human review of whether the watch boundary is too strict.",
+      "recommendation_id": "tr_7199f6a53a94496db13fee9a",
+      "requires_human_review": true,
+      "target": "watch_threshold"
+    },
+    {
+      "confidence": 0.6,
+      "direction": "KEEP",
+      "evidence_refs": [
+        "tests/fixtures/firstledger/source_backed_candidates.json",
+        "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+        "tests/fixtures/outcomes/paper_observations.json",
+        "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+      ],
+      "live_execution_allowed": false,
+      "non_mutating": true,
+      "rationale": "Available source-backed paper outcomes do not justify a change without human review.",
+      "recommendation_id": "tr_3d35adeaeec7ad0437ca057a",
+      "requires_human_review": true,
+      "target": "signal_score_threshold"
+    },
+    {
+      "confidence": 0.7,
+      "direction": "KEEP",
+      "evidence_refs": [
+        "tests/fixtures/firstledger/source_backed_candidates.json",
+        "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+        "tests/fixtures/outcomes/paper_observations.json",
+        "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+      ],
+      "live_execution_allowed": false,
+      "non_mutating": true,
+      "rationale": "Recommendations are advisory only and do not mutate runtime configuration; source-backed evidence quality remains the gate for any future proposal.",
+      "recommendation_id": "tr_e994df6af2df2d6e0b843df4",
+      "requires_human_review": true,
+      "target": "evidence_quality_threshold"
+    },
+    {
+      "confidence": 0.6,
+      "direction": "KEEP",
+      "evidence_refs": [
+        "tests/fixtures/firstledger/source_backed_candidates.json",
+        "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+        "tests/fixtures/outcomes/paper_observations.json",
+        "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+      ],
+      "live_execution_allowed": false,
+      "non_mutating": true,
+      "rationale": "Missing observations remain explicit and should continue to be penalized before any calibration proposal.",
+      "recommendation_id": "tr_ae8959198a3702fe1cb8157b",
+      "requires_human_review": true,
+      "target": "unknown_penalty"
+    },
+    {
+      "confidence": 0.6,
+      "direction": "KEEP",
+      "evidence_refs": [
+        "tests/fixtures/firstledger/source_backed_candidates.json",
+        "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+        "tests/fixtures/outcomes/paper_observations.json",
+        "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+      ],
+      "live_execution_allowed": false,
+      "non_mutating": true,
+      "rationale": "Synthetic cases can test code paths but cannot support calibration readiness.",
+      "recommendation_id": "tr_9596e4198d64122aa0916198",
+      "requires_human_review": true,
+      "target": "synthetic_penalty"
+    }
+  ],
+  "report_id": "crp_39267072214186b94de00626",
+  "safety_statement": "Phase 53 calibration readiness reports are offline, paper-only, human-review-only artifacts. Recommendations are advisory only and do not mutate runtime configuration. Live execution remains blocked."
+}

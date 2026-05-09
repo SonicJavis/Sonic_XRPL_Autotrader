@@ -164,3 +164,9 @@ Phase 51 outcome attribution is fixture-backed and paper-only. It reads local Ph
 Phase 52 outcome corpus tooling is fixture-backed and paper-only. It loads local observation fixtures, records missing evidence explicitly, builds replay cases, scores dataset quality, and writes JSON/Markdown reports.
 
 It does not fetch live FirstLedger data, call XRPL network APIs, use Xaman, construct transactions, sign transactions, submit transactions, calibrate strategy thresholds, or start background replay loops. Corpus and replay case objects keep `paper_only=True` and `live_execution_allowed=False`.
+
+## Phase 53 calibration readiness safety boundary
+
+Phase 53 calibration readiness review is fixture/report-backed and paper-only. It reads local evidence snapshots and writes advisory readiness reports.
+
+It does not mutate thresholds, runtime configuration, strategy settings, risk settings, provider settings, mode settings, or safety gates. Recommendations are human-review-only and are not execution approval. Synthetic data can test code paths but cannot support readiness. Fixture outcomes are not executable fill claims.

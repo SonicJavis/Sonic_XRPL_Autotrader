@@ -1,0 +1,82 @@
+[
+  {
+    "confidence": 0.65,
+    "direction": "REVIEW_DECREASE",
+    "evidence_refs": [
+      "tests/fixtures/firstledger/source_backed_candidates.json",
+      "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+      "tests/fixtures/outcomes/paper_observations.json",
+      "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+    ],
+    "live_execution_allowed": false,
+    "non_mutating": true,
+    "rationale": "WATCH paper outcomes look favorable enough to consider a human review of whether the watch boundary is too strict.",
+    "recommendation_id": "tr_7199f6a53a94496db13fee9a",
+    "requires_human_review": true,
+    "target": "watch_threshold"
+  },
+  {
+    "confidence": 0.6,
+    "direction": "KEEP",
+    "evidence_refs": [
+      "tests/fixtures/firstledger/source_backed_candidates.json",
+      "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+      "tests/fixtures/outcomes/paper_observations.json",
+      "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+    ],
+    "live_execution_allowed": false,
+    "non_mutating": true,
+    "rationale": "Available source-backed paper outcomes do not justify a change without human review.",
+    "recommendation_id": "tr_3d35adeaeec7ad0437ca057a",
+    "requires_human_review": true,
+    "target": "signal_score_threshold"
+  },
+  {
+    "confidence": 0.7,
+    "direction": "KEEP",
+    "evidence_refs": [
+      "tests/fixtures/firstledger/source_backed_candidates.json",
+      "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+      "tests/fixtures/outcomes/paper_observations.json",
+      "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+    ],
+    "live_execution_allowed": false,
+    "non_mutating": true,
+    "rationale": "Recommendations are advisory only and do not mutate runtime configuration; source-backed evidence quality remains the gate for any future proposal.",
+    "recommendation_id": "tr_e994df6af2df2d6e0b843df4",
+    "requires_human_review": true,
+    "target": "evidence_quality_threshold"
+  },
+  {
+    "confidence": 0.6,
+    "direction": "KEEP",
+    "evidence_refs": [
+      "tests/fixtures/firstledger/source_backed_candidates.json",
+      "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+      "tests/fixtures/outcomes/paper_observations.json",
+      "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+    ],
+    "live_execution_allowed": false,
+    "non_mutating": true,
+    "rationale": "Missing observations remain explicit and should continue to be penalized before any calibration proposal.",
+    "recommendation_id": "tr_ae8959198a3702fe1cb8157b",
+    "requires_human_review": true,
+    "target": "unknown_penalty"
+  },
+  {
+    "confidence": 0.6,
+    "direction": "KEEP",
+    "evidence_refs": [
+      "tests/fixtures/firstledger/source_backed_candidates.json",
+      "tests/fixtures/outcome_corpus/source_backed_multi_window.json",
+      "tests/fixtures/outcomes/paper_observations.json",
+      "tests\\fixtures\\calibration_review\\sufficient_source_backed_evidence.json"
+    ],
+    "live_execution_allowed": false,
+    "non_mutating": true,
+    "rationale": "Synthetic cases can test code paths but cannot support calibration readiness.",
+    "recommendation_id": "tr_9596e4198d64122aa0916198",
+    "requires_human_review": true,
+    "target": "synthetic_penalty"
+  }
+]

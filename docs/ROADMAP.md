@@ -78,17 +78,26 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 
 ---
 
-## Phase 53 — Calibration Review and Paper Trading Sandbox
+## Phase 53 — Calibration Readiness Review + Non-Mutating Threshold Recommendation Layer ✅
 
 - Review Phase 52 corpus quality before any calibration proposal
-- Full paper trading mode with realistic fill models
-- Paper trade persistence (SQLite storage)
-- Paper trade performance reporting
-- Reconciliation V2 integration for paper vs simulated comparison
+- Offline readiness rules for source-backed paper evidence
+- Human-review-only threshold recommendations
+- No automatic calibration and no runtime mutation
+- No live execution
 
 ---
 
-## Phase 54 — Reconciliation V2 and Execution Quality Reports
+## Phase 54 — Human-Reviewed Calibration Proposal Pack
+
+- Generate exact proposed calibration changes for manual review
+- Include evidence tables, risk notes, rollback notes, and sign-off checklist
+- Do not apply proposed changes automatically
+- Live execution remains blocked
+
+---
+
+## Phase 55 — Reconciliation V2 and Execution Quality Reports
 
 - Full V2 reconciliation pipeline
 - Execution quality reports (fill rate, slippage, fee accuracy)
@@ -97,7 +106,7 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 
 ---
 
-## Phase 55 — Local Dashboard / Operator Console
+## Phase 56 — Local Dashboard / Operator Console
 
 - Streamlit dashboard integration with V2
 - V2 health, capabilities, recent simulations display
@@ -106,7 +115,7 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 
 ---
 
-## Phase 56 — Live Readiness Checklist Only
+## Phase 57 — Live Readiness Checklist Only
 
 - Structural verification checklist
 - Provider connectivity tests (read-only)
@@ -116,7 +125,7 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 
 ---
 
-## Phase 57 — Security Review Before Any Live Trading
+## Phase 58 — Security Review Before Any Live Trading
 
 - External or internal security audit
 - Live guard review and sign-off
@@ -131,4 +140,5 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 - **Phase 50**: Paper-only signal review workflow. This phase turns signal records into review items, paper decisions, and paper intents without live execution.
 - **Phase 51**: Paper outcome attribution and signal feedback. This phase links deterministic paper observations back to signals and keeps feedback advisory.
 - **Phase 52**: Source-backed paper observation corpus and replay readiness. This phase expands deterministic paper observation data and quality reporting without calibration or live execution.
-- **Phase 53+**: Future work may add calibration review, deeper simulation, paper-trading review, dashboard presentation, live-readiness review, and security review. Live execution remains out of scope unless a future named phase explicitly authorizes it and passes safety review.
+- **Phase 53**: Calibration readiness review and non-mutating threshold recommendation layer. This phase does not apply calibration or approve execution.
+- **Phase 54+**: Future work may add human-reviewed calibration proposal packs, deeper simulation, paper-trading review, dashboard presentation, live-readiness review, and security review. Live execution remains out of scope unless a future named phase explicitly authorizes it and passes safety review.
