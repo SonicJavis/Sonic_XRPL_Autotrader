@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-07 (Phase 51)
+**Last updated**: 2026-05-09 (Phase 53)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -197,7 +197,7 @@ These phases may exist but cannot be verified without documentation evidence.
 
 ## Phase 52 — Source-Backed Paper Observation Dataset Expansion + Outcome Replay Corpus
 
-- **Status**: Implemented on `codex/phase52-outcome-replay-corpus` pending PR validation.
+- **Status**: Merged in PR #42.
 - **Objective completed**: Added a deterministic, offline paper outcome corpus layer that loads multiple fixture sets, validates provenance/missing evidence, builds replay cases across canonical windows, scores corpus quality, and writes JSON/Markdown reports.
 - **Files changed**: `src/sonic_xrpl/outcome_corpus/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/outcome_corpus/`, Phase 52 unit/smoke/safety tests, docs, research notes, and audit doc registry.
 - **Validation target**: Run targeted Phase 52 tests, CLI smoke checks, safety grep, audit validator, dependency audit, and broader pytest when feasible.
@@ -205,3 +205,16 @@ These phases may exist but cannot be verified without documentation evidence.
 - **Accuracy notes**: Missing windows and fields remain explicit; synthetic observations are labelled and penalized; source-backed status requires provenance.
 - **Rollback notes**: Revert the Phase 52 merge commit if needed; no DB migrations or live trading state changes.
 - **Next recommended step**: Use the corpus quality reports to decide whether Phase 53 calibration review has enough source-backed paper evidence.
+
+---
+
+## Phase 53 — Calibration Readiness Review + Non-Mutating Threshold Recommendation Layer
+
+- **Status**: Implemented on `codex/phase53-calibration-readiness-review` pending PR validation.
+- **Objective completed**: Added deterministic offline calibration readiness snapshots, conservative readiness rules, non-mutating human-review-only threshold recommendations, reports, fixtures, CLI commands, and tests.
+- **Files changed**: `src/sonic_xrpl/calibration_review/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/calibration_review/`, Phase 53 unit/smoke/safety tests, docs, research notes, reports, and audit doc registry.
+- **Validation target**: Run targeted Phase 53 tests, CLI smoke checks, safety grep, audit validator, dependency audit, and full pytest.
+- **Safety/risk notes**: Paper-only and offline. No live data fetch, Xaman use, transaction construction, signing, submission, auto-buy, polling loop, streaming loop, threshold mutation, automatic calibration, or strategy promotion added.
+- **Accuracy notes**: Synthetic-heavy data cannot support readiness. Missing observations and invalid numeric observations lower or block readiness. Recommendations are not profitability claims and are not execution approval.
+- **Rollback notes**: Revert the Phase 53 merge commit if needed; no DB migrations, external service setup, live config, or secrets are introduced.
+- **Next recommended step**: Phase 54 - Human-Reviewed Calibration Proposal Pack.

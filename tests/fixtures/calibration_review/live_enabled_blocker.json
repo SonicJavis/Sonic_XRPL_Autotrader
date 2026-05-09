@@ -1,0 +1,22 @@
+{
+  "fixture_id": "phase53_live_enabled_blocker_v1",
+  "created_at": "1970-01-01T00:00:00+00:00",
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "source_files": ["tests/fixtures/outcome_corpus/source_backed_multi_window.json"],
+  "signals": [
+    {"signal_id": "sig_live_1", "candidate_id": "live_1", "signal_type": "BUY_CANDIDATE", "paper_only": true, "live_execution_allowed": true},
+    {"signal_id": "sig_live_2", "candidate_id": "live_2", "signal_type": "WATCH", "paper_only": true, "live_execution_allowed": false},
+    {"signal_id": "sig_live_3", "candidate_id": "live_3", "signal_type": "AVOID", "paper_only": true, "live_execution_allowed": false}
+  ],
+  "reviews": [],
+  "paper_decisions": [],
+  "paper_intents": [],
+  "attributions": [
+    {"attribution_id": "attr_live_1", "signal_id": "sig_live_1", "signal_type": "BUY_CANDIDATE", "outcome_label": "WIN", "paper_only": true, "live_execution_allowed": false},
+    {"attribution_id": "attr_live_2", "signal_id": "sig_live_2", "signal_type": "WATCH", "outcome_label": "WIN", "paper_only": true, "live_execution_allowed": false},
+    {"attribution_id": "attr_live_3", "signal_id": "sig_live_3", "signal_type": "AVOID", "outcome_label": "LOSS", "paper_only": true, "live_execution_allowed": false}
+  ],
+  "corpus": {"corpus_id": "phase53_live_blocked_corpus", "total_cases": 3, "source_backed_cases": 3, "synthetic_cases": 0, "paper_only": true, "live_execution_allowed": false, "quality_summary": {"total_cases": 3, "complete_cases": 3, "partial_cases": 0, "missing_observation_cases": 0, "source_backed_cases": 3, "synthetic_cases": 0, "average_windows_present": 5.0, "limitation_counts": {}, "quality_grade": "A", "recommendation": "fixture"}, "replay_cases": []},
+  "limitations": ["live_enabled_fixture_for_safety_test"]
+}

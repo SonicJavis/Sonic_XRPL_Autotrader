@@ -109,6 +109,7 @@ src/sonic_xrpl/
 | strategy | Signal generation | No — signals only |
 | outcomes | Paper outcome attribution and feedback | No — paper analysis only |
 | outcome_corpus | Paper observation replay corpus and quality reports | No — paper analysis only |
+| calibration_review | Calibration readiness review and non-mutating recommendations | No — paper analysis only |
 | risk | Pre-trade checks, circuit breakers | No — approval/rejection only |
 | simulation | Deterministic trade simulation | No — simulation only |
 | execution | Intent/plan/lifecycle, live_guard, paper_executor | Paper mode only |
@@ -141,7 +142,7 @@ Each module may import from:
 | reconciliation | core, execution |
 | telemetry | core, protocol |
 | storage | core |
-| cli | core, protocol, simulation, execution, reconciliation, telemetry, audit, market, outcomes, outcome_corpus |
+| cli | core, protocol, simulation, execution, reconciliation, telemetry, audit, market, outcomes, outcome_corpus, calibration_review |
 | audit | core, protocol |
 | compatibility | core |
 
@@ -212,3 +213,7 @@ The layer must not import wallet, signing, submission, Xaman, or live order plac
 ## Phase 52 outcome corpus layer
 
 `src/sonic_xrpl/outcome_corpus/` sits after the paper outcome layer as an offline replay corpus foundation. It loads local paper observation fixture sets, validates source/provenance and missing fields, builds deterministic replay cases over canonical windows, scores corpus quality, and writes JSON/Markdown reports. It does not calibrate scoring thresholds, fetch live data, or enable live execution.
+
+## Phase 53 calibration readiness layer
+
+`src/sonic_xrpl/calibration_review/` sits after the outcome corpus layer. It consumes offline Phase 49-52 evidence snapshots, evaluates conservative readiness rules, and produces human-review-only threshold recommendations. It does not edit signal scoring, review policy, outcome attribution, corpus quality scoring, runtime configuration, or safety gates.

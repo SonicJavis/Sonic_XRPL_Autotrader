@@ -14,6 +14,7 @@ Usage:
   python -m sonic_xrpl.cli.main firstledger-signal-report --fixture tests/fixtures/firstledger/source_backed_candidates.json --output-dir reports/phase49
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
+  python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
 
 All commands work offline. No network access required by default.
 """
@@ -192,6 +193,16 @@ def main(argv: list[str] | None = None) -> int:
     outcome_corpus_quality_parser = subparsers.add_parser("outcome-corpus-quality", help="Print Phase 52 outcome corpus quality")
     outcome_corpus_quality_parser.add_argument("--fixture", action="append", required=True, help="Outcome corpus fixture file or directory; may be repeated")
 
+    calibration_readiness_parser = subparsers.add_parser("calibration-readiness", help="Run Phase 53 calibration readiness review")
+    calibration_readiness_parser.add_argument("--fixture", required=True, help="Calibration review fixture or Phase 52 corpus report")
+
+    calibration_readiness_report_parser = subparsers.add_parser("calibration-readiness-report", help="Write Phase 53 calibration readiness reports")
+    calibration_readiness_report_parser.add_argument("--fixture", required=True, help="Calibration review fixture or Phase 52 corpus report")
+    calibration_readiness_report_parser.add_argument("--output-dir", default="reports/phase53", help="Output directory for report files")
+
+    calibration_recommendations_parser = subparsers.add_parser("calibration-recommendations", help="Print Phase 53 threshold recommendations")
+    calibration_recommendations_parser.add_argument("--fixture", required=True, help="Calibration review fixture or Phase 52 corpus report")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -247,6 +258,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_outcome_corpus_report(args)
     if args.command == "outcome-corpus-quality":
         return _cmd_outcome_corpus_quality(args)
+    if args.command == "calibration-readiness":
+        return _cmd_calibration_readiness(args)
+    if args.command == "calibration-readiness-report":
+        return _cmd_calibration_readiness_report(args)
+    if args.command == "calibration-recommendations":
+        return _cmd_calibration_recommendations(args)
 
     parser.print_help()
     return 0
@@ -929,6 +946,79 @@ def _cmd_outcome_corpus_quality(args) -> int:
         print("  Limitation counts:")
         for limitation, count in quality.limitation_counts.items():
             print(f"    - {limitation}: {count}")
+    return 0
+
+
+def _phase53_review(args):
+    from sonic_xrpl.calibration_review.loader import load_evidence_snapshot
+    from sonic_xrpl.calibration_review.readiness import evaluate_readiness
+    from sonic_xrpl.calibration_review.recommendations import build_threshold_recommendations
+
+    snapshot = load_evidence_snapshot(args.fixture)
+    result = evaluate_readiness(snapshot)
+    recommendations = build_threshold_recommendations(result)
+    return result, recommendations
+
+
+def _cmd_calibration_readiness(args) -> int:
+    """Run Phase 53 calibration readiness review."""
+    result, recommendations = _phase53_review(args)
+    snapshot = result.evidence_snapshot
+    print("=== Phase 53 Calibration Readiness ===")
+    print("  Paper-only        : True")
+    print("  Offline           : True")
+    print("  Live execution    : BLOCKED")
+    print("  Runtime mutation  : BLOCKED")
+    print(f"  Readiness status  : {result.status}")
+    print(f"  Confidence        : {result.confidence}")
+    print(f"  Recommendations   : {len(recommendations)}")
+    print(f"  Corpus cases      : {snapshot.corpus_case_count}")
+    print(f"  Source-backed     : {snapshot.source_backed_case_count}")
+    print(f"  Synthetic         : {snapshot.synthetic_case_count}")
+    if result.blockers:
+        print("  Blockers:")
+        for blocker in result.blockers:
+            print(f"    - {blocker}")
+    if result.warnings:
+        print("  Warnings:")
+        for warning in result.warnings:
+            print(f"    - {warning}")
+    return 0
+
+
+def _cmd_calibration_readiness_report(args) -> int:
+    """Write Phase 53 calibration readiness reports."""
+    from sonic_xrpl.calibration_review.report_writer import write_calibration_review_report
+
+    result, recommendations = _phase53_review(args)
+    report = write_calibration_review_report(result, recommendations, args.output_dir)
+    print("=== Phase 53 Calibration Readiness Report ===")
+    print("  Paper-only        : True")
+    print("  Offline           : True")
+    print("  Live execution    : BLOCKED")
+    print("  Runtime mutation  : BLOCKED")
+    print(f"  Readiness status  : {result.status}")
+    for label, path in report.generated_files.items():
+        print(f"  {label}: {path}")
+    return 0
+
+
+def _cmd_calibration_recommendations(args) -> int:
+    """Print Phase 53 advisory threshold recommendations."""
+    result, recommendations = _phase53_review(args)
+    print("=== Phase 53 Calibration Recommendations ===")
+    print("  Paper-only        : True")
+    print("  Offline           : True")
+    print("  Live execution    : BLOCKED")
+    print("  Runtime mutation  : BLOCKED")
+    print("  Advisory only     : True")
+    print("  Human review      : REQUIRED")
+    print(f"  Readiness status  : {result.status}")
+    for item in recommendations:
+        print(
+            f"  - {item.target}: {item.direction} confidence={item.confidence} "
+            f"non_mutating={item.non_mutating} human_review={item.requires_human_review}"
+        )
     return 0
 
 

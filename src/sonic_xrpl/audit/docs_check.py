@@ -27,6 +27,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE51_PAPER_OUTCOME_ATTRIBUTION_RESEARCH.md",
     "docs/PHASE52_OUTCOME_REPLAY_CORPUS.md",
     "docs/research/PHASE52_PAPER_OBSERVATION_CORPUS_RESEARCH.md",
+    "docs/PHASE53_CALIBRATION_READINESS_REVIEW.md",
+    "docs/research/PHASE53_CALIBRATION_READINESS_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -47,6 +49,10 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/outcome_corpus/builder.py",
     "src/sonic_xrpl/outcome_corpus/quality.py",
     "src/sonic_xrpl/outcome_corpus/report_writer.py",
+    "src/sonic_xrpl/calibration_review/models.py",
+    "src/sonic_xrpl/calibration_review/readiness.py",
+    "src/sonic_xrpl/calibration_review/recommendations.py",
+    "src/sonic_xrpl/calibration_review/report_writer.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -68,6 +74,12 @@ REQUIRED_TEST_FILES = [
     "tests/unit/test_phase52_outcome_corpus_quality.py",
     "tests/smoke/test_phase52_outcome_corpus_cli.py",
     "tests/safety/test_phase52_outcome_corpus_safety.py",
+    "tests/unit/test_phase53_calibration_models.py",
+    "tests/unit/test_phase53_calibration_readiness.py",
+    "tests/unit/test_phase53_calibration_recommendations.py",
+    "tests/unit/test_phase53_calibration_report_writer.py",
+    "tests/smoke/test_phase53_calibration_cli.py",
+    "tests/safety/test_phase53_calibration_safety.py",
 ]
 
 

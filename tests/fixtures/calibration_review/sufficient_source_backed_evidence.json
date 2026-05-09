@@ -1,0 +1,70 @@
+{
+  "fixture_id": "phase53_sufficient_source_backed_evidence_v1",
+  "created_at": "1970-01-01T00:00:00+00:00",
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "source_files": [
+    "tests/fixtures/firstledger/source_backed_candidates.json",
+    "tests/fixtures/outcomes/paper_observations.json",
+    "tests/fixtures/outcome_corpus/source_backed_multi_window.json"
+  ],
+  "provenance_refs": [
+    "reports/phase52/outcome_corpus.json",
+    "reports/phase52/outcome_corpus_quality.json"
+  ],
+  "signals": [
+    {"signal_id": "sig_buy_1", "candidate_id": "cal_buy_1", "signal_type": "BUY_CANDIDATE", "paper_only": true, "live_execution_allowed": false},
+    {"signal_id": "sig_buy_2", "candidate_id": "cal_buy_2", "signal_type": "BUY_CANDIDATE", "paper_only": true, "live_execution_allowed": false},
+    {"signal_id": "sig_watch_1", "candidate_id": "cal_watch_1", "signal_type": "WATCH", "paper_only": true, "live_execution_allowed": false},
+    {"signal_id": "sig_watch_2", "candidate_id": "cal_watch_2", "signal_type": "WATCH", "paper_only": true, "live_execution_allowed": false},
+    {"signal_id": "sig_avoid_1", "candidate_id": "cal_avoid_1", "signal_type": "AVOID", "paper_only": true, "live_execution_allowed": false},
+    {"signal_id": "sig_insufficient_1", "candidate_id": "cal_insufficient_1", "signal_type": "INSUFFICIENT_EVIDENCE", "paper_only": true, "live_execution_allowed": false}
+  ],
+  "reviews": [
+    {"review_id": "review_buy_1", "signal_id": "sig_buy_1", "paper_only": true, "live_execution_allowed": false},
+    {"review_id": "review_watch_1", "signal_id": "sig_watch_1", "paper_only": true, "live_execution_allowed": false},
+    {"review_id": "review_avoid_1", "signal_id": "sig_avoid_1", "paper_only": true, "live_execution_allowed": false}
+  ],
+  "paper_decisions": [
+    {"decision_id": "decision_buy_1", "signal_id": "sig_buy_1", "paper_only": true, "live_execution_allowed": false},
+    {"decision_id": "decision_watch_1", "signal_id": "sig_watch_1", "paper_only": true, "live_execution_allowed": false},
+    {"decision_id": "decision_avoid_1", "signal_id": "sig_avoid_1", "paper_only": true, "live_execution_allowed": false}
+  ],
+  "paper_intents": [
+    {"intent_id": "intent_buy_1", "signal_id": "sig_buy_1", "paper_only": true, "live_execution_allowed": false},
+    {"intent_id": "intent_watch_1", "signal_id": "sig_watch_1", "paper_only": true, "live_execution_allowed": false}
+  ],
+  "attributions": [
+    {"attribution_id": "attr_buy_1", "signal_id": "sig_buy_1", "signal_type": "BUY_CANDIDATE", "outcome_label": "WIN", "paper_only": true, "live_execution_allowed": false},
+    {"attribution_id": "attr_buy_2", "signal_id": "sig_buy_2", "signal_type": "BUY_CANDIDATE", "outcome_label": "WIN", "paper_only": true, "live_execution_allowed": false},
+    {"attribution_id": "attr_watch_1", "signal_id": "sig_watch_1", "signal_type": "WATCH", "outcome_label": "WIN", "paper_only": true, "live_execution_allowed": false},
+    {"attribution_id": "attr_watch_2", "signal_id": "sig_watch_2", "signal_type": "WATCH", "outcome_label": "FLAT", "paper_only": true, "live_execution_allowed": false}
+  ],
+  "corpus": {
+    "corpus_id": "phase53_sufficient_corpus",
+    "total_cases": 4,
+    "source_backed_cases": 4,
+    "synthetic_cases": 0,
+    "live_execution_allowed": false,
+    "paper_only": true,
+    "quality_summary": {
+      "total_cases": 4,
+      "complete_cases": 4,
+      "partial_cases": 0,
+      "missing_observation_cases": 0,
+      "source_backed_cases": 4,
+      "synthetic_cases": 0,
+      "average_windows_present": 5.0,
+      "limitation_counts": {},
+      "quality_grade": "A",
+      "recommendation": "Use for Phase 53 readiness review only."
+    },
+    "replay_cases": [
+      {"replay_case_id": "case_buy_1", "candidate_id": "cal_buy_1", "source_backed": true, "synthetic": false, "windows_present": ["5m", "15m", "1h", "4h", "24h"], "windows_missing": [], "limitations": [], "paper_only": true, "live_execution_allowed": false},
+      {"replay_case_id": "case_buy_2", "candidate_id": "cal_buy_2", "source_backed": true, "synthetic": false, "windows_present": ["5m", "15m", "1h", "4h", "24h"], "windows_missing": [], "limitations": [], "paper_only": true, "live_execution_allowed": false},
+      {"replay_case_id": "case_watch_1", "candidate_id": "cal_watch_1", "source_backed": true, "synthetic": false, "windows_present": ["5m", "15m", "1h", "4h", "24h"], "windows_missing": [], "limitations": [], "paper_only": true, "live_execution_allowed": false},
+      {"replay_case_id": "case_avoid_1", "candidate_id": "cal_avoid_1", "source_backed": true, "synthetic": false, "windows_present": ["5m", "15m", "1h", "4h", "24h"], "windows_missing": [], "limitations": [], "paper_only": true, "live_execution_allowed": false}
+    ]
+  },
+  "limitations": []
+}
