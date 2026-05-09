@@ -1,0 +1,55 @@
+{
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "readiness_result": {
+    "readiness_id": "cr_mixed_phase54_fixture",
+    "status": "REVIEW_WITH_CAUTION",
+    "confidence": 0.8,
+    "blockers": [],
+    "warnings": [],
+    "paper_only": true,
+    "live_execution_allowed": false,
+    "evidence_snapshot": {
+      "snapshot_id": "crs_mixed_phase54_fixture",
+      "corpus_case_count": 4,
+      "source_backed_case_count": 4,
+      "synthetic_case_count": 0,
+      "missing_observation_count": 1,
+      "invalid_observation_count": 0,
+      "quality_summary": {
+        "quality_grade": "B"
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "tr_mixed_watch",
+      "target": "watch_threshold",
+      "direction": "REVIEW_DECREASE",
+      "rationale": "A small watch boundary proposal is reviewable with caution.",
+      "evidence_refs": [
+        "crs_mixed_phase54_fixture"
+      ],
+      "confidence": 0.55,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    },
+    {
+      "recommendation_id": "tr_mixed_unknown",
+      "target": "unknown_penalty",
+      "direction": "KEEP",
+      "rationale": "Missing evidence keeps unknown penalty unchanged.",
+      "evidence_refs": [
+        "crs_mixed_phase54_fixture"
+      ],
+      "confidence": 0.55,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    }
+  ],
+  "limitations": [
+    "missing_observations_present"
+  ]
+}

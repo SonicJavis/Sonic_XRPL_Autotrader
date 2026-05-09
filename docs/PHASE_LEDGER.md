@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-09 (Phase 53)
+**Last updated**: 2026-05-09 (Phase 54)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -218,3 +218,16 @@ These phases may exist but cannot be verified without documentation evidence.
 - **Accuracy notes**: Synthetic-heavy data cannot support readiness. Missing observations and invalid numeric observations lower or block readiness. Recommendations are not profitability claims and are not execution approval.
 - **Rollback notes**: Revert the Phase 53 merge commit if needed; no DB migrations, external service setup, live config, or secrets are introduced.
 - **Next recommended step**: Phase 54 - Human-Reviewed Calibration Proposal Pack.
+
+---
+
+## Phase 54 - Human-Reviewed Calibration Proposal Pack
+
+- **Status**: Implemented on `codex/phase54-human-reviewed-calibration-proposal-pack` pending PR validation.
+- **Objective completed**: Added deterministic offline calibration proposal packs that convert Phase 53 recommendations into exact before/after review proposals or blocked recommendation records.
+- **Files changed**: `src/sonic_xrpl/calibration_proposal/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/calibration_proposal/`, Phase 54 unit/smoke/safety tests, docs, research notes, reports, and audit doc registry.
+- **Validation target**: Run targeted Phase 54 tests, CLI smoke checks, safety grep, audit validator, dependency audit, and full pytest.
+- **Safety/risk notes**: Paper-only and offline. Proposal generation does not change runtime settings, does not change thresholds, does not enable live execution, and keeps `auto_apply_allowed=False` plus `live_execution_allowed=False`.
+- **Accuracy notes**: Synthetic-heavy, invalid, insufficient, or sparse evidence blocks exact proposals. Proposal values are small deterministic review deltas and are not profitability claims.
+- **Rollback notes**: Revert the Phase 54 merge commit if needed; no DB migrations, external service setup, live config, or secrets are introduced.
+- **Next recommended step**: Phase 55 - offline reconciliation or simulation-quality review before any later manual calibration implementation.

@@ -15,6 +15,7 @@ Usage:
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
+  python -m sonic_xrpl.cli.main calibration-proposals --fixture tests/fixtures/calibration_proposal/ready_for_review_recommendations.json
 
 All commands work offline. No network access required by default.
 """
@@ -27,6 +28,8 @@ import sys
 
 def main(argv: list[str] | None = None) -> int:
     """Main CLI entry point."""
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(
         prog="sonic_xrpl",
         description="Sonic XRPL Autotrader V2 — Phase 45 Foundation",
@@ -203,6 +206,16 @@ def main(argv: list[str] | None = None) -> int:
     calibration_recommendations_parser = subparsers.add_parser("calibration-recommendations", help="Print Phase 53 threshold recommendations")
     calibration_recommendations_parser.add_argument("--fixture", required=True, help="Calibration review fixture or Phase 52 corpus report")
 
+    calibration_proposals_parser = subparsers.add_parser("calibration-proposals", help="Build Phase 54 human-reviewed calibration proposals")
+    calibration_proposals_parser.add_argument("--fixture", required=True, help="Phase 53 recommendations report or Phase 54 fixture")
+
+    calibration_proposal_report_parser = subparsers.add_parser("calibration-proposal-report", help="Write Phase 54 calibration proposal reports")
+    calibration_proposal_report_parser.add_argument("--fixture", required=True, help="Phase 53 recommendations report or Phase 54 fixture")
+    calibration_proposal_report_parser.add_argument("--output-dir", default="reports/phase54", help="Output directory for report files")
+
+    calibration_proposal_diff_parser = subparsers.add_parser("calibration-proposal-diff", help="Print Phase 54 proposed-only calibration diff")
+    calibration_proposal_diff_parser.add_argument("--fixture", required=True, help="Phase 53 recommendations report or Phase 54 fixture")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -264,6 +277,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_calibration_readiness_report(args)
     if args.command == "calibration-recommendations":
         return _cmd_calibration_recommendations(args)
+    if args.command == "calibration-proposals":
+        return _cmd_calibration_proposals(args)
+    if args.command == "calibration-proposal-report":
+        return _cmd_calibration_proposal_report(args)
+    if args.command == "calibration-proposal-diff":
+        return _cmd_calibration_proposal_diff(args)
 
     parser.print_help()
     return 0
@@ -1019,6 +1038,60 @@ def _cmd_calibration_recommendations(args) -> int:
             f"  - {item.target}: {item.direction} confidence={item.confidence} "
             f"non_mutating={item.non_mutating} human_review={item.requires_human_review}"
         )
+    return 0
+
+
+def _phase54_pack(args):
+    from sonic_xrpl.calibration_proposal import build_calibration_proposal_pack
+
+    return build_calibration_proposal_pack(args.fixture)
+
+
+def _cmd_calibration_proposals(args) -> int:
+    """Build Phase 54 human-reviewed calibration proposals."""
+    pack = _phase54_pack(args)
+    print("=== Phase 54 Calibration Proposals ===")
+    print("  Paper-only calibration proposals: True")
+    print("  Human review required          : True")
+    print("  No settings were changed       : True")
+    print("  Live execution is blocked      : True")
+    print(f"  Pack ID                        : {pack.pack_id}")
+    print(f"  Exact proposals                : {len(pack.proposals)}")
+    print(f"  Blocked recommendations        : {len(pack.blocked_recommendations)}")
+    print(f"  Risk level                     : {pack.risk_summary.risk_level}")
+    for proposal in pack.proposals:
+        print(
+            f"  - {proposal.parameter_ref.name}: {proposal.current_value} -> {proposal.proposed_value} "
+            f"({proposal.direction}, proposed only)"
+        )
+    for blocked in pack.blocked_recommendations:
+        print(f"  - blocked {blocked.recommendation_id}: {blocked.reason}")
+    return 0
+
+
+def _cmd_calibration_proposal_report(args) -> int:
+    """Write Phase 54 calibration proposal reports."""
+    from sonic_xrpl.calibration_proposal import write_calibration_proposal_report
+
+    pack = _phase54_pack(args)
+    generated = write_calibration_proposal_report(pack, args.output_dir)
+    print("=== Phase 54 Calibration Proposal Report ===")
+    print("  Paper-only calibration proposals: True")
+    print("  Human review required          : True")
+    print("  No settings were changed       : True")
+    print("  Live execution is blocked      : True")
+    print(f"  Pack ID                        : {pack.pack_id}")
+    for label, path in generated.items():
+        print(f"  {label}: {path}")
+    return 0
+
+
+def _cmd_calibration_proposal_diff(args) -> int:
+    """Print Phase 54 calibration proposal diff."""
+    from sonic_xrpl.calibration_proposal import render_proposal_diff
+
+    pack = _phase54_pack(args)
+    print(render_proposal_diff(pack))
     return 0
 
 

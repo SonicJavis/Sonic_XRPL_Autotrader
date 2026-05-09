@@ -1,0 +1,167 @@
+{
+  "approval_requirements": [
+    "A human reviewer must inspect every proposal, blocker, limitation, and evidence reference.",
+    "Proposal pack generation does not change runtime settings.",
+    "Future changes require a separate reviewed implementation phase."
+  ],
+  "auto_apply_allowed": false,
+  "blocked_recommendations": [
+    {
+      "limitations": [],
+      "missing_evidence": [
+        "human-reviewed source-backed evidence"
+      ],
+      "reason": "Recommendation does not request an exact threshold movement.",
+      "recommendation_id": "tr_ready_unknown_keep",
+      "required_next_evidence": [
+        "additional source-backed paper outcomes",
+        "complete provenance references",
+        "human reviewer acceptance in a later phase"
+      ]
+    }
+  ],
+  "created_at": "1970-01-01T00:00:00+00:00",
+  "generated_at": "1970-01-01T00:00:00+00:00",
+  "input_summary": {
+    "blocked_count": 1,
+    "corpus_case_count": 4,
+    "proposal_count": 2,
+    "readiness_id": "cr_ready_phase54_fixture",
+    "readiness_status": "READY_FOR_HUMAN_REVIEW",
+    "recommendation_count": 3,
+    "source_backed_case_count": 4,
+    "source_file": "tests/fixtures/calibration_proposal/ready_for_review_recommendations.json",
+    "synthetic_case_count": 0
+  },
+  "limitations": [],
+  "live_execution_allowed": false,
+  "pack_id": "cpp_a16bab56fef6322a14e75b8b",
+  "paper_only": true,
+  "phase": "54",
+  "proposals": [
+    {
+      "auto_apply_allowed": false,
+      "confidence": 0.65,
+      "created_at": "1970-01-01T00:00:00+00:00",
+      "current_value": 0.5,
+      "direction": "REVIEW_DECREASE",
+      "evidence_summary": "WATCH source-backed paper outcomes support a small human-reviewed decrease.",
+      "exact_delta": -0.02,
+      "human_review_required": true,
+      "limitations": [],
+      "live_execution_allowed": false,
+      "parameter_ref": {
+        "allowed_range": [
+          0.0,
+          1.0
+        ],
+        "current_value": 0.5,
+        "description": "Paper watch boundary used by review workflows.",
+        "name": "watch_threshold",
+        "namespace": "paper_calibration",
+        "proposed_value": 0.48,
+        "source": "tests/fixtures/calibration_proposal/ready_for_review_recommendations.json",
+        "unit": "ratio",
+        "value_type": "ratio"
+      },
+      "phase": "54",
+      "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+      "proposed_value": 0.48,
+      "risk_notes": [
+        "Small deterministic review delta only.",
+        "No settings were changed."
+      ],
+      "rollback_note": "No runtime rollback is required unless a later phase changes settings; revert this proposal pack if needed.",
+      "source_readiness_id": "cr_ready_phase54_fixture",
+      "source_recommendation_id": "tr_ready_watch_decrease",
+      "status": "PROPOSED_FOR_HUMAN_REVIEW",
+      "supporting_evidence_ids": [
+        "crs_ready_phase54_fixture",
+        "reports/phase53/calibration_readiness.json"
+      ]
+    },
+    {
+      "auto_apply_allowed": false,
+      "confidence": 0.64,
+      "created_at": "1970-01-01T00:00:00+00:00",
+      "current_value": 0.7,
+      "direction": "REVIEW_INCREASE",
+      "evidence_summary": "BUY_CANDIDATE evidence supports a small human-reviewed increase.",
+      "exact_delta": 0.02,
+      "human_review_required": true,
+      "limitations": [],
+      "live_execution_allowed": false,
+      "parameter_ref": {
+        "allowed_range": [
+          0.0,
+          1.0
+        ],
+        "current_value": 0.7,
+        "description": "Paper signal score boundary for BUY_CANDIDATE classification review.",
+        "name": "signal_score_threshold",
+        "namespace": "paper_calibration",
+        "proposed_value": 0.72,
+        "source": "tests/fixtures/calibration_proposal/ready_for_review_recommendations.json",
+        "unit": "ratio",
+        "value_type": "ratio"
+      },
+      "phase": "54",
+      "proposal_id": "cp_0ab4e73235b782fda209af11",
+      "proposed_value": 0.72,
+      "risk_notes": [
+        "Small deterministic review delta only.",
+        "No settings were changed."
+      ],
+      "rollback_note": "No runtime rollback is required unless a later phase changes settings; revert this proposal pack if needed.",
+      "source_readiness_id": "cr_ready_phase54_fixture",
+      "source_recommendation_id": "tr_ready_signal_increase",
+      "status": "PROPOSED_FOR_HUMAN_REVIEW",
+      "supporting_evidence_ids": [
+        "crs_ready_phase54_fixture",
+        "reports/phase53/calibration_readiness.json"
+      ]
+    }
+  ],
+  "review_checklist": [
+    {
+      "evidence_reference": "cr_ready_phase54_fixture",
+      "item_id": "pci_aaf812d95eb5f71eef81c494",
+      "question": "Verify source-backed paper evidence and provenance.",
+      "required": true,
+      "status": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "evidence_reference": "cr_ready_phase54_fixture",
+      "item_id": "pci_23fa05e165f481e722b5d356",
+      "question": "Verify no runtime setting change is included in this pack.",
+      "required": true,
+      "status": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "evidence_reference": "cp_5bc3f4608f9e68e55d14d5ac,cp_0ab4e73235b782fda209af11",
+      "item_id": "pci_d34001f6149d10f21aab848f",
+      "question": "Review each before and after value.",
+      "required": true,
+      "status": "PENDING_HUMAN_REVIEW"
+    },
+    {
+      "evidence_reference": "cr_ready_phase54_fixture",
+      "item_id": "pci_1214b4aff6413d5e10d393cd",
+      "question": "Confirm rollback is a normal revert of Phase 54.",
+      "required": true,
+      "status": "PENDING_HUMAN_REVIEW"
+    }
+  ],
+  "risk_summary": {
+    "evidence_quality": "A",
+    "invalid_observation_count": 0,
+    "missing_observation_count": 0,
+    "reasons": [
+      "Source-backed paper evidence is sufficient for a human review packet."
+    ],
+    "risk_level": "LOW",
+    "sparse_class_warnings": [],
+    "synthetic_ratio": 0.0
+  },
+  "safety_statement": "Phase 54 calibration proposal packs are offline, paper-only, human-review-only artifacts. No settings were changed. Live execution remains blocked."
+}

@@ -110,6 +110,7 @@ src/sonic_xrpl/
 | outcomes | Paper outcome attribution and feedback | No — paper analysis only |
 | outcome_corpus | Paper observation replay corpus and quality reports | No — paper analysis only |
 | calibration_review | Calibration readiness review and non-mutating recommendations | No — paper analysis only |
+| calibration_proposal | Human-reviewed calibration proposal packs | No - paper analysis only |
 | risk | Pre-trade checks, circuit breakers | No — approval/rejection only |
 | simulation | Deterministic trade simulation | No — simulation only |
 | execution | Intent/plan/lifecycle, live_guard, paper_executor | Paper mode only |
@@ -142,7 +143,7 @@ Each module may import from:
 | reconciliation | core, execution |
 | telemetry | core, protocol |
 | storage | core |
-| cli | core, protocol, simulation, execution, reconciliation, telemetry, audit, market, outcomes, outcome_corpus, calibration_review |
+| cli | core, protocol, simulation, execution, reconciliation, telemetry, audit, market, outcomes, outcome_corpus, calibration_review, calibration_proposal |
 | audit | core, protocol |
 | compatibility | core |
 
@@ -217,3 +218,7 @@ The layer must not import wallet, signing, submission, Xaman, or live order plac
 ## Phase 53 calibration readiness layer
 
 `src/sonic_xrpl/calibration_review/` sits after the outcome corpus layer. It consumes offline Phase 49-52 evidence snapshots, evaluates conservative readiness rules, and produces human-review-only threshold recommendations. It does not edit signal scoring, review policy, outcome attribution, corpus quality scoring, runtime configuration, or safety gates.
+
+## Phase 54 calibration proposal layer
+
+`src/sonic_xrpl/calibration_proposal/` sits after the calibration readiness layer. It consumes Phase 53 recommendation reports and creates deterministic proposal packs with before/after values, blocked recommendations, risk notes, review checklists, and rollback notes. It does not write proposed values into runtime configuration and keeps live execution blocked.
