@@ -1,0 +1,44 @@
+{
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "readiness_result": {
+    "readiness_id": "cr_invalid_phase54_fixture",
+    "status": "REVIEW_WITH_CAUTION",
+    "confidence": 0.5,
+    "blockers": [],
+    "warnings": [
+      "Invalid numeric observations: 1."
+    ],
+    "paper_only": true,
+    "live_execution_allowed": false,
+    "evidence_snapshot": {
+      "snapshot_id": "crs_invalid_phase54_fixture",
+      "corpus_case_count": 4,
+      "source_backed_case_count": 4,
+      "synthetic_case_count": 0,
+      "missing_observation_count": 0,
+      "invalid_observation_count": 1,
+      "quality_summary": {
+        "quality_grade": "C"
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "tr_invalid_watch",
+      "target": "watch_threshold",
+      "direction": "REVIEW_DECREASE",
+      "rationale": "Invalid values must block exact proposals.",
+      "evidence_refs": [
+        "crs_invalid_phase54_fixture"
+      ],
+      "confidence": 0.45,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    }
+  ],
+  "limitations": [
+    "invalid_numeric_field:observed_price"
+  ]
+}

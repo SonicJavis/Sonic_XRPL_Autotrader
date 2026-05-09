@@ -170,3 +170,9 @@ It does not fetch live FirstLedger data, call XRPL network APIs, use Xaman, cons
 Phase 53 calibration readiness review is fixture/report-backed and paper-only. It reads local evidence snapshots and writes advisory readiness reports.
 
 It does not mutate thresholds, runtime configuration, strategy settings, risk settings, provider settings, mode settings, or safety gates. Recommendations are human-review-only and are not execution approval. Synthetic data can test code paths but cannot support readiness. Fixture outcomes are not executable fill claims.
+
+## Phase 54 calibration proposal safety boundary
+
+Phase 54 calibration proposal packs are fixture/report-backed and paper-only. They read local Phase 53 readiness/recommendation outputs and write JSON/Markdown proposal packs for human review.
+
+They do not change runtime settings, write proposed values into production configuration, alter thresholds automatically, unlock execution, fetch live data, or add any transaction workflow. Every proposal keeps `human_review_required=True`, `auto_apply_allowed=False`, and `live_execution_allowed=False`.

@@ -39,6 +39,7 @@ src/sonic_xrpl/
   outcomes/       — Paper outcome attribution and advisory feedback
   outcome_corpus/ — Paper observation replay corpus and quality reports
   calibration_review/ — Non-mutating calibration readiness review
+  calibration_proposal/ — Human-reviewed proposal packs only
   risk/           — Risk policy, pre-trade checks, circuit breakers
   simulation/     — Fill models, slippage, fees, latency (deterministic)
   execution/      — Intent, plan, lifecycle, live_guard, paper_executor
@@ -165,3 +166,7 @@ Phase 52 adds an offline outcome replay corpus layer under `src/sonic_xrpl/outco
 ## Phase 53 blueprint addendum
 
 Phase 53 adds an offline calibration readiness layer under `src/sonic_xrpl/calibration_review/`. It reviews paper-only Phase 49-52 evidence, applies conservative readiness rules, and emits non-mutating human-review-only recommendations. It does not apply calibration, does not alter thresholds, and does not enable live execution.
+
+## Phase 54 blueprint addendum
+
+Phase 54 adds an offline calibration proposal layer under `src/sonic_xrpl/calibration_proposal/`. It packages Phase 53 recommendations into deterministic before/after proposal records or blocked recommendation records for human review. It does not apply proposals, does not change runtime settings, and does not enable live execution.

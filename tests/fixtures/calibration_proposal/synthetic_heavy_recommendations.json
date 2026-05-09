@@ -1,0 +1,44 @@
+{
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "readiness_result": {
+    "readiness_id": "cr_synthetic_phase54_fixture",
+    "status": "REVIEW_WITH_CAUTION",
+    "confidence": 0.58,
+    "blockers": [],
+    "warnings": [
+      "Synthetic corpus cases: 3."
+    ],
+    "paper_only": true,
+    "live_execution_allowed": false,
+    "evidence_snapshot": {
+      "snapshot_id": "crs_synthetic_phase54_fixture",
+      "corpus_case_count": 4,
+      "source_backed_case_count": 1,
+      "synthetic_case_count": 3,
+      "missing_observation_count": 0,
+      "invalid_observation_count": 0,
+      "quality_summary": {
+        "quality_grade": "D"
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "tr_synthetic_quality",
+      "target": "evidence_quality_threshold",
+      "direction": "REVIEW_INCREASE",
+      "rationale": "Synthetic-heavy evidence should keep quality gates strict.",
+      "evidence_refs": [
+        "crs_synthetic_phase54_fixture"
+      ],
+      "confidence": 0.4,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    }
+  ],
+  "limitations": [
+    "synthetic_heavy"
+  ]
+}

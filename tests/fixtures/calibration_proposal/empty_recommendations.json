@@ -1,0 +1,30 @@
+{
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "readiness_result": {
+    "readiness_id": "cr_empty_phase54_fixture",
+    "status": "NOT_READY",
+    "confidence": 0.0,
+    "blockers": [
+      "No recommendations were available."
+    ],
+    "warnings": [],
+    "paper_only": true,
+    "live_execution_allowed": false,
+    "evidence_snapshot": {
+      "snapshot_id": "crs_empty_phase54_fixture",
+      "corpus_case_count": 0,
+      "source_backed_case_count": 0,
+      "synthetic_case_count": 0,
+      "missing_observation_count": 0,
+      "invalid_observation_count": 0,
+      "quality_summary": {
+        "quality_grade": "INSUFFICIENT"
+      }
+    }
+  },
+  "recommendations": [],
+  "limitations": [
+    "empty_recommendation_set"
+  ]
+}

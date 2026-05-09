@@ -1,0 +1,44 @@
+{
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "readiness_result": {
+    "readiness_id": "cr_sparse_phase54_fixture",
+    "status": "REVIEW_WITH_CAUTION",
+    "confidence": 0.75,
+    "blockers": [],
+    "warnings": [
+      "Sparse signal classes: AVOID, INSUFFICIENT_EVIDENCE"
+    ],
+    "paper_only": true,
+    "live_execution_allowed": false,
+    "evidence_snapshot": {
+      "snapshot_id": "crs_sparse_phase54_fixture",
+      "corpus_case_count": 4,
+      "source_backed_case_count": 4,
+      "synthetic_case_count": 0,
+      "missing_observation_count": 0,
+      "invalid_observation_count": 0,
+      "quality_summary": {
+        "quality_grade": "B"
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "tr_sparse_signal",
+      "target": "signal_score_threshold",
+      "direction": "REVIEW_INCREASE",
+      "rationale": "Sparse classes should block confident exact proposal generation.",
+      "evidence_refs": [
+        "crs_sparse_phase54_fixture"
+      ],
+      "confidence": 0.5,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    }
+  ],
+  "limitations": [
+    "sparse_signal_classes"
+  ]
+}

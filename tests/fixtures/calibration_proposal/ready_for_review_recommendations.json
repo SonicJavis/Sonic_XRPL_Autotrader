@@ -1,0 +1,91 @@
+{
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "readiness_result": {
+    "readiness_id": "cr_ready_phase54_fixture",
+    "status": "READY_FOR_HUMAN_REVIEW",
+    "confidence": 1.0,
+    "blockers": [],
+    "warnings": [],
+    "paper_only": true,
+    "live_execution_allowed": false,
+    "evidence_snapshot": {
+      "snapshot_id": "crs_ready_phase54_fixture",
+      "created_at": "1970-01-01T00:00:00+00:00",
+      "source_files": [
+        "tests/fixtures/calibration_review/sufficient_source_backed_evidence.json",
+        "reports/phase53/calibration_readiness.json"
+      ],
+      "signal_count": 6,
+      "review_count": 3,
+      "paper_decision_count": 3,
+      "paper_intent_count": 2,
+      "attributed_outcome_count": 4,
+      "corpus_case_count": 4,
+      "source_backed_case_count": 4,
+      "synthetic_case_count": 0,
+      "missing_observation_count": 0,
+      "invalid_observation_count": 0,
+      "quality_summary": {
+        "quality_grade": "A",
+        "complete_cases": 4,
+        "partial_cases": 0,
+        "missing_observation_cases": 0
+      },
+      "signal_type_counts": {
+        "BUY_CANDIDATE": 2,
+        "WATCH": 2,
+        "AVOID": 1,
+        "INSUFFICIENT_EVIDENCE": 1
+      },
+      "provenance_refs": [
+        "tests/fixtures/firstledger/source_backed_candidates.json",
+        "tests/fixtures/outcome_corpus/source_backed_multi_window.json"
+      ]
+    }
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "tr_ready_watch_decrease",
+      "target": "watch_threshold",
+      "direction": "REVIEW_DECREASE",
+      "rationale": "WATCH source-backed paper outcomes support a small human-reviewed decrease.",
+      "evidence_refs": [
+        "crs_ready_phase54_fixture",
+        "reports/phase53/calibration_readiness.json"
+      ],
+      "confidence": 0.65,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    },
+    {
+      "recommendation_id": "tr_ready_signal_increase",
+      "target": "signal_score_threshold",
+      "direction": "REVIEW_INCREASE",
+      "rationale": "BUY_CANDIDATE evidence supports a small human-reviewed increase.",
+      "evidence_refs": [
+        "crs_ready_phase54_fixture",
+        "reports/phase53/calibration_readiness.json"
+      ],
+      "confidence": 0.64,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    },
+    {
+      "recommendation_id": "tr_ready_unknown_keep",
+      "target": "unknown_penalty",
+      "direction": "KEEP",
+      "rationale": "Unknown evidence penalty should remain unchanged.",
+      "evidence_refs": [
+        "crs_ready_phase54_fixture"
+      ],
+      "confidence": 0.6,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    }
+  ],
+  "limitations": []
+}

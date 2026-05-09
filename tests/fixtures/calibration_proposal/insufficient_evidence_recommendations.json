@@ -1,0 +1,45 @@
+{
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "readiness_result": {
+    "readiness_id": "cr_insufficient_phase54_fixture",
+    "status": "NOT_READY",
+    "confidence": 0.35,
+    "blockers": [
+      "Corpus cases 1; required 3.",
+      "Attributed outcomes 1; required 3."
+    ],
+    "warnings": [],
+    "paper_only": true,
+    "live_execution_allowed": false,
+    "evidence_snapshot": {
+      "snapshot_id": "crs_insufficient_phase54_fixture",
+      "corpus_case_count": 1,
+      "source_backed_case_count": 1,
+      "synthetic_case_count": 0,
+      "missing_observation_count": 0,
+      "invalid_observation_count": 0,
+      "quality_summary": {
+        "quality_grade": "INSUFFICIENT"
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "tr_insufficient_watch",
+      "target": "watch_threshold",
+      "direction": "INSUFFICIENT_EVIDENCE",
+      "rationale": "Evidence is not ready for proposal generation.",
+      "evidence_refs": [
+        "crs_insufficient_phase54_fixture"
+      ],
+      "confidence": 0.35,
+      "non_mutating": true,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    }
+  ],
+  "limitations": [
+    "too_few_cases"
+  ]
+}
