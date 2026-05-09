@@ -77,8 +77,36 @@ def load_recommendation_payload(path: str | Path) -> Mapping[str, Any]:
         payload = json.loads(fixture_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise CalibrationProposalError(f"Calibration proposal fixture is not valid JSON: {fixture_path}") from exc
+    if isinstance(payload, list):
+        recommendation_count = len([item for item in payload if isinstance(item, Mapping)])
+        return {
+            "paper_only": True,
+            "live_execution_allowed": False,
+            "readiness_result": {
+                "readiness_id": stable_id("cr_missing", fixture_path, recommendation_count),
+                "status": "NOT_READY",
+                "confidence": 0.0,
+                "blockers": (
+                    "Phase 53 readiness snapshot is missing; pass calibration_readiness.json for exact proposals.",
+                ),
+                "warnings": (),
+                "paper_only": True,
+                "live_execution_allowed": False,
+                "evidence_snapshot": {
+                    "snapshot_id": stable_id("crs_missing", fixture_path, recommendation_count),
+                    "corpus_case_count": 0,
+                    "source_backed_case_count": 0,
+                    "synthetic_case_count": 0,
+                    "missing_observation_count": 0,
+                    "invalid_observation_count": 0,
+                    "quality_summary": {"quality_grade": "INSUFFICIENT"},
+                },
+            },
+            "recommendations": payload,
+            "limitations": ("readiness_snapshot_missing_for_recommendation_list",),
+        }
     if not isinstance(payload, Mapping):
-        raise CalibrationProposalError("Calibration proposal fixture must be a JSON object")
+        raise CalibrationProposalError("Calibration proposal fixture must be a JSON object or recommendation array")
     return payload
 
 
@@ -111,6 +139,8 @@ def _has_sparse_classes(readiness_result: Mapping[str, Any]) -> bool:
 
 def _blocking_reason(readiness_result: Mapping[str, Any], risk: ProposalRiskSummary, recommendation: Mapping[str, Any]) -> str | None:
     direction = str(recommendation.get("direction") or "")
+    if bool(recommendation.get("non_mutating", True)) is False:
+        return "Source recommendation is not marked non-mutating."
     if direction in {"KEEP", "INSUFFICIENT_EVIDENCE"}:
         return "Recommendation does not request an exact threshold movement."
     if not _status_supports_exact_proposals(readiness_result):

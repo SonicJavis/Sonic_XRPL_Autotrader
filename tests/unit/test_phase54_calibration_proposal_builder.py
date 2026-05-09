@@ -57,3 +57,59 @@ def test_pack_and_proposal_ids_are_deterministic():
     assert first.pack_id == second.pack_id
     assert [item.proposal_id for item in first.proposals] == [item.proposal_id for item in second.proposals]
     assert first.created_at == second.created_at == "1970-01-01T00:00:00+00:00"
+
+
+def test_mutating_source_recommendation_is_blocked(tmp_path):
+    fixture = tmp_path / "mutating_recommendation.json"
+    fixture.write_text(
+        """
+{
+  "paper_only": true,
+  "live_execution_allowed": false,
+  "readiness_result": {
+    "readiness_id": "cr_mutating_fixture",
+    "status": "READY_FOR_HUMAN_REVIEW",
+    "confidence": 1.0,
+    "blockers": [],
+    "warnings": [],
+    "evidence_snapshot": {
+      "snapshot_id": "crs_mutating_fixture",
+      "corpus_case_count": 4,
+      "source_backed_case_count": 4,
+      "synthetic_case_count": 0,
+      "missing_observation_count": 0,
+      "invalid_observation_count": 0,
+      "quality_summary": {"quality_grade": "A"}
+    }
+  },
+  "recommendations": [
+    {
+      "recommendation_id": "tr_mutating_watch",
+      "target": "watch_threshold",
+      "direction": "REVIEW_DECREASE",
+      "rationale": "Unsafe source flag.",
+      "evidence_refs": ["crs_mutating_fixture"],
+      "confidence": 0.7,
+      "non_mutating": false,
+      "requires_human_review": true,
+      "live_execution_allowed": false
+    }
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+
+    pack = build_calibration_proposal_pack(fixture)
+
+    assert pack.proposals == ()
+    assert "not marked non-mutating" in pack.blocked_recommendations[0].reason
+
+
+def test_generated_phase53_recommendations_array_is_accepted_as_blocked_input():
+    pack = build_calibration_proposal_pack("reports/phase53/calibration_recommendations.json")
+
+    assert pack.proposals == ()
+    assert pack.blocked_recommendations
+    assert pack.input_summary["readiness_status"] == "NOT_READY"
+    assert any("readiness_snapshot_missing" in item for item in pack.limitations)
