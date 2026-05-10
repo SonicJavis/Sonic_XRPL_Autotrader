@@ -226,3 +226,11 @@ The layer must not import wallet, signing, submission, Xaman, or live order plac
 ## Phase 55 approval ledger layer
 
 `src/sonic_xrpl/calibration_approval/` sits after the calibration proposal layer. It consumes Phase 54 proposal packs and local review fixtures, then creates deterministic approval-ledger entries and calibration change-request entries for human governance. It does not apply changes to runtime configuration and keeps live execution blocked.
+
+## Phase 56 implementation planning layer
+
+`src/sonic_xrpl/calibration_implementation_plan/` sits after the approval ledger
+layer. It consumes Phase 55 approval-ledger and change-request artifacts, then
+creates deterministic implementation planning records plus dry-run preview
+artifacts for a future manual phase. It does not apply changes to runtime
+configuration and keeps live execution blocked.

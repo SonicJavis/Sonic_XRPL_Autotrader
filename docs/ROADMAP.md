@@ -150,3 +150,11 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 - Deterministic calibration change-request workflow for rejected/deferred edits
 - Exportable governance reports (JSON, Markdown)
 - No runtime threshold mutation and no live execution enablement
+
+## Phase 56 implementation addendum - Approved calibration implementation planning
+
+- Deterministic implementation plan from Phase 55 approval ledger + change requests
+- Deterministic dry-run patch preview text (no executable patch application)
+- Validation-plan and rollback-plan artifacts for future manual implementation work
+- Exportable planning reports (JSON, Markdown)
+- No runtime threshold mutation, no runtime config mutation, and no live execution enablement

@@ -182,3 +182,16 @@ They do not change runtime settings, write proposed values into production confi
 Phase 55 calibration approval ledger workflows are fixture/report-backed and paper-only. They read local Phase 54 proposal packs plus local human review fixtures and write approval-ledger and change-request outputs.
 
 They do not change runtime settings, write approved values into production configuration, alter thresholds automatically, unlock execution, fetch live data, or add any transaction workflow. Every approval-ledger output keeps `human_review_required=True`, `auto_apply_allowed=False`, and `live_execution_allowed=False`.
+
+## Phase 56 implementation planning safety boundary
+
+Phase 56 calibration implementation planning workflows are fixture/report-backed,
+paper-only, offline-only, and dry-run-only. They read local Phase 55
+approval-ledger/change-request outputs and write implementation-plan and dry-run
+preview artifacts.
+
+They do not change runtime settings, write values into production configuration,
+alter thresholds automatically, unlock execution, fetch live data, or add any
+transaction workflow. Every Phase 56 plan output keeps
+`dry_run_only=True`, `auto_apply_allowed=False`,
+`runtime_mutation_allowed=False`, and `live_execution_allowed=False`.
