@@ -1,0 +1,59 @@
+name: Test Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  unified-safety-scaffold:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Unified safety scaffold tests
+        run: |
+          python -m pytest tests/unit/test_unified_runtime_safety_scaffold.py
+          python -m pytest tests/unit/test_unified_layer_contract_scaffold.py
+
+  docs-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Required migration docs exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            "docs/PHASE_LEDGER.md"
+            "docs/SYSTEM_STATE.md"
+            "docs/ROADMAP.md"
+            "docs/CANONICAL_PATH_DECISION.md"
+            "docs/SNIPER_READINESS_GATES.md"
+            "docs/PHASE_GAP_CLOSURE.md"
+            "docs/UNIFIED_ARCHITECTURE_TARGET.md"
+            "docs/V2_ARCHITECTURE.md"
+            "docs/SAFETY_MODEL.md"
+            "docs/LIVE_TRADING_READINESS_GATES.md"
+          )
+          for path in "${required[@]}"; do
+            if [[ ! -f "$path" ]]; then
+              echo "Missing required doc: $path" >&2
+              exit 1
+            fi
+          done
+          echo "All required migration docs are present."
