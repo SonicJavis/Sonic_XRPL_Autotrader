@@ -14,6 +14,7 @@ WORKDIR /opt/sonic
 COPY pyproject.toml README.md ./
 COPY src ./src
 COPY app ./app
+COPY dashboard ./dashboard
 COPY scripts ./scripts
 COPY docs ./docs
 COPY security ./security
