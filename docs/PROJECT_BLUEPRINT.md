@@ -6,6 +6,34 @@
 
 ---
 
+## Canonical Path Decision: Pending
+
+The project has not selected a single canonical future runtime surface. No
+runtime migration or sniper/live work until this decision is resolved + PR 4
+safety tests pass.
+
+### Open Runtime Options
+
+| Option | Candidate runtime surface | Decision status |
+|--------|---------------------------|-----------------|
+| Option A | Keep `app/` as canonical runtime | Pending |
+| Option B | Promote `src/sonic_xrpl/` to future canonical runtime | Pending |
+| Option C | Adapter hybrid (`app/` API shell + V2 domain logic) | Pending |
+
+### Facts vs Inference
+
+| Type | Statement |
+|------|-----------|
+| Fact | `app/main.py` is current runnable API. |
+| Fact | `src/sonic_xrpl/` is V2 governance/offline stack. |
+| Inference | `src/sonic_xrpl/` is likely future target but not yet runtime canonical. |
+
+Until the decision is resolved, the blueprint treats `app/`,
+`execution_prototype/`, and `src/sonic_xrpl/` as distinct surfaces and does not
+authorize runtime migration between them.
+
+---
+
 ## Purpose
 
 The Sonic XRPL Autotrader is a research, simulation, and eventual paper-trading system
