@@ -2,6 +2,12 @@
 
 **LIVE TRADING IS STRICTLY FORBIDDEN UNTIL ALL GATES ARE MET.**
 
+## Sniper-Style Execution Gate
+
+Sniper/live execution planning is blocked until
+`docs/SNIPER_READINESS_GATES.md` is fully marked ready (`[x]` for all
+checklist items).
+
 ## Legacy Surface Status (PR 3)
 
 - `app/` is the current runnable legacy API/paper runtime.
@@ -11,6 +17,34 @@
   historical/manual prototype flows only, not V2 runtime authorization.
 - No new features may be added to `app/` or `execution_prototype/` until the
   canonical-path decision is resolved and required safety conformance tests pass.
+
+## Sniper/Live Pre-Requisites (Phase 2)
+
+- [ ] Hot wallet architecture + spending limits.
+- [ ] Deterministic replay harness for sniper decisions.
+- [ ] Transaction lifecycle for sequence, `LastLedgerSequence`, result-codes, retry.
+- [ ] Reconciliation from intent to ledger metadata.
+
+## Sniper/Live Safety Gates (Phase 2)
+
+- [ ] Max position size per token enforced.
+- [ ] Max daily and total loss limits enforced.
+- [ ] Emergency stop persistent across restarts.
+- [ ] Slippage/liquidity validation before submit.
+
+## Sniper/Live Test Requirements (Phase 2)
+
+- [ ] 100% coverage of signing/submission paths.
+- [ ] Partial fill simulation coverage.
+- [ ] Stale quote rejection coverage.
+- [ ] Sequence collision handling coverage.
+
+## BLOCKED UNTIL (Phase 2)
+
+- [ ] `docs/SNIPER_READINESS_GATES.md` checklist is fully `[x]`.
+- [ ] Safety conformance tests (`test_execution_guard`, `test_live_guard`,
+      `test_safety_scan`) all pass.
+- [ ] `safety_grep.py`, audit validator, and V2 safety scan all pass.
 
 ## Required Readiness Gates
 
