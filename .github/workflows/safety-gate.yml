@@ -1,0 +1,38 @@
+name: Safety Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  safety-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Guard Conformance Tests (PR 4)
+        run: |
+          python -m pytest tests/test_execution_guard.py
+          python -m pytest tests/unit/test_live_guard.py
+          python -m pytest tests/safety/test_safety_scan.py
+
+      - name: Safety Grep
+        run: python scripts/safety_grep.py
+
+      - name: V2 Safety Scan
+        env:
+          PYTHONPATH: src
+        run: python -m sonic_xrpl.cli.main safety-scan
