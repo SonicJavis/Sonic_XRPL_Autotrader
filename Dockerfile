@@ -2,6 +2,7 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/opt/sonic/src
 ENV SONIC_RUNTIME_MODE=paper
 ENV SONIC_DRY_RUN=true
 ENV SONIC_STORAGE_PATH=/data/v2.db
@@ -12,6 +13,7 @@ WORKDIR /opt/sonic
 
 COPY pyproject.toml README.md ./
 COPY src ./src
+COPY app ./app
 COPY scripts ./scripts
 COPY docs ./docs
 COPY security ./security

@@ -1,4 +1,31 @@
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - deploy/paper-runtime.env
+    environment:
+      PYTHONPATH: /opt/sonic/src
+      EXECUTION_ENABLED: "false"
+      LIVE_TRADING_ENABLED: "false"
+    entrypoint:
+      [
+        "python",
+        "-m",
+        "uvicorn",
+        "app.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+      ]
+    ports:
+      - "8000:8000"
+    volumes:
+      - sqlite_data:/data
+    restart: unless-stopped
+
   paper-runtime:
     build:
       context: .
@@ -6,12 +33,14 @@ services:
     env_file:
       - deploy/paper-runtime.env
     environment:
+      PYTHONPATH: /opt/sonic/src
       SONIC_RUNTIME_MODE: "paper"
       SONIC_DRY_RUN: "true"
       EXECUTION_ENABLED: "false"
       LIVE_TRADING_ENABLED: "false"
       SONIC_STORAGE_PATH: /data/v2.db
-    command: ["health", "--json"]
+    entrypoint: ["sleep"]
+    command: ["infinity"]
     volumes:
       - sqlite_data:/data
       - ./docs:/opt/sonic/docs
