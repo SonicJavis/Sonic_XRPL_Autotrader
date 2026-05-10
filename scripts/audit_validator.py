@@ -1,4 +1,4 @@
-"""Phase 42.2 – Audit Validator.
+"""Phase 42.2+ – Audit Validator.
 
 Runs a suite of repo-wide integrity and safety checks and writes a
 machine-readable JSON report to artifacts/audit_validator_report.json.
@@ -8,8 +8,7 @@ Checks performed:
   2. Safety grep     – delegates to scripts/safety_grep.py
   3. Import smoke    – tries to import every package under execution_prototype
   4. CLI help        – calls -h on every execution_prototype/**/cli.py entry-point
-  5. Doc disclosures – verifies docs/SYSTEM_STATE.md and README.md contain
-                       required safety strings
+  5. Doc disclosures – verifies migration/safety disclosures in docs and README
 """
 
 from __future__ import annotations
@@ -39,10 +38,22 @@ REQUIRED_SAFETY_STRINGS = {
         "paper-only",
         "0/100",
         "Fail-Closed",
+        "canonical-path decision remains intentionally unresolved",
     ],
     "README.md": [
         "paper",
         "No wallet",
+        "Canonical Path Decision: Pending",
+        "No new features may be added to `app/` or `execution_prototype/` until the",
+        "required safety conformance tests pass",
+    ],
+    "docs/V2_ARCHITECTURE.md": [
+        "## Canonical Path Decision: Pending",
+        "### Legacy Surface Freeze (Pending Decision)",
+    ],
+    "docs/SAFETY_MODEL.md": [
+        "## Legacy Freeze Policy (PR 3)",
+        "required safety conformance tests pass",
     ],
 }
 
@@ -208,7 +219,7 @@ def check_cli_help() -> dict:
 
 
 def check_doc_disclosures() -> dict:
-    """Verify that key safety strings appear in SYSTEM_STATE.md and README.md."""
+    """Verify key migration/safety strings appear in required docs."""
     failures: list[str] = []
     checked: list[dict] = []
 
@@ -239,7 +250,7 @@ def check_doc_disclosures() -> dict:
 
 
 def main() -> int:
-    print("=== Phase 42.2 Audit Validator ===")
+    print("=== Phase 42.2+ Audit Validator ===")
     print(f"Repo root : {REPO_ROOT}")
     print(f"Timestamp : {datetime.now(timezone.utc).isoformat()}")
     print()
@@ -271,7 +282,7 @@ def main() -> int:
     report = {
         "schema_version": "1.0",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "phase": "42.2",
+        "phase": "42.2+",
         "overall_passed": overall_passed,
         "checks": checks,
     }

@@ -1,4 +1,4 @@
-# Phase 42.2 – Audit Validator
+# Phase 42.2+ Audit Validator
 
 ## Purpose
 
@@ -10,7 +10,7 @@ It verifies that:
    into runtime code (`safety_grep.py` gate).
 3. All `execution_prototype` sub-packages are importable without errors.
 4. Every CLI entry-point responds correctly to `--help`.
-5. Key safety disclosures are present in `docs/SYSTEM_STATE.md` and `README.md`.
+5. Key migration/safety disclosures are present across required docs.
 
 The script is **read-only** – it never modifies source files and performs no
 network calls.  It only writes to the `artifacts/` directory.
@@ -25,7 +25,22 @@ network calls.  It only writes to the `artifacts/` directory.
 | 2 | **Safety grep** | `scripts/safety_grep.py` exits 0 (no forbidden live-execution patterns found). |
 | 3 | **Import smoke test** | `importlib.import_module` succeeds for every sub-package listed in `PROTOTYPE_PACKAGES`. |
 | 4 | **CLI help test** | `python -m <module> -h` exits 0 for every `cli.py` entry-point in `execution_prototype`. |
-| 5 | **Documentation disclosures** | `docs/SYSTEM_STATE.md` contains `"paper-only"`, `"0/100"`, and `"Fail-Closed"`; `README.md` contains `"paper"` and `"No wallet"`. |
+| 5 | **Documentation disclosures** | Required migration/safety statements exist in `docs/SYSTEM_STATE.md`, `README.md`, `docs/V2_ARCHITECTURE.md`, and `docs/SAFETY_MODEL.md`. |
+
+### Docs-First Migration Alignment (PR 1-PR 3)
+
+The validator checks that documentation explicitly records:
+
+1. Canonical-path decision is pending.
+2. Legacy/prototype surfaces are frozen for feature work.
+3. Safety conformance tests are required before runtime refactor.
+
+Expected statements include:
+
+- `README.md`: `Canonical Path Decision: Pending` and the legacy freeze rule.
+- `docs/SYSTEM_STATE.md`: canonical-path decision remains intentionally unresolved.
+- `docs/V2_ARCHITECTURE.md`: `Canonical Path Decision: Pending` plus `Legacy Surface Freeze (Pending Decision)`.
+- `docs/SAFETY_MODEL.md`: `Legacy Freeze Policy (PR 3)` and safety conformance gating before refactor.
 
 ---
 
@@ -99,6 +114,8 @@ a non-zero exit code as a failing CI step.
 - **No submission.** No transactions or payloads are submitted to the ledger.
 - **No live trading.** The entire codebase is paper-only. Live trading readiness
   is permanently `0/100` until explicit human governance gates are passed.
+- **Canonical runtime pending.** Runtime migration remains blocked until the
+  canonical-path decision is resolved and safety conformance tests are green.
 - **No auto-calibration or model mutation.** The validator is a passive
   read-only reporter; it cannot change trading parameters or strategy weights.
 
