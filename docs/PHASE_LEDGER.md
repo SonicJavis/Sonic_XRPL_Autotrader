@@ -1,10 +1,114 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-10 (Phase 56)
+**Last updated**: 2026-05-10 (Phase 1-55 migration classification)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
+
+---
+
+## Migration Surface Classification
+
+This classification is for the docs-first migration plan. It does not change
+runtime behavior and does not resolve the future canonical runtime path.
+
+| Surface | Evidence | Current classification | Canonical-path status |
+|---|---|---|---|
+| `app/` | `app/main.py`, `app/execution/pipeline.py`, `app/execution/execution_guard.py` | Current runnable FastAPI/paper-runtime surface | Not declared future canonical by this ledger |
+| `execution_prototype/` | `execution_prototype/README.md`, `execution_prototype/reconciliation/`, `execution_prototype/walk_forward_replay/` | Historical/prototype/offline workflow surface | Reference-only unless a named bridge or test uses it |
+| `src/sonic_xrpl/` | `docs/PROJECT_BLUEPRINT.md`, `docs/V2_ARCHITECTURE.md`, `src/sonic_xrpl/` | V2 governance/offline architecture surface introduced in Phase 45+ | Not declared runnable API replacement by this ledger |
+
+Authoritative fail-closed safety references remain:
+- `app/execution/execution_guard.py`
+- `src/sonic_xrpl/execution/live_guard.py`
+- `scripts/safety_grep.py`
+- `src/sonic_xrpl/audit/safety_scan.py`
+
+---
+
+## Phase Evidence Classification (1-55)
+
+This table classifies evidence for the requested Phase 1-55 migration timeline.
+`verified` means direct phase docs, code, tests, reports, or scripts exist.
+`partial` means evidence exists but is test-only, audit-only, or subphase-only.
+`missing/unclear` means no direct phase artifact was found in the repository.
+
+| Phase | Classification | Primary evidence | Notes |
+|---:|---|---|---|
+| 1 | missing/unclear | `docs/SYSTEM_STATE.md` groups "Phase 1-29" only | No direct Phase 1 artifact found |
+| 2 | missing/unclear | None found | No direct Phase 2 artifact found |
+| 3 | verified | `PHASE_3_MARKET_DATA_AUDIT.md` | Market data/order-book audit |
+| 4 | verified | `PHASE_4_ALPHA_AUDIT.md` | Alpha signal engine audit |
+| 5 | verified | `PHASE_5_READINESS_AUDIT.md`, `PHASE_5_PNL_ATTRIBUTION_AUDIT.md` | Capital/PnL readiness |
+| 6 | verified | `PHASE_6_MICROSTRUCTURE_AUDIT.md` | Ledger/microstructure realism |
+| 7 | verified | `PHASE_7_CALIBRATION_AUDIT.md`, `PHASE_7_5_CALIBRATION_AUDIT.md` | Calibration plus Phase 7.5 hardening |
+| 8 | verified | `PHASE_8_VALIDATION_AUDIT.md` | Uncertainty validation |
+| 9 | verified | `PHASE_9_LIVE_SHADOW_AUDIT.md`, `README.md` | Read-only live shadow |
+| 10 | verified | `PHASE_10_XRPL_CALIBRATION_AUDIT.md` | Bayesian shadow calibration |
+| 11 | missing/unclear | None found | No direct Phase 11 artifact found |
+| 12 | missing/unclear | None found | No direct Phase 12 artifact found |
+| 13 | missing/unclear | None found | No direct Phase 13 artifact found |
+| 14 | missing/unclear | None found | No direct Phase 14 artifact found |
+| 15 | missing/unclear | None found | No direct Phase 15 artifact found |
+| 16 | missing/unclear | None found | No direct Phase 16 artifact found |
+| 17 | missing/unclear | None found | No direct Phase 17 artifact found |
+| 18 | verified | `PHASE_18_READONLY_INGESTION_AUDIT.md` | Read-only XRPL ingestion |
+| 19 | partial | `tests/test_phase19_config_bootstrap.py`, `tests/test_phase19_shadow_loop_integration.py` | Test-evidenced only |
+| 20 | partial | `PHASE_20_1_VALIDATION_HARDENING_AUDIT.md` | Phase 20.1 subphase evidence only |
+| 21 | missing/unclear | None found | No direct Phase 21 artifact found |
+| 22 | missing/unclear | None found | No direct Phase 22 artifact found |
+| 23 | partial | `data/live_shadow_replay_fixtures/phase23_basic.json`, `data/live_shadow_replay_fixtures/phase23_stress.json`, `data/live_shadow_replay_fixtures/phase23_2_soak.json`, `tests/test_xrpl_live_shadow_replay.py`, `tests/test_xrpl_live_soak.py` | Fixture/test-evidenced only |
+| 24 | missing/unclear | None found | No direct Phase 24 artifact found |
+| 25 | missing/unclear | None found | No direct Phase 25 artifact found |
+| 26 | partial | `tests/test_phase26_api_safety.py` | Test-evidenced only |
+| 27 | missing/unclear | None found | No direct Phase 27 artifact found |
+| 28 | missing/unclear | None found | No direct Phase 28 artifact found |
+| 29 | missing/unclear | None found | No direct Phase 29 artifact found |
+| 30 | verified | `docs/PHASE30_RECONCILIATION.md`, `execution_prototype/reconciliation/`, `execution_prototype/tests/test_reconciliation.py` | Reconciliation engine |
+| 31 | verified | `docs/PHASE31_CALIBRATION_RECOMMENDATIONS.md`, `execution_prototype/calibration_recommendations/` | Human-guided recommendations |
+| 32 | partial | `docs/SYSTEM_STATE.md`, `docs/CI_CD_SAFETY.md`, `.github/workflows/ci.yml`, `scripts/safety_grep.py` | CI safety hardening evidence is indirect |
+| 33 | verified | `docs/PHASE33_DRIFT_INTELLIGENCE.md`, `execution_prototype/drift_intelligence/` | Drift intelligence |
+| 34 | verified | `docs/PHASE34_XRPL_MEME_DISCOVERY.md`, `execution_prototype/discovery/` | XRPL meme discovery |
+| 35 | verified | `docs/PHASE35_PAPER_REVIEW.md`, `execution_prototype/paper_review/` | Paper review |
+| 36 | verified | `docs/PHASE36_7_DAY_PAPER_OPERATOR.md`, `execution_prototype/paper_operator/`, `execution_prototype/pipeline/cli.py` | Paper operator |
+| 37 | verified | `docs/PHASE37_STRATEGY_PERFORMANCE.md`, `execution_prototype/strategy_performance/` | Strategy performance |
+| 38 | verified | `docs/PHASE38_RISK_GOVERNOR.md`, `execution_prototype/risk_governor/` | Risk governor |
+| 39 | verified | `docs/PHASE39_CAMPAIGN_RUNNER_DASHBOARD.md`, `execution_prototype/campaign_runner/`, `dashboard/pages/phase39_campaign_dashboard.py` | Campaign runner/dashboard |
+| 40 | verified | `docs/PHASE40_MARKET_FIXTURES.md`, `execution_prototype/market_fixtures/` | Market fixtures |
+| 41 | verified | `docs/PHASE41_DATA_ADAPTERS.md`, `execution_prototype/data_adapters/` | Historical data adapters |
+| 42 | verified | `docs/PHASE42_BACKTEST_DATASETS.md`, `execution_prototype/backtest_datasets/` | Backtest datasets |
+| 43 | verified | `docs/PHASE43_DATASET_STRATEGY_TOURNAMENT.md`, `execution_prototype/dataset_strategy_tournament/` | Dataset strategy tournament |
+| 44 | verified | `docs/PHASE44_WALK_FORWARD_REPLAY.md`, `execution_prototype/walk_forward_replay/` | Walk-forward replay |
+| 45 | verified | `docs/PROJECT_BLUEPRINT.md`, `docs/V2_ARCHITECTURE.md`, `src/sonic_xrpl/` | V2 foundation |
+| 46 | verified | `docs/PHASE46_PROVIDER_FIXTURES.md`, `src/sonic_xrpl/providers/`, `tests/fixtures/xrpl/` | Provider fixtures |
+| 47 | verified | `docs/PHASE_LEDGER.md`, `src/sonic_xrpl/market/`, `reports/phase47/` | Market snapshot engine |
+| 48 | verified | `docs/PHASE48_FIRSTLEDGER_DISCOVERY.md`, `docs/PHASE48_DEPENDENCY_AUDIT.md`, `execution_prototype/discovery/firstledger_reader.py`, `scripts/dependency_audit.py` | Discovery boundary plus dependency audit |
+| 49 | verified | `docs/PHASE49_FIRSTLEDGER_SIGNAL_CONTRACTS.md`, `src/sonic_xrpl/signals/` | FirstLedger signal contracts |
+| 50 | verified | `docs/PHASE50_SIGNAL_REVIEW_WORKFLOW.md`, `src/sonic_xrpl/review/` | Signal review workflow |
+| 51 | verified | `docs/PHASE51_PAPER_OUTCOME_ATTRIBUTION.md`, `src/sonic_xrpl/outcomes/` | Paper outcome attribution |
+| 52 | verified | `docs/PHASE52_OUTCOME_REPLAY_CORPUS.md`, `src/sonic_xrpl/outcome_corpus/`, `reports/phase52/` | Outcome corpus |
+| 53 | verified | `docs/PHASE53_CALIBRATION_READINESS_REVIEW.md`, `src/sonic_xrpl/calibration_review/`, `reports/phase53/` | Calibration readiness |
+| 54 | verified | `docs/PHASE54_HUMAN_REVIEWED_CALIBRATION_PROPOSAL_PACK.md`, `src/sonic_xrpl/calibration_proposal/`, `reports/phase54/` | Calibration proposal pack |
+| 55 | verified | `docs/PHASE55_HUMAN_REVIEW_APPROVAL_LEDGER.md`, `src/sonic_xrpl/calibration_approval/`, `reports/phase55/` | Human review approval ledger |
+
+---
+
+## Phase 56 Evidence Outside Requested Timeline
+
+Phase 56 artifacts exist in the repository:
+- `docs/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN.md`
+- `docs/research/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN_RESEARCH.md`
+- `src/sonic_xrpl/calibration_implementation_plan/`
+- `tests/unit/test_phase56_implementation_plan_models.py`
+- `tests/smoke/test_phase56_implementation_plan_cli.py`
+- `tests/safety/test_phase56_implementation_plan_safety.py`
+- `reports/phase56/`
+
+For this migration PR, Phase 56 is treated as existing repo evidence and a
+continuation after Phase 55, but it is outside the requested Phase 1-55
+classification timeline. This note does not remove or downgrade any Phase 56
+docs, modules, tests, or reports.
 
 ---
 
@@ -62,13 +166,32 @@ All existing tests continue to pass (845 total as of Phase 45).
 
 ---
 
-## Phases Not Recorded
+## Missing or Ambiguous Phase Evidence
 
-The following phase documents were NOT found in the repository:
-- No `docs/PHASE30_RECONCILIATION.md` (code exists but no standalone doc)
-- No `docs/PHASE42_BACKTEST_DATASETS.md`
+The following phase numbers have no direct phase artifact in the repository and
+remain `missing/unclear` for the docs-first migration inventory:
+- Phase 1
+- Phase 2
+- Phase 11
+- Phase 12
+- Phase 13
+- Phase 14
+- Phase 15
+- Phase 16
+- Phase 17
+- Phase 21
+- Phase 22
+- Phase 24
+- Phase 25
+- Phase 27
+- Phase 28
+- Phase 29
 
-These phases may exist but cannot be verified without documentation evidence.
+The following phase numbers have partial evidence only:
+- Phase 19: test-evidenced by `tests/test_phase19_config_bootstrap.py` and `tests/test_phase19_shadow_loop_integration.py`
+- Phase 20: subphase evidence only via `PHASE_20_1_VALIDATION_HARDENING_AUDIT.md`
+- Phase 23: fixture/test-evidenced by `data/live_shadow_replay_fixtures/phase23_*.json` and replay/soak tests
+- Phase 26: test-evidenced by `tests/test_phase26_api_safety.py`
 
 ---
 
