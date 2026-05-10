@@ -1,6 +1,19 @@
 # Air-Gapped XRPL Execution Prototype
 
 This directory is separate from the hosted intelligence platform.
+It is historical/reference-only unless used by named tests or bridge adapters.
+It is not an authorized V2 runtime execution surface.
+
+## Legacy Freeze Status
+
+- `execution_prototype/` is historical/reference-only unless a named test or
+  explicit bridge adapter requires it.
+- Xaman payload generation and manual submission commands in this directory are
+  historical/manual prototype flows only.
+- Nothing in `execution_prototype/` authorizes V2 runtime signing,
+  submission, live trading, or sniper-style execution.
+- No new features may be added to `execution_prototype/` until the
+  canonical-path decision is resolved and required safety conformance tests pass.
 
 Rules:
 

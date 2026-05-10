@@ -31,6 +31,14 @@ The safety references remain authoritative while this decision is pending:
 `app/execution/execution_guard.py`, `src/sonic_xrpl/execution/live_guard.py`,
 `scripts/safety_grep.py`, and `src/sonic_xrpl/audit/safety_scan.py`.
 
+### Legacy Surface Freeze (Pending Decision)
+
+- `app/` is the current runnable legacy API/paper runtime surface.
+- `execution_prototype/` is historical/reference-only unless used by named
+  tests or bridge adapters.
+- No new features may be added to `app/` or `execution_prototype/` until the
+  canonical-path decision is resolved and required safety conformance tests pass.
+
 ---
 
 ## Package Tree

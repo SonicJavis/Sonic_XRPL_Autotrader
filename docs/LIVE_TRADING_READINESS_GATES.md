@@ -2,6 +2,16 @@
 
 **LIVE TRADING IS STRICTLY FORBIDDEN UNTIL ALL GATES ARE MET.**
 
+## Legacy Surface Status (PR 3)
+
+- `app/` is the current runnable legacy API/paper runtime.
+- `execution_prototype/` is historical/reference-only unless used by named
+  tests or bridge adapters.
+- Xaman/manual submission workflow references under `execution_prototype/` are
+  historical/manual prototype flows only, not V2 runtime authorization.
+- No new features may be added to `app/` or `execution_prototype/` until the
+  canonical-path decision is resolved and required safety conformance tests pass.
+
 ## Required Readiness Gates
 
 1. **7-Day Paper Campaign Completed**
