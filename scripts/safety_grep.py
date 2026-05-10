@@ -119,6 +119,10 @@ WHITELIST = {
     'hot_wallet_limit_exceeded': "Week 1 limit enforcement status value",
     'no signing and no submission are performed here': "Week 1 safety declaration for hot wallet policy",
     'wallet safety and policy helpers': "Week 1 wallet package safety module docstring",
+    'No signing or submission is available from this dashboard': "Dashboard safety disclosure text",
+    'No wallet or signing capability available': "Dashboard safety disclosure text",
+    'No execution, signing, submission, or calibration mutation is available': "Dashboard read-only disclosure text",
+    'Submission/sign/autofill path blocked': "Safety board explanation of blocked live guard path",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

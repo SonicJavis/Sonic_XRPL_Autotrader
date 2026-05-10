@@ -2,63 +2,54 @@ from __future__ import annotations
 
 import streamlit as st
 
-from dashboard.artifacts import REPORTS, load_json
-
-
-def _metric_or_missing(label: str, value: object, fmt: str | None = None) -> None:
-    if value is None:
-        st.metric(label, "no artifact available")
-        return
-    if isinstance(value, float) and fmt is not None:
-        st.metric(label, format(value, fmt))
-        return
-    st.metric(label, str(value))
+from dashboard.lib.artifact_formatting import normalize_display_value
+from dashboard.lib.canonical_loader import load_production_snapshot
+from dashboard.lib.ui_components import render_artifact_expander, render_kpi_card, render_page_header
 
 
 def render_production_dashboard() -> None:
-    st.title("Production Dashboard")
-    st.caption("Read-only production paper metrics from immutable report artifacts.")
-
-    market_rows = load_json(REPORTS / "phase47" / "market_snapshot_042b75dbd2a2_20260503T121647Z.json")
-    quality_rows = load_json(REPORTS / "phase52" / "outcome_corpus_quality.json")
-    signal_review = load_json(REPORTS / "phase53" / "calibration_readiness.json")
-
-    alpha_score = None
-    if isinstance(market_rows, dict) and "aggregate_score" in market_rows:
-        alpha_score = float(market_rows.get("aggregate_score", 0.0))
-
-    blocked = None
-    allowed = None
-    if isinstance(signal_review, dict):
-        blocked = int(signal_review.get("blocked_count", 0))
-        allowed = int(signal_review.get("ready_count", 0))
-
-    paper_pnl = None
-    if isinstance(quality_rows, dict) and "aggregate_realized_pnl" in quality_rows:
-        paper_pnl = float(quality_rows.get("aggregate_realized_pnl", 0.0))
+    payload = load_production_snapshot()
+    render_page_header(
+        "Production Dashboard",
+        "Read-only paper-runtime metrics from immutable report artifacts.",
+    )
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        _metric_or_missing("Alpha Score (24h proxy)", alpha_score, ".4f")
+        render_kpi_card("Alpha Score", payload.get("alpha_score"), helper="24h proxy")
     with c2:
-        _metric_or_missing("Risk Decisions Blocked", blocked)
+        render_kpi_card("Risk Decisions Blocked", payload.get("risk_blocked"), helper="paper/runtime reports")
     with c3:
-        _metric_or_missing("Risk Decisions Allowed", allowed)
+        render_kpi_card("Risk Decisions Allowed", payload.get("risk_allowed"), helper="paper/runtime reports")
     with c4:
-        _metric_or_missing("Paper PnL Attribution", paper_pnl, ".4f")
+        render_kpi_card("Paper PnL Attribution", payload.get("paper_pnl_attribution"), helper="paper-only attribution")
 
-    st.subheader("Signal Review Status (Phase 49-50 lineage)")
-    if isinstance(signal_review, dict):
-        row1, row2, row3 = st.columns(3)
-        row1.metric("Readiness Status", str(signal_review.get("status", "no artifact available")))
-        row2.metric("Blocked Count", str(signal_review.get("blocked_count", "no artifact available")))
-        row3.metric("Recommendations", str(signal_review.get("recommendation_count", "no artifact available")))
-        with st.expander("Signal Review Artifact (Raw JSON)"):
-            st.json(signal_review)
-    else:
-        st.info("no artifact available")
+    st.subheader("Signal Review Status")
+    line1, line2, line3 = st.columns(3)
+    signal_status = payload.get("signal_status")
+    has_signal = signal_status is not None
+    line1.metric("Status", normalize_display_value(signal_status))
+    line2.metric("Badge", "PAPER ONLY" if has_signal else "NO REPORT")
+    line3.metric("Lineage", "Found" if has_signal else "Missing")
+    st.caption(payload.get("signal_lineage_note", "No source-backed signal review artifact found."))
 
-    st.caption("No execution triggers available.")
+    st.subheader("Artifact Availability")
+    availability = payload.get("artifact_availability", {})
+    a1, a2, a3, a4 = st.columns(4)
+    a1.metric("Signal artifact", "Found" if availability.get("signal_artifact") else "Missing")
+    a2.metric("Outcome artifact", "Found" if availability.get("outcome_artifact") else "Missing")
+    a3.metric("Calibration artifact", "Found" if availability.get("calibration_artifact") else "Missing")
+    a4.metric("Source type", normalize_display_value(availability.get("source_type")))
+
+    render_artifact_expander(
+        "Raw Signal Review Artifact",
+        payload.get("raw_signal_artifact"),
+        payload.get("raw_signal_source_path"),
+    )
+
+    st.caption(
+        "This dashboard is read-only. No execution, signing, submission, or calibration mutation is available."
+    )
 
 
 def main() -> None:

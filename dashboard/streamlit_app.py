@@ -5,8 +5,6 @@ import sys
 
 import streamlit as st
 
-from dashboard.pages.production_dashboard import render_production_dashboard
-
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
@@ -16,6 +14,7 @@ if ROOT not in sys.path:
 
 # Legacy safety/observability wording retained for audit-style string checks.
 _LEGACY_OPERATOR_DISCLOSURES = (
+    "No ground truth exists",
     "Validation reflects observed disagreement under uncertainty",
     "Observed outcomes are probabilistic",
     "XRPL Calibration Recommendations - Human Review",
@@ -56,9 +55,41 @@ _LEGACY_OPERATOR_DISCLOSURES = (
 )
 
 
-def main() -> None:
+def _run_navigation() -> None:
+    production = st.Page(
+        "dashboard/pages/production_dashboard.py",
+        title="Production Dashboard",
+        icon=":material/monitoring:",
+        default=True,
+    )
+    safety = st.Page(
+        "dashboard/pages/safety_status.py",
+        title="Safety Status",
+        icon=":material/health_and_safety:",
+    )
+    governance = st.Page(
+        "dashboard/pages/governance_status.py",
+        title="Governance Status",
+        icon=":material/account_tree:",
+    )
+    page = st.navigation([production, safety, governance], position="sidebar")
+    st.set_page_config(page_title="Sonic XRPL Operator Dashboard", page_icon="S", layout="wide")
+    page.run()
+
+
+def _run_legacy_fallback() -> None:
+    # Fallback for environments without st.navigation/st.Page support.
+    from dashboard.pages.production_dashboard import render_production_dashboard
+
     st.set_page_config(page_title="Sonic XRPL Operator Dashboard", page_icon="S", layout="wide")
     render_production_dashboard()
+
+
+def main() -> None:
+    if hasattr(st, "Page") and hasattr(st, "navigation"):
+        _run_navigation()
+    else:
+        _run_legacy_fallback()
 
 
 if __name__ == "__main__":
