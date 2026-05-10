@@ -2,6 +2,28 @@
 
 Safety-first modular XRPL trading-system foundation with paper execution only and XRPL live shadow observation.
 
+## Canonical Path Decision: Pending
+
+The repository has not resolved which surface is the future canonical runtime
+path. No runtime migration or sniper/live work until this decision is resolved +
+PR 4 safety tests pass.
+
+Open options:
+
+- Option A: Keep `app/` as canonical runtime.
+- Option B: Promote `src/sonic_xrpl/` to future canonical runtime.
+- Option C: Adapter hybrid (`app/` API shell + V2 domain logic).
+
+Facts vs inference:
+
+- Fact: `app/main.py` is current runnable API.
+- Fact: `src/sonic_xrpl/` is V2 governance/offline stack.
+- Inference: `src/sonic_xrpl/` is likely future target but not yet runtime canonical.
+
+The commands below describe the current runnable API and dashboard only. They do
+not authorize runtime migration, live execution, sniper-style behavior, signing,
+or transaction submission.
+
 ## Architecture
 
 - `app/config.py`: runtime settings and safety defaults

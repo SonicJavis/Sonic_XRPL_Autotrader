@@ -5,6 +5,34 @@
 
 ---
 
+## Canonical Path Decision: Pending
+
+The repository has not resolved which surface is the future canonical runtime
+path. No runtime migration or sniper/live work until this decision is resolved +
+PR 4 safety tests pass.
+
+### Runtime Surface Options
+
+| Option | Description | Current status |
+|--------|-------------|----------------|
+| Option A | Keep `app/` as canonical runtime | Unresolved |
+| Option B | Promote `src/sonic_xrpl/` to future canonical runtime | Unresolved |
+| Option C | Adapter hybrid (`app/` API shell + V2 domain logic) | Unresolved |
+
+### Facts vs Inference
+
+| Type | Statement | Evidence |
+|------|-----------|----------|
+| Fact | `app/main.py` is current runnable API. | `README.md` documents `python -m app.main`; `ARCHITECTURE.md` documents the `app/` API and paper pipeline. |
+| Fact | `src/sonic_xrpl/` is V2 governance/offline stack. | This document and `docs/PROJECT_BLUEPRINT.md` describe V2 modules, offline audit, calibration, proposal, approval, and implementation-planning layers under `src/sonic_xrpl/`. |
+| Inference | `src/sonic_xrpl/` is likely the future target because it contains the Phase 45+ governance/offline architecture. | This is not yet a runtime-canonical decision and must not be treated as implementation authority until the decision is resolved. |
+
+The safety references remain authoritative while this decision is pending:
+`app/execution/execution_guard.py`, `src/sonic_xrpl/execution/live_guard.py`,
+`scripts/safety_grep.py`, and `src/sonic_xrpl/audit/safety_scan.py`.
+
+---
+
 ## Package Tree
 
 ```
