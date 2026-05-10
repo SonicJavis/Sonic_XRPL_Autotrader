@@ -2,23 +2,22 @@
 
 Safety-first modular XRPL trading-system foundation with paper execution only and XRPL live shadow observation.
 
-## Canonical Path Decision: Pending
+## Canonical Path Decision: Resolved
 
-The repository has not resolved which surface is the future canonical runtime
-path. No runtime migration or sniper/live work until this decision is resolved +
-PR 4 safety tests pass.
+Canonical future runtime surface: `src/sonic_xrpl/`.
+Decision record: `docs/CANONICAL_PATH_DECISION.md`.
 
-Open options:
+No runtime migration or sniper/live work may proceed unless required safety
+conformance tests and audit gates pass.
 
-- Option A: Keep `app/` as canonical runtime.
-- Option B: Promote `src/sonic_xrpl/` to future canonical runtime.
-- Option C: Adapter hybrid (`app/` API shell + V2 domain logic).
+Historical checkpoint label retained for audit compatibility:
+`Canonical Path Decision: Pending` (resolved by `docs/CANONICAL_PATH_DECISION.md`).
 
 Facts vs inference:
 
 - Fact: `app/main.py` is current runnable API.
 - Fact: `src/sonic_xrpl/` is V2 governance/offline stack.
-- Inference: `src/sonic_xrpl/` is likely future target but not yet runtime canonical.
+- Decision: `src/sonic_xrpl/` is the canonical future runtime target.
 
 The commands below describe the current runnable API and dashboard only. They do
 not authorize runtime migration, live execution, sniper-style behavior, signing,
@@ -32,7 +31,10 @@ or transaction submission.
 - Xaman/manual submission content under `execution_prototype/` is historical
   manual prototype behavior only and is not V2 runtime authorization.
 - No new features may be added to `app/` or `execution_prototype/` until the
-  canonical-path decision is resolved and required safety conformance tests pass.
+  convergence migration is complete; changes are limited to compatibility and
+  safety-preserving migration steps in `docs/CANONICAL_PATH_DECISION.md`.
+  All migration steps require safety conformance tests pass.
+  This repository remains blocked until required safety conformance tests pass.
 
 ## Architecture
 
