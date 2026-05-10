@@ -1,17 +1,32 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV SONIC_RUNTIME_MODE=paper
+ENV SONIC_DRY_RUN=true
+ENV SONIC_STORAGE_PATH=/data/v2.db
+ENV EXECUTION_ENABLED=false
+ENV LIVE_TRADING_ENABLED=false
 
-WORKDIR /app
+WORKDIR /opt/sonic
 
 COPY pyproject.toml README.md ./
-COPY app ./app
-COPY dashboard ./dashboard
+COPY src ./src
+COPY scripts ./scripts
+COPY docs ./docs
+COPY security ./security
 
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir .
+RUN python -m pip install --no-cache-dir --upgrade pip \
+    && python -m pip install --no-cache-dir .
 
-EXPOSE 8000
+RUN adduser --disabled-password --gecos "" --home /home/sonic sonic \
+    && mkdir -p /data \
+    && chown -R sonic:sonic /opt/sonic /data
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
+USER sonic
+
+VOLUME ["/data"]
+
+# Paper-only canonical runtime health probe entrypoint.
+ENTRYPOINT ["python", "-m", "sonic_xrpl.cli.main"]
+CMD ["health", "--json"]
