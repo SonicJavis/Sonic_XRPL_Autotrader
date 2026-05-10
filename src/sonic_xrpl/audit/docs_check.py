@@ -31,6 +31,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE53_CALIBRATION_READINESS_RESEARCH.md",
     "docs/PHASE54_HUMAN_REVIEWED_CALIBRATION_PROPOSAL_PACK.md",
     "docs/research/PHASE54_CALIBRATION_PROPOSAL_PACK_RESEARCH.md",
+    "docs/PHASE55_HUMAN_REVIEW_APPROVAL_LEDGER.md",
+    "docs/research/PHASE55_HUMAN_REVIEW_APPROVAL_LEDGER_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -58,6 +60,11 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/calibration_proposal/models.py",
     "src/sonic_xrpl/calibration_proposal/proposal_builder.py",
     "src/sonic_xrpl/calibration_proposal/report_writer.py",
+    "src/sonic_xrpl/calibration_approval/models.py",
+    "src/sonic_xrpl/calibration_approval/approval_policy.py",
+    "src/sonic_xrpl/calibration_approval/change_request.py",
+    "src/sonic_xrpl/calibration_approval/ledger.py",
+    "src/sonic_xrpl/calibration_approval/report_writer.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -91,6 +98,13 @@ REQUIRED_TEST_FILES = [
     "tests/unit/test_phase54_calibration_proposal_report_writer.py",
     "tests/smoke/test_phase54_calibration_proposal_cli.py",
     "tests/safety/test_phase54_calibration_proposal_safety.py",
+    "tests/unit/test_phase55_approval_models.py",
+    "tests/unit/test_phase55_approval_policy.py",
+    "tests/unit/test_phase55_change_request.py",
+    "tests/unit/test_phase55_approval_ledger.py",
+    "tests/unit/test_phase55_approval_report_writer.py",
+    "tests/smoke/test_phase55_approval_cli.py",
+    "tests/safety/test_phase55_approval_safety.py",
 ]
 
 

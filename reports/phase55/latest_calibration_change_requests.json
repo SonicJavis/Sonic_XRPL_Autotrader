@@ -1,0 +1,25 @@
+[
+  {
+    "after_value": 0.48,
+    "apply_allowed": false,
+    "approval_record_id": "car_e382c890db1a245b8e6987bc",
+    "before_value": 0.5,
+    "change_request_id": "ccr_f547d3977c847e8efb16aa8d",
+    "change_request_only": true,
+    "delta": -0.02,
+    "live_execution_allowed": false,
+    "offline_only": true,
+    "paper_only": true,
+    "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+    "proposal_pack_id": "cpp_47a294a4320ceaf9253f03d5",
+    "rationale": "Source-backed paper evidence supports creating a change request artifact for later implementation review.",
+    "requested_change": "watch_threshold: 0.5 -> 0.48",
+    "required_follow_up": [
+      "Open a separate implementation phase if humans accept this request.",
+      "Keep runtime configuration unchanged until that future phase is reviewed.",
+      "Rerun safety, audit, dependency, and full test validation before any implementation."
+    ],
+    "runtime_mutation_allowed": false,
+    "status": "REQUESTED"
+  }
+]

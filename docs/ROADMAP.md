@@ -143,3 +143,10 @@ Produces CI artifact reports. No runtime trading behaviour changed.
 - **Phase 53**: Calibration readiness review and non-mutating threshold recommendation layer. This phase does not apply calibration or approve execution.
 - **Phase 54**: Human-reviewed calibration proposal packs. This phase creates exact proposed before/after values for review only; it does not apply changes or enable live execution.
 - **Phase 55+**: Future work may add deeper simulation, paper-trading review, dashboard presentation, live-readiness review, and security review. Live execution remains out of scope unless a future named phase explicitly authorizes it and passes safety review.
+
+## Phase 55 implementation addendum - Human review approval ledger
+
+- Deterministic approval ledger from Phase 54 proposal packs plus review fixtures
+- Deterministic calibration change-request workflow for rejected/deferred edits
+- Exportable governance reports (JSON, Markdown)
+- No runtime threshold mutation and no live execution enablement

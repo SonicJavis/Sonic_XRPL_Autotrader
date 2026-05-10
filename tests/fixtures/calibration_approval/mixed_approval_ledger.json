@@ -1,0 +1,19 @@
+{
+  "review_source": "phase55_fixture",
+  "reviewed_at": "1970-01-01T00:00:00+00:00",
+  "reviewer": {"reviewer_id": "reviewer_mixed"},
+  "reviews": [
+    {
+      "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+      "decision": "APPROVED_FOR_CHANGE_REQUEST",
+      "decision_reason": "Create one change request artifact for later review.",
+      "reviewer_notes": "Approved request artifact."
+    },
+    {
+      "proposal_id": "cp_0ab4e73235b782fda209af11",
+      "decision": "REJECTED",
+      "decision_reason": "Do not create a request for this proposal.",
+      "reviewer_notes": "Rejected."
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "approved_count": 1,
+  "blocked_count": 0,
+  "change_requests": [
+    {
+      "after_value": 0.48,
+      "apply_allowed": false,
+      "approval_record_id": "car_e382c890db1a245b8e6987bc",
+      "before_value": 0.5,
+      "change_request_id": "ccr_f547d3977c847e8efb16aa8d",
+      "change_request_only": true,
+      "delta": -0.02,
+      "live_execution_allowed": false,
+      "offline_only": true,
+      "paper_only": true,
+      "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+      "proposal_pack_id": "cpp_47a294a4320ceaf9253f03d5",
+      "rationale": "Source-backed paper evidence supports creating a change request artifact for later implementation review.",
+      "requested_change": "watch_threshold: 0.5 -> 0.48",
+      "required_follow_up": [
+        "Open a separate implementation phase if humans accept this request.",
+        "Keep runtime configuration unchanged until that future phase is reviewed.",
+        "Rerun safety, audit, dependency, and full test validation before any implementation."
+      ],
+      "runtime_mutation_allowed": false,
+      "status": "REQUESTED"
+    }
+  ],
+  "counts_by_change_request_status": {
+    "REQUESTED": 1
+  },
+  "counts_by_decision": {
+    "APPROVED_FOR_CHANGE_REQUEST": 1
+  },
+  "generated_at": "1970-01-01T00:00:00+00:00",
+  "invalid_count": 0,
+  "ledger_id": "cal_2b6aa11762e933b01414fda9",
+  "limitation_summary": [],
+  "phase": "55",
+  "proposal_pack_source": "tests\\fixtures\\calibration_proposal\\ready_for_review_recommendations.json",
+  "records": [
+    {
+      "approval_record_id": "car_e382c890db1a245b8e6987bc",
+      "auto_apply_allowed": false,
+      "content_hash": "293d7d02d521314dcf1cd261a6acf4dd0767658a3bd82fba153712438036f44a",
+      "created_at": "1970-01-01T00:00:00+00:00",
+      "decision": "APPROVED_FOR_CHANGE_REQUEST",
+      "decision_reason": "Source-backed paper evidence supports creating a change request artifact for later implementation review.",
+      "deterministic_hash": "293d7d02d521314dcf1cd261a6acf4dd0767658a3bd82fba153712438036f44a",
+      "evidence_summary": "WATCH source-backed paper outcomes support a small human-reviewed decrease.",
+      "limitation_summary": [],
+      "live_execution_allowed": false,
+      "offline_only": true,
+      "paper_only": true,
+      "proposal_after_value": 0.48,
+      "proposal_before_value": 0.5,
+      "proposal_delta": -0.02,
+      "proposal_direction": "REVIEW_DECREASE",
+      "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+      "proposal_pack_id": "cpp_47a294a4320ceaf9253f03d5",
+      "proposal_signal_class": "watch_threshold",
+      "requires_human_review": true,
+      "reviewer": {
+        "display_name": "Phase 55 Reviewer",
+        "limitations": [],
+        "provenance": [
+          "tests/fixtures/calibration_proposal/ready_for_review_recommendations.json",
+          "tests\\fixtures\\calibration_approval\\approved_change_request.json"
+        ],
+        "review_source": "phase55_fixture",
+        "reviewed_at": "1970-01-01T00:00:00+00:00",
+        "reviewer_id": "reviewer_phase55_source_backed",
+        "role": "calibration_reviewer"
+      },
+      "reviewer_notes": "Approved for change-request packet only.",
+      "runtime_mutation_allowed": false,
+      "safety_flags": {
+        "auto_apply_allowed": false,
+        "live_execution_allowed": false,
+        "offline_only": true,
+        "paper_only": true,
+        "requires_human_review": true,
+        "runtime_mutation_allowed": false
+      }
+    }
+  ],
+  "review_source": "tests\\fixtures\\calibration_approval\\approved_change_request.json",
+  "safety_summary": "Phase 55 approval ledger is offline, paper-only, and non-mutating. No calibration changes are applied. Live execution remains blocked."
+}

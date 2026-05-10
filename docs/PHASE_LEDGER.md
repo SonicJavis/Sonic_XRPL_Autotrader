@@ -231,3 +231,16 @@ These phases may exist but cannot be verified without documentation evidence.
 - **Accuracy notes**: Synthetic-heavy, invalid, insufficient, or sparse evidence blocks exact proposals. Proposal values are small deterministic review deltas and are not profitability claims.
 - **Rollback notes**: Revert the Phase 54 merge commit if needed; no DB migrations, external service setup, live config, or secrets are introduced.
 - **Next recommended step**: Phase 55 - offline reconciliation or simulation-quality review before any later manual calibration implementation.
+
+---
+
+## Phase 55 - Human Review Approval Ledger
+
+- **Status**: Implemented on `codex/phase55-human-review-approval-ledger` pending PR validation.
+- **Objective completed**: Added deterministic offline approval-ledger and change-request workflows that consume Phase 54 proposal packs plus human review fixtures and write governance reports.
+- **Files changed**: `src/sonic_xrpl/calibration_approval/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/calibration_approval/`, Phase 55 unit/smoke/safety tests, docs, research notes, reports, and audit doc registry.
+- **Validation target**: Run targeted Phase 55 tests, CLI smoke checks, safety grep, audit validator, dependency audit, and full pytest.
+- **Safety/risk notes**: Paper-only and offline. No live data fetch, Xaman use, transaction construction, signing, submission, auto-buy, polling loop, streaming loop, threshold mutation, or automatic calibration added.
+- **Accuracy notes**: Approval records require explicit human review outcomes and preserved safety flags. Rejected/deferred cases become deterministic change requests instead of implicit approvals.
+- **Rollback notes**: Revert the Phase 55 merge commit if needed; no DB migrations, external service setup, live config, or secrets are introduced.
+- **Next recommended step**: Phase 56 - manual implementation planning for approved calibration changes with strict change control and full revalidation.

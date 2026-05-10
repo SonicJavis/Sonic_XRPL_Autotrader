@@ -16,6 +16,7 @@ Usage:
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
   python -m sonic_xrpl.cli.main calibration-proposals --fixture tests/fixtures/calibration_proposal/ready_for_review_recommendations.json
+  python -m sonic_xrpl.cli.main calibration-approval-ledger --proposal-fixture tests/fixtures/calibration_proposal/ready_for_review_recommendations.json --review-fixture tests/fixtures/calibration_approval/approved_change_request.json
 
 All commands work offline. No network access required by default.
 """
@@ -216,6 +217,19 @@ def main(argv: list[str] | None = None) -> int:
     calibration_proposal_diff_parser = subparsers.add_parser("calibration-proposal-diff", help="Print Phase 54 proposed-only calibration diff")
     calibration_proposal_diff_parser.add_argument("--fixture", required=True, help="Phase 53 recommendations report or Phase 54 fixture")
 
+    calibration_approval_parser = subparsers.add_parser("calibration-approval-ledger", help="Build Phase 55 approval ledger")
+    calibration_approval_parser.add_argument("--proposal-fixture", required=True, help="Phase 54 proposal fixture or report")
+    calibration_approval_parser.add_argument("--review-fixture", required=True, help="Phase 55 human review fixture")
+
+    calibration_change_requests_parser = subparsers.add_parser("calibration-change-requests", help="Print Phase 55 change request artifacts")
+    calibration_change_requests_parser.add_argument("--proposal-fixture", required=True, help="Phase 54 proposal fixture or report")
+    calibration_change_requests_parser.add_argument("--review-fixture", required=True, help="Phase 55 human review fixture")
+
+    calibration_approval_report_parser = subparsers.add_parser("calibration-approval-report", help="Write Phase 55 approval ledger reports")
+    calibration_approval_report_parser.add_argument("--proposal-fixture", required=True, help="Phase 54 proposal fixture or report")
+    calibration_approval_report_parser.add_argument("--review-fixture", required=True, help="Phase 55 human review fixture")
+    calibration_approval_report_parser.add_argument("--output-dir", default="reports/phase55", help="Output directory for report files")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -283,6 +297,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_calibration_proposal_report(args)
     if args.command == "calibration-proposal-diff":
         return _cmd_calibration_proposal_diff(args)
+    if args.command == "calibration-approval-ledger":
+        return _cmd_calibration_approval_ledger(args)
+    if args.command == "calibration-change-requests":
+        return _cmd_calibration_change_requests(args)
+    if args.command == "calibration-approval-report":
+        return _cmd_calibration_approval_report(args)
 
     parser.print_help()
     return 0
@@ -1092,6 +1112,64 @@ def _cmd_calibration_proposal_diff(args) -> int:
 
     pack = _phase54_pack(args)
     print(render_proposal_diff(pack))
+    return 0
+
+
+def _phase55_ledger(args):
+    from sonic_xrpl.calibration_approval import build_approval_ledger
+
+    return build_approval_ledger(args.proposal_fixture, args.review_fixture)
+
+
+def _cmd_calibration_approval_ledger(args) -> int:
+    """Build Phase 55 approval ledger."""
+    ledger = _phase55_ledger(args)
+    print("=== Phase 55 Calibration Approval Ledger ===")
+    print("  Phase 55 approval ledger is offline, paper-only, and non-mutating.")
+    print("  No calibration changes are applied.")
+    print("  Live execution remains blocked.")
+    print(f"  Ledger ID        : {ledger.ledger_id}")
+    print(f"  Records          : {len(ledger.records)}")
+    print(f"  Change requests  : {len(ledger.change_requests)}")
+    print(f"  Approved         : {ledger.approved_count}")
+    print(f"  Blocked          : {ledger.blocked_count}")
+    print(f"  Invalid          : {ledger.invalid_count}")
+    for decision, count in ledger.counts_by_decision.items():
+        print(f"  - {decision}: {count}")
+    return 0
+
+
+def _cmd_calibration_change_requests(args) -> int:
+    """Print Phase 55 change request artifacts."""
+    ledger = _phase55_ledger(args)
+    print("=== Phase 55 Calibration Change Requests ===")
+    print("  Change requests are review artifacts only.")
+    print("  apply_allowed=False")
+    print("  runtime_mutation_allowed=False")
+    print("  Live execution remains blocked.")
+    if not ledger.change_requests:
+        print("  No change requests generated.")
+    for item in ledger.change_requests:
+        print(
+            f"  - {item.change_request_id}: {item.proposal_id} "
+            f"{item.before_value} -> {item.after_value} delta={item.delta:+.2f} status={item.status}"
+        )
+    return 0
+
+
+def _cmd_calibration_approval_report(args) -> int:
+    """Write Phase 55 approval ledger reports."""
+    from sonic_xrpl.calibration_approval import write_approval_reports
+
+    ledger = _phase55_ledger(args)
+    generated = write_approval_reports(ledger, args.proposal_fixture, args.review_fixture, args.output_dir)
+    print("=== Phase 55 Calibration Approval Report ===")
+    print("  Phase 55 approval ledger is offline, paper-only, and non-mutating.")
+    print("  No calibration changes are applied.")
+    print("  Live execution remains blocked.")
+    print(f"  Ledger ID        : {ledger.ledger_id}")
+    for label, path in generated.items():
+        print(f"  {label}: {path}")
     return 0
 
 

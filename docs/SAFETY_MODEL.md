@@ -176,3 +176,9 @@ It does not mutate thresholds, runtime configuration, strategy settings, risk se
 Phase 54 calibration proposal packs are fixture/report-backed and paper-only. They read local Phase 53 readiness/recommendation outputs and write JSON/Markdown proposal packs for human review.
 
 They do not change runtime settings, write proposed values into production configuration, alter thresholds automatically, unlock execution, fetch live data, or add any transaction workflow. Every proposal keeps `human_review_required=True`, `auto_apply_allowed=False`, and `live_execution_allowed=False`.
+
+## Phase 55 approval ledger safety boundary
+
+Phase 55 calibration approval ledger workflows are fixture/report-backed and paper-only. They read local Phase 54 proposal packs plus local human review fixtures and write approval-ledger and change-request outputs.
+
+They do not change runtime settings, write approved values into production configuration, alter thresholds automatically, unlock execution, fetch live data, or add any transaction workflow. Every approval-ledger output keeps `human_review_required=True`, `auto_apply_allowed=False`, and `live_execution_allowed=False`.

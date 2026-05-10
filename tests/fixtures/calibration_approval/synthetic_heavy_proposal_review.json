@@ -1,0 +1,13 @@
+{
+  "review_source": "phase55_fixture",
+  "reviewed_at": "1970-01-01T00:00:00+00:00",
+  "reviewer": {"reviewer_id": "reviewer_synthetic"},
+  "reviews": [
+    {
+      "proposal_id": "tr_synthetic_quality",
+      "decision": "APPROVED_FOR_CHANGE_REQUEST",
+      "decision_reason": "Synthetic-heavy evidence cannot create a request.",
+      "reviewer_notes": "Blocked upstream."
+    }
+  ]
+}
