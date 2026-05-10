@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
@@ -30,12 +31,33 @@ def test_execution_guard_blocks_forbidden_surfaces_even_if_flags_enabled() -> No
 def test_submit_transaction_still_raises_fail_closed() -> None:
     settings = Settings(EXECUTION_ENABLED=True, LIVE_TRADING_ENABLED=True)
 
-    try:
+    with pytest.raises(NotImplementedError) as exc_info:
         submit_transaction(settings, {"TransactionType": "OfferCreate"})
-    except NotImplementedError as exc:
-        assert str(exc) == "BLOCKED_XRPL_EXECUTION_SURFACE"
-    else:
-        raise AssertionError("submission path must remain unavailable")
+    assert str(exc_info.value) == "BLOCKED_XRPL_EXECUTION_SURFACE"
+
+
+@pytest.mark.parametrize(
+    ("operation", "payload"),
+    [
+        ("submit_transaction", {"TransactionType": "OfferCreate"}),
+        ("sign_transaction", {"note": "sign"}),
+        ("autofill_transaction", {"note": "autofill"}),
+        ("wallet_init", {"module": "xrpl.wallet"}),
+    ],
+)
+def test_execution_guard_evaluate_blocks_submit_sign_autofill_wallet(
+    operation: str,
+    payload: dict[str, object],
+) -> None:
+    settings = Settings(EXECUTION_ENABLED=True, LIVE_TRADING_ENABLED=True)
+    guard = ExecutionGuard(settings)
+
+    result = guard.evaluate(operation=operation, payload=payload)
+
+    assert result.allowed is False
+    assert result.reason == "BLOCKED_XRPL_EXECUTION_SURFACE"
+    assert result.is_executable is False
+    assert result.requires_manual_approval is True
 
 
 def test_execution_guard_api_is_read_only_and_non_executable() -> None:
