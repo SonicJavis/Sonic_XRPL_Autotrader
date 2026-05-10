@@ -149,6 +149,16 @@ Live trading is blocked until **all of the following** are complete:
 
 This path is not implemented and is not planned until Phase 57 minimum.
 
+## Legacy Freeze Policy (PR 3)
+
+- `app/` is the current runnable legacy API/paper runtime surface.
+- `execution_prototype/` is historical/reference-only unless used by named
+  tests or bridge adapters.
+- Xaman/manual submission flows documented under `execution_prototype/` are
+  historical/manual prototype behavior and are not V2 runtime authorization.
+- No new features may be added to `app/` or `execution_prototype/` until the
+  canonical-path decision is resolved and required safety conformance tests pass.
+
 ## Phase 49 FirstLedger signal safety boundary
 
 Phase 49 signals are advisory evidence contracts only. They do not authorize live trading, do not create Xaman payloads, do not sign, do not submit, and do not place orders. `BUY_CANDIDATE` is not a buy order; it means the offline minimum evidence contract passed. All outputs include `live_execution_allowed=False`.

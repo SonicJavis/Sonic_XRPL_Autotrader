@@ -24,6 +24,16 @@ The commands below describe the current runnable API and dashboard only. They do
 not authorize runtime migration, live execution, sniper-style behavior, signing,
 or transaction submission.
 
+## Legacy Freeze Status
+
+- `app/` is the current runnable legacy API/paper runtime surface.
+- `execution_prototype/` is historical/reference-only unless used by named
+  tests or bridge adapters.
+- Xaman/manual submission content under `execution_prototype/` is historical
+  manual prototype behavior only and is not V2 runtime authorization.
+- No new features may be added to `app/` or `execution_prototype/` until the
+  canonical-path decision is resolved and required safety conformance tests pass.
+
 ## Architecture
 
 - `app/config.py`: runtime settings and safety defaults
