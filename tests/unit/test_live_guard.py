@@ -26,7 +26,7 @@ def test_assert_live_disabled_always_raises():
 @pytest.mark.parametrize("mode", list(RuntimeMode))
 def test_assert_can_submit_always_raises(mode):
     """assert_can_submit() raises for ALL modes in Phase 45."""
-    with pytest.raises((LiveTradingDisabledError, NotImplementedError)):
+    with pytest.raises(LiveTradingDisabledError):
         assert_can_submit(mode)
 
 
