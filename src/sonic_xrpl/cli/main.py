@@ -47,6 +47,11 @@ def main(argv: list[str] | None = None) -> int:
     # health
     health_parser = subparsers.add_parser("health", help="Show system health")
     health_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    subparsers.add_parser("killswitch-status", help="Show persistent kill switch state")
+    killswitch_toggle_parser = subparsers.add_parser("killswitch-toggle", help="Toggle persistent kill switch")
+    killswitch_toggle_parser.add_argument("--active", choices=["true", "false"], required=True, help="Set active state")
+    killswitch_toggle_parser.add_argument("--reason", default="manual_override", help="Reason for state change")
+    killswitch_toggle_parser.add_argument("--actor", default="cli", help="Actor performing state change")
 
     # audit
     audit_parser = subparsers.add_parser("audit", help="Run V2 audit validator")
@@ -252,6 +257,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "health":
         return _cmd_health(args)
+    if args.command == "killswitch-status":
+        return _cmd_killswitch_status()
+    if args.command == "killswitch-toggle":
+        return _cmd_killswitch_toggle(args)
     if args.command == "audit":
         return _cmd_audit(args)
     if args.command == "capabilities":
@@ -339,6 +348,7 @@ def _cmd_health(args) -> int:
         print(json.dumps({
             "mode": health.mode.value,
             "live_trading_blocked": health.live_trading_blocked,
+            "killswitch_active": health.killswitch_active,
             "enabled_capabilities": health.enabled_capabilities,
             "notes": health.notes,
         }, indent=2))
@@ -346,10 +356,50 @@ def _cmd_health(args) -> int:
         print("=== Sonic XRPL V2 — System Health ===")
         print(f"Mode               : {health.mode.value}")
         print(f"Live trading       : {'BLOCKED' if health.live_trading_blocked else 'ENABLED'}")
+        print(f"Kill switch        : {'ACTIVE' if health.killswitch_active else 'OFF'}")
         print(f"Enabled capabilities: {len(health.enabled_capabilities)}")
         for note in health.notes:
             print(f"  {note}")
 
+    return 0
+
+
+def _cmd_killswitch_status() -> int:
+    """Show persistent kill switch status."""
+    from sonic_xrpl.core.config import load_config
+    from sonic_xrpl.core.killswitch import PersistentKillSwitch
+
+    cfg = load_config()
+    store = PersistentKillSwitch(cfg.killswitch_db_path)
+    state = store.get_state()
+    store.close()
+    print("=== Persistent Kill Switch ===")
+    print(f"active    : {str(state.is_active).lower()}")
+    print(f"updated_at: {state.updated_at}")
+    print(f"reason    : {state.reason}")
+    print(f"updated_by: {state.updated_by}")
+    return 0
+
+
+def _cmd_killswitch_toggle(args) -> int:
+    """Toggle persistent kill switch status."""
+    from sonic_xrpl.core.config import load_config
+    from sonic_xrpl.core.killswitch import PersistentKillSwitch
+
+    cfg = load_config()
+    active = str(args.active).lower() == "true"
+    store = PersistentKillSwitch(cfg.killswitch_db_path)
+    state = store.set_state(
+        is_active=active,
+        reason=str(args.reason),
+        updated_by=str(args.actor),
+    )
+    store.close()
+    print("=== Persistent Kill Switch Updated ===")
+    print(f"active    : {str(state.is_active).lower()}")
+    print(f"updated_at: {state.updated_at}")
+    print(f"reason    : {state.reason}")
+    print(f"updated_by: {state.updated_by}")
     return 0
 
 
