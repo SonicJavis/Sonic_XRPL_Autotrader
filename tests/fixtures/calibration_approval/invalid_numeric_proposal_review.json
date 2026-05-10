@@ -1,0 +1,13 @@
+{
+  "review_source": "phase55_fixture",
+  "reviewed_at": "1970-01-01T00:00:00+00:00",
+  "reviewer": {"reviewer_id": "reviewer_invalid_numeric"},
+  "reviews": [
+    {
+      "proposal_id": "tr_invalid_watch",
+      "decision": "APPROVED_FOR_CHANGE_REQUEST",
+      "decision_reason": "Invalid numeric evidence cannot create a request.",
+      "reviewer_notes": "Blocked upstream."
+    }
+  ]
+}

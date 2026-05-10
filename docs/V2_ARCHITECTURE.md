@@ -222,3 +222,7 @@ The layer must not import wallet, signing, submission, Xaman, or live order plac
 ## Phase 54 calibration proposal layer
 
 `src/sonic_xrpl/calibration_proposal/` sits after the calibration readiness layer. It consumes Phase 53 recommendation reports and creates deterministic proposal packs with before/after values, blocked recommendations, risk notes, review checklists, and rollback notes. It does not write proposed values into runtime configuration and keeps live execution blocked.
+
+## Phase 55 approval ledger layer
+
+`src/sonic_xrpl/calibration_approval/` sits after the calibration proposal layer. It consumes Phase 54 proposal packs and local review fixtures, then creates deterministic approval-ledger entries and calibration change-request entries for human governance. It does not apply changes to runtime configuration and keeps live execution blocked.

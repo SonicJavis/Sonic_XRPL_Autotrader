@@ -2,8 +2,8 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "0a60c7d Phase 48: Add dependency audit and CI security check\nbeeb4fb Phase 48: Start dependency audit and supply-chain guardrails\neb6eed0 Merge pull request #32 from SonicJavis/feature/phase48-accurate-firstledger-discovery\nd745258 Phase 48.1: Add missing observed_at regression coverage\n4ac671b Phase 48.1: Preserve missing FirstLedger observed_at without synthesis\n4290f37 Phase 48: document accurate FirstLedger discovery boundary\ned0e395 Merge pull request #31 from SonicJavis/feature/phase48-accurate-firstledger-discovery\ndc8b63d Phase 48: add FirstLedger parser tests\nfe2f3d3 Phase 48: make FirstLedger fixture parsing source-backed\n0b7a6dd Merge pull request #29 from SonicJavis/copilot/improve-streamlit-dashboard",
-        "git_status": "M  app/security/auth.py\nM  app/telemetry/logging.py\nM  artifacts/audit_validator_report.json\nM  docs/PHASE48_FIRSTLEDGER_DISCOVERY.md\nM  docs/PHASE_LEDGER.md\nM  docs/audit/latest_audit_report.json\nM  docs/audit/latest_audit_report.md\n M docs/audit/latest_dependency_audit.json\n M docs/audit/latest_dependency_audit.md\nM  execution_prototype/discovery/firstledger_reader.py\n M scripts/dependency_audit.py\nM  scripts/safety_grep.py\nM  sonic_xrpl/cli/main.py\nM  src/sonic_xrpl/audit/validator.py\n M tests/safety/test_dependency_audit.py\nM  tests/smoke/test_cli_smoke.py\nM  tests/smoke/test_fixture_cli.py\nM  tests/test_hosted_deployment_security.py\nM  tests/test_safety.py",
+        "git_log": "497ecab Phase 54: Human-Reviewed Calibration Proposal Pack\nf703908 Address Phase 54 proposal review feedback\n33f151c Phase 54: Add human-reviewed calibration proposal pack\n8307755 Merge pull request #43 from SonicJavis/codex/phase53-calibration-readiness-review\n67db547 Phase 53: Add calibration readiness review\n63e32ea Merge pull request #42 from SonicJavis/codex/phase52-outcome-replay-corpus\naa320f5 Phase 52: Add paper outcome replay corpus\n9a77f8c Phase 51: Paper Outcome Attribution + Signal Feedback Loop\n915cbe2 Phase 51: Add paper outcome attribution\nfc4cd85 Merge pull request #40 from SonicJavis/codex/fix-security-safety-grep",
+        "git_status": "M docs/PHASE_LEDGER.md\n M docs/PROJECT_BLUEPRINT.md\n M docs/ROADMAP.md\n M docs/SAFETY_MODEL.md\n M docs/V2_ARCHITECTURE.md\n M src/sonic_xrpl/audit/docs_check.py\n M src/sonic_xrpl/cli/main.py\n?? docs/PHASE55_HUMAN_REVIEW_APPROVAL_LEDGER.md\n?? docs/research/PHASE55_HUMAN_REVIEW_APPROVAL_LEDGER_RESEARCH.md\n?? reports/phase55/\n?? src/sonic_xrpl/calibration_approval/\n?? tests/fixtures/calibration_approval/\n?? tests/safety/test_phase55_approval_safety.py\n?? tests/smoke/test_phase55_approval_cli.py\n?? tests/unit/test_phase55_approval_ledger.py\n?? tests/unit/test_phase55_approval_models.py\n?? tests/unit/test_phase55_approval_policy.py\n?? tests/unit/test_phase55_approval_report_writer.py\n?? tests/unit/test_phase55_change_request.py",
         "uncommitted_files": 19
       },
       "passed": true
@@ -68,7 +68,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-06T11:52:21.354752+00:00",
+  "generated_at": "2026-05-10T10:46:49.460836+00:00",
   "overall_passed": true,
   "phase": "42.2",
   "schema_version": "1.0"

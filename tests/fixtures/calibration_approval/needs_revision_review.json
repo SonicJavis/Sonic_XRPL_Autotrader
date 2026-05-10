@@ -1,0 +1,13 @@
+{
+  "review_source": "phase55_fixture",
+  "reviewed_at": "1970-01-01T00:00:00+00:00",
+  "reviewer": {"reviewer_id": "reviewer_revision"},
+  "reviews": [
+    {
+      "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+      "decision": "NEEDS_REVISION",
+      "decision_reason": "Proposal needs clearer evidence references.",
+      "reviewer_notes": "Needs revision."
+    }
+  ]
+}

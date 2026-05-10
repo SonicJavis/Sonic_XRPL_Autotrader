@@ -1,0 +1,21 @@
+{
+  "review_source": "phase55_fixture",
+  "reviewed_at": "1970-01-01T00:00:00+00:00",
+  "reviewer": {
+    "reviewer_id": "reviewer_phase55_source_backed",
+    "display_name": "Phase 55 Reviewer",
+    "role": "calibration_reviewer"
+  },
+  "provenance": [
+    "tests/fixtures/calibration_proposal/ready_for_review_recommendations.json"
+  ],
+  "limitations": [],
+  "reviews": [
+    {
+      "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+      "decision": "APPROVED_FOR_CHANGE_REQUEST",
+      "decision_reason": "Source-backed paper evidence supports creating a change request artifact for later implementation review.",
+      "reviewer_notes": "Approved for change-request packet only."
+    }
+  ]
+}

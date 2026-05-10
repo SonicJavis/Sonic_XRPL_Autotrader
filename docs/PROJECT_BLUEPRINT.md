@@ -170,3 +170,7 @@ Phase 53 adds an offline calibration readiness layer under `src/sonic_xrpl/calib
 ## Phase 54 blueprint addendum
 
 Phase 54 adds an offline calibration proposal layer under `src/sonic_xrpl/calibration_proposal/`. It packages Phase 53 recommendations into deterministic before/after proposal records or blocked recommendation records for human review. It does not apply proposals, does not change runtime settings, and does not enable live execution.
+
+## Phase 55 blueprint addendum
+
+Phase 55 adds an offline human-review approval layer under `src/sonic_xrpl/calibration_approval/`. It consumes Phase 54 proposal packs plus review fixtures, then writes deterministic approval-ledger and change-request records for governance. It does not apply approved values, does not change runtime settings, and does not enable live execution.
