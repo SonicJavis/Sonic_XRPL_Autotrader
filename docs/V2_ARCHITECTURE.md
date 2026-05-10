@@ -5,19 +5,18 @@
 
 ---
 
-## Canonical Path Decision: Pending
+## Canonical Path Decision: Resolved
 
-The repository has not resolved which surface is the future canonical runtime
-path. No runtime migration or sniper/live work until this decision is resolved +
-PR 4 safety tests pass.
+Canonical future runtime surface: `src/sonic_xrpl/`.
 
-### Runtime Surface Options
+Decision record: `docs/CANONICAL_PATH_DECISION.md`.
 
-| Option | Description | Current status |
-|--------|-------------|----------------|
-| Option A | Keep `app/` as canonical runtime | Unresolved |
-| Option B | Promote `src/sonic_xrpl/` to future canonical runtime | Unresolved |
-| Option C | Adapter hybrid (`app/` API shell + V2 domain logic) | Unresolved |
+No runtime migration step may proceed unless safety conformance tests and audit
+gates pass in the decision record.
+
+Historical checkpoint label retained for audit compatibility:
+`## Canonical Path Decision: Pending` (resolved by
+`docs/CANONICAL_PATH_DECISION.md`).
 
 ### Facts vs Inference
 
@@ -25,19 +24,23 @@ PR 4 safety tests pass.
 |------|-----------|----------|
 | Fact | `app/main.py` is current runnable API. | `README.md` documents `python -m app.main`; `ARCHITECTURE.md` documents the `app/` API and paper pipeline. |
 | Fact | `src/sonic_xrpl/` is V2 governance/offline stack. | This document and `docs/PROJECT_BLUEPRINT.md` describe V2 modules, offline audit, calibration, proposal, approval, and implementation-planning layers under `src/sonic_xrpl/`. |
-| Inference | `src/sonic_xrpl/` is likely the future target because it contains the Phase 45+ governance/offline architecture. | This is not yet a runtime-canonical decision and must not be treated as implementation authority until the decision is resolved. |
+| Decision | `src/sonic_xrpl/` is the canonical future runtime target. | `docs/CANONICAL_PATH_DECISION.md` resolves the prior pending state. |
 
 The safety references remain authoritative while this decision is pending:
 `app/execution/execution_guard.py`, `src/sonic_xrpl/execution/live_guard.py`,
 `scripts/safety_grep.py`, and `src/sonic_xrpl/audit/safety_scan.py`.
 
-### Legacy Surface Freeze (Pending Decision)
+### Legacy Surface Freeze (During Convergence)
 
 - `app/` is the current runnable legacy API/paper runtime surface.
 - `execution_prototype/` is historical/reference-only unless used by named
   tests or bridge adapters.
-- No new features may be added to `app/` or `execution_prototype/` until the
-  canonical-path decision is resolved and required safety conformance tests pass.
+- No new features may be added to `app/` or `execution_prototype/` while
+  convergence work is in progress; changes are limited to compatibility and
+  safety-preserving migration steps defined in `docs/CANONICAL_PATH_DECISION.md`.
+
+Historical checkpoint label retained for audit compatibility:
+`### Legacy Surface Freeze (Pending Decision)`.
 
 ---
 
