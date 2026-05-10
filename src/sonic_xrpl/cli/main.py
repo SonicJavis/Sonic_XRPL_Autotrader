@@ -17,6 +17,7 @@ Usage:
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
   python -m sonic_xrpl.cli.main calibration-proposals --fixture tests/fixtures/calibration_proposal/ready_for_review_recommendations.json
   python -m sonic_xrpl.cli.main calibration-approval-ledger --proposal-fixture tests/fixtures/calibration_proposal/ready_for_review_recommendations.json --review-fixture tests/fixtures/calibration_approval/approved_change_request.json
+  python -m sonic_xrpl.cli.main calibration-implementation-plan --approval-ledger reports/phase55/latest_calibration_approval_ledger.json --change-requests reports/phase55/latest_calibration_change_requests.json
 
 All commands work offline. No network access required by default.
 """
@@ -230,6 +231,19 @@ def main(argv: list[str] | None = None) -> int:
     calibration_approval_report_parser.add_argument("--review-fixture", required=True, help="Phase 55 human review fixture")
     calibration_approval_report_parser.add_argument("--output-dir", default="reports/phase55", help="Output directory for report files")
 
+    calibration_impl_plan_parser = subparsers.add_parser("calibration-implementation-plan", help="Build Phase 56 implementation plan from Phase 55 artifacts")
+    calibration_impl_plan_parser.add_argument("--approval-ledger", required=True, help="Phase 55 approval ledger JSON")
+    calibration_impl_plan_parser.add_argument("--change-requests", required=True, help="Phase 55 change requests JSON")
+
+    calibration_impl_dry_run_parser = subparsers.add_parser("calibration-implementation-dry-run", help="Render Phase 56 dry-run implementation preview")
+    calibration_impl_dry_run_parser.add_argument("--approval-ledger", required=True, help="Phase 55 approval ledger JSON")
+    calibration_impl_dry_run_parser.add_argument("--change-requests", required=True, help="Phase 55 change requests JSON")
+
+    calibration_impl_report_parser = subparsers.add_parser("calibration-implementation-report", help="Write Phase 56 implementation plan and dry-run reports")
+    calibration_impl_report_parser.add_argument("--approval-ledger", required=True, help="Phase 55 approval ledger JSON")
+    calibration_impl_report_parser.add_argument("--change-requests", required=True, help="Phase 55 change requests JSON")
+    calibration_impl_report_parser.add_argument("--output-dir", default="reports/phase56", help="Output directory for report files")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -303,6 +317,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_calibration_change_requests(args)
     if args.command == "calibration-approval-report":
         return _cmd_calibration_approval_report(args)
+    if args.command == "calibration-implementation-plan":
+        return _cmd_calibration_implementation_plan(args)
+    if args.command == "calibration-implementation-dry-run":
+        return _cmd_calibration_implementation_dry_run(args)
+    if args.command == "calibration-implementation-report":
+        return _cmd_calibration_implementation_report(args)
 
     parser.print_help()
     return 0
@@ -1168,6 +1188,61 @@ def _cmd_calibration_approval_report(args) -> int:
     print("  No calibration changes are applied.")
     print("  Live execution remains blocked.")
     print(f"  Ledger ID        : {ledger.ledger_id}")
+    for label, path in generated.items():
+        print(f"  {label}: {path}")
+    return 0
+
+
+def _phase56_plan(args):
+    from sonic_xrpl.calibration_implementation_plan import build_calibration_implementation_plan
+
+    return build_calibration_implementation_plan(args.approval_ledger, args.change_requests)
+
+
+def _cmd_calibration_implementation_plan(args) -> int:
+    """Build Phase 56 implementation plan."""
+    plan = _phase56_plan(args)
+    print("=== Phase 56 Calibration Implementation Plan ===")
+    print("  Planning only      : True")
+    print("  Dry run only       : True")
+    print("  Runtime mutation   : BLOCKED")
+    print("  Live execution     : BLOCKED")
+    print(f"  Plan ID            : {plan.plan_id}")
+    print(f"  Source ledger      : {plan.source_ledger_id}")
+    print(f"  Source requests    : {plan.source_change_request_count}")
+    print(f"  Implementation items: {len(plan.implementation_items)}")
+    print(f"  Blocked items      : {len(plan.blocked_items)}")
+    for item in plan.implementation_items:
+        print(
+            f"  - {item.implementation_item_id}: {item.target_namespace}.{item.target_parameter} "
+            f"{item.current_value:.2f} -> {item.proposed_value:.2f} delta={item.exact_delta:+.2f}"
+        )
+    for blocked in plan.blocked_items:
+        print(f"  - BLOCKED {blocked.change_request_id}: {blocked.reason}")
+    return 0
+
+
+def _cmd_calibration_implementation_dry_run(args) -> int:
+    """Render Phase 56 dry-run implementation preview."""
+    from sonic_xrpl.calibration_implementation_plan import render_dry_run_preview
+
+    plan = _phase56_plan(args)
+    print(render_dry_run_preview(plan.implementation_items))
+    return 0
+
+
+def _cmd_calibration_implementation_report(args) -> int:
+    """Write Phase 56 implementation plan and dry-run reports."""
+    from sonic_xrpl.calibration_implementation_plan import write_implementation_reports
+
+    plan = _phase56_plan(args)
+    generated = write_implementation_reports(plan, args.approval_ledger, args.change_requests, args.output_dir)
+    print("=== Phase 56 Calibration Implementation Report ===")
+    print("  Planning only      : True")
+    print("  Dry run only       : True")
+    print("  Runtime mutation   : BLOCKED")
+    print("  Live execution     : BLOCKED")
+    print(f"  Plan ID            : {plan.plan_id}")
     for label, path in generated.items():
         print(f"  {label}: {path}")
     return 0

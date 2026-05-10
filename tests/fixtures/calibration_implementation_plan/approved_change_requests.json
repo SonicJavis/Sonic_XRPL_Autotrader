@@ -1,0 +1,17 @@
+[
+  {
+    "change_request_id": "ccr_phase56_safe_001",
+    "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+    "proposal_pack_id": "cpp_47a294a4320ceaf9253f03d5",
+    "status": "REQUESTED",
+    "requested_change": "watch_threshold: 0.50 -> 0.48",
+    "before_value": 0.5,
+    "after_value": 0.48,
+    "delta": -0.02,
+    "paper_only": true,
+    "offline_only": true,
+    "apply_allowed": false,
+    "live_execution_allowed": false,
+    "runtime_mutation_allowed": false
+  }
+]

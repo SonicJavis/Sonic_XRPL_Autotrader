@@ -1,0 +1,152 @@
+{
+  "approval_ledger_source": "reports/phase55/latest_calibration_approval_ledger.json",
+  "auto_apply_allowed": false,
+  "blocked_items": [],
+  "change_requests_source": "reports/phase55/latest_calibration_change_requests.json",
+  "created_at": "1970-01-01T00:00:00+00:00",
+  "dry_run_only": true,
+  "dry_run_patches": [
+    {
+      "after_value": 0.48,
+      "apply_allowed": false,
+      "before_value": 0.5,
+      "diff_text": "DRY RUN ONLY - no file was changed.\nTarget: paper_calibration.watch_threshold\nBefore: 0.50\nAfter: 0.48\nDelta: -0.02\nManual implementation required in a future phase.\nRuntime mutation allowed: false\nAuto apply allowed: false\nLive execution allowed: false\nRollback: No runtime change exists in Phase 56. Rollback by reverting future implementation commit(s) only.\n",
+      "patch_id": "drp_3e8f53d8e46e8a7574898a7a",
+      "runtime_mutation_allowed": false,
+      "target_config_key_hint": "paper_calibration.watch_threshold",
+      "target_file_hint": "config/paper_calibration_thresholds.json (future phase)"
+    }
+  ],
+  "implementation_items": [
+    {
+      "change_request_id": "ccr_f547d3977c847e8efb16aa8d",
+      "current_value": 0.5,
+      "dry_run_diff": "DRY RUN ONLY - no file was changed.\nTarget: paper_calibration.watch_threshold\nBefore: 0.50\nAfter: 0.48\nDelta: -0.02\nManual implementation required in a future phase.\nRuntime mutation allowed: false\nAuto apply allowed: false\nLive execution allowed: false\nRollback: No runtime change exists in Phase 56. Rollback by reverting future implementation commit(s) only.\n",
+      "exact_delta": -0.02,
+      "implementation_item_id": "cpi_38f975b80d85395afb28b478",
+      "implementation_status": "DRY_RUN_PLANNED",
+      "limitations": [
+        "dry_run_only_no_runtime_mutation"
+      ],
+      "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+      "proposed_value": 0.48,
+      "rollback_note": "No runtime change exists in Phase 56. Rollback by reverting future implementation commit(s) only.",
+      "safety_flags": {
+        "auto_apply_allowed": false,
+        "dry_run_only": true,
+        "live_execution_allowed": false,
+        "offline_only": true,
+        "paper_only": true,
+        "requires_human_implementation": true,
+        "runtime_mutation_allowed": false
+      },
+      "target_config_key_hint": "paper_calibration.watch_threshold",
+      "target_file_hint": "config/paper_calibration_thresholds.json (future phase)",
+      "target_namespace": "paper_calibration",
+      "target_parameter": "watch_threshold",
+      "validation_commands": [
+        ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_implementation_plan_models.py",
+        ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_implementation_plan_loader.py",
+        ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_implementation_planner.py",
+        ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_dry_run_patch.py",
+        ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_validation_and_rollback_plan.py",
+        ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_report_writer.py",
+        ".\\.venv\\Scripts\\python.exe -m pytest tests\\smoke\\test_phase56_implementation_plan_cli.py",
+        ".\\.venv\\Scripts\\python.exe -m pytest tests\\safety\\test_phase56_implementation_plan_safety.py",
+        ".\\.venv\\Scripts\\python.exe scripts\\safety_grep.py",
+        ".\\.venv\\Scripts\\python.exe scripts\\audit_validator.py",
+        ".\\.venv\\Scripts\\python.exe scripts\\dependency_audit.py --write-report --strict",
+        "git diff --check"
+      ]
+    }
+  ],
+  "limitations": [
+    "No implementation patch is applied in Phase 56."
+  ],
+  "live_execution_allowed": false,
+  "offline_only": true,
+  "paper_only": true,
+  "phase": "56",
+  "plan_id": "cip_f00a36c9fa9e9308f4236331",
+  "requires_human_implementation": true,
+  "rollback_plan": {
+    "affected_files": [
+      "src/sonic_xrpl/calibration_implementation_plan/",
+      "src/sonic_xrpl/cli/main.py",
+      "tests/fixtures/calibration_implementation_plan/",
+      "tests/unit/test_phase56_implementation_plan_models.py",
+      "tests/unit/test_phase56_implementation_plan_loader.py",
+      "tests/unit/test_phase56_implementation_planner.py",
+      "tests/unit/test_phase56_dry_run_patch.py",
+      "tests/unit/test_phase56_validation_and_rollback_plan.py",
+      "tests/unit/test_phase56_report_writer.py",
+      "tests/smoke/test_phase56_implementation_plan_cli.py",
+      "tests/safety/test_phase56_implementation_plan_safety.py",
+      "docs/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN.md",
+      "docs/research/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN_RESEARCH.md"
+    ],
+    "requires_manual_review": true,
+    "rollback_id": "rbp_dc7aceac21edfff145125dbc",
+    "rollback_steps": [
+      "Revert the Phase 56 merge commit.",
+      "Re-run safety_grep, audit_validator, dependency_audit, and targeted Phase 56 tests.",
+      "Verify reports/phase56 artifacts are removed or regenerated from known-safe inputs.",
+      "Confirm runtime calibration settings remain unchanged."
+    ]
+  },
+  "runtime_mutation_allowed": false,
+  "safety_summary": "Phase 56 implementation planning is offline, paper-only, dry-run-only, and non-mutating. No configuration file or runtime threshold is changed. Live execution remains blocked.",
+  "source_change_request_count": 1,
+  "source_ledger_id": "cal_2b6aa11762e933b01414fda9",
+  "validation_plan": {
+    "acceptance_criteria": [
+      "No runtime calibration values are mutated.",
+      "All outputs are deterministic and offline-only.",
+      "Dry-run previews clearly state no file was changed.",
+      "Any unsupported or unsafe request is blocked with explicit reason."
+    ],
+    "docs_checks": [
+      "docs/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN.md",
+      "docs/research/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN_RESEARCH.md",
+      "docs/PHASE_LEDGER.md",
+      "docs/ROADMAP.md",
+      "docs/SAFETY_MODEL.md",
+      "docs/V2_ARCHITECTURE.md",
+      "docs/PROJECT_BLUEPRINT.md",
+      "src/sonic_xrpl/audit/docs_check.py"
+    ],
+    "required_commands": [
+      ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_implementation_plan_models.py",
+      ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_implementation_plan_loader.py",
+      ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_implementation_planner.py",
+      ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_dry_run_patch.py",
+      ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_validation_and_rollback_plan.py",
+      ".\\.venv\\Scripts\\python.exe -m pytest tests\\unit\\test_phase56_report_writer.py",
+      ".\\.venv\\Scripts\\python.exe -m pytest tests\\smoke\\test_phase56_implementation_plan_cli.py",
+      ".\\.venv\\Scripts\\python.exe -m pytest tests\\safety\\test_phase56_implementation_plan_safety.py",
+      ".\\.venv\\Scripts\\python.exe scripts\\safety_grep.py",
+      ".\\.venv\\Scripts\\python.exe scripts\\audit_validator.py",
+      ".\\.venv\\Scripts\\python.exe scripts\\dependency_audit.py --write-report --strict",
+      "git diff --check"
+    ],
+    "required_tests": [
+      "phase56_unit_models",
+      "phase56_unit_loader",
+      "phase56_unit_planner",
+      "phase56_unit_dry_run_patch",
+      "phase56_unit_validation_rollback",
+      "phase56_unit_report_writer",
+      "phase56_smoke_cli",
+      "phase56_safety"
+    ],
+    "safety_checks": [
+      "paper_only=True",
+      "offline_only=True",
+      "dry_run_only=True",
+      "auto_apply_allowed=False",
+      "live_execution_allowed=False",
+      "runtime_mutation_allowed=False",
+      "requires_human_implementation=True"
+    ]
+  }
+}

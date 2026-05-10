@@ -33,6 +33,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE54_CALIBRATION_PROPOSAL_PACK_RESEARCH.md",
     "docs/PHASE55_HUMAN_REVIEW_APPROVAL_LEDGER.md",
     "docs/research/PHASE55_HUMAN_REVIEW_APPROVAL_LEDGER_RESEARCH.md",
+    "docs/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN.md",
+    "docs/research/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -65,6 +67,11 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/calibration_approval/change_request.py",
     "src/sonic_xrpl/calibration_approval/ledger.py",
     "src/sonic_xrpl/calibration_approval/report_writer.py",
+    "src/sonic_xrpl/calibration_implementation_plan/models.py",
+    "src/sonic_xrpl/calibration_implementation_plan/loader.py",
+    "src/sonic_xrpl/calibration_implementation_plan/planner.py",
+    "src/sonic_xrpl/calibration_implementation_plan/dry_run_patch.py",
+    "src/sonic_xrpl/calibration_implementation_plan/report_writer.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -105,6 +112,14 @@ REQUIRED_TEST_FILES = [
     "tests/unit/test_phase55_approval_report_writer.py",
     "tests/smoke/test_phase55_approval_cli.py",
     "tests/safety/test_phase55_approval_safety.py",
+    "tests/unit/test_phase56_implementation_plan_models.py",
+    "tests/unit/test_phase56_implementation_plan_loader.py",
+    "tests/unit/test_phase56_implementation_planner.py",
+    "tests/unit/test_phase56_dry_run_patch.py",
+    "tests/unit/test_phase56_validation_and_rollback_plan.py",
+    "tests/unit/test_phase56_report_writer.py",
+    "tests/smoke/test_phase56_implementation_plan_cli.py",
+    "tests/safety/test_phase56_implementation_plan_safety.py",
 ]
 
 

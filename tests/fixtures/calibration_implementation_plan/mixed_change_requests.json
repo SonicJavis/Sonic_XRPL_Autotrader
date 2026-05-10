@@ -1,0 +1,30 @@
+[
+  {
+    "change_request_id": "ccr_phase56_safe_001",
+    "proposal_id": "cp_5bc3f4608f9e68e55d14d5ac",
+    "status": "REQUESTED",
+    "requested_change": "watch_threshold: 0.50 -> 0.48",
+    "before_value": 0.5,
+    "after_value": 0.48,
+    "delta": -0.02,
+    "paper_only": true,
+    "offline_only": true,
+    "apply_allowed": false,
+    "live_execution_allowed": false,
+    "runtime_mutation_allowed": false
+  },
+  {
+    "change_request_id": "ccr_phase56_unsupported_001",
+    "proposal_id": "cp_unsupported",
+    "status": "REQUESTED",
+    "requested_change": "liquidity_bias_threshold: 0.12 -> 0.10",
+    "before_value": 0.12,
+    "after_value": 0.1,
+    "delta": -0.02,
+    "paper_only": true,
+    "offline_only": true,
+    "apply_allowed": false,
+    "live_execution_allowed": false,
+    "runtime_mutation_allowed": false
+  }
+]
