@@ -107,6 +107,22 @@ WHITELIST = {
     r'r"\bbackground\b"': "Phase 45 safety scan pattern definition",
     r'r"os\.environ.*secret"': "Phase 45 safety scan pattern definition",
     'sonic_xrpl/audit/safety_scan': "Phase 45 safety scan module is the scanner itself",
+    # Week 1 hot wallet policy terms (read-only architecture, no submit/sign code paths)
+    'hot wallet architecture policy': "Week 1 hot wallet policy module declaration",
+    'hotwalletpolicy': "Week 1 read-only hot wallet policy class name",
+    'max_hot_wallet_xrp': "Week 1 hot wallet spending ceiling constant",
+    'sonic_hot_wallet_account': "Week 1 hot wallet env config key",
+    'sonic_hot_wallet_seed': "Week 1 hot wallet env config key (presence check only)",
+    'seed_configured': "Week 1 boolean seed presence indicator",
+    'seed_env_key': "Week 1 env key selector for seed presence checks",
+    'return bool(seed)': "Week 1 boolean seed presence check",
+    'hot_wallet_limit_exceeded': "Week 1 limit enforcement status value",
+    'no signing and no submission are performed here': "Week 1 safety declaration for hot wallet policy",
+    'wallet safety and policy helpers': "Week 1 wallet package safety module docstring",
+    'No signing or submission is available from this dashboard': "Dashboard safety disclosure text",
+    'No wallet or signing capability available': "Dashboard safety disclosure text",
+    'No execution, signing, submission, or calibration mutation is available': "Dashboard read-only disclosure text",
+    'Submission/sign/autofill path blocked': "Safety board explanation of blocked live guard path",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

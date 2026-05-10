@@ -1,66 +1,51 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
 import streamlit as st
 
-
-ROOT = Path(__file__).resolve().parents[2]
-DOCS = ROOT / "docs"
-REPORTS = ROOT / "reports"
-
-
-def _load_json(path: Path) -> dict | list | None:
-    if not path.exists():
-        return None
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return None
-
-
-def _status(ok: bool) -> str:
-    return "READY" if ok else "FAIL"
+from dashboard.lib.safety_loader import load_safety_snapshot
+from dashboard.lib.ui_components import (
+    render_artifact_expander,
+    render_page_header,
+    render_status_card,
+    status_to_color,
+)
 
 
 def main() -> None:
     st.set_page_config(page_title="Safety Status", page_icon="S", layout="wide")
-    st.title("Safety Status")
-    st.caption("Fail-closed status board. Read-only.")
+    payload = load_safety_snapshot()
 
-    phase56 = _load_json(REPORTS / "phase56" / "latest_calibration_implementation_plan.json") or {}
-    approval55 = _load_json(REPORTS / "phase55" / "latest_calibration_approval_ledger.json") or {}
+    render_page_header(
+        "Safety Status",
+        "Fail-closed runtime and audit state for the paper-only deployment.",
+    )
 
-    kill_switch_ok = True
-    execution_guard_ok = bool(phase56.get("live_execution_allowed") is False)
-    live_guard_ok = bool(phase56.get("runtime_mutation_allowed") is False)
-    audit_ok = (DOCS / "AUDIT_VALIDATOR.md").exists()
-    safety_scan_ok = bool(approval55.get("live_execution_allowed") is False) if isinstance(approval55, dict) else False
+    st.metric("Overall Safety Posture", status_to_color(payload.get("overall_status", "unknown")))
 
-    overall_ok = all([kill_switch_ok, execution_guard_ok, live_guard_ok, audit_ok, safety_scan_ok])
-    if overall_ok:
-        st.success("Safety posture: PASS")
-    else:
-        st.error("Safety posture: FAIL")
-
-    s1, s2, s3, s4, s5 = st.columns(5)
-    s1.metric("Kill Switch State", _status(kill_switch_ok))
-    s2.metric("ExecutionGuard", _status(execution_guard_ok))
-    s3.metric("live_guard", _status(live_guard_ok))
-    s4.metric("Audit Validator", _status(audit_ok))
-    s5.metric("Safety Scan", _status(safety_scan_ok))
+    cols = st.columns(3)
+    items = list(payload.get("checks", {}).items())
+    for idx, (label, data) in enumerate(items):
+        ok, reason = data
+        status = "pass" if ok else "fail"
+        with cols[idx % 3]:
+            render_status_card(label, status, reason)
 
     st.subheader("Evidence")
-    st.json(
-        {
-            "phase56_report": str(REPORTS / "phase56" / "latest_calibration_implementation_plan.json"),
-            "phase55_report": str(REPORTS / "phase55" / "latest_calibration_approval_ledger.json"),
-            "audit_doc": str(DOCS / "AUDIT_VALIDATOR.md"),
-            "live_execution_blocked": phase56.get("live_execution_allowed") is False,
-            "runtime_mutation_blocked": phase56.get("runtime_mutation_allowed") is False,
-        }
-    )
+    rows = []
+    for key, path in payload.get("artifacts", {}).items():
+        raw = payload.get("raw", {}).get(key if key != "phase55" else "phase55")
+        rows.append(
+            {
+                "artifact": key,
+                "path": path,
+                "found": "yes" if raw is not None else "no",
+                "status": "PASS" if raw is not None else "FAIL",
+            }
+        )
+    st.dataframe(rows, use_container_width=True)
+
+    render_artifact_expander("Raw Safety Evidence", payload.get("raw"))
+    st.caption("Any missing or failed safety evidence must be treated as non-green.")
 
 
 if __name__ == "__main__":

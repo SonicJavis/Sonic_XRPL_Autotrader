@@ -21,6 +21,7 @@ class V2Config:
     audit_dir: Path = field(default_factory=lambda: Path("docs/audit"))
     research_dir: Path = field(default_factory=lambda: Path("docs/research"))
     storage_path: Path = field(default_factory=lambda: Path("data/v2.db"))
+    killswitch_db_path: Path = field(default_factory=lambda: Path("data/v2.db"))
 
 
 def load_config() -> V2Config:
@@ -33,4 +34,5 @@ def load_config() -> V2Config:
         audit_dir=Path(get_secret("SONIC_AUDIT_DIR", "docs/audit")),
         research_dir=Path(get_secret("SONIC_RESEARCH_DIR", "docs/research")),
         storage_path=Path(get_secret("SONIC_STORAGE_PATH", "data/v2.db")),
+        killswitch_db_path=Path(get_secret("SONIC_KILLSWITCH_DB_PATH", get_secret("SONIC_STORAGE_PATH", "data/v2.db"))),
     )

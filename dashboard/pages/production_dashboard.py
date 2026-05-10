@@ -1,72 +1,60 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
 import streamlit as st
 
+from dashboard.lib.artifact_formatting import normalize_display_value
+from dashboard.lib.canonical_loader import load_production_snapshot
+from dashboard.lib.ui_components import render_artifact_expander, render_kpi_card, render_page_header
 
-ROOT = Path(__file__).resolve().parents[2]
-REPORTS = ROOT / "reports"
 
+def render_production_dashboard() -> None:
+    payload = load_production_snapshot()
+    render_page_header(
+        "Production Dashboard",
+        "Read-only paper-runtime metrics from immutable report artifacts.",
+    )
 
-def _load_json(path: Path) -> dict | list | None:
-    if not path.exists():
-        return None
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return None
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        render_kpi_card("Alpha Score", payload.get("alpha_score"), helper="24h proxy")
+    with c2:
+        render_kpi_card("Risk Decisions Blocked", payload.get("risk_blocked"), helper="paper/runtime reports")
+    with c3:
+        render_kpi_card("Risk Decisions Allowed", payload.get("risk_allowed"), helper="paper/runtime reports")
+    with c4:
+        render_kpi_card("Paper PnL Attribution", payload.get("paper_pnl_attribution"), helper="paper-only attribution")
+
+    st.subheader("Signal Review Status")
+    line1, line2, line3 = st.columns(3)
+    signal_status = payload.get("signal_status")
+    has_signal = signal_status is not None
+    line1.metric("Status", normalize_display_value(signal_status))
+    line2.metric("Badge", "PAPER ONLY" if has_signal else "NO REPORT")
+    line3.metric("Lineage", "Found" if has_signal else "Missing")
+    st.caption(payload.get("signal_lineage_note", "No source-backed signal review artifact found."))
+
+    st.subheader("Artifact Availability")
+    availability = payload.get("artifact_availability", {})
+    a1, a2, a3, a4 = st.columns(4)
+    a1.metric("Signal artifact", "Found" if availability.get("signal_artifact") else "Missing")
+    a2.metric("Outcome artifact", "Found" if availability.get("outcome_artifact") else "Missing")
+    a3.metric("Calibration artifact", "Found" if availability.get("calibration_artifact") else "Missing")
+    a4.metric("Source type", normalize_display_value(availability.get("source_type")))
+
+    render_artifact_expander(
+        "Raw Signal Review Artifact",
+        payload.get("raw_signal_artifact"),
+        payload.get("raw_signal_source_path"),
+    )
+
+    st.caption(
+        "This dashboard is read-only. No execution, signing, submission, or calibration mutation is available."
+    )
 
 
 def main() -> None:
     st.set_page_config(page_title="Production Dashboard", page_icon="S", layout="wide")
-    st.title("Production Dashboard")
-    st.caption("Read-only production paper metrics from canonical report artifacts.")
-
-    market_rows = _load_json(REPORTS / "phase47" / "market_snapshot_042b75dbd2a2_20260503T121647Z.json") or {}
-    quality_rows = _load_json(REPORTS / "phase52" / "outcome_corpus_quality.json") or {}
-    signal_review = _load_json(REPORTS / "phase53" / "calibration_readiness.json") or {}
-    implementation = _load_json(REPORTS / "phase56" / "latest_calibration_implementation_plan.json") or {}
-
-    alpha_score = float(market_rows.get("aggregate_score", 0.0)) if isinstance(market_rows, dict) else 0.0
-    blocked = int(signal_review.get("blocked_count", 0)) if isinstance(signal_review, dict) else 0
-    allowed = int(signal_review.get("ready_count", 0)) if isinstance(signal_review, dict) else 0
-    paper_pnl = float(quality_rows.get("aggregate_realized_pnl", 0.0)) if isinstance(quality_rows, dict) else 0.0
-
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Alpha Score (24h proxy)", f"{alpha_score:.4f}")
-    c2.metric("Risk Decisions Blocked", str(blocked))
-    c3.metric("Risk Decisions Allowed", str(allowed))
-    c4.metric("Paper PnL Attribution", f"{paper_pnl:.4f}")
-
-    st.subheader("Signal Review Status (Phase 49-50 lineage)")
-    if signal_review:
-        st.json(signal_review)
-    else:
-        st.info("No local signal review/readiness report found.")
-
-    st.subheader("Paper Outcome Attribution")
-    if quality_rows:
-        st.json(quality_rows)
-    else:
-        st.info("No local outcome attribution report found.")
-
-    st.subheader("Phase 56 Plan Status")
-    if implementation:
-        st.json(
-            {
-                "plan_id": implementation.get("plan_id"),
-                "implementation_items": len(implementation.get("implementation_items", [])),
-                "blocked_items": len(implementation.get("blocked_items", [])),
-                "dry_run_only": implementation.get("dry_run_only"),
-                "runtime_mutation_allowed": implementation.get("runtime_mutation_allowed"),
-            }
-        )
-    else:
-        st.info("No local Phase 56 plan report found.")
-
-    st.error("No execution triggers available.")
+    render_production_dashboard()
 
 
 if __name__ == "__main__":
