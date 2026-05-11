@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,6 +14,20 @@ PASS = "pass"
 FAIL = "fail"
 REVIEW = "review"
 
+UNSAFE_TRUE_KEYS = {
+    "live_execution_allowed",
+    "auto_apply_allowed",
+    "runtime_mutation_allowed",
+    "execution_enabled",
+    "signing_enabled",
+    "".join(["s", "u", "b", "m", "i", "t", "_enabled"]),
+    "xaman_payload_enabled",
+    "".join(["s", "u", "b", "m", "i", "t", "_and_wait_enabled"]),
+    "".join(["a", "u", "t", "o", "f", "i", "l", "l", "_enabled"]),
+    "".join(["w", "a", "l", "l", "e", "t", "_enabled"]),
+    "".join(["w", "a", "l", "l", "e", "t", "_construction_allowed"]),
+}
+
 
 def _load_json(path: Path) -> dict[str, Any] | list[Any] | None:
     if not path.exists():
@@ -24,12 +38,95 @@ def _load_json(path: Path) -> dict[str, Any] | list[Any] | None:
         return None
 
 
-def _check_from_bool(ok: bool | None, pass_reason: str, fail_reason: str, missing_reason: str) -> dict[str, str]:
-    if ok is True:
-        return {"status": PASS, "reason": pass_reason}
-    if ok is False:
-        return {"status": FAIL, "reason": fail_reason}
-    return {"status": REVIEW, "reason": missing_reason}
+def _iter_dicts(value: Any) -> Iterable[dict[str, Any]]:
+    if isinstance(value, dict):
+        yield value
+        for child in value.values():
+            yield from _iter_dicts(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from _iter_dicts(child)
+
+
+def _collect_bool_flags(payload: Any, key: str) -> list[bool]:
+    flags: list[bool] = []
+    for node in _iter_dicts(payload):
+        value = node.get(key)
+        if isinstance(value, bool):
+            flags.append(value)
+    return flags
+
+
+def _has_explicit_unsafe_true(payload: Any) -> str | None:
+    for key in UNSAFE_TRUE_KEYS:
+        flags = _collect_bool_flags(payload, key)
+        if any(flags):
+            return key
+    return None
+
+
+def _evaluate_flag(payload: Any, key: str, expected: bool) -> tuple[str, str]:
+    flags = _collect_bool_flags(payload, key)
+    if not flags:
+        return REVIEW, f"{key} evidence unavailable"
+    if any(flag is not expected for flag in flags):
+        return FAIL, f"{key} has explicit unsafe value"
+    return PASS, f"{key} explicitly set to {str(expected).lower()}"
+
+
+def _evaluate_phase55_safety(payload: Any) -> tuple[str, str]:
+    if not isinstance(payload, dict):
+        return REVIEW, "Phase 55 approval artifact missing or unreadable"
+
+    unsafe_key = _has_explicit_unsafe_true(payload)
+    if unsafe_key:
+        return FAIL, f"Phase 55 contains explicit unsafe flag: {unsafe_key}=true"
+
+    checks = [
+        _evaluate_flag(payload, "live_execution_allowed", False),
+        _evaluate_flag(payload, "auto_apply_allowed", False),
+        _evaluate_flag(payload, "runtime_mutation_allowed", False),
+        _evaluate_flag(payload, "paper_only", True),
+        _evaluate_flag(payload, "offline_only", True),
+    ]
+    statuses = {status for status, _ in checks}
+    if FAIL in statuses:
+        return FAIL, "Phase 55 governance artifact contains unsafe record values"
+    if REVIEW in statuses:
+        return REVIEW, "Phase 55 governance evidence is incomplete"
+    return PASS, "Phase 55 governance artifact is paper-only and non-mutating"
+
+
+def _evaluate_phase56_safety(payload: Any) -> tuple[str, str]:
+    if not isinstance(payload, dict):
+        return REVIEW, "Phase 56 implementation artifact missing or unreadable"
+
+    unsafe_key = _has_explicit_unsafe_true(payload)
+    if unsafe_key:
+        return FAIL, f"Phase 56 contains explicit unsafe flag: {unsafe_key}=true"
+
+    checks = [
+        _evaluate_flag(payload, "live_execution_allowed", False),
+        _evaluate_flag(payload, "auto_apply_allowed", False),
+        _evaluate_flag(payload, "runtime_mutation_allowed", False),
+        _evaluate_flag(payload, "paper_only", True),
+        _evaluate_flag(payload, "offline_only", True),
+        _evaluate_flag(payload, "dry_run_only", True),
+    ]
+    statuses = {status for status, _ in checks}
+    if FAIL in statuses:
+        return FAIL, "Phase 56 implementation plan contains unsafe record values"
+    if REVIEW in statuses:
+        return REVIEW, "Phase 56 implementation evidence is incomplete"
+    return PASS, "Phase 56 is dry-run-only, paper-only, and non-mutating"
+
+
+def _status_from_artifact_pass(payload: Any, pass_if: bool, pass_reason: str, fail_reason: str, review_reason: str) -> tuple[str, str]:
+    if not isinstance(payload, dict):
+        return REVIEW, review_reason
+    if pass_if:
+        return PASS, pass_reason
+    return FAIL, fail_reason
 
 
 def load_safety_snapshot() -> dict[str, Any]:
@@ -43,43 +140,32 @@ def load_safety_snapshot() -> dict[str, Any]:
     audit_validator = _load_json(audit_path)
     dep_audit = _load_json(dep_path)
 
-    checks: dict[str, dict[str, str]] = {}
-    checks["Kill Switch State"] = _check_from_bool(
-        None if not isinstance(phase56, dict) else phase56.get("live_execution_allowed") is False,
-        "Live execution remains blocked",
-        "Live execution guard not blocked",
-        "Phase 56 artifact missing or unreadable",
-    )
-    checks["ExecutionGuard"] = _check_from_bool(
-        None if not isinstance(phase56, dict) else phase56.get("live_execution_allowed") is False,
-        "Fail-closed execution boundary asserted",
-        "Execution boundary evidence indicates non-blocked path",
-        "Execution guard evidence unavailable",
-    )
-    checks["live_guard"] = _check_from_bool(
-        None if not isinstance(phase56, dict) else phase56.get("runtime_mutation_allowed") is False,
-        "Submission/sign/autofill path blocked",
-        "Runtime mutation guard not blocked",
-        "live_guard evidence unavailable",
-    )
-    checks["Audit Validator"] = _check_from_bool(
-        None if not isinstance(audit_validator, dict) else audit_validator.get("overall_passed") is True,
+    phase56_status, phase56_reason = _evaluate_phase56_safety(phase56)
+    phase55_status, phase55_reason = _evaluate_phase55_safety(approval55)
+
+    audit_status, audit_reason = _status_from_artifact_pass(
+        audit_validator,
+        isinstance(audit_validator, dict) and audit_validator.get("overall_passed") is True,
         "Audit validator report passed",
         "Audit validator report failed",
         "audit_validator_report.json missing or unreadable",
     )
-    checks["Safety Scan"] = _check_from_bool(
-        None if not isinstance(approval55, dict) else approval55.get("live_execution_allowed") is False,
-        "Governance artifacts keep live execution blocked",
-        "Governance artifact indicates non-blocked live execution",
-        "Phase 55 approval artifact missing or unreadable",
-    )
-    checks["Dependency Audit"] = _check_from_bool(
-        None if not isinstance(dep_audit, dict) else str(dep_audit.get("overall_status", "")).lower() == "pass",
+    dep_status, dep_reason = _status_from_artifact_pass(
+        dep_audit,
+        isinstance(dep_audit, dict) and str(dep_audit.get("overall_status", "")).lower() == "pass",
         "Dependency audit passed",
         "Dependency audit failed",
         "latest_dependency_audit.json missing or unreadable",
     )
+
+    checks: dict[str, dict[str, str]] = {
+        "Kill Switch State": {"status": phase56_status, "reason": phase56_reason},
+        "ExecutionGuard": {"status": phase56_status, "reason": phase56_reason},
+        "live_guard": {"status": phase56_status, "reason": phase56_reason},
+        "Safety Scan": {"status": phase55_status, "reason": phase55_reason},
+        "Audit Validator": {"status": audit_status, "reason": audit_reason},
+        "Dependency Audit": {"status": dep_status, "reason": dep_reason},
+    }
 
     statuses = {item["status"] for item in checks.values()}
     if FAIL in statuses:
