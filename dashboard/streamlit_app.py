@@ -57,18 +57,18 @@ _LEGACY_OPERATOR_DISCLOSURES = (
 
 def _run_navigation() -> None:
     production = st.Page(
-        "dashboard/pages/production_dashboard.py",
+        "views/production_dashboard.py",
         title="Production Dashboard",
         icon=":material/monitoring:",
         default=True,
     )
     safety = st.Page(
-        "dashboard/pages/safety_status.py",
+        "views/safety_status.py",
         title="Safety Status",
         icon=":material/health_and_safety:",
     )
     governance = st.Page(
-        "dashboard/pages/governance_status.py",
+        "views/governance_status.py",
         title="Governance Status",
         icon=":material/account_tree:",
     )
@@ -79,7 +79,7 @@ def _run_navigation() -> None:
 
 def _run_legacy_fallback() -> None:
     # Fallback for environments without st.navigation/st.Page support.
-    from dashboard.pages.production_dashboard import render_production_dashboard
+    from dashboard.views.production_dashboard import render_production_dashboard
 
     st.set_page_config(page_title="Sonic XRPL Operator Dashboard", page_icon="S", layout="wide")
     render_production_dashboard()

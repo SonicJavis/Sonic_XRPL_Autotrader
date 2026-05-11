@@ -17,6 +17,8 @@ COPY app ./app
 COPY dashboard ./dashboard
 COPY scripts ./scripts
 COPY docs ./docs
+COPY reports ./reports
+COPY artifacts ./artifacts
 COPY security ./security
 
 RUN python -m pip install --no-cache-dir --upgrade pip \

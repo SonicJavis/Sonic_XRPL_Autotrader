@@ -33,3 +33,4 @@ def test_safety_loader_contract_is_read_only_snapshot() -> None:
     assert "checks" in payload
     assert "artifacts" in payload
     assert "raw" in payload
+    assert payload["overall_status"] in {"pass", "fail", "review"}

@@ -8,11 +8,13 @@ from dashboard.lib.artifact_formatting import normalize_display_value
 
 
 STATUS_COLORS = {
-    "pass": "🟢 PASS",
-    "fail": "🔴 FAIL",
-    "warn": "🟠 WARN",
-    "unknown": "⚪ UNKNOWN",
-    "unavailable": "⚪ Unavailable",
+    "pass": "PASS",
+    "fail": "FAIL",
+    "warn": "REVIEW",
+    "review": "REVIEW",
+    "unknown": "UNKNOWN",
+    "unavailable": "Unavailable",
+    "neutral": "UNKNOWN",
 }
 
 
@@ -30,7 +32,7 @@ def render_kpi_card(label: str, value: Any, helper: str | None = None, status: s
     st.metric(label, shown)
     if helper:
         st.caption(helper)
-    if status in {"pass", "fail", "warn", "unknown"}:
+    if status in {"pass", "fail", "warn", "review", "unknown"}:
         st.caption(status_to_color(status))
 
 
