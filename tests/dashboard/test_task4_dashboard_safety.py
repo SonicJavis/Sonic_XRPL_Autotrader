@@ -64,14 +64,14 @@ def test_phase55_phase56_safe_artifacts_are_pass(monkeypatch) -> None:
     dep = {"overall_status": "pass"}
 
     def fake_load(path):
-        p = str(path)
-        if p.endswith("phase55\\latest_calibration_approval_ledger.json"):
+        p = str(path).replace("\\", "/")
+        if p.endswith("phase55/latest_calibration_approval_ledger.json"):
             return safe55
-        if p.endswith("phase56\\latest_calibration_implementation_plan.json"):
+        if p.endswith("phase56/latest_calibration_implementation_plan.json"):
             return safe56
-        if p.endswith("artifacts\\audit_validator_report.json"):
+        if p.endswith("artifacts/audit_validator_report.json"):
             return audit
-        if p.endswith("docs\\audit\\latest_dependency_audit.json"):
+        if p.endswith("docs/audit/latest_dependency_audit.json"):
             return dep
         return None
 
@@ -105,14 +105,14 @@ def test_explicit_unsafe_flags_fail_hard(monkeypatch) -> None:
     dep = {"overall_status": "pass"}
 
     def fake_load(path):
-        p = str(path)
-        if p.endswith("phase55\\latest_calibration_approval_ledger.json"):
+        p = str(path).replace("\\", "/")
+        if p.endswith("phase55/latest_calibration_approval_ledger.json"):
             return unsafe55
-        if p.endswith("phase56\\latest_calibration_implementation_plan.json"):
+        if p.endswith("phase56/latest_calibration_implementation_plan.json"):
             return safe56
-        if p.endswith("artifacts\\audit_validator_report.json"):
+        if p.endswith("artifacts/audit_validator_report.json"):
             return audit
-        if p.endswith("docs\\audit\\latest_dependency_audit.json"):
+        if p.endswith("docs/audit/latest_dependency_audit.json"):
             return dep
         return None
 
