@@ -372,11 +372,24 @@ The following phase numbers have partial evidence only:
 
 ## Phase 56 - Approved Calibration Change Implementation Plan + Dry-Run Patch Pack
 
-- **Status**: Implemented on `codex/phase56-approved-calibration-implementation-plan` pending PR validation.
+- **Status**: Implemented and merged.
 - **Objective completed**: Added deterministic offline implementation planning and dry-run patch preview workflows from Phase 55 approval/change-request artifacts.
 - **Files changed**: `src/sonic_xrpl/calibration_implementation_plan/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/calibration_implementation_plan/`, Phase 56 unit/smoke/safety tests, docs, research notes, reports, and audit doc registry.
 - **Validation target**: Run targeted Phase 56 tests, CLI smoke checks, safety grep, audit validator, dependency audit, and full pytest.
 - **Safety/risk notes**: Planning-only and offline. No live data fetch, no transaction construction, no signing/submission, no threshold mutation, and no runtime configuration mutation.
 - **Accuracy notes**: Implementation items require valid IDs, strict safety flags, supported parameter names, and consistent numeric before/after/delta values. Unsupported or unsafe requests are blocked with explicit reasons.
 - **Rollback notes**: Revert the Phase 56 merge commit if needed; no DB migrations, external service setup, live config, or secrets are introduced.
-- **Next recommended step**: Phase 57 - reviewed manual implementation phase for approved calibration changes (still with live execution blocked unless explicitly authorized later).
+- **Next recommended step**: Phase 57 - runtime profile consolidation and app/V2 drift checks before any further runtime migration.
+
+---
+
+## Phase 57 - Runtime Profile Consolidation + App/V2 Drift Reduction
+
+- **Status**: Implemented and merged.
+- **Objective completed**: Added deterministic runtime profile + conformance layer to reduce app/V2/Docker safety drift without changing execution posture.
+- **Files changed**: `src/sonic_xrpl/runtime_profile/`, `src/sonic_xrpl/cli/main.py`, `tests/fixtures/runtime_profile/`, Phase 57 unit/smoke/safety tests, docs, research notes, reports, and audit doc registry.
+- **Validation target**: Run targeted Phase 57 tests, CLI checks, safety grep, audit validator, dependency audit strict, grouped tests, and full pytest.
+- **Safety/risk notes**: Read-only profile/conformance checks only. No signing, submission, autofill, wallet-material use, runtime mutation, or live enablement.
+- **Accuracy notes**: Conformance status uses strict semantics: explicit safe evidence -> PASS, missing/inconclusive evidence -> REVIEW, explicit unsafe evidence -> FAIL.
+- **Rollback notes**: Revert the Phase 57 merge commit if needed; no DB migration or runtime mutation is introduced.
+- **Next recommended step**: Phase 58 - migration execution toward unified canonical runtime ownership under V2, still fail-closed and paper-only.

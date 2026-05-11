@@ -249,6 +249,15 @@ def main(argv: list[str] | None = None) -> int:
     calibration_impl_report_parser.add_argument("--change-requests", required=True, help="Phase 55 change requests JSON")
     calibration_impl_report_parser.add_argument("--output-dir", default="reports/phase56", help="Output directory for report files")
 
+    runtime_profile_parser = subparsers.add_parser("runtime-profile", help="Show Phase 57 consolidated runtime profile")
+    runtime_profile_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
+    runtime_profile_conformance_parser = subparsers.add_parser("runtime-profile-conformance", help="Run Phase 57 runtime profile conformance checks")
+    runtime_profile_conformance_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
+    runtime_profile_report_parser = subparsers.add_parser("runtime-profile-report", help="Write Phase 57 runtime profile and conformance reports")
+    runtime_profile_report_parser.add_argument("--output-dir", default="reports/phase57", help="Output directory for report files")
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -332,6 +341,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_calibration_implementation_dry_run(args)
     if args.command == "calibration-implementation-report":
         return _cmd_calibration_implementation_report(args)
+    if args.command == "runtime-profile":
+        return _cmd_runtime_profile(args)
+    if args.command == "runtime-profile-conformance":
+        return _cmd_runtime_profile_conformance(args)
+    if args.command == "runtime-profile-report":
+        return _cmd_runtime_profile_report(args)
 
     parser.print_help()
     return 0
@@ -1293,6 +1308,76 @@ def _cmd_calibration_implementation_report(args) -> int:
     print("  Runtime mutation   : BLOCKED")
     print("  Live execution     : BLOCKED")
     print(f"  Plan ID            : {plan.plan_id}")
+    for label, path in generated.items():
+        print(f"  {label}: {path}")
+    return 0
+
+
+def _cmd_runtime_profile(args) -> int:
+    """Show Phase 57 consolidated runtime profile."""
+    from sonic_xrpl.runtime_profile.models import jsonable
+    from sonic_xrpl.runtime_profile.profiles import build_runtime_profile_snapshot
+
+    profile = build_runtime_profile_snapshot()
+    if getattr(args, "json", False):
+        import json
+
+        print(json.dumps(jsonable(profile), indent=2, sort_keys=True))
+        return 0
+    print("=== Phase 57 Runtime Profile ===")
+    print(f"  Profile            : {profile.profile_name}")
+    print(f"  Profile ID         : {profile.profile_id}")
+    print(f"  Paper-only         : {profile.paper_only}")
+    print(f"  Dry-run            : {profile.dry_run}")
+    print(f"  Execution enabled  : {profile.execution_enabled}")
+    print(f"  Live execution     : {'ALLOWED' if profile.live_execution_allowed else 'BLOCKED'}")
+    print(f"  Runtime writes     : {profile.runtime_write_policy}")
+    if profile.warnings:
+        print("  Warnings:")
+        for item in profile.warnings:
+            print(f"    - {item}")
+    if profile.limitations:
+        print("  Limitations:")
+        for item in profile.limitations:
+            print(f"    - {item}")
+    return 0
+
+
+def _cmd_runtime_profile_conformance(args) -> int:
+    """Run Phase 57 runtime profile conformance checks."""
+    from sonic_xrpl.runtime_profile.conformance import evaluate_runtime_profile_conformance
+    from sonic_xrpl.runtime_profile.models import FAIL, jsonable
+
+    report = evaluate_runtime_profile_conformance()
+    if getattr(args, "json", False):
+        import json
+
+        print(json.dumps(jsonable(report), indent=2, sort_keys=True))
+    else:
+        print("=== Phase 57 Runtime Profile Conformance ===")
+        print(f"  Status             : {report.status}")
+        for check in report.checks:
+            print(f"  - {check.check_id}: {check.status} ({check.message})")
+        if report.blockers:
+            print("  Blockers:")
+            for item in report.blockers:
+                print(f"    - {item}")
+        if report.warnings:
+            print("  Warnings:")
+            for item in report.warnings:
+                print(f"    - {item}")
+    return 1 if report.status == FAIL else 0
+
+
+def _cmd_runtime_profile_report(args) -> int:
+    """Write Phase 57 runtime profile and conformance reports."""
+    from sonic_xrpl.runtime_profile.report_writer import write_runtime_profile_reports
+
+    generated = write_runtime_profile_reports(args.output_dir)
+    print("=== Phase 57 Runtime Profile Report ===")
+    print("  Paper-only         : True")
+    print("  Runtime mutation   : BLOCKED")
+    print("  Live execution     : BLOCKED")
     for label, path in generated.items():
         print(f"  {label}: {path}")
     return 0

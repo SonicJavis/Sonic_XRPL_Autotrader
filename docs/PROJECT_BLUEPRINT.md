@@ -6,19 +6,13 @@
 
 ---
 
-## Canonical Path Decision: Pending
+## Canonical Path Decision: Resolved
 
-The project has not selected a single canonical future runtime surface. No
-runtime migration or sniper/live work until this decision is resolved + PR 4
-safety tests pass.
+The canonical future runtime surface is `src/sonic_xrpl/`.
+Decision reference: `docs/CANONICAL_PATH_DECISION.md`.
 
-### Open Runtime Options
-
-| Option | Candidate runtime surface | Decision status |
-|--------|---------------------------|-----------------|
-| Option A | Keep `app/` as canonical runtime | Pending |
-| Option B | Promote `src/sonic_xrpl/` to future canonical runtime | Pending |
-| Option C | Adapter hybrid (`app/` API shell + V2 domain logic) | Pending |
+No runtime migration or sniper/live work may proceed unless required safety
+conformance tests and audit gates remain green.
 
 ### Facts vs Inference
 
@@ -26,11 +20,10 @@ safety tests pass.
 |------|-----------|
 | Fact | `app/main.py` is current runnable API. |
 | Fact | `src/sonic_xrpl/` is V2 governance/offline stack. |
-| Inference | `src/sonic_xrpl/` is likely future target but not yet runtime canonical. |
+| Decision | `src/sonic_xrpl/` is canonical future runtime target. |
 
-Until the decision is resolved, the blueprint treats `app/`,
-`execution_prototype/`, and `src/sonic_xrpl/` as distinct surfaces and does not
-authorize runtime migration between them.
+`app/`, `execution_prototype/`, and `src/sonic_xrpl/` remain distinct surfaces
+until migration steps converge runtime ownership under V2.
 
 ---
 
@@ -211,3 +204,11 @@ approval-ledger and change-request artifacts, then writes deterministic
 implementation-plan and dry-run preview records for future manual work. It does
 not apply planned values, does not change runtime settings, and does not enable
 live execution.
+
+## Phase 57 blueprint addendum
+
+Phase 57 adds an offline runtime-profile consolidation layer under
+`src/sonic_xrpl/runtime_profile/`. It creates deterministic profile and
+conformance outputs that compare app/V2/Docker safety invariants and detect
+drift. It does not mutate runtime configuration, does not enable execution, and
+does not add signing/submission/wallet paths.

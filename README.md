@@ -23,6 +23,10 @@ The commands below describe the current runnable API and dashboard only. They do
 not authorize runtime migration, live execution, sniper-style behavior, signing,
 or transaction submission.
 
+Phase 57 adds runtime-profile consolidation and conformance reporting under
+`src/sonic_xrpl/runtime_profile/` and `reports/phase57/` to reduce app/V2 drift
+while preserving paper-only fail-closed execution boundaries.
+
 ## Legacy Freeze Status
 
 - `app/` is the current runnable legacy API/paper runtime surface.

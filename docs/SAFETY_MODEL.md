@@ -141,13 +141,13 @@ Remove-Item Env:\PYTHONPATH
 
 Live trading is blocked until **all of the following** are complete:
 
-1. Phase 56 — Live Readiness Checklist (structural verification only)
-2. Phase 57 — Security Review (external or internal security audit)
+1. Explicit live-enablement phase after Phase 57 architecture hardening
+2. Security review (external or internal security audit)
 3. Explicit user grant of permission
 4. Dedicated live execution module created under new safety gates
 5. Full re-run of audit validator and safety scan with live context
 
-This path is not implemented and is not planned until Phase 57 minimum.
+This path is not implemented and remains blocked.
 
 ## Legacy Freeze Policy (PR 3)
 
@@ -205,3 +205,14 @@ alter thresholds automatically, unlock execution, fetch live data, or add any
 transaction workflow. Every Phase 56 plan output keeps
 `dry_run_only=True`, `auto_apply_allowed=False`,
 `runtime_mutation_allowed=False`, and `live_execution_allowed=False`.
+
+## Phase 57 runtime profile consolidation safety boundary
+
+Phase 57 runtime profile consolidation is read-only and deterministic. It reads
+environment/config snapshots and writes advisory runtime-profile and conformance
+reports.
+
+It does not mutate runtime settings, does not change thresholds, does not
+unlock execution, and does not add signing/submission/wallet paths. Conformance
+checks treat explicit unsafe evidence as `FAIL`, missing evidence as `REVIEW`,
+and explicit safe evidence as `PASS`.

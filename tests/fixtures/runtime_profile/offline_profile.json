@@ -1,0 +1,7 @@
+{
+  "SONIC_RUNTIME_MODE": "offline",
+  "SONIC_DRY_RUN": "true",
+  "EXECUTION_ENABLED": "false",
+  "LIVE_TRADING_ENABLED": "false",
+  "SONIC_STORAGE_PATH": "data/v2.db"
+}

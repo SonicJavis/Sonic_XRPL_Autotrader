@@ -2,16 +2,16 @@
 
 ## Docs-First Migration Classification
 
-This roadmap is part of the docs-first migration plan. It does not resolve the
-future canonical runtime path and does not authorize runtime refactoring, live
-execution, sniper-style execution, signing, submission, wallet handling, or
-safety scanner weakening.
+This roadmap is part of the docs-first migration plan and follow-on hardening
+work. Canonical future runtime is `src/sonic_xrpl/` (`docs/CANONICAL_PATH_DECISION.md`).
+The roadmap does not authorize live execution, sniper-style execution, signing,
+submission, wallet handling, or safety scanner weakening.
 
 | Surface | Current classification | Evidence |
 |---|---|---|
-| `app/` | Current runnable FastAPI/paper-runtime surface; not declared future canonical here | `app/main.py`, `app/execution/pipeline.py`, `app/execution/execution_guard.py` |
+| `app/` | Current runnable FastAPI/paper-runtime legacy surface | `app/main.py`, `app/execution/pipeline.py`, `app/execution/execution_guard.py` |
 | `execution_prototype/` | Historical/prototype/offline workflow surface | `execution_prototype/README.md`, `execution_prototype/reconciliation/`, `execution_prototype/walk_forward_replay/` |
-| `src/sonic_xrpl/` | V2 governance/offline architecture surface introduced in Phase 45+ | `docs/PROJECT_BLUEPRINT.md`, `docs/V2_ARCHITECTURE.md`, `src/sonic_xrpl/` |
+| `src/sonic_xrpl/` | Canonical future runtime + V2 governance/offline architecture surface introduced in Phase 45+ | `docs/CANONICAL_PATH_DECISION.md`, `docs/PROJECT_BLUEPRINT.md`, `docs/V2_ARCHITECTURE.md`, `src/sonic_xrpl/` |
 
 Phase evidence for the requested Phase 1-55 migration timeline is classified in
 `docs/PHASE_LEDGER.md`. Phase 56 artifacts exist in the repository, but Phase 56
@@ -141,13 +141,13 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
-## Phase 57 - Live Readiness Checklist Only
+## Phase 57 - Runtime Profile Consolidation + App/V2 Drift Reduction
 
-- Structural verification checklist.
-- Provider connectivity tests, read-only only.
-- Amendment status verification.
-- Risk policy review.
-- No live submission enabled in this phase.
+- Add deterministic runtime-profile contracts shared across app/V2 surfaces.
+- Add profile conformance checks for execution/live flags, dry-run invariants,
+  app-V2 alignment, and Docker profile alignment.
+- Export deterministic runtime profile and conformance reports under `reports/phase57/`.
+- Keep live execution blocked and runtime mutation blocked.
 
 ---
 
