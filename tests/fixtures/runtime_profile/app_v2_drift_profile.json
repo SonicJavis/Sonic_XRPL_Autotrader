@@ -1,0 +1,7 @@
+{
+  "SONIC_RUNTIME_MODE": "paper",
+  "SONIC_DRY_RUN": "false",
+  "EXECUTION_ENABLED": "false",
+  "LIVE_TRADING_ENABLED": "false",
+  "SONIC_STORAGE_PATH": ""
+}

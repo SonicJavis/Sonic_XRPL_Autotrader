@@ -123,6 +123,12 @@ WHITELIST = {
     'No wallet or signing capability available': "Dashboard safety disclosure text",
     'No execution, signing, submission, or calibration mutation is available': "Dashboard read-only disclosure text",
     'Submission/sign/autofill path blocked': "Safety board explanation of blocked live guard path",
+    # Phase 57 runtime profile safety-contract field names (read-only conformance metadata)
+    'wallet_material_allowed': "Phase 57 runtime profile field name for blocked wallet-material policy",
+    'allows_wallet_material': "Phase 57 runtime profile capability field name (must remain false)",
+    'no_wallet_material_allowed': "Phase 57 conformance check id for wallet-material blocking",
+    'wallet material is allowed by profile': "Phase 57 conformance fail message string",
+    'wallet material remains blocked': "Phase 57 conformance pass message string",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

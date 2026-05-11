@@ -1,0 +1,96 @@
+{
+  "blockers": [],
+  "checks": [
+    {
+      "check_id": "live_trading_disabled",
+      "evidence": [
+        "env:LIVE_TRADING_ENABLED=false"
+      ],
+      "message": "Live trading remains disabled",
+      "status": "PASS"
+    },
+    {
+      "check_id": "execution_disabled",
+      "evidence": [
+        "env:EXECUTION_ENABLED=false"
+      ],
+      "message": "Execution remains disabled",
+      "status": "PASS"
+    },
+    {
+      "check_id": "dry_run_enabled_for_paper",
+      "evidence": [
+        "profile:unknown"
+      ],
+      "message": "Profile is not paper; dry-run paper check not strict",
+      "status": "REVIEW"
+    },
+    {
+      "check_id": "no_wallet_material_allowed",
+      "evidence": [
+        "profile:wallet_material_allowed=false"
+      ],
+      "message": "Wallet material remains blocked",
+      "status": "PASS"
+    },
+    {
+      "check_id": "dashboard_read_only",
+      "evidence": [
+        "profile:dashboard_mutation_allowed=false"
+      ],
+      "message": "Dashboard remains read-only",
+      "status": "PASS"
+    },
+    {
+      "check_id": "calibration_non_mutating",
+      "evidence": [
+        "profile:calibration_mutation_allowed=false"
+      ],
+      "message": "Calibration mutation remains blocked",
+      "status": "PASS"
+    },
+    {
+      "check_id": "app_v2_profile_alignment",
+      "evidence": [
+        "app:EXECUTION_ENABLED=false",
+        "app:LIVE_TRADING_ENABLED=false",
+        "v2:mode=intelligence_only",
+        "v2:dry_run=true"
+      ],
+      "message": "App and V2 align on fail-closed execution flags",
+      "status": "PASS"
+    },
+    {
+      "check_id": "docker_profile_alignment",
+      "evidence": [
+        "docker:deploy\\paper-runtime.env",
+        "LIVE_TRADING_ENABLED=false",
+        "EXECUTION_ENABLED=false",
+        "SONIC_DRY_RUN=true",
+        "SONIC_RUNTIME_MODE=paper"
+      ],
+      "message": "Docker profile aligns with paper-only fail-closed defaults",
+      "status": "PASS"
+    }
+  ],
+  "conformance_id": "rpc57_cb3f137d804abeb01ea73c95",
+  "created_at": "1970-01-01T00:00:00+00:00",
+  "drift_findings": [
+    "dry_run_enabled_for_paper:incomplete_evidence"
+  ],
+  "live_execution_allowed": false,
+  "paper_only": true,
+  "profile_name": "unknown",
+  "runtime_mutation_allowed": false,
+  "source_refs": [
+    "app/config/__init__.py",
+    "app/config/runtime_mode.py",
+    "src/sonic_xrpl/core/config.py",
+    "deploy/paper-runtime.env",
+    "docker-compose.yml"
+  ],
+  "status": "REVIEW",
+  "warnings": [
+    "dry_run_enabled_for_paper:Profile is not paper; dry-run paper check not strict"
+  ]
+}

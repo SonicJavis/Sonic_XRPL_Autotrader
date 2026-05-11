@@ -1,0 +1,48 @@
+{
+  "allows_calibration_mutation": false,
+  "allows_dashboard_mutation": false,
+  "allows_execution": false,
+  "allows_network_reads": false,
+  "allows_runtime_writes": false,
+  "allows_signing": false,
+  "allows_submission": false,
+  "allows_wallet_material": false,
+  "calibration_mutation_allowed": false,
+  "created_at": "1970-01-01T00:00:00+00:00",
+  "dashboard_mutation_allowed": false,
+  "dry_run": false,
+  "env_snapshot": {
+    "EXECUTION_ENABLED": "",
+    "LIVE_TRADING_ENABLED": "",
+    "SONIC_DRY_RUN": "",
+    "SONIC_RUNTIME_MODE": "",
+    "SONIC_STORAGE_PATH": ""
+  },
+  "execution_enabled": false,
+  "human_review_required": true,
+  "limitations": [
+    "storage_path_missing"
+  ],
+  "live_execution_allowed": false,
+  "network_read_policy": "unknown_profile_network_policy",
+  "paper_only": true,
+  "profile_id": "rp57_71fd13f7915e0266855556c7",
+  "profile_name": "unknown",
+  "requires_human_review": true,
+  "runtime_write_policy": "runtime_mutation_blocked",
+  "safety_statement": "Phase 57 runtime profile is advisory/read-only. Live execution remains blocked. No signing, submission, wallet material, dashboard mutation, or calibration mutation is allowed.",
+  "signing_allowed": false,
+  "source": "phase57_runtime_profile",
+  "source_refs": [
+    "app/config/__init__.py",
+    "app/config/runtime_mode.py",
+    "src/sonic_xrpl/core/config.py",
+    "deploy/paper-runtime.env",
+    "docker-compose.yml"
+  ],
+  "submission_allowed": false,
+  "wallet_material_allowed": false,
+  "warnings": [
+    "runtime_mode_unknown"
+  ]
+}

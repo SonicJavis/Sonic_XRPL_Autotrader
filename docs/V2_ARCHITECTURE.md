@@ -273,3 +273,12 @@ layer. It consumes Phase 55 approval-ledger and change-request artifacts, then
 creates deterministic implementation planning records plus dry-run preview
 artifacts for a future manual phase. It does not apply changes to runtime
 configuration and keeps live execution blocked.
+
+## Phase 57 runtime profile consolidation layer
+
+`src/sonic_xrpl/runtime_profile/` defines deterministic runtime profile
+contracts (`offline`, `paper`, `shadow`, `research`, `unknown`) and conformance
+checks across app settings, V2 config assumptions, and Docker defaults.
+
+This layer is read-only: it reports drift and safety status, writes JSON/Markdown
+artifacts, and does not mutate runtime configuration or enable execution.
