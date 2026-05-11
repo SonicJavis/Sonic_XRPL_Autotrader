@@ -74,7 +74,7 @@ This table classifies evidence for the requested Phase 1-55 migration timeline.
 | 36 | verified | `docs/PHASE36_7_DAY_PAPER_OPERATOR.md`, `execution_prototype/paper_operator/`, `execution_prototype/pipeline/cli.py` | Paper operator |
 | 37 | verified | `docs/PHASE37_STRATEGY_PERFORMANCE.md`, `execution_prototype/strategy_performance/` | Strategy performance |
 | 38 | verified | `docs/PHASE38_RISK_GOVERNOR.md`, `execution_prototype/risk_governor/` | Risk governor |
-| 39 | verified | `docs/PHASE39_CAMPAIGN_RUNNER_DASHBOARD.md`, `execution_prototype/campaign_runner/`, `dashboard/pages/phase39_campaign_dashboard.py` | Campaign runner/dashboard |
+| 39 | verified | `docs/PHASE39_CAMPAIGN_RUNNER_DASHBOARD.md`, `execution_prototype/campaign_runner/`, `dashboard/archive/phase39_campaign_dashboard.py` | Campaign runner/dashboard |
 | 40 | verified | `docs/PHASE40_MARKET_FIXTURES.md`, `execution_prototype/market_fixtures/` | Market fixtures |
 | 41 | verified | `docs/PHASE41_DATA_ADAPTERS.md`, `execution_prototype/data_adapters/` | Historical data adapters |
 | 42 | verified | `docs/PHASE42_BACKTEST_DATASETS.md`, `execution_prototype/backtest_datasets/` | Backtest datasets |

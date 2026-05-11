@@ -30,9 +30,11 @@ def main() -> None:
 
     st.subheader("Phase 56 Plan")
     p56 = payload.get("phase56_plan", {})
+    dry_run_text = "Yes" if p56.get("dry_run_only") is True else "Unavailable"
+    runtime_mutation_text = "Blocked" if p56.get("runtime_mutation_allowed") is False else "Unavailable"
     p1, p2, p3, p4 = st.columns(4)
-    p1.metric("Dry-run-only", normalize_display_value(p56.get("dry_run_only")))
-    p2.metric("Runtime mutation", normalize_display_value(p56.get("runtime_mutation_allowed")))
+    p1.metric("Dry-run only", dry_run_text)
+    p2.metric("Runtime mutation", runtime_mutation_text)
     p3.metric("Implementation items", normalize_display_value(p56.get("implementation_items")))
     p4.metric("Blocked items", normalize_display_value(p56.get("blocked_items")))
     st.caption(f"Plan ID: {normalize_display_value(p56.get('plan_id'))}")

@@ -512,7 +512,7 @@ def test_dashboard_optional_panel_no_crash():
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "phase39_campaign_dashboard",
-            REPO_ROOT / "dashboard" / "pages" / "phase39_campaign_dashboard.py",
+            REPO_ROOT / "dashboard" / "archive" / "phase39_campaign_dashboard.py",
         )
         # We only verify the file is parseable, not that streamlit is installed.
         assert spec is not None

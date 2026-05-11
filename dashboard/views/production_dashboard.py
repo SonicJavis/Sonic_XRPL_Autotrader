@@ -18,7 +18,13 @@ def render_production_dashboard() -> None:
     with c1:
         render_kpi_card("Alpha Score", payload.get("alpha_score"), helper="24h proxy")
     with c2:
-        render_kpi_card("Risk Decisions Blocked", payload.get("risk_blocked"), helper="paper/runtime reports")
+        blocked_value = payload.get("risk_blocked")
+        blocked_helper = "paper/runtime reports" if blocked_value is not None else "No runtime report found"
+        render_kpi_card(
+            "Risk Decisions Blocked",
+            blocked_value if blocked_value is not None else "Unknown",
+            helper=blocked_helper,
+        )
     with c3:
         render_kpi_card("Risk Decisions Allowed", payload.get("risk_allowed"), helper="paper/runtime reports")
     with c4:
@@ -27,9 +33,12 @@ def render_production_dashboard() -> None:
     st.subheader("Signal Review Status")
     line1, line2, line3 = st.columns(3)
     signal_status = payload.get("signal_status")
+    readable_status = (
+        str(signal_status).replace("_", " ").title() if signal_status not in (None, "") else "Unavailable"
+    )
     has_signal = signal_status is not None
-    line1.metric("Status", normalize_display_value(signal_status))
-    line2.metric("Badge", "PAPER ONLY" if has_signal else "NO REPORT")
+    line1.metric("Status", readable_status)
+    line2.metric("Badge", "Paper-only" if has_signal else "No report")
     line3.metric("Lineage", "Found" if has_signal else "Missing")
     st.caption(payload.get("signal_lineage_note", "No source-backed signal review artifact found."))
 

@@ -31,7 +31,7 @@ python -m execution_prototype.campaign_runner.cli \
 6. Generates `campaign_report.md`.
 
 ## The Dashboard
-The `dashboard/pages/phase39_campaign_dashboard.py` Streamlit page provides an operator-friendly visualization. It strictly reads from `campaign_dashboard_data.json` without direct access to XRPL nodes, wallets, or Xaman payloads.
+The `dashboard/archive/phase39_campaign_dashboard.py` Streamlit page provides an operator-friendly visualization. It strictly reads from `campaign_dashboard_data.json` without direct access to XRPL nodes, wallets, or Xaman payloads.
 
 It visualizes:
 - **Campaign Overview** (Trust Score, Governor Decision, Status)

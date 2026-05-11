@@ -80,6 +80,7 @@ services:
     volumes:
       - sqlite_data:/data
       - ./reports:/opt/sonic/reports:ro
+      - ./artifacts:/opt/sonic/artifacts:ro
       - ./docs:/opt/sonic/docs:ro
     restart: unless-stopped
 
