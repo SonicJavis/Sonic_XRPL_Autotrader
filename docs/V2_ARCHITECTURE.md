@@ -39,6 +39,23 @@ The safety references remain authoritative while this decision is pending:
   convergence work is in progress; changes are limited to compatibility and
   safety-preserving migration steps defined in `docs/CANONICAL_PATH_DECISION.md`.
 
+### Phase 58B Policy Guardrails
+
+Phase 58B is policy/spec hardening only and does not execute migration.
+
+- Live execution remains blocked.
+- `src/sonic_xrpl/` remains canonical future runtime target.
+- `app/` remains current runnable legacy API/paper runtime surface.
+- `execution_prototype/` remains historical/reference-only unless named tests
+  or bridge adapters explicitly use it.
+
+Authoritative policy references:
+- `docs/LIVE_READINESS_POLICY.md`
+- `docs/CANONICAL_RUNTIME_OWNERSHIP_POLICY.md`
+- `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+- `docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md`
+- `docs/POLICY_INDEX.md`
+
 Historical checkpoint label retained for audit compatibility:
 `### Legacy Surface Freeze (Pending Decision)`.
 

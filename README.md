@@ -40,6 +40,21 @@ while preserving paper-only fail-closed execution boundaries.
   All migration steps require safety conformance tests pass.
   This repository remains blocked until required safety conformance tests pass.
 
+## Phase 58B Policy / Spec Hardening
+
+Phase 58B is documentation/policy/spec hardening only.
+
+- Live trading remains blocked.
+- No signing, submission, autofill, wallet-material handling, Xaman payload
+  implementation, or FirstLedger live ingestion is authorized.
+- Runtime behavior remains unchanged and fail-closed.
+- Authoritative policy references:
+  - `docs/LIVE_READINESS_POLICY.md`
+  - `docs/CANONICAL_RUNTIME_OWNERSHIP_POLICY.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md`
+  - `docs/POLICY_INDEX.md`
+
 ## Architecture
 
 - `app/config.py`: runtime settings and safety defaults

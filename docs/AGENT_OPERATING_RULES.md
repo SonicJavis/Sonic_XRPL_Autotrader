@@ -2,7 +2,7 @@
 
 **Applies to**: All future agents working on this repository  
 **Minimum version**: Phase 45  
-**Last updated**: 2026-05-02
+**Last updated**: 2026-05-13
 
 ---
 
@@ -25,9 +25,11 @@ Failure to read these documents before coding may result in:
 
 ## Core Rules
 
-### 1. No Live Trading Without Phase 57 Completion
-Do NOT enable live trading, signing, transaction submission, or wallet construction
-until Phase 57 (Security Review) is complete AND the user grants explicit permission.
+### 1. No Live Trading Without Dedicated Live-Enablement Approval
+Do NOT enable live trading, signing, transaction submission, autofill, wallet
+construction, Xaman payload implementation, or FirstLedger live ingestion.
+Phase 58B is policy/spec hardening only; live execution remains blocked until a
+future dedicated live-enablement phase with explicit human approval.
 
 ### 2. Preserve `execution/live_guard.py`
 This file is the primary safety gate. Do NOT modify it to weaken any guard.

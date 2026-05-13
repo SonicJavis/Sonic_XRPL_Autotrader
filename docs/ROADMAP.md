@@ -166,6 +166,17 @@ and CLI. All existing tests preserved. Live trading blocked.
 - Keep all controls fail-closed and paper-only.
 - No signing, submission, autofill, wallet material handling, runtime mutation, or live enablement.
 
+### Phase 58B - Policy / Spec Hardening (Docs-Only)
+
+- Add authoritative live-readiness policy and explicit post-58 blocker gates.
+- Add canonical runtime ownership policy for `src/sonic_xrpl/`, `app/`, and
+  `execution_prototype/` boundaries.
+- Add Xaman future integration policy (design-spec-first, manual approval only).
+- Add FirstLedger future ingestion policy (evidence/provenance-first, fail-closed).
+- Add policy index and docs-check registration for Phase 58B policy docs.
+- Keep live execution blocked; no signing/submission/autofill/wallet/Xaman
+  payload implementation/FirstLedger live ingestion implementation.
+
 ---
 
 ## Roadmap Reconciliation Notes

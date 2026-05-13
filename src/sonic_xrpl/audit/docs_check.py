@@ -43,6 +43,11 @@ REQUIRED_DOCS = [
     "docs/PHASE57_RUNTIME_PROFILE_CONSOLIDATION.md",
     "docs/research/PHASE57_RUNTIME_PROFILE_CONSOLIDATION_RESEARCH.md",
     "docs/PHASE58A_SAFETY_REVIEW_TRIAGE.md",
+    "docs/LIVE_READINESS_POLICY.md",
+    "docs/CANONICAL_RUNTIME_OWNERSHIP_POLICY.md",
+    "docs/XAMAN_FUTURE_INTEGRATION_POLICY.md",
+    "docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md",
+    "docs/POLICY_INDEX.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -138,6 +143,7 @@ REQUIRED_TEST_FILES = [
     "tests/smoke/test_phase57_runtime_profile_cli.py",
     "tests/safety/test_phase57_runtime_profile_safety.py",
     "tests/safety/test_guard_critical_changes.py",
+    "tests/safety/test_phase58b_policy_docs.py",
 ]
 
 

@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-10 (Phase 1-55 migration classification)
+**Last updated**: 2026-05-13 (Phase 58B policy/spec hardening)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -411,3 +411,29 @@ The following phase numbers have partial evidence only:
 - **Safety/risk notes**: No live execution path added. No signing, submission, autofill, wallet-seed/private-key handling, Xaman payload implementation, or runtime mutation added.
 - **Rollback notes**: Revert the Phase 58A merge commit if needed; no DB migrations or live config changes are introduced.
 - **Next recommended step**: Phase 58B policy/spec hardening with conservative blocker tracking before any live-readiness work.
+
+---
+
+## Phase 58B - Policy / Spec Hardening
+
+- **Status**: Implemented (docs/policy/spec hardening only).
+- **Objective completed**: Added authoritative policy/spec documents clarifying live-readiness blocking boundaries, canonical runtime ownership, Xaman future scope, and FirstLedger future-ingestion boundaries.
+- **Files changed**:
+  - `docs/LIVE_READINESS_POLICY.md`
+  - `docs/CANONICAL_RUNTIME_OWNERSHIP_POLICY.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md`
+  - `docs/POLICY_INDEX.md`
+  - `tests/safety/test_phase58b_policy_docs.py`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/SAFETY_MODEL.md`
+  - `docs/AGENT_OPERATING_RULES.md`
+  - `docs/V2_ARCHITECTURE.md`
+- **Validation target**: Run Phase 58B policy-doc tests, safety/audit/dependency checks, CLI checks, guard-critical detector, and full pytest baseline.
+- **Safety/risk notes**: No runtime behavior change. No signing, submission, autofill, wallet-seed/private-key handling, Xaman payload implementation, FirstLedger live ingestion implementation, runtime collectors, background workers, or live strategy execution added.
+- **Rollback notes**: Revert the Phase 58B commit if needed; no database migration, live-config mutation, or execution-surface changes are introduced.
+- **Next recommended step**: Phase 58C threat-model and blocker-register formalization for future live-readiness planning (still no live execution).
