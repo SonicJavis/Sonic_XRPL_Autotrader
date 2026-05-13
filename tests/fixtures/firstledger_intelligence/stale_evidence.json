@@ -1,0 +1,25 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "fl59_stale",
+      "issuer": "rStale1111111111111111111111111111",
+      "currency": "STALE",
+      "symbol": "STALE",
+      "tx_hash": "ABC003",
+      "ledger_index": 9001203,
+      "observed_at": "2026-05-10T09:00:00Z",
+      "source_type": "fixture",
+      "source_url": "fixture://firstledger/stale_evidence",
+      "source_hash": "fixturehash_stale_003",
+      "synthetic": false,
+      "source_backed": true,
+      "source_trust_known": true,
+      "metadata_status": "validated",
+      "holder_count": 66,
+      "top_holder_ratio": 0.35,
+      "issuer_hold_ratio": 0.20,
+      "liquidity_usd": 18000,
+      "stale_hours": 96
+    }
+  ]
+}

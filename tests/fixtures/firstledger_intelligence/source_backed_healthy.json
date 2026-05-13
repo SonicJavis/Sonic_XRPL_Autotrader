@@ -1,0 +1,33 @@
+{
+  "description": "Source-backed healthy fixture for paper-only candidate review.",
+  "candidates": [
+    {
+      "candidate_id": "phase59_source_backed_healthy",
+      "issuer": "rHealthyIssuer111111111111111111111",
+      "currency": "H59",
+      "symbol": "H59",
+      "tx_hash": "A111111111111111111111111111111111111111111111111111111111111111",
+      "ledger_index": 910001,
+      "observed_at": "2026-05-13T00:00:00+00:00",
+      "source_type": "firstledger_fixture",
+      "source_url": "https://docs.firstledger.net/",
+      "source_hash": "hash_source_backed_healthy",
+      "source_backed": true,
+      "source_trust_known": true,
+      "synthetic": false,
+      "metadata_status": "validated",
+      "holder_count": 450,
+      "top_holder_ratio": 0.22,
+      "dev_hold_ratio": 0.08,
+      "issuer_hold_ratio": 0.12,
+      "liquidity_usd": 25000,
+      "freeze_enabled": false,
+      "clawback_enabled": false,
+      "same_symbol_different_issuer": false,
+      "source_conflict": false,
+      "stale_hours": 4,
+      "malformed_source_record": false,
+      "limitations": []
+    }
+  ]
+}

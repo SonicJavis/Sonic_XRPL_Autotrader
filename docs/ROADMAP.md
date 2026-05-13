@@ -189,6 +189,19 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 59 - FirstLedger Source-Backed Sniper Intelligence Expansion (Paper-Only)
+
+- Expand deterministic FirstLedger intelligence under `src/sonic_xrpl/`.
+- Require source-backed evidence for positive paper-only candidate labels.
+- Preserve fail-closed behavior for malformed, missing, stale, synthetic-only,
+  or conflicting evidence.
+- Add deterministic fixture-backed risk coverage for concentration, liquidity,
+  freeze/clawback, metadata mismatch, and symbol-collision scenarios.
+- Add offline report/view-model outputs for operator review only.
+- No live ingestion, no execution coupling, and no runtime mutation.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.

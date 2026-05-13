@@ -1,0 +1,23 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "fl59_missing_liquidity",
+      "issuer": "rMissingLiquidity1111111111111111111",
+      "currency": "NOLIQ",
+      "symbol": "NOLIQ",
+      "tx_hash": "ABC009",
+      "ledger_index": 9001209,
+      "observed_at": "2026-05-13T09:00:00Z",
+      "source_type": "fixture",
+      "source_url": "fixture://firstledger/missing_liquidity_evidence",
+      "source_hash": "fixturehash_noliq_009",
+      "synthetic": false,
+      "source_backed": true,
+      "source_trust_known": true,
+      "metadata_status": "validated",
+      "holder_count": 74,
+      "top_holder_ratio": 0.29,
+      "issuer_hold_ratio": 0.23
+    }
+  ]
+}

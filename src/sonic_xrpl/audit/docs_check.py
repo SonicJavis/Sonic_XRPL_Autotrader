@@ -50,6 +50,8 @@ REQUIRED_DOCS = [
     "docs/POLICY_INDEX.md",
     "docs/MIGRATION_SAFE_CONTROL_CHECKS.md",
     "docs/MIGRATION_READINESS_MATRIX.md",
+    "docs/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE.md",
+    "docs/research/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -91,6 +93,11 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/runtime_profile/profiles.py",
     "src/sonic_xrpl/runtime_profile/conformance.py",
     "src/sonic_xrpl/runtime_profile/report_writer.py",
+    "src/sonic_xrpl/firstledger_intelligence/models.py",
+    "src/sonic_xrpl/firstledger_intelligence/scoring.py",
+    "src/sonic_xrpl/firstledger_intelligence/rules.py",
+    "src/sonic_xrpl/firstledger_intelligence/loader.py",
+    "src/sonic_xrpl/firstledger_intelligence/reporting.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -147,6 +154,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_guard_critical_changes.py",
     "tests/safety/test_phase58b_policy_docs.py",
     "tests/safety/test_migration_safe_check.py",
+    "tests/unit/test_phase59_firstledger_intelligence.py",
+    "tests/safety/test_phase59_firstledger_safety.py",
     "scripts/migration_safe_check.py",
 ]
 

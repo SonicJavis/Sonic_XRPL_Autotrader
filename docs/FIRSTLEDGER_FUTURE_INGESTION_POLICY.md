@@ -27,3 +27,13 @@ Any future FirstLedger ingestion design must include:
 ## Safety continuity statement
 
 Phase 58B does not add runtime collectors, background workers, live ingestion adapters, or strategy execution triggers.
+
+## Phase 59 continuity note
+
+Phase 59 expands FirstLedger intelligence quality under
+`src/sonic_xrpl/firstledger_intelligence/` with deterministic fixture-backed,
+source-provenance-aware scoring and reporting only.
+
+Phase 59 does not authorize live FirstLedger ingestion, live network calls,
+order execution, signing, submission, autofill, wallet handling, or Xaman
+payload workflows.

@@ -1,0 +1,25 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "fl59_malformed",
+      "issuer": "rMalformed111111111111111111111111",
+      "currency": "MAL",
+      "symbol": "MAL",
+      "tx_hash": "ABC011",
+      "ledger_index": 9001212,
+      "observed_at": "2026-05-13T09:00:00Z",
+      "source_type": "fixture",
+      "source_url": "fixture://firstledger/malformed_source_record",
+      "source_hash": "fixturehash_malformed_011",
+      "synthetic": false,
+      "source_backed": true,
+      "source_trust_known": true,
+      "metadata_status": "validated",
+      "holder_count": 60,
+      "top_holder_ratio": 0.34,
+      "issuer_hold_ratio": 0.23,
+      "liquidity_usd": 21000,
+      "malformed_source_record": true
+    }
+  ]
+}

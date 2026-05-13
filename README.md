@@ -54,6 +54,17 @@ Phase 58C adds deterministic migration-safe control checks only.
   - `docs/MIGRATION_READINESS_MATRIX.md`
   - `scripts/migration_safe_check.py`
 
+## Phase 59 FirstLedger Intelligence Expansion
+
+Phase 59 adds deterministic FirstLedger intelligence under
+`src/sonic_xrpl/firstledger_intelligence/` using fixture-backed inputs only.
+
+- Intelligence-only, paper-only, non-executing.
+- No live FirstLedger ingestion and no network calls.
+- No signing, submission, autofill, wallet handling, or Xaman payloads.
+- Positive labels are review/paper-only labels, not execution instructions.
+- Missing or synthetic-only evidence cannot become positive qualification.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.
