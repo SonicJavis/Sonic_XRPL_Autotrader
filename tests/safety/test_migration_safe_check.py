@@ -72,6 +72,10 @@ class TestRequiredPhrases:
     def _read(self, rel: str) -> str:
         return (REPO_ROOT / rel).read_text(encoding="utf-8").lower()
 
+    def test_migration_safe_control_checks_does_not_authorize_live_trading(self) -> None:
+        text = self._read("docs/MIGRATION_SAFE_CONTROL_CHECKS.md")
+        assert "does not authorize live trading" in text
+
     def test_migration_safe_control_checks_does_not_perform_migration(self) -> None:
         text = self._read("docs/MIGRATION_SAFE_CONTROL_CHECKS.md")
         assert "does not perform runtime migration" in text
