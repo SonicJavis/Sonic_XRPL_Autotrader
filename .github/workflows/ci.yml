@@ -55,8 +55,18 @@ jobs:
       - name: Run safety_grep
         run: python scripts/safety_grep.py
 
+      - name: Fetch base branch for guard-critical diff
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}" --depth=1
+
       - name: Guard-critical changed-file scan
-        run: python scripts/guard_critical_changes.py
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python scripts/guard_critical_changes.py --base "origin/${{ github.base_ref }}" --head "HEAD"
+          else
+            python scripts/guard_critical_changes.py
+          fi
 
   audit-validator:
     name: Audit Validator

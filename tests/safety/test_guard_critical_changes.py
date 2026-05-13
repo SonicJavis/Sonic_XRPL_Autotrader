@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPTS_DIR = REPO_ROOT / "scripts"
@@ -16,6 +19,8 @@ from guard_critical_changes import (  # noqa: E402
     CRITICAL_PREFIXES,
     find_guard_critical_changes,
     is_guard_critical,
+    _run_git_diff,
+    main,
 )
 
 
@@ -55,3 +60,43 @@ def test_find_guard_critical_changes_filters_and_sorts() -> None:
         ".github/workflows/safety-gate.yml",
         "scripts/audit_validator.py",
     ]
+
+
+def test_run_git_diff_returns_files_from_three_dot() -> None:
+    with patch("guard_critical_changes.subprocess.run") as mock_run:
+        mock_run.return_value = MagicMock(returncode=0, stdout="a.py\nb.py\n", stderr="")
+        changed = _run_git_diff("origin/main", "HEAD")
+    assert changed == ["a.py", "b.py"]
+
+
+def test_run_git_diff_falls_back_to_two_dot() -> None:
+    with patch("guard_critical_changes.subprocess.run") as mock_run:
+        mock_run.side_effect = [
+            MagicMock(returncode=1, stdout="", stderr="bad three dot"),
+            MagicMock(returncode=0, stdout="c.py\n", stderr=""),
+        ]
+        changed = _run_git_diff("origin/main", "HEAD")
+    assert changed == ["c.py"]
+
+
+def test_run_git_diff_missing_base_raises_clear_error() -> None:
+    with patch("guard_critical_changes.subprocess.run") as mock_run:
+        mock_run.side_effect = [
+            MagicMock(returncode=1, stdout="", stderr="unknown revision"),
+            MagicMock(returncode=1, stdout="", stderr="unknown revision"),
+            MagicMock(returncode=0, stdout="abc refs/remotes/origin/dev\n", stderr=""),
+        ]
+        with pytest.raises(RuntimeError) as exc:
+            _run_git_diff("origin/main", "HEAD")
+    message = str(exc.value)
+    assert "base=origin/main" in message
+    assert "head=HEAD" in message
+    assert "available_refs=" in message
+    assert "suggested_fix=" in message
+
+
+def test_main_supports_base_head_aliases() -> None:
+    with patch("guard_critical_changes._run_git_diff", return_value=["README.md"]):
+        with patch.object(sys, "argv", ["guard_critical_changes.py", "--base", "origin/dev", "--head", "HEAD"]):
+            rc = main()
+    assert rc == 0

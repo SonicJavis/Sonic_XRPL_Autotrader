@@ -53,9 +53,23 @@ def _run_git_diff(base_ref: str, head_ref: str) -> list[str]:
             check=False,
         )
     if result.returncode != 0:
+        refs_result = subprocess.run(
+            ["git", "show-ref", "--heads", "--remotes"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        available_refs = refs_result.stdout.strip() or "(no refs returned by git show-ref)"
+        suggested_fix = (
+            "Fetch the base ref in CI and pass explicit refs. "
+            f"Example: git fetch origin <base>:refs/remotes/origin/<base>; "
+            f"python scripts/guard_critical_changes.py --base origin/<base> --head {head_ref}"
+        )
         raise RuntimeError(
             "Unable to compute changed files. "
-            f"base={base_ref} head={head_ref} stderr={result.stderr.strip()}"
+            f"base={base_ref} head={head_ref} stderr={result.stderr.strip()} "
+            f"available_refs={available_refs} suggested_fix={suggested_fix}"
         )
     return [line.strip().replace("\\", "/") for line in result.stdout.splitlines() if line.strip()]
 
@@ -72,8 +86,8 @@ def find_guard_critical_changes(changed_files: list[str]) -> list[str]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Detect guard-critical file changes.")
-    parser.add_argument("--base-ref", default="origin/main", help="Base git ref for diff.")
-    parser.add_argument("--head-ref", default="HEAD", help="Head git ref for diff.")
+    parser.add_argument("--base-ref", "--base", dest="base_ref", default="origin/main", help="Base git ref for diff.")
+    parser.add_argument("--head-ref", "--head", dest="head_ref", default="HEAD", help="Head git ref for diff.")
     parser.add_argument(
         "--strict",
         action="store_true",
