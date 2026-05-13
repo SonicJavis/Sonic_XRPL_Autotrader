@@ -49,3 +49,6 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m sonic_xrpl.cli.main safety-scan
+
+      - name: Migration-Safe Control Check
+        run: python scripts/migration_safe_check.py

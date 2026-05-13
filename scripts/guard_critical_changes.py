@@ -36,6 +36,9 @@ CRITICAL_FILES = {
     "docs/XAMAN_FUTURE_INTEGRATION_POLICY.md",
     "docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md",
     "docs/POLICY_INDEX.md",
+    "docs/MIGRATION_SAFE_CONTROL_CHECKS.md",
+    "docs/MIGRATION_READINESS_MATRIX.md",
+    "scripts/migration_safe_check.py",
 }
 
 

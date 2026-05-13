@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-05-13T15:44:37.257664+00:00",
+  "generated_at": "2026-05-13T17:41:20.345043+00:00",
   "phase": "48",
-  "overall_status": "pass",
+  "overall_status": "warning",
   "python_dependency_check": {
     "status": "pass",
     "passed": true,
@@ -10,9 +10,9 @@
     "exit_code": 0
   },
   "pip_audit": {
-    "status": "pass",
+    "status": "skipped",
     "passed": true,
-    "message": "pip-audit: no known vulnerabilities found.",
+    "message": "pip-audit skipped by --skip-pip-audit flag.",
     "vulnerabilities": []
   },
   "node_dependency_check": {

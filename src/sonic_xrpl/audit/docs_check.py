@@ -48,6 +48,8 @@ REQUIRED_DOCS = [
     "docs/XAMAN_FUTURE_INTEGRATION_POLICY.md",
     "docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md",
     "docs/POLICY_INDEX.md",
+    "docs/MIGRATION_SAFE_CONTROL_CHECKS.md",
+    "docs/MIGRATION_READINESS_MATRIX.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -144,6 +146,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase57_runtime_profile_safety.py",
     "tests/safety/test_guard_critical_changes.py",
     "tests/safety/test_phase58b_policy_docs.py",
+    "tests/safety/test_migration_safe_check.py",
+    "scripts/migration_safe_check.py",
 ]
 
 

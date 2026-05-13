@@ -40,6 +40,20 @@ while preserving paper-only fail-closed execution boundaries.
   All migration steps require safety conformance tests pass.
   This repository remains blocked until required safety conformance tests pass.
 
+## Phase 58C Migration-Safe Control Checks
+
+Phase 58C adds deterministic migration-safe control checks only.
+
+- Live trading remains blocked.
+- No runtime migration is performed.
+- No signing, submission, autofill, wallet-material handling, Xaman payload
+  implementation, or FirstLedger live ingestion is authorized.
+- Runtime behavior remains unchanged and fail-closed.
+- Migration-safety references:
+  - `docs/MIGRATION_SAFE_CONTROL_CHECKS.md`
+  - `docs/MIGRATION_READINESS_MATRIX.md`
+  - `scripts/migration_safe_check.py`
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.
