@@ -393,3 +393,21 @@ The following phase numbers have partial evidence only:
 - **Accuracy notes**: Conformance status uses strict semantics: explicit safe evidence -> PASS, missing/inconclusive evidence -> REVIEW, explicit unsafe evidence -> FAIL.
 - **Rollback notes**: Revert the Phase 57 merge commit if needed; no DB migration or runtime mutation is introduced.
 - **Next recommended step**: Phase 58 - migration execution toward unified canonical runtime ownership under V2, still fail-closed and paper-only.
+
+---
+
+## Phase 58A - Guard Hardening and Safety Review Triage
+
+- **Status**: Implemented (paper-only hardening scope).
+- **Objective completed**: Added explicit safety-scan REVIEW triage policy and guard-critical changed-file detection for CI-visible review.
+- **Files changed**:
+  - `docs/PHASE58A_SAFETY_REVIEW_TRIAGE.md`
+  - `scripts/guard_critical_changes.py`
+  - `tests/safety/test_guard_critical_changes.py`
+  - `.github/workflows/safety-gate.yml`
+  - `.github/workflows/ci.yml`
+  - `src/sonic_xrpl/audit/docs_check.py`
+- **Validation target**: Run Phase 58A targeted tests, safety checks, CLI safety scan, and full pytest baseline when feasible.
+- **Safety/risk notes**: No live execution path added. No signing, submission, autofill, wallet-seed/private-key handling, Xaman payload implementation, or runtime mutation added.
+- **Rollback notes**: Revert the Phase 58A merge commit if needed; no DB migrations or live config changes are introduced.
+- **Next recommended step**: Phase 58B policy/spec hardening with conservative blocker tracking before any live-readiness work.
