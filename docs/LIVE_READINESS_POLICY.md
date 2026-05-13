@@ -1,5 +1,11 @@
 # Live Readiness Policy
 
+## Phase 58C status update
+
+- Live trading remains blocked after Phase 58C.
+- Phase 58C is migration-safe control checks only and does not authorize live trading.
+- Migration-safe control policy and matrix added to block premature migration.
+
 ## Phase 58B policy status
 
 - Live trading remains blocked after Phase 58, Phase 58A, and Phase 58B.

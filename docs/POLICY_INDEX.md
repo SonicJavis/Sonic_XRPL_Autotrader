@@ -11,6 +11,8 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Xaman future integration policy: `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
 - FirstLedger future ingestion policy: `docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md`
 - Phase 58A safety-review triage policy: `docs/PHASE58A_SAFETY_REVIEW_TRIAGE.md`
+- Phase 58C migration-safe control checks policy: `docs/MIGRATION_SAFE_CONTROL_CHECKS.md`
+- Phase 58C migration readiness matrix: `docs/MIGRATION_READINESS_MATRIX.md`
 
 ## Program tracking
 

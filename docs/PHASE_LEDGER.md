@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-13 (Phase 58B policy/spec hardening)
+**Last updated**: 2026-05-13 (Phase 58C migration-safe control checks)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -436,4 +436,28 @@ The following phase numbers have partial evidence only:
 - **Validation target**: Run Phase 58B policy-doc tests, safety/audit/dependency checks, CLI checks, guard-critical detector, and full pytest baseline.
 - **Safety/risk notes**: No runtime behavior change. No signing, submission, autofill, wallet-seed/private-key handling, Xaman payload implementation, FirstLedger live ingestion implementation, runtime collectors, background workers, or live strategy execution added.
 - **Rollback notes**: Revert the Phase 58B commit if needed; no database migration, live-config mutation, or execution-surface changes are introduced.
-- **Next recommended step**: Phase 58C threat-model and blocker-register formalization for future live-readiness planning (still no live execution).
+- **Next recommended step**: Phase 58C migration-safe control checks (still no live execution).
+
+---
+
+## Phase 58C - Migration-Safe Control Checks
+
+- **Status**: Implemented (docs/scripts/tests/CI only).
+- **Objective completed**: Added authoritative migration-safe control policy, migration readiness matrix, deterministic migration-safe check script, safety tests, and CI integration.
+- **Files changed**:
+  - `docs/MIGRATION_SAFE_CONTROL_CHECKS.md`
+  - `docs/MIGRATION_READINESS_MATRIX.md`
+  - `scripts/migration_safe_check.py`
+  - `tests/safety/test_migration_safe_check.py`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `.github/workflows/safety-gate.yml`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+  - `README.md`
+- **Validation target**: Run Phase 58C targeted tests, migration-safe check script, safety/audit checks, CLI safety scan, and full pytest.
+- **Safety/risk notes**: No runtime behavior change. No signing, submission, autofill, wallet-seed/private-key handling, Xaman payload implementation, FirstLedger live ingestion, runtime collectors, background workers, or live strategy execution added. No runtime migration performed.
+- **Rollback notes**: Revert the Phase 58C merge commit if needed; no database migration, live-config mutation, or execution-surface changes are introduced.
+- **Next recommended step**: Phase 59 — FirstLedger Source-Backed Sniper Intelligence Expansion (still paper-only, still non-executing).

@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "7c13216 Phase 58A: Guard Hardening and Safety Review Triage (#63)\n38a7f1b Phase 57: consolidate runtime profiles and drift checks (#62)\n7acee83 security: update urllib3 dependency floor (#61)\n9c7350c fix: correct dashboard safety artifact interpretation (#60)\n20787e3 Merge pull request #59 from SonicJavis/production-hardening-task4-dashboard-rebuild-fix\n93c1556 fix: stabilize operator dashboard navigation and safety evidence\n6299109 Merge pull request #58 from SonicJavis/production-hardening-task4-dashboard-rebuild\n7e91954 dashboard: rebuild operator dashboard layout\n249e878 ui: separate dashboard concerns and keep read-only artifact views\n95dc0f5 feat: add Week 1 sniper foundation scaffolding",
-        "git_status": "(clean)",
-        "uncommitted_files": 0
+        "git_log": "d913b0d Phase 58B: Policy and live-readiness spec hardening (#64)\n7c13216 Phase 58A: Guard Hardening and Safety Review Triage (#63)",
+        "git_status": "M .github/workflows/safety-gate.yml\n M README.md\n M docs/LIVE_READINESS_POLICY.md\n M docs/PHASE_LEDGER.md\n M docs/POLICY_INDEX.md\n M docs/ROADMAP.md\n M scripts/guard_critical_changes.py\n M src/sonic_xrpl/audit/docs_check.py\n?? docs/MIGRATION_READINESS_MATRIX.md\n?? docs/MIGRATION_SAFE_CONTROL_CHECKS.md\n?? scripts/migration_safe_check.py\n?? tests/safety/test_migration_safe_check.py",
+        "uncommitted_files": 12
       },
       "passed": true
     },
@@ -108,7 +108,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-13T15:44:35.315515+00:00",
+  "generated_at": "2026-05-13T17:41:03.532644+00:00",
   "overall_passed": true,
   "phase": "42.2+",
   "schema_version": "1.0"

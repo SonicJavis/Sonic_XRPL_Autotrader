@@ -177,6 +177,16 @@ and CLI. All existing tests preserved. Live trading blocked.
 - Keep live execution blocked; no signing/submission/autofill/wallet/Xaman
   payload implementation/FirstLedger live ingestion implementation.
 
+### Phase 58C - Migration-Safe Control Checks (Docs/Scripts/Tests Only)
+
+- Define authoritative migration-safe control policy before any future app-to-V2 migration work.
+- Create deterministic migration readiness matrix covering all runtime surfaces.
+- Add `scripts/migration_safe_check.py` — local deterministic invariant checker.
+- Add `tests/safety/test_migration_safe_check.py` — safety tests.
+- Integrate migration-safe check into safety-gate CI workflow.
+- Register new docs/script in docs-check and guard-critical inventory.
+- No runtime migration performed. No live execution enabled.
+
 ---
 
 ## Roadmap Reconciliation Notes
