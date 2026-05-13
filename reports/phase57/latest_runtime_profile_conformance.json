@@ -63,7 +63,7 @@
     {
       "check_id": "docker_profile_alignment",
       "evidence": [
-        "docker:deploy\\paper-runtime.env",
+        "docker:deploy/paper-runtime.env",
         "LIVE_TRADING_ENABLED=false",
         "EXECUTION_ENABLED=false",
         "SONIC_DRY_RUN=true",
@@ -73,7 +73,7 @@
       "status": "PASS"
     }
   ],
-  "conformance_id": "rpc57_cb3f137d804abeb01ea73c95",
+  "conformance_id": "rpc57_f9d9d7febc971a61e4cac120",
   "created_at": "1970-01-01T00:00:00+00:00",
   "drift_findings": [
     "dry_run_enabled_for_paper:incomplete_evidence"

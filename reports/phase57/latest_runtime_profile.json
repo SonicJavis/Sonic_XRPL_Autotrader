@@ -26,7 +26,7 @@
   "live_execution_allowed": false,
   "network_read_policy": "unknown_profile_network_policy",
   "paper_only": true,
-  "profile_id": "rp57_71fd13f7915e0266855556c7",
+  "profile_id": "rp57_4ac28823ed2c10a6a2f29b8c",
   "profile_name": "unknown",
   "requires_human_review": true,
   "runtime_write_policy": "runtime_mutation_blocked",
