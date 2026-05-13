@@ -216,3 +216,19 @@ It does not mutate runtime settings, does not change thresholds, does not
 unlock execution, and does not add signing/submission/wallet paths. Conformance
 checks treat explicit unsafe evidence as `FAIL`, missing evidence as `REVIEW`,
 and explicit safe evidence as `PASS`.
+
+## Phase 58B policy/spec hardening safety boundary
+
+Phase 58B is documentation, policy, and specification hardening only.
+
+It does not authorize live execution and does not add signing, submission,
+autofill, wallet-material handling, Xaman payload creation, FirstLedger live
+ingestion, runtime mutation, or autonomous execution.
+
+Authoritative policy documents for this boundary:
+
+- `docs/LIVE_READINESS_POLICY.md`
+- `docs/CANONICAL_RUNTIME_OWNERSHIP_POLICY.md`
+- `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+- `docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md`
+- `docs/POLICY_INDEX.md`

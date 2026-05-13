@@ -27,6 +27,7 @@ from guard_critical_changes import (  # noqa: E402
 def test_known_critical_files_include_safety_scripts() -> None:
     assert "scripts/safety_grep.py" in CRITICAL_FILES
     assert "scripts/audit_validator.py" in CRITICAL_FILES
+    assert "docs/LIVE_READINESS_POLICY.md" in CRITICAL_FILES
 
 
 def test_known_critical_prefixes_include_workflows_and_execution() -> None:
