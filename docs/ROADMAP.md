@@ -159,6 +159,13 @@ and CLI. All existing tests preserved. Live trading blocked.
 - Submission path implementation may only be considered behind new safety gates.
 - First phase where live trading may be considered, and only after explicit approval.
 
+### Phase 58A - Guard Hardening and Safety Review Triage (Paper-Only)
+
+- Add explicit `REQUIRES_REVIEW` triage policy documentation for safety-scan results.
+- Add guard-critical changed-file detection in CI-visible safety checks.
+- Keep all controls fail-closed and paper-only.
+- No signing, submission, autofill, wallet material handling, runtime mutation, or live enablement.
+
 ---
 
 ## Roadmap Reconciliation Notes

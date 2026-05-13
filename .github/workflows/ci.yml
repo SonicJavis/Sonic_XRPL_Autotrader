@@ -55,6 +55,9 @@ jobs:
       - name: Run safety_grep
         run: python scripts/safety_grep.py
 
+      - name: Guard-critical changed-file scan
+        run: python scripts/guard_critical_changes.py
+
   audit-validator:
     name: Audit Validator
     runs-on: ubuntu-latest

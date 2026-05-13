@@ -32,6 +32,9 @@ jobs:
       - name: Safety Grep
         run: python scripts/safety_grep.py
 
+      - name: Guard-Critical Change Detection
+        run: python scripts/guard_critical_changes.py
+
       - name: V2 Safety Scan
         env:
           PYTHONPATH: src

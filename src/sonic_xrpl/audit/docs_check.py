@@ -42,6 +42,7 @@ REQUIRED_DOCS = [
     "docs/research/PHASE56_APPROVED_CALIBRATION_IMPLEMENTATION_PLAN_RESEARCH.md",
     "docs/PHASE57_RUNTIME_PROFILE_CONSOLIDATION.md",
     "docs/research/PHASE57_RUNTIME_PROFILE_CONSOLIDATION_RESEARCH.md",
+    "docs/PHASE58A_SAFETY_REVIEW_TRIAGE.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -136,6 +137,7 @@ REQUIRED_TEST_FILES = [
     "tests/unit/test_phase57_runtime_profile_report_writer.py",
     "tests/smoke/test_phase57_runtime_profile_cli.py",
     "tests/safety/test_phase57_runtime_profile_safety.py",
+    "tests/safety/test_guard_critical_changes.py",
 ]
 
 
