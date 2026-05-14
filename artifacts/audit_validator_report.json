@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "d5de798 Phase 58C: Migration-Safe Control Checks (#65)\nd913b0d Phase 58B: Policy and live-readiness spec hardening (#64)\n7c13216 Phase 58A: Guard Hardening and Safety Review Triage (#63)\n38a7f1b Phase 57: consolidate runtime profiles and drift checks (#62)\n7acee83 security: update urllib3 dependency floor (#61)\n9c7350c fix: correct dashboard safety artifact interpretation (#60)\n20787e3 Merge pull request #59 from SonicJavis/production-hardening-task4-dashboard-rebuild-fix\n93c1556 fix: stabilize operator dashboard navigation and safety evidence\n6299109 Merge pull request #58 from SonicJavis/production-hardening-task4-dashboard-rebuild\n7e91954 dashboard: rebuild operator dashboard layout",
-        "git_status": "M  README.md\nM  artifacts/audit_validator_report.json\nM  docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md\nA  docs/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE.md\nM  docs/PHASE_LEDGER.md\nM  docs/POLICY_INDEX.md\nM  docs/ROADMAP.md\nM  docs/audit/latest_dependency_audit.json\nM  docs/audit/latest_dependency_audit.md\nA  docs/research/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE_RESEARCH.md\nM  src/sonic_xrpl/audit/docs_check.py\nM  src/sonic_xrpl/cli/main.py\nA  src/sonic_xrpl/firstledger_intelligence/__init__.py\nA  src/sonic_xrpl/firstledger_intelligence/loader.py\nA  src/sonic_xrpl/firstledger_intelligence/models.py\nA  src/sonic_xrpl/firstledger_intelligence/reporting.py\nA  src/sonic_xrpl/firstledger_intelligence/rules.py\nA  src/sonic_xrpl/firstledger_intelligence/scoring.py\nA  tests/fixtures/firstledger_intelligence/conflicting_source_evidence.json\nA  tests/fixtures/firstledger_intelligence/freeze_clawback_risk.json\nA  tests/fixtures/firstledger_intelligence/holder_concentration_risk.json\nA  tests/fixtures/firstledger_intelligence/issuer_concentration_risk.json\nA  tests/fixtures/firstledger_intelligence/malformed_source_record.json\nA  tests/fixtures/firstledger_intelligence/metadata_mismatch.json\nA  tests/fixtures/firstledger_intelligence/missing_launch_timestamp.json\nA  tests/fixtures/firstledger_intelligence/missing_liquidity_evidence.json\nA  tests/fixtures/firstledger_intelligence/same_symbol_different_issuer.json\nA  tests/fixtures/firstledger_intelligence/source_backed_healthy.json\nA  tests/fixtures/firstledger_intelligence/stale_evidence.json\nA  tests/fixtures/firstledger_intelligence/synthetic_only.json\nA  tests/safety/test_phase59_firstledger_safety.py\nA  tests/unit/test_phase59_firstledger_intelligence.py",
-        "uncommitted_files": 32
+        "git_log": "7a0faa9 Phase 59: expand FirstLedger source-backed sniper intelligence (#66)\nd5de798 Phase 58C: Migration-Safe Control Checks (#65)\nd913b0d Phase 58B: Policy and live-readiness spec hardening (#64)\n7c13216 Phase 58A: Guard Hardening and Safety Review Triage (#63)\n38a7f1b Phase 57: consolidate runtime profiles and drift checks (#62)\n7acee83 security: update urllib3 dependency floor (#61)\n9c7350c fix: correct dashboard safety artifact interpretation (#60)\n20787e3 Merge pull request #59 from SonicJavis/production-hardening-task4-dashboard-rebuild-fix\n93c1556 fix: stabilize operator dashboard navigation and safety evidence\n6299109 Merge pull request #58 from SonicJavis/production-hardening-task4-dashboard-rebuild",
+        "git_status": "M README.md\n M docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md\n M docs/LIVE_READINESS_POLICY.md\n M docs/PHASE_LEDGER.md\n M docs/POLICY_INDEX.md\n M docs/ROADMAP.md\n M scripts/guard_critical_changes.py\n M src/sonic_xrpl/audit/docs_check.py\n M src/sonic_xrpl/cli/main.py\n?? docs/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS.md\n?? docs/research/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS_RESEARCH.md\n?? src/sonic_xrpl/paper_sniper_simulation/\n?? tests/fixtures/firstledger_intelligence/missing_holder_evidence.json\n?? tests/fixtures/paper_sniper_simulation/\n?? tests/safety/test_phase60_paper_sniper_safety.py\n?? tests/unit/test_phase60_paper_sniper_simulation.py",
+        "uncommitted_files": 16
       },
       "passed": true
     },
@@ -108,7 +108,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-13T22:03:54.286450+00:00",
+  "generated_at": "2026-05-14T11:13:52.587886+00:00",
   "overall_passed": true,
   "phase": "42.2+",
   "schema_version": "1.0"

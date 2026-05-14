@@ -47,3 +47,9 @@ Any future live-readiness phase must provide and pass all of the following:
 
 Phase 58B introduces no runtime behavior changes.
 All existing fail-closed safety boundaries remain authoritative.
+
+## Phase 60 continuity note
+
+Phase 60 adds a paper-only sniper simulation harness and does not authorize
+live ingestion, live execution, signing, submission, autofill, wallet handling,
+or Xaman payload workflows.

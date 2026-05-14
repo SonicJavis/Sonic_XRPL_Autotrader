@@ -1,0 +1,11 @@
+{
+  "intelligence_fixture": "tests/fixtures/firstledger_intelligence/source_backed_healthy.json",
+  "simulations": [
+    {
+      "candidate_id": "phase59_source_backed_healthy",
+      "entry_price_xrp": 0.0022,
+      "exit_price_xrp": 0.0024,
+      "liquidity_available_pct_assumption": 0.0
+    }
+  ]
+}

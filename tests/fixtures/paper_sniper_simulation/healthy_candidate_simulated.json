@@ -1,0 +1,15 @@
+{
+  "intelligence_fixture": "tests/fixtures/firstledger_intelligence/source_backed_healthy.json",
+  "simulations": [
+    {
+      "candidate_id": "phase59_source_backed_healthy",
+      "entry_price_xrp": 0.0024,
+      "exit_price_xrp": 0.0029,
+      "slippage_bps_assumption": 45,
+      "latency_seconds_assumption": 4,
+      "ledger_window_seconds_assumption": 10,
+      "liquidity_available_pct_assumption": 1.0,
+      "outcome_window": "15m"
+    }
+  ]
+}

@@ -14,6 +14,7 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Phase 58C migration-safe control checks policy: `docs/MIGRATION_SAFE_CONTROL_CHECKS.md`
 - Phase 58C migration readiness matrix: `docs/MIGRATION_READINESS_MATRIX.md`
 - Phase 59 FirstLedger intelligence scope: `docs/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE.md`
+- Phase 60 paper-sniper simulation scope: `docs/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS.md`
 
 ## Program tracking
 

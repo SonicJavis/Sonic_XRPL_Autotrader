@@ -65,6 +65,16 @@ Phase 59 adds deterministic FirstLedger intelligence under
 - Positive labels are review/paper-only labels, not execution instructions.
 - Missing or synthetic-only evidence cannot become positive qualification.
 
+## Phase 60 Paper-Only Sniper Simulation Harness
+
+Phase 60 adds deterministic paper-sniper simulation under
+`src/sonic_xrpl/paper_sniper_simulation/` using offline fixtures only.
+
+- Simulation-only and paper-only.
+- Explicit fill/no-fill/partial-fill/slippage/latency assumptions.
+- Rejection paths for unsafe or insufficient-evidence candidates.
+- No live ingestion, no execution path, and no wallet/signing/submission.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

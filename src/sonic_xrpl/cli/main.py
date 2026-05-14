@@ -14,6 +14,8 @@ Usage:
   python -m sonic_xrpl.cli.main firstledger-signal-report --fixture tests/fixtures/firstledger/source_backed_candidates.json --output-dir reports/phase49
   python -m sonic_xrpl.cli.main firstledger-intelligence --fixture tests/fixtures/firstledger_intelligence/source_backed_healthy.json
   python -m sonic_xrpl.cli.main firstledger-intelligence-report --fixture tests/fixtures/firstledger_intelligence/source_backed_healthy.json
+  python -m sonic_xrpl.cli.main paper-sniper-simulation --fixture tests/fixtures/paper_sniper_simulation/healthy_candidate_simulated.json
+  python -m sonic_xrpl.cli.main paper-sniper-simulation-report --fixture tests/fixtures/paper_sniper_simulation/healthy_candidate_simulated.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -173,6 +175,11 @@ def main(argv: list[str] | None = None) -> int:
     fli_parser.add_argument("--json", action="store_true", help="Output as JSON")
     flir_parser = subparsers.add_parser("firstledger-intelligence-report", help="Render Phase 59 intelligence report text")
     flir_parser.add_argument("--fixture", required=True, help="Path to FirstLedger intelligence fixture JSON")
+    pss_parser = subparsers.add_parser("paper-sniper-simulation", help="Run Phase 60 paper-only sniper simulation harness")
+    pss_parser.add_argument("--fixture", required=True, help="Path to paper-sniper simulation fixture JSON")
+    pss_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    pssr_parser = subparsers.add_parser("paper-sniper-simulation-report", help="Render Phase 60 paper-sniper simulation markdown summary")
+    pssr_parser.add_argument("--fixture", required=True, help="Path to paper-sniper simulation fixture JSON")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -309,6 +316,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_firstledger_intelligence(args)
     if args.command == "firstledger-intelligence-report":
         return _cmd_firstledger_intelligence_report(args)
+    if args.command == "paper-sniper-simulation":
+        return _cmd_paper_sniper_simulation(args)
+    if args.command == "paper-sniper-simulation-report":
+        return _cmd_paper_sniper_simulation_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -925,6 +936,50 @@ def _cmd_firstledger_intelligence_report(args) -> int:
 
     results = _phase59_intelligence(args)
     print(render_intelligence_markdown(results))
+    return 0
+
+
+def _phase60_paper_sniper(args):
+    from sonic_xrpl.paper_sniper_simulation import load_paper_sniper_batch, run_paper_sniper_simulation
+
+    return run_paper_sniper_simulation(load_paper_sniper_batch(args.fixture))
+
+
+def _cmd_paper_sniper_simulation(args) -> int:
+    """Run Phase 60 paper-only sniper simulation harness."""
+    from sonic_xrpl.paper_sniper_simulation.reporting import render_paper_sniper_report_json
+
+    report = _phase60_paper_sniper(args)
+    if getattr(args, "json", False):
+        print(render_paper_sniper_report_json(report))
+        return 0
+
+    print("=== Phase 60 Paper Sniper Simulation ===")
+    print("  Offline            : True")
+    print("  Paper-only         : True")
+    print("  Non-executing      : True")
+    print("  Investment advice  : BLOCKED")
+    print("  Live execution     : BLOCKED")
+    print(f"  Total candidates   : {report.total_candidates}")
+    print(f"  Simulated          : {report.simulated_candidates}")
+    print(f"  Rejected           : {report.rejected_candidates}")
+    print(f"  No-fill            : {report.no_fill_candidates}")
+    print(f"  Partial-fill       : {report.partial_fill_candidates}")
+    for item in report.results:
+        print(
+            f"  - {item.candidate_id}: {item.simulation_decision.value} "
+            f"fill={item.fill_assumption.label.value} "
+            f"paper_only={item.paper_only} live_execution_allowed={item.live_execution_allowed}"
+        )
+    return 0
+
+
+def _cmd_paper_sniper_simulation_report(args) -> int:
+    """Render Phase 60 paper-sniper simulation markdown text."""
+    from sonic_xrpl.paper_sniper_simulation.reporting import render_paper_sniper_report_markdown
+
+    report = _phase60_paper_sniper(args)
+    print(render_paper_sniper_report_markdown(report))
     return 0
 
 

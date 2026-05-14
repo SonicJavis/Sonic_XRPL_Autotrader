@@ -1,0 +1,11 @@
+{
+  "intelligence_fixture": "tests/fixtures/firstledger_intelligence/synthetic_only.json",
+  "simulations": [
+    {
+      "candidate_id": "fl59_synth_only",
+      "entry_price_xrp": 0.001,
+      "exit_price_xrp": 0.0012,
+      "liquidity_available_pct_assumption": 1.0
+    }
+  ]
+}
