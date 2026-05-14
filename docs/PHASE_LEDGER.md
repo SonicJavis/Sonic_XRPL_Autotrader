@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-13 (Phase 58C migration-safe control checks)
+**Last updated**: 2026-05-13 (Phase 59 FirstLedger intelligence expansion)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -461,3 +461,37 @@ The following phase numbers have partial evidence only:
 - **Safety/risk notes**: No runtime behavior change. No signing, submission, autofill, wallet-seed/private-key handling, Xaman payload implementation, FirstLedger live ingestion, runtime collectors, background workers, or live strategy execution added. No runtime migration performed.
 - **Rollback notes**: Revert the Phase 58C merge commit if needed; no database migration, live-config mutation, or execution-surface changes are introduced.
 - **Next recommended step**: Phase 59 — FirstLedger Source-Backed Sniper Intelligence Expansion (still paper-only, still non-executing).
+
+---
+
+## Phase 59 - FirstLedger Source-Backed Sniper Intelligence Expansion
+
+- **Status**: Implemented (paper-only intelligence scope).
+- **Objective completed**: Added deterministic, fixture-backed FirstLedger
+  intelligence models, risk features, confidence scoring, fail-closed
+  classification rules, and report view models under canonical V2.
+- **Files changed**:
+  - `src/sonic_xrpl/firstledger_intelligence/`
+  - `tests/fixtures/firstledger_intelligence/`
+  - `tests/unit/test_phase59_firstledger_intelligence.py`
+  - `tests/safety/test_phase59_firstledger_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE.md`
+  - `docs/research/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md`
+- **Validation target**: Run Phase 59 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety scan, runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No live ingestion, no live execution enablement, no
+  signing/submission/autofill/wallet handling, no Xaman payload workflows, no
+  background workers, and no runtime mutation.
+- **Accuracy notes**: Missing evidence stays explicit; synthetic-only evidence
+  cannot become positive paper-only qualification; same-symbol/different-issuer
+  records are preserved as distinct candidates.
+- **Rollback notes**: Revert the Phase 59 merge commit if needed; no DB
+  migrations, live config changes, or execution-surface mutation introduced.
+- **Next recommended step**: Phase 60 - Paper-Only Sniper Simulation Harness.

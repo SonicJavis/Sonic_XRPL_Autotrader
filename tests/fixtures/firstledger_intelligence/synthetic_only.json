@@ -1,0 +1,24 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "fl59_synth_only",
+      "issuer": "rSynthIssuer111111111111111111111111",
+      "currency": "SYNTH",
+      "symbol": "SYNTH",
+      "tx_hash": "ABC001",
+      "ledger_index": 9001201,
+      "observed_at": "2026-05-13T09:00:00Z",
+      "source_type": "fixture",
+      "source_url": "fixture://firstledger/synthetic_only",
+      "source_hash": "fixturehash_synth_001",
+      "synthetic": true,
+      "source_backed": false,
+      "source_trust_known": false,
+      "metadata_status": "validated",
+      "holder_count": 45,
+      "top_holder_ratio": 0.31,
+      "issuer_hold_ratio": 0.22,
+      "liquidity_usd": 22000
+    }
+  ]
+}

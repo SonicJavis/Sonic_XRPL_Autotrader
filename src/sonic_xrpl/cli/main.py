@@ -12,6 +12,8 @@ Usage:
   python -m sonic_xrpl.cli.main market-snapshot-report --path tests/fixtures/xrpl
   python -m sonic_xrpl.cli.main firstledger-signals --fixture tests/fixtures/firstledger/source_backed_candidates.json
   python -m sonic_xrpl.cli.main firstledger-signal-report --fixture tests/fixtures/firstledger/source_backed_candidates.json --output-dir reports/phase49
+  python -m sonic_xrpl.cli.main firstledger-intelligence --fixture tests/fixtures/firstledger_intelligence/source_backed_healthy.json
+  python -m sonic_xrpl.cli.main firstledger-intelligence-report --fixture tests/fixtures/firstledger_intelligence/source_backed_healthy.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -166,6 +168,11 @@ def main(argv: list[str] | None = None) -> int:
     flr_parser = subparsers.add_parser("firstledger-signal-report", help="Write offline FirstLedger signal reports")
     flr_parser.add_argument("--fixture", required=True, help="Path to FirstLedger candidate fixture JSON")
     flr_parser.add_argument("--output-dir", required=True, help="Output directory for report files")
+    fli_parser = subparsers.add_parser("firstledger-intelligence", help="Build Phase 59 offline FirstLedger intelligence verdicts")
+    fli_parser.add_argument("--fixture", required=True, help="Path to FirstLedger intelligence fixture JSON")
+    fli_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    flir_parser = subparsers.add_parser("firstledger-intelligence-report", help="Render Phase 59 intelligence report text")
+    flir_parser.add_argument("--fixture", required=True, help="Path to FirstLedger intelligence fixture JSON")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -298,6 +305,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_firstledger_signals(args)
     if args.command == "firstledger-signal-report":
         return _cmd_firstledger_signal_report(args)
+    if args.command == "firstledger-intelligence":
+        return _cmd_firstledger_intelligence(args)
+    if args.command == "firstledger-intelligence-report":
+        return _cmd_firstledger_intelligence_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -873,6 +884,49 @@ def _cmd_firstledger_signal_report(args) -> int:
     print(f"  JSON report      : {json_path}")
     print(f"  Summary          : {md_path}")
     return 0
+
+
+def _phase59_intelligence(args):
+    from sonic_xrpl.firstledger_intelligence import (
+        build_intelligence_results,
+        load_firstledger_intelligence_inputs,
+    )
+
+    inputs = load_firstledger_intelligence_inputs(args.fixture)
+    return build_intelligence_results(inputs)
+
+
+def _cmd_firstledger_intelligence(args) -> int:
+    """Build Phase 59 FirstLedger intelligence verdicts (offline only)."""
+    from sonic_xrpl.firstledger_intelligence.reporting import report_to_json_text
+
+    results = _phase59_intelligence(args)
+    if getattr(args, "json", False):
+        print(report_to_json_text(results))
+        return 0
+
+    print("=== Phase 59 FirstLedger Intelligence ===")
+    print("  Offline           : True")
+    print("  Paper-only        : True")
+    print("  Non-executing     : True")
+    print("  Live execution    : BLOCKED")
+    for item in results:
+        print(
+            f"  - {item.candidate_id}: {item.verdict.value} "
+            f"confidence={item.confidence.score}/100 "
+            f"paper_only={item.paper_only} live_execution_allowed={item.live_execution_allowed}"
+        )
+    return 0
+
+
+def _cmd_firstledger_intelligence_report(args) -> int:
+    """Render Phase 59 FirstLedger intelligence markdown report text."""
+    from sonic_xrpl.firstledger_intelligence.reporting import render_intelligence_markdown
+
+    results = _phase59_intelligence(args)
+    print(render_intelligence_markdown(results))
+    return 0
+
 
 def _cmd_signal_review(args) -> int:
     """Run Phase 50 signal review from Phase 49 fixtures (offline)."""

@@ -1,0 +1,26 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "fl59_freeze_clawback",
+      "issuer": "rFreezeRisk111111111111111111111111",
+      "currency": "FRZ",
+      "symbol": "FRZ",
+      "tx_hash": "ABC006",
+      "ledger_index": 9001206,
+      "observed_at": "2026-05-13T09:00:00Z",
+      "source_type": "fixture",
+      "source_url": "fixture://firstledger/freeze_clawback_risk",
+      "source_hash": "fixturehash_freeze_006",
+      "synthetic": false,
+      "source_backed": true,
+      "source_trust_known": true,
+      "metadata_status": "validated",
+      "holder_count": 95,
+      "top_holder_ratio": 0.28,
+      "issuer_hold_ratio": 0.24,
+      "liquidity_usd": 50000,
+      "freeze_enabled": true,
+      "clawback_enabled": true
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "fl59_symbol_collision_a",
+      "issuer": "rSymbolIssuerA111111111111111111111",
+      "currency": "SAME",
+      "symbol": "SAME",
+      "tx_hash": "ABC010A",
+      "ledger_index": 9001210,
+      "observed_at": "2026-05-13T09:00:00Z",
+      "source_type": "fixture",
+      "source_url": "fixture://firstledger/same_symbol_different_issuer/a",
+      "source_hash": "fixturehash_same_a_010",
+      "synthetic": false,
+      "source_backed": true,
+      "source_trust_known": true,
+      "metadata_status": "validated",
+      "holder_count": 55,
+      "top_holder_ratio": 0.39,
+      "issuer_hold_ratio": 0.25,
+      "liquidity_usd": 12500,
+      "same_symbol_different_issuer": true
+    },
+    {
+      "candidate_id": "fl59_symbol_collision_b",
+      "issuer": "rSymbolIssuerB111111111111111111111",
+      "currency": "SAME",
+      "symbol": "SAME",
+      "tx_hash": "ABC010B",
+      "ledger_index": 9001211,
+      "observed_at": "2026-05-13T09:00:00Z",
+      "source_type": "fixture",
+      "source_url": "fixture://firstledger/same_symbol_different_issuer/b",
+      "source_hash": "fixturehash_same_b_010",
+      "synthetic": false,
+      "source_backed": true,
+      "source_trust_known": true,
+      "metadata_status": "validated",
+      "holder_count": 57,
+      "top_holder_ratio": 0.36,
+      "issuer_hold_ratio": 0.27,
+      "liquidity_usd": 14000,
+      "same_symbol_different_issuer": true
+    }
+  ]
+}
