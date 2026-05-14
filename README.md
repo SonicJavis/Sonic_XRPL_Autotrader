@@ -134,6 +134,18 @@ fixtures only.
   writes, callback runtime, payload/API/signing/submission/wallet handling,
   and testnet/live execution.
 
+## Phase 66 Xaman Operator Consent UX Contract Spec
+
+Phase 66 adds deterministic operator consent UX contract design outputs under
+`src/sonic_xrpl/xaman_operator_consent_ux_spec/` using offline fixtures only.
+
+- Spec-only and non-executing.
+- Defines required disclosures, acknowledgement contracts, confirmation phrase
+  requirements, and rejection/cancellation requirements.
+- Explicitly blocks UI implementation, API/runtime services, persistence/DB
+  writes, callback runtime, payload/API/signing/submission/wallet handling,
+  and testnet/live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

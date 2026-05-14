@@ -77,3 +77,13 @@ Phase 65 does not implement runtime state-machine execution, persistence,
 database writes, callback runtime, API routes, payload creation, Xaman API
 calls, SDK dependencies, signing, submission, autofill, wallet material
 handling, testnet execution, or mainnet execution.
+
+## Phase 66 continuity note
+
+Phase 66 adds operator-consent UX contract design outputs only under
+`src/sonic_xrpl/xaman_operator_consent_ux_spec/`.
+
+Phase 66 does not implement UI screens, dashboard routes, API routes, runtime
+consent services, persistence/database writes, callback runtime, payload
+creation, Xaman API calls, SDK dependencies, signing, submission, autofill,
+wallet material handling, testnet execution, or mainnet execution.

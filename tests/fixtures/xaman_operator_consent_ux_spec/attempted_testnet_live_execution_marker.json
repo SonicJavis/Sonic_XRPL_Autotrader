@@ -1,0 +1,23 @@
+﻿{
+    "has_no_live_execution_disclosure":  true,
+    "has_confirmation_phrase_requirement":  true,
+    "attempted_wallet_material_marker":  false,
+    "fixture_id":  "attempted_testnet_live_execution_marker",
+    "attempted_ui_implementation_marker":  false,
+    "has_signing_submission_unavailable_disclosure":  true,
+    "has_payload_not_created_disclosure":  true,
+    "attempted_payload_creation_marker":  false,
+    "has_stale_missing_evidence_disclosure":  true,
+    "has_risk_disclosure":  true,
+    "attempted_api_route_marker":  false,
+    "has_operator_acknowledgement":  true,
+    "candidate_id":  "cand_phase66_001",
+    "has_paper_simulation_assumption_section":  true,
+    "attempted_testnet_live_execution_marker":  true,
+    "attempted_signing_submission_marker":  false,
+    "invalid_auto_approval_marker":  false,
+    "has_source_provenance_section":  true,
+    "has_no_wallet_material_disclosure":  true,
+    "invalid_one_click_execution_marker":  false,
+    "attempted_xaman_api_marker":  false
+}

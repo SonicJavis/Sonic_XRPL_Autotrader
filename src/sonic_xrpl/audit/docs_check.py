@@ -64,6 +64,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE64_XAMAN_AUDIT_IDEMPOTENCY_STORE_SPEC_RESEARCH.md",
     "docs/PHASE65_XAMAN_APPROVAL_STATE_MACHINE_SPEC.md",
     "docs/research/PHASE65_XAMAN_APPROVAL_STATE_MACHINE_SPEC_RESEARCH.md",
+    "docs/PHASE66_XAMAN_OPERATOR_CONSENT_UX_SPEC.md",
+    "docs/research/PHASE66_XAMAN_OPERATOR_CONSENT_UX_SPEC_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -141,6 +143,12 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/xaman_approval_state_machine_spec/validation.py",
     "src/sonic_xrpl/xaman_approval_state_machine_spec/reporting.py",
     "src/sonic_xrpl/xaman_approval_state_machine_spec/loader.py",
+    "src/sonic_xrpl/xaman_operator_consent_ux_spec/models.py",
+    "src/sonic_xrpl/xaman_operator_consent_ux_spec/contracts.py",
+    "src/sonic_xrpl/xaman_operator_consent_ux_spec/copy_requirements.py",
+    "src/sonic_xrpl/xaman_operator_consent_ux_spec/validation.py",
+    "src/sonic_xrpl/xaman_operator_consent_ux_spec/reporting.py",
+    "src/sonic_xrpl/xaman_operator_consent_ux_spec/loader.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -211,6 +219,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase64_xaman_audit_idempotency_safety.py",
     "tests/unit/test_phase65_xaman_approval_state_machine_spec.py",
     "tests/safety/test_phase65_xaman_approval_state_machine_safety.py",
+    "tests/unit/test_phase66_xaman_operator_consent_ux_spec.py",
+    "tests/safety/test_phase66_xaman_operator_consent_ux_safety.py",
     "scripts/migration_safe_check.py",
 ]
 
