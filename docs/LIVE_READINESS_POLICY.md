@@ -66,3 +66,10 @@ Phase 62 adds a design-review-only Xaman testnet payload schema and
 verification layer and does not authorize payload creation, Xaman API calls,
 signing, submission, autofill, wallet handling, testnet execution, or mainnet
 live execution.
+
+## Phase 63 continuity note
+
+Phase 63 adds a callback-authenticity and replay-verification design layer and
+does not authorize callback handlers, webhook runtime verification, API routes,
+payload creation, Xaman API calls, signing, submission, autofill, wallet
+handling, testnet execution, or mainnet live execution.

@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-14 (Phase 62 Xaman testnet payload schema review)
+**Last updated**: 2026-05-14 (Phase 63 Xaman callback replay verification spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -604,3 +604,40 @@ The following phase numbers have partial evidence only:
   migrations, live config changes, or execution-surface mutation introduced.
 - **Next recommended step**: Phase 63 - Xaman callback authenticity and replay
   verification implementation design preflight (still non-executing).
+
+---
+
+## Phase 63 - Xaman Testnet Callback Authenticity + Replay Verification Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic callback authenticity and replay
+  verification design-spec contracts with explicit fail-closed blockers.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_callback_verification_spec/`
+  - `tests/fixtures/xaman_callback_verification_spec/`
+  - `tests/unit/test_phase63_xaman_callback_verification_spec.py`
+  - `tests/safety/test_phase63_xaman_callback_verification_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE63_XAMAN_CALLBACK_REPLAY_VERIFICATION_SPEC.md`
+  - `docs/research/PHASE63_XAMAN_CALLBACK_REPLAY_VERIFICATION_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 63 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No callback handlers, no webhook runtime verification,
+  no API routes, no payload creation, no Xaman API calls/SDK additions, no
+  signing/submission/autofill/wallet handling, no testnet execution, and no
+  live execution.
+- **Accuracy notes**: Callback authenticity, nonce/TTL/replay, and idempotency
+  outputs remain design-checklists only; runtime implementation remains blocked.
+- **Rollback notes**: Revert the Phase 63 merge commit if needed; no DB
+  migrations, live config changes, or execution-surface mutation introduced.
+- **Next recommended step**: Phase 64 - Xaman testnet callback persistence and
+  idempotency storage design review (still non-executing/spec-only).
