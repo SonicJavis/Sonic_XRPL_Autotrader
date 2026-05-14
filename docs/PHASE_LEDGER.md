@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-13 (Phase 59 FirstLedger intelligence expansion)
+**Last updated**: 2026-05-14 (Phase 60 paper-only sniper simulation harness)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -495,3 +495,39 @@ The following phase numbers have partial evidence only:
 - **Rollback notes**: Revert the Phase 59 merge commit if needed; no DB
   migrations, live config changes, or execution-surface mutation introduced.
 - **Next recommended step**: Phase 60 - Paper-Only Sniper Simulation Harness.
+
+---
+
+## Phase 60 - Paper-Only Sniper Simulation Harness
+
+- **Status**: Implemented (paper-only simulation scope).
+- **Objective completed**: Added deterministic fixture-backed paper-sniper
+  simulation models, reject/fail-closed rules, fill/no-fill/partial-fill
+  assumptions, and report view models under canonical V2.
+- **Files changed**:
+  - `src/sonic_xrpl/paper_sniper_simulation/`
+  - `tests/fixtures/paper_sniper_simulation/`
+  - `tests/unit/test_phase60_paper_sniper_simulation.py`
+  - `tests/safety/test_phase60_paper_sniper_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS.md`
+  - `docs/research/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md`
+- **Validation target**: Run Phase 60 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety scan/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No live ingestion, no live execution enablement, no
+  signing/submission/autofill/wallet handling, no Xaman payload workflows, no
+  background workers, and no runtime mutation.
+- **Accuracy notes**: Simulation fills and outcomes are assumptions only;
+  rejected candidates fail closed; same-symbol/different-issuer records remain
+  separate.
+- **Rollback notes**: Revert the Phase 60 merge commit if needed; no DB
+  migrations, live config changes, or execution-surface mutation introduced.
+- **Next recommended step**: Phase 61 - Xaman Manual Approval Design Spec Only.

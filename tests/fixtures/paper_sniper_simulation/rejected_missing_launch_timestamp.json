@@ -1,0 +1,11 @@
+{
+  "intelligence_fixture": "tests/fixtures/firstledger_intelligence/missing_launch_timestamp.json",
+  "simulations": [
+    {
+      "candidate_id": "fl59_missing_time",
+      "entry_price_xrp": 0.001,
+      "exit_price_xrp": 0.0014,
+      "liquidity_available_pct_assumption": 1.0
+    }
+  ]
+}

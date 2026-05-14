@@ -52,6 +52,8 @@ REQUIRED_DOCS = [
     "docs/MIGRATION_READINESS_MATRIX.md",
     "docs/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE.md",
     "docs/research/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE_RESEARCH.md",
+    "docs/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS.md",
+    "docs/research/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -98,6 +100,11 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/firstledger_intelligence/rules.py",
     "src/sonic_xrpl/firstledger_intelligence/loader.py",
     "src/sonic_xrpl/firstledger_intelligence/reporting.py",
+    "src/sonic_xrpl/paper_sniper_simulation/models.py",
+    "src/sonic_xrpl/paper_sniper_simulation/loader.py",
+    "src/sonic_xrpl/paper_sniper_simulation/rules.py",
+    "src/sonic_xrpl/paper_sniper_simulation/simulation.py",
+    "src/sonic_xrpl/paper_sniper_simulation/reporting.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -156,6 +163,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_migration_safe_check.py",
     "tests/unit/test_phase59_firstledger_intelligence.py",
     "tests/safety/test_phase59_firstledger_safety.py",
+    "tests/unit/test_phase60_paper_sniper_simulation.py",
+    "tests/safety/test_phase60_paper_sniper_safety.py",
     "scripts/migration_safe_check.py",
 ]
 

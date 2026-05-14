@@ -37,3 +37,13 @@ source-provenance-aware scoring and reporting only.
 Phase 59 does not authorize live FirstLedger ingestion, live network calls,
 order execution, signing, submission, autofill, wallet handling, or Xaman
 payload workflows.
+
+## Phase 60 continuity note
+
+Phase 60 adds paper-only sniper simulation under
+`src/sonic_xrpl/paper_sniper_simulation/` using deterministic fixtures and
+explicit assumptions.
+
+Phase 60 does not authorize live FirstLedger ingestion, network collectors,
+order execution, signing, submission, autofill, wallet handling, or Xaman
+payload workflows.

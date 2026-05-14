@@ -202,6 +202,17 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 60 - Paper-Only Sniper Simulation Harness
+
+- Consume Phase 59 intelligence outputs with deterministic fixture-backed inputs.
+- Simulate paper-only entry/exit outcomes with explicit assumptions:
+  no-fill, partial-fill, slippage, latency, and ledger-window constraints.
+- Reject unsafe or insufficient-evidence candidates with fail-closed reasons.
+- Keep all simulation output advisory and non-executing.
+- No live ingestion, no order placement, and no runtime mutation.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.

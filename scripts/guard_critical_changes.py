@@ -39,6 +39,7 @@ CRITICAL_FILES = {
     "docs/MIGRATION_SAFE_CONTROL_CHECKS.md",
     "docs/MIGRATION_READINESS_MATRIX.md",
     "scripts/migration_safe_check.py",
+    "docs/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS.md",
 }
 
 

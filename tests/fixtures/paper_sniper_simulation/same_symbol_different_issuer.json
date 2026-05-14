@@ -1,0 +1,19 @@
+{
+  "intelligence_fixture": "tests/fixtures/firstledger_intelligence/same_symbol_different_issuer.json",
+  "simulations": [
+    {
+      "candidate_id": "fl59_symbol_collision_a",
+      "entry_price_xrp": 0.0013,
+      "exit_price_xrp": 0.0015,
+      "allow_watch_entry": true,
+      "liquidity_available_pct_assumption": 1.0
+    },
+    {
+      "candidate_id": "fl59_symbol_collision_b",
+      "entry_price_xrp": 0.002,
+      "exit_price_xrp": 0.0018,
+      "allow_watch_entry": true,
+      "liquidity_available_pct_assumption": 1.0
+    }
+  ]
+}

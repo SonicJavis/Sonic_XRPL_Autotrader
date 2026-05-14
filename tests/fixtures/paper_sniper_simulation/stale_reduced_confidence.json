@@ -1,0 +1,13 @@
+{
+  "intelligence_fixture": "tests/fixtures/firstledger_intelligence/stale_evidence.json",
+  "simulations": [
+    {
+      "candidate_id": "fl59_stale",
+      "allow_watch_entry": true,
+      "stale_policy": "reduce_confidence",
+      "entry_price_xrp": 0.0009,
+      "exit_price_xrp": 0.0011,
+      "liquidity_available_pct_assumption": 1.0
+    }
+  ]
+}

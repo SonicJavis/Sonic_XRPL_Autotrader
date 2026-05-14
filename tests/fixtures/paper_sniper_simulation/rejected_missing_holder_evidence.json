@@ -1,0 +1,11 @@
+{
+  "intelligence_fixture": "tests/fixtures/firstledger_intelligence/missing_holder_evidence.json",
+  "simulations": [
+    {
+      "candidate_id": "fl59_missing_holder",
+      "entry_price_xrp": 0.0015,
+      "exit_price_xrp": 0.0018,
+      "liquidity_available_pct_assumption": 1.0
+    }
+  ]
+}
