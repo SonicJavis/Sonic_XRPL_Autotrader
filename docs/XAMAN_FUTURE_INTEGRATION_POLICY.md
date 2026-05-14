@@ -57,3 +57,13 @@ Phase 63 does not add callback handlers, webhook runtime verification, API
 routes, payload creation, Xaman API calls, SDK dependencies, signing,
 submission, autofill, wallet material handling, testnet execution, or mainnet
 execution.
+
+## Phase 64 continuity note
+
+Phase 64 adds audit-trail and idempotency-store design contracts only under
+`src/sonic_xrpl/xaman_audit_idempotency_spec/`.
+
+Phase 64 does not implement persistence, database writes, callback runtime,
+API routes, payload creation, Xaman API calls, SDK dependencies, signing,
+submission, autofill, wallet material handling, testnet execution, or mainnet
+execution.

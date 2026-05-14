@@ -251,6 +251,21 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 64 - Xaman Testnet Audit Trail + Idempotency Store Design Spec
+
+- Define deterministic audit-trail and idempotency-store contracts.
+- Define callback event envelope bindings, idempotency key derivation, conflict
+  policy, duplicate/replay/stale callback design rules, and bounded TTL
+  requirements as design outputs only.
+- Define append-only/tamper-evident/retention/redaction checklist requirements.
+- Define future persistence, testnet, and live blocker registers.
+- Keep all outputs non-executing and spec-only.
+- No persistence implementation, no database writes, no callback runtime, no
+  payload creation, no Xaman API calls/SDK integration, and no
+  signing/submission/autofill/wallet handling.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.
