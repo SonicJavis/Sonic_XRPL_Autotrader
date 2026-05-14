@@ -56,6 +56,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS_RESEARCH.md",
     "docs/PHASE61_XAMAN_MANUAL_APPROVAL_DESIGN_SPEC.md",
     "docs/research/PHASE61_XAMAN_MANUAL_APPROVAL_DESIGN_SPEC_RESEARCH.md",
+    "docs/PHASE62_XAMAN_TESTNET_PAYLOAD_SCHEMA_REVIEW.md",
+    "docs/research/PHASE62_XAMAN_TESTNET_PAYLOAD_SCHEMA_REVIEW_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -112,6 +114,10 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/xaman_manual_approval_spec/lifecycle.py",
     "src/sonic_xrpl/xaman_manual_approval_spec/threat_model.py",
     "src/sonic_xrpl/xaman_manual_approval_spec/reporting.py",
+    "src/sonic_xrpl/xaman_testnet_payload_spec/models.py",
+    "src/sonic_xrpl/xaman_testnet_payload_spec/loader.py",
+    "src/sonic_xrpl/xaman_testnet_payload_spec/review.py",
+    "src/sonic_xrpl/xaman_testnet_payload_spec/reporting.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -174,6 +180,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase60_paper_sniper_safety.py",
     "tests/unit/test_phase61_xaman_manual_approval_spec.py",
     "tests/safety/test_phase61_xaman_manual_approval_safety.py",
+    "tests/unit/test_phase62_xaman_testnet_payload_spec.py",
+    "tests/safety/test_phase62_xaman_testnet_payload_safety.py",
     "scripts/migration_safe_check.py",
 ]
 

@@ -41,6 +41,7 @@ CRITICAL_FILES = {
     "scripts/migration_safe_check.py",
     "docs/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS.md",
     "docs/PHASE61_XAMAN_MANUAL_APPROVAL_DESIGN_SPEC.md",
+    "docs/PHASE62_XAMAN_TESTNET_PAYLOAD_SCHEMA_REVIEW.md",
 }
 
 

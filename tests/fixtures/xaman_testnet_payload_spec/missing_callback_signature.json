@@ -1,0 +1,13 @@
+{
+  "fixture_id": "phase62_missing_callback_signature",
+  "candidate_id": "cand_phase62_10",
+  "requested_network": "xrpl-testnet",
+  "payload_ttl_seconds": 180,
+  "nonce_present": true,
+  "deterministic_reference_id_present": true,
+  "callback_signature_present": false,
+  "callback_replay_cache_present": true,
+  "account_txn_id_present": true,
+  "pre_submit_verification_present": true,
+  "post_submit_verification_present": true
+}

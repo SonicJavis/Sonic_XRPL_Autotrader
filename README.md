@@ -85,6 +85,16 @@ Phase 61 adds deterministic design-spec contracts under
 - Explicitly blocks payload creation, signing, submission, autofill, wallet
   material handling, and live execution.
 
+## Phase 62 Xaman Testnet Payload Schema Review
+
+Phase 62 adds deterministic schema/verification review contracts under
+`src/sonic_xrpl/xaman_testnet_payload_spec/` using offline fixtures only.
+
+- Design-review only and non-executing.
+- Defines testnet-only payload schema gates and callback verification checklists.
+- Explicitly blocks payload creation, Xaman API calls, signing, submission,
+  wallet material handling, and live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

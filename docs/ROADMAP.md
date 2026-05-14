@@ -225,6 +225,17 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 62 - Xaman Testnet Payload Schema + Verification Design Review
+
+- Define deterministic testnet-only payload schema requirements.
+- Define callback verification and replay-protection checklists.
+- Define pre-submit and post-submit verification review gates.
+- Keep all outputs non-executing and design-review only.
+- No payload creation, no Xaman API calls, no SDK integration, and no
+  signing/submission/autofill/wallet handling.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.
