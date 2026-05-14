@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-14 (Phase 63 Xaman callback replay verification spec)
+**Last updated**: 2026-05-14 (Phase 64 Xaman audit idempotency store spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -641,3 +641,40 @@ The following phase numbers have partial evidence only:
   migrations, live config changes, or execution-surface mutation introduced.
 - **Next recommended step**: Phase 64 - Xaman testnet callback persistence and
   idempotency storage design review (still non-executing/spec-only).
+
+---
+
+## Phase 64 - Xaman Testnet Audit Trail + Idempotency Store Design Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic audit-trail and idempotency
+  store design-spec contracts with explicit fail-closed blockers.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_audit_idempotency_spec/`
+  - `tests/fixtures/xaman_audit_idempotency_spec/`
+  - `tests/unit/test_phase64_xaman_audit_idempotency_spec.py`
+  - `tests/safety/test_phase64_xaman_audit_idempotency_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE64_XAMAN_AUDIT_IDEMPOTENCY_STORE_SPEC.md`
+  - `docs/research/PHASE64_XAMAN_AUDIT_IDEMPOTENCY_STORE_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 64 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No persistence implementation, no database writes, no
+  callback runtime, no API routes, no payload creation, no Xaman API/SDK
+  integration, no signing/submission/autofill/wallet handling, no testnet
+  execution, and no live execution.
+- **Accuracy notes**: Audit-trail and idempotency contracts are design-only;
+  runtime persistence/callback implementation remains blocked.
+- **Rollback notes**: Revert the Phase 64 merge commit if needed; no DB
+  migrations, live config changes, or execution-surface mutation introduced.
+- **Next recommended step**: Phase 65 - Xaman testnet approval state machine
+  design spec (still non-executing/spec-only).

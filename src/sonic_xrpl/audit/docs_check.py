@@ -60,6 +60,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE62_XAMAN_TESTNET_PAYLOAD_SCHEMA_REVIEW_RESEARCH.md",
     "docs/PHASE63_XAMAN_CALLBACK_REPLAY_VERIFICATION_SPEC.md",
     "docs/research/PHASE63_XAMAN_CALLBACK_REPLAY_VERIFICATION_SPEC_RESEARCH.md",
+    "docs/PHASE64_XAMAN_AUDIT_IDEMPOTENCY_STORE_SPEC.md",
+    "docs/research/PHASE64_XAMAN_AUDIT_IDEMPOTENCY_STORE_SPEC_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -125,6 +127,12 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/xaman_callback_verification_spec/verification.py",
     "src/sonic_xrpl/xaman_callback_verification_spec/threat_model.py",
     "src/sonic_xrpl/xaman_callback_verification_spec/reporting.py",
+    "src/sonic_xrpl/xaman_audit_idempotency_spec/models.py",
+    "src/sonic_xrpl/xaman_audit_idempotency_spec/loader.py",
+    "src/sonic_xrpl/xaman_audit_idempotency_spec/schema.py",
+    "src/sonic_xrpl/xaman_audit_idempotency_spec/idempotency.py",
+    "src/sonic_xrpl/xaman_audit_idempotency_spec/audit_trail.py",
+    "src/sonic_xrpl/xaman_audit_idempotency_spec/reporting.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -191,6 +199,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase62_xaman_testnet_payload_safety.py",
     "tests/unit/test_phase63_xaman_callback_verification_spec.py",
     "tests/safety/test_phase63_xaman_callback_verification_safety.py",
+    "tests/unit/test_phase64_xaman_audit_idempotency_spec.py",
+    "tests/safety/test_phase64_xaman_audit_idempotency_safety.py",
     "scripts/migration_safe_check.py",
 ]
 

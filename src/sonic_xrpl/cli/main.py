@@ -22,6 +22,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-testnet-payload-spec-report --fixture tests/fixtures/xaman_testnet_payload_spec/healthy_design_review.json
   python -m sonic_xrpl.cli.main xaman-callback-verification-spec --fixture tests/fixtures/xaman_callback_verification_spec/healthy_callback_spec.json
   python -m sonic_xrpl.cli.main xaman-callback-verification-spec-report --fixture tests/fixtures/xaman_callback_verification_spec/healthy_callback_spec.json
+  python -m sonic_xrpl.cli.main xaman-audit-idempotency-spec --fixture tests/fixtures/xaman_audit_idempotency_spec/healthy_audit_idempotency_spec.json
+  python -m sonic_xrpl.cli.main xaman-audit-idempotency-spec-report --fixture tests/fixtures/xaman_audit_idempotency_spec/healthy_audit_idempotency_spec.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -201,6 +203,11 @@ def main(argv: list[str] | None = None) -> int:
     xcvs_parser.add_argument("--json", action="store_true", help="Output as JSON")
     xcvsr_parser = subparsers.add_parser("xaman-callback-verification-spec-report", help="Render Phase 63 callback verification markdown summary")
     xcvsr_parser.add_argument("--fixture", required=True, help="Path to xaman callback verification fixture JSON")
+    xais_parser = subparsers.add_parser("xaman-audit-idempotency-spec", help="Run Phase 64 audit trail and idempotency store design spec")
+    xais_parser.add_argument("--fixture", required=True, help="Path to xaman audit/idempotency fixture JSON")
+    xais_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xaisr_parser = subparsers.add_parser("xaman-audit-idempotency-spec-report", help="Render Phase 64 audit/idempotency markdown summary")
+    xaisr_parser.add_argument("--fixture", required=True, help="Path to xaman audit/idempotency fixture JSON")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -353,6 +360,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_callback_verification_spec(args)
     if args.command == "xaman-callback-verification-spec-report":
         return _cmd_xaman_callback_verification_spec_report(args)
+    if args.command == "xaman-audit-idempotency-spec":
+        return _cmd_xaman_audit_idempotency_spec(args)
+    if args.command == "xaman-audit-idempotency-spec-report":
+        return _cmd_xaman_audit_idempotency_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -1144,6 +1155,53 @@ def _cmd_xaman_callback_verification_spec_report(args) -> int:
     from sonic_xrpl.xaman_callback_verification_spec.reporting import render_xaman_callback_verification_spec_markdown
 
     print(render_xaman_callback_verification_spec_markdown(_phase63_xaman_callback_spec(args)))
+    return 0
+
+
+def _phase64_xaman_audit_idempotency_spec(args):
+    from sonic_xrpl.xaman_audit_idempotency_spec import (
+        build_xaman_audit_idempotency_spec,
+        load_xaman_audit_idempotency_fixture,
+    )
+
+    return build_xaman_audit_idempotency_spec(load_xaman_audit_idempotency_fixture(args.fixture))
+
+
+def _cmd_xaman_audit_idempotency_spec(args) -> int:
+    """Run Phase 64 audit/idempotency design-spec review."""
+    from sonic_xrpl.xaman_audit_idempotency_spec.reporting import (
+        render_xaman_audit_idempotency_spec_json,
+        render_xaman_audit_idempotency_spec_payload,
+    )
+
+    report = _phase64_xaman_audit_idempotency_spec(args)
+    if getattr(args, "json", False):
+        print(render_xaman_audit_idempotency_spec_json(report))
+        return 0
+    payload = render_xaman_audit_idempotency_spec_payload(report)
+    print("=== Phase 64 Xaman Audit/Idempotency Spec ===")
+    print(f"  Fixture                          : {payload['fixture_id']}")
+    print(f"  outcome                          : {payload['outcome']}")
+    print(f"  audit_spec_only                  : {payload['audit_spec_only']}")
+    print(f"  idempotency_spec_only            : {payload['idempotency_spec_only']}")
+    print(f"  persistence_implementation_allowed: {payload['persistence_implementation_allowed']}")
+    print(f"  database_writes_allowed          : {payload['database_writes_allowed']}")
+    print(f"  callback_handler_allowed         : {payload['callback_handler_allowed']}")
+    print(f"  webhook_runtime_allowed          : {payload['webhook_runtime_allowed']}")
+    print(f"  payload_creation_allowed         : {payload['payload_creation_allowed']}")
+    print(f"  xaman_api_calls_allowed          : {payload['xaman_api_calls_allowed']}")
+    print(f"  testnet_execution_allowed        : {payload['testnet_execution_allowed']}")
+    print(f"  live_execution_allowed           : {payload['live_execution_allowed']}")
+    for item in payload["validation_errors"]:
+        print(f"  - error: {item}")
+    return 0
+
+
+def _cmd_xaman_audit_idempotency_spec_report(args) -> int:
+    """Render Phase 64 audit/idempotency design-spec markdown report."""
+    from sonic_xrpl.xaman_audit_idempotency_spec.reporting import render_xaman_audit_idempotency_spec_markdown
+
+    print(render_xaman_audit_idempotency_spec_markdown(_phase64_xaman_audit_idempotency_spec(args)))
     return 0
 
 

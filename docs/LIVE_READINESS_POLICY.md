@@ -73,3 +73,11 @@ Phase 63 adds a callback-authenticity and replay-verification design layer and
 does not authorize callback handlers, webhook runtime verification, API routes,
 payload creation, Xaman API calls, signing, submission, autofill, wallet
 handling, testnet execution, or mainnet live execution.
+
+## Phase 64 continuity note
+
+Phase 64 adds an audit-trail and idempotency-store design layer and does not
+authorize persistence implementation, database writes, callback handlers,
+webhook runtime verification, API routes, payload creation, Xaman API calls,
+signing, submission, autofill, wallet handling, testnet execution, or mainnet
+live execution.

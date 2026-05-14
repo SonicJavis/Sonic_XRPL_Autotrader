@@ -108,6 +108,19 @@ using offline fixtures only.
   creation, Xaman API/SDK integration, signing, submission, wallet material
   handling, testnet execution, and live execution.
 
+## Phase 64 Xaman Audit + Idempotency Store Spec
+
+Phase 64 adds deterministic audit-trail and idempotency-store design contracts
+under `src/sonic_xrpl/xaman_audit_idempotency_spec/` using offline fixtures
+only.
+
+- Spec-only and non-executing.
+- Defines callback audit-envelope bindings, idempotency key/conflict/replay
+  policies, and append-only tamper-evident audit requirements.
+- Explicitly blocks persistence implementation, database writes, callback
+  runtime, payload creation, Xaman API/SDK integration, signing/submission,
+  wallet material handling, and testnet/live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.
