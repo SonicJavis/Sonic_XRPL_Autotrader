@@ -146,6 +146,18 @@ WHITELIST = {
     'Operator must acknowledge no wallet material is requested or accepted.': "Phase 66 acknowledgement text preserving blocked wallet-material handling",
     'has_no_wallet_material_disclosure': "Phase 66 fixture/model field for required wallet-material disclosure",
     'missing_no_wallet_material_disclosure': "Phase 66 validation error key for required wallet-material disclosure",
+    # Phase 67 consent evidence-pack spec safety text (non-executing blocked-language contracts)
+    'has_wallet_material_exclusion': "Phase 67 evidence-pack field for required wallet-material exclusion contract",
+    'missing_wallet_material_exclusion': "Phase 67 validation key for required wallet-material exclusion contract",
+    'wallet_material_exclusion': "Phase 67 evidence-pack requirement key for blocked wallet-material inclusion",
+    'Wallet-material exclusion requirement': "Phase 67 evidence-pack requirement label preserving blocked wallet-material handling",
+    'Ensures no wallet material is included.': "Phase 67 evidence-pack rationale preserving blocked wallet-material handling",
+    'secrets_exclusion': "Phase 67 evidence-pack requirement key for blocked secret/key material inclusion",
+    'Ensures no secret/key material is included.': "Phase 67 evidence-pack rationale preserving blocked secret/key material handling",
+    'no signing/submission must remain explicit': "Phase 67 completeness requirement preserving blocked signing/submission capabilities",
+    'invalid_wallet_material_marker': "Phase 67 blocked marker for prohibited wallet-material inclusion",
+    'invalid_signing_submission_marker': "Phase 67 blocked marker for prohibited signing/submission inclusion",
+    'No payload/API/signing/submission authorization': "Phase 67 blocker title declaring prohibited execution capabilities",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

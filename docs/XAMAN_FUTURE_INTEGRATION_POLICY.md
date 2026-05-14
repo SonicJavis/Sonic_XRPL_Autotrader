@@ -87,3 +87,13 @@ Phase 66 does not implement UI screens, dashboard routes, API routes, runtime
 consent services, persistence/database writes, callback runtime, payload
 creation, Xaman API calls, SDK dependencies, signing, submission, autofill,
 wallet material handling, testnet execution, or mainnet execution.
+
+## Phase 67 continuity note
+
+Phase 67 adds consent evidence-pack contract design outputs only under
+`src/sonic_xrpl/xaman_consent_evidence_pack_spec/`.
+
+Phase 67 does not implement UI/dashboard/API/runtime services, export/download/
+file-write implementation, persistence/database writes, callback runtime,
+payload creation, Xaman API calls, SDK dependencies, signing, submission,
+autofill, wallet material handling, testnet execution, or mainnet execution.

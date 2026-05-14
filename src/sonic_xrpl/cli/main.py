@@ -28,6 +28,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-approval-state-machine-spec-report --fixture tests/fixtures/xaman_approval_state_machine_spec/healthy_approval_state_machine_spec.json
   python -m sonic_xrpl.cli.main xaman-operator-consent-ux-spec --fixture tests/fixtures/xaman_operator_consent_ux_spec/healthy_consent_ux_contract.json
   python -m sonic_xrpl.cli.main xaman-operator-consent-ux-spec-report --fixture tests/fixtures/xaman_operator_consent_ux_spec/healthy_consent_ux_contract.json
+  python -m sonic_xrpl.cli.main xaman-consent-evidence-pack-spec --fixture tests/fixtures/xaman_consent_evidence_pack_spec/healthy_evidence_pack.json
+  python -m sonic_xrpl.cli.main xaman-consent-evidence-pack-spec-report --fixture tests/fixtures/xaman_consent_evidence_pack_spec/healthy_evidence_pack.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -222,6 +224,11 @@ def main(argv: list[str] | None = None) -> int:
     xocux_parser.add_argument("--json", action="store_true", help="Output as JSON")
     xocuxr_parser = subparsers.add_parser("xaman-operator-consent-ux-spec-report", help="Render Phase 66 operator consent UX markdown summary")
     xocuxr_parser.add_argument("--fixture", required=True, help="Path to xaman operator consent UX fixture JSON")
+    xceps_parser = subparsers.add_parser("xaman-consent-evidence-pack-spec", help="Run Phase 67 consent evidence-pack contract spec")
+    xceps_parser.add_argument("--fixture", required=True, help="Path to xaman consent evidence-pack fixture JSON")
+    xceps_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xcepsr_parser = subparsers.add_parser("xaman-consent-evidence-pack-spec-report", help="Render Phase 67 consent evidence-pack markdown summary")
+    xcepsr_parser.add_argument("--fixture", required=True, help="Path to xaman consent evidence-pack fixture JSON")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -386,6 +393,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_operator_consent_ux_spec(args)
     if args.command == "xaman-operator-consent-ux-spec-report":
         return _cmd_xaman_operator_consent_ux_spec_report(args)
+    if args.command == "xaman-consent-evidence-pack-spec":
+        return _cmd_xaman_consent_evidence_pack_spec(args)
+    if args.command == "xaman-consent-evidence-pack-spec-report":
+        return _cmd_xaman_consent_evidence_pack_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -1829,6 +1840,57 @@ def _cmd_xaman_operator_consent_ux_spec_report(args) -> int:
     from sonic_xrpl.xaman_operator_consent_ux_spec.reporting import render_xaman_operator_consent_ux_markdown
 
     print(render_xaman_operator_consent_ux_markdown(_phase66_xaman_operator_consent_ux_spec(args)))
+    return 0
+
+
+def _phase67_xaman_consent_evidence_pack_spec(args):
+    from sonic_xrpl.xaman_consent_evidence_pack_spec import (
+        build_xaman_consent_evidence_pack_spec,
+        load_xaman_consent_evidence_pack_fixture,
+    )
+
+    return build_xaman_consent_evidence_pack_spec(load_xaman_consent_evidence_pack_fixture(args.fixture))
+
+
+def _cmd_xaman_consent_evidence_pack_spec(args) -> int:
+    """Run Phase 67 operator consent evidence-pack contract design-spec review."""
+    from sonic_xrpl.xaman_consent_evidence_pack_spec.reporting import (
+        render_xaman_consent_evidence_pack_json,
+        render_xaman_consent_evidence_pack_payload,
+    )
+
+    report = _phase67_xaman_consent_evidence_pack_spec(args)
+    if getattr(args, "json", False):
+        print(render_xaman_consent_evidence_pack_json(report))
+        return 0
+    payload = render_xaman_consent_evidence_pack_payload(report)
+    print("=== Phase 67 Xaman Consent Evidence Pack Spec ===")
+    print(f"  Fixture ID                  : {payload['fixture_id']}")
+    print(f"  Outcome                     : {payload['outcome']}")
+    print(f"  evidence_pack_spec_only     : {payload['evidence_pack_spec_only']}")
+    print(f"  export_implementation_allowed: {payload['export_implementation_allowed']}")
+    print(f"  file_write_allowed          : {payload['file_write_allowed']}")
+    print(f"  ui_implementation_allowed   : {payload['ui_implementation_allowed']}")
+    print(f"  api_route_allowed           : {payload['api_route_allowed']}")
+    print(f"  runtime_service_allowed     : {payload['runtime_service_allowed']}")
+    print(f"  payload_creation_allowed    : {payload['payload_creation_allowed']}")
+    print(f"  xaman_api_calls_allowed     : {payload['xaman_api_calls_allowed']}")
+    print(f"  testnet_execution_allowed   : {payload['testnet_execution_allowed']}")
+    print(f"  live_execution_allowed      : {payload['live_execution_allowed']}")
+    if payload["validation_errors"]:
+        print("  Validation errors:")
+        for item in payload["validation_errors"]:
+            print(f"    - {item}")
+    else:
+        print("  Validation errors           : none")
+    return 0
+
+
+def _cmd_xaman_consent_evidence_pack_spec_report(args) -> int:
+    """Render Phase 67 operator consent evidence-pack markdown report."""
+    from sonic_xrpl.xaman_consent_evidence_pack_spec.reporting import render_xaman_consent_evidence_pack_markdown
+
+    print(render_xaman_consent_evidence_pack_markdown(_phase67_xaman_consent_evidence_pack_spec(args)))
     return 0
 
 

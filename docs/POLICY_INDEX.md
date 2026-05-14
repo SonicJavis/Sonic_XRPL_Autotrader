@@ -21,6 +21,7 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Phase 64 Xaman audit idempotency store scope: `docs/PHASE64_XAMAN_AUDIT_IDEMPOTENCY_STORE_SPEC.md`
 - Phase 65 Xaman approval state machine scope: `docs/PHASE65_XAMAN_APPROVAL_STATE_MACHINE_SPEC.md`
 - Phase 66 Xaman operator consent UX scope: `docs/PHASE66_XAMAN_OPERATOR_CONSENT_UX_SPEC.md`
+- Phase 67 Xaman consent evidence pack scope: `docs/PHASE67_XAMAN_CONSENT_EVIDENCE_PACK_SPEC.md`
 
 ## Program tracking
 
