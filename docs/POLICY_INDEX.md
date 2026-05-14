@@ -19,6 +19,7 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Phase 62 Xaman testnet payload schema review scope: `docs/PHASE62_XAMAN_TESTNET_PAYLOAD_SCHEMA_REVIEW.md`
 - Phase 63 Xaman callback replay verification scope: `docs/PHASE63_XAMAN_CALLBACK_REPLAY_VERIFICATION_SPEC.md`
 - Phase 64 Xaman audit idempotency store scope: `docs/PHASE64_XAMAN_AUDIT_IDEMPOTENCY_STORE_SPEC.md`
+- Phase 65 Xaman approval state machine scope: `docs/PHASE65_XAMAN_APPROVAL_STATE_MACHINE_SPEC.md`
 
 ## Program tracking
 

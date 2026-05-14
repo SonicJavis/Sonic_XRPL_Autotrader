@@ -133,6 +133,10 @@ WHITELIST = {
     'autofill_allowed': "Phase 61 design-spec safety flag (must remain false)",
     'attempted_wallet_material': "Phase 61 fixture/safety marker for blocked wallet-material attempts",
     'no signing/submission approval': "Phase 61 blocker wording for explicitly blocked capabilities",
+    # Phase 65 Xaman approval state machine spec safety text (non-executing blocked-language contracts)
+    'Signing is out of scope and blocked.': "Phase 65 invalid transition blocker text for prohibited signing",
+    'Wallet material handling is out of scope and blocked.': "Phase 65 invalid transition blocker text for prohibited wallet-material usage",
+    'No payload/API/signing/submission authorization': "Phase 65 blocker title declaring prohibited execution capabilities",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

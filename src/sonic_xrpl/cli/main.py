@@ -24,6 +24,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-callback-verification-spec-report --fixture tests/fixtures/xaman_callback_verification_spec/healthy_callback_spec.json
   python -m sonic_xrpl.cli.main xaman-audit-idempotency-spec --fixture tests/fixtures/xaman_audit_idempotency_spec/healthy_audit_idempotency_spec.json
   python -m sonic_xrpl.cli.main xaman-audit-idempotency-spec-report --fixture tests/fixtures/xaman_audit_idempotency_spec/healthy_audit_idempotency_spec.json
+  python -m sonic_xrpl.cli.main xaman-approval-state-machine-spec --fixture tests/fixtures/xaman_approval_state_machine_spec/healthy_approval_state_machine_spec.json
+  python -m sonic_xrpl.cli.main xaman-approval-state-machine-spec-report --fixture tests/fixtures/xaman_approval_state_machine_spec/healthy_approval_state_machine_spec.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -208,6 +210,11 @@ def main(argv: list[str] | None = None) -> int:
     xais_parser.add_argument("--json", action="store_true", help="Output as JSON")
     xaisr_parser = subparsers.add_parser("xaman-audit-idempotency-spec-report", help="Render Phase 64 audit/idempotency markdown summary")
     xaisr_parser.add_argument("--fixture", required=True, help="Path to xaman audit/idempotency fixture JSON")
+    xasms_parser = subparsers.add_parser("xaman-approval-state-machine-spec", help="Run Phase 65 approval state machine design spec")
+    xasms_parser.add_argument("--fixture", required=True, help="Path to xaman approval state machine fixture JSON")
+    xasms_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xasmsr_parser = subparsers.add_parser("xaman-approval-state-machine-spec-report", help="Render Phase 65 approval state machine markdown summary")
+    xasmsr_parser.add_argument("--fixture", required=True, help="Path to xaman approval state machine fixture JSON")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -364,6 +371,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_audit_idempotency_spec(args)
     if args.command == "xaman-audit-idempotency-spec-report":
         return _cmd_xaman_audit_idempotency_spec_report(args)
+    if args.command == "xaman-approval-state-machine-spec":
+        return _cmd_xaman_approval_state_machine_spec(args)
+    if args.command == "xaman-approval-state-machine-spec-report":
+        return _cmd_xaman_approval_state_machine_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -1202,6 +1213,53 @@ def _cmd_xaman_audit_idempotency_spec_report(args) -> int:
     from sonic_xrpl.xaman_audit_idempotency_spec.reporting import render_xaman_audit_idempotency_spec_markdown
 
     print(render_xaman_audit_idempotency_spec_markdown(_phase64_xaman_audit_idempotency_spec(args)))
+    return 0
+
+
+def _phase65_xaman_approval_state_machine_spec(args):
+    from sonic_xrpl.xaman_approval_state_machine_spec import (
+        build_xaman_approval_state_machine_spec,
+        load_xaman_approval_state_machine_fixture,
+    )
+
+    return build_xaman_approval_state_machine_spec(load_xaman_approval_state_machine_fixture(args.fixture))
+
+
+def _cmd_xaman_approval_state_machine_spec(args) -> int:
+    """Run Phase 65 approval state machine design-spec review."""
+    from sonic_xrpl.xaman_approval_state_machine_spec.reporting import (
+        render_xaman_approval_state_machine_spec_json,
+        render_xaman_approval_state_machine_spec_payload,
+    )
+
+    report = _phase65_xaman_approval_state_machine_spec(args)
+    if getattr(args, "json", False):
+        print(render_xaman_approval_state_machine_spec_json(report))
+        return 0
+    payload = render_xaman_approval_state_machine_spec_payload(report)
+    print("=== Phase 65 Xaman Approval State Machine Spec ===")
+    print(f"  Fixture                          : {payload['fixture_id']}")
+    print(f"  outcome                          : {payload['outcome']}")
+    print(f"  state_machine_spec_only          : {payload['state_machine_spec_only']}")
+    print(f"  runtime_state_machine_allowed    : {payload['runtime_state_machine_allowed']}")
+    print(f"  persistence_implementation_allowed: {payload['persistence_implementation_allowed']}")
+    print(f"  database_writes_allowed          : {payload['database_writes_allowed']}")
+    print(f"  callback_handler_allowed         : {payload['callback_handler_allowed']}")
+    print(f"  webhook_runtime_allowed          : {payload['webhook_runtime_allowed']}")
+    print(f"  payload_creation_allowed         : {payload['payload_creation_allowed']}")
+    print(f"  xaman_api_calls_allowed          : {payload['xaman_api_calls_allowed']}")
+    print(f"  testnet_execution_allowed        : {payload['testnet_execution_allowed']}")
+    print(f"  live_execution_allowed           : {payload['live_execution_allowed']}")
+    for item in payload["validation_errors"]:
+        print(f"  - error: {item}")
+    return 0
+
+
+def _cmd_xaman_approval_state_machine_spec_report(args) -> int:
+    """Render Phase 65 approval state machine design-spec markdown report."""
+    from sonic_xrpl.xaman_approval_state_machine_spec.reporting import render_xaman_approval_state_machine_spec_markdown
+
+    print(render_xaman_approval_state_machine_spec_markdown(_phase65_xaman_approval_state_machine_spec(args)))
     return 0
 
 

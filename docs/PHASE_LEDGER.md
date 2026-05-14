@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-14 (Phase 64 Xaman audit idempotency store spec)
+**Last updated**: 2026-05-14 (Phase 65 Xaman approval state machine spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -678,3 +678,40 @@ The following phase numbers have partial evidence only:
   migrations, live config changes, or execution-surface mutation introduced.
 - **Next recommended step**: Phase 65 - Xaman testnet approval state machine
   design spec (still non-executing/spec-only).
+
+---
+
+## Phase 65 - Xaman Testnet Approval State Machine Design Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic approval state-machine
+  design-spec contracts with explicit fail-closed invalid transition rules.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_approval_state_machine_spec/`
+  - `tests/fixtures/xaman_approval_state_machine_spec/`
+  - `tests/unit/test_phase65_xaman_approval_state_machine_spec.py`
+  - `tests/safety/test_phase65_xaman_approval_state_machine_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE65_XAMAN_APPROVAL_STATE_MACHINE_SPEC.md`
+  - `docs/research/PHASE65_XAMAN_APPROVAL_STATE_MACHINE_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 65 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No runtime state machine implementation, no
+  persistence/DB writes, no callback runtime, no API routes, no payload
+  creation, no Xaman API/SDK integration, no signing/submission/autofill/
+  wallet handling, no testnet execution, and no live execution.
+- **Accuracy notes**: State/transition contracts and invalid transition gates
+  remain design-only; runtime implementation remains blocked.
+- **Rollback notes**: Revert the Phase 65 merge commit if needed; no DB
+  migrations, live config changes, or execution-surface mutation introduced.
+- **Next recommended step**: Phase 66 - Xaman testnet operator consent UX
+  contract spec (still non-executing/spec-only).

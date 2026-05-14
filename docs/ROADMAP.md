@@ -266,6 +266,20 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 65 - Xaman Testnet Approval State Machine Design Spec
+
+- Define deterministic approval state and transition contracts.
+- Define valid transitions, invalid transitions, and transition evidence
+  requirements for operator review, callback verification, and audit gates.
+- Define fail-closed transition blocks for payload/API/signing/submission/
+  wallet/testnet/live runtime paths.
+- Keep all outputs non-executing and state-machine-spec-only.
+- No runtime state machine implementation, no persistence/database writes, no
+  callback runtime implementation, and no payload/API/signing/submission/
+  autofill/wallet handling.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.

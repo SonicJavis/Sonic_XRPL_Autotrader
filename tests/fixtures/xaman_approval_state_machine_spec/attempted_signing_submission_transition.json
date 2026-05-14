@@ -1,0 +1,14 @@
+{
+  "candidate_id": "phase59-candidate-healthy",
+  "has_operator_approval_transition": true,
+  "has_callback_verification_transition": true,
+  "has_audit_required_transition": true,
+  "has_idempotency_requirement": true,
+  "has_ttl_replay_requirement": true,
+  "has_invalid_direct_callback_to_final_block": true,
+  "has_invalid_duplicate_callback_accept_block": true,
+  "has_invalid_replay_accept_block": true,
+  "has_invalid_expired_to_approved_block": true,
+  "fixture_id": "phase65-attempted-sign-submit",
+  "attempted_signing_submission_transition": true
+}

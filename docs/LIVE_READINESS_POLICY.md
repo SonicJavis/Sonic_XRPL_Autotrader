@@ -81,3 +81,11 @@ authorize persistence implementation, database writes, callback handlers,
 webhook runtime verification, API routes, payload creation, Xaman API calls,
 signing, submission, autofill, wallet handling, testnet execution, or mainnet
 live execution.
+
+## Phase 65 continuity note
+
+Phase 65 adds an approval state-machine design layer and does not authorize
+runtime state-machine execution, persistence implementation, database writes,
+callback handlers, webhook runtime verification, API routes, payload creation,
+Xaman API calls, signing, submission, autofill, wallet handling, testnet
+execution, or mainnet live execution.

@@ -121,6 +121,19 @@ only.
   runtime, payload creation, Xaman API/SDK integration, signing/submission,
   wallet material handling, and testnet/live execution.
 
+## Phase 65 Xaman Approval State Machine Spec
+
+Phase 65 adds deterministic approval state and transition design contracts
+under `src/sonic_xrpl/xaman_approval_state_machine_spec/` using offline
+fixtures only.
+
+- Spec-only and non-executing.
+- Defines allowed states, valid transitions, invalid transition blocks, and
+  evidence/audit/idempotency/replay requirements.
+- Explicitly blocks runtime state machine implementation, persistence/DB
+  writes, callback runtime, payload/API/signing/submission/wallet handling,
+  and testnet/live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.
