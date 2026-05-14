@@ -89,3 +89,12 @@ runtime state-machine execution, persistence implementation, database writes,
 callback handlers, webhook runtime verification, API routes, payload creation,
 Xaman API calls, signing, submission, autofill, wallet handling, testnet
 execution, or mainnet live execution.
+
+## Phase 66 continuity note
+
+Phase 66 adds an operator-consent UX contract design layer and does not
+authorize UI implementation, dashboard changes, API routes, runtime consent
+services, persistence implementation, database writes, callback handlers,
+webhook runtime verification, payload creation, Xaman API calls, signing,
+submission, autofill, wallet handling, testnet execution, or mainnet live
+execution.

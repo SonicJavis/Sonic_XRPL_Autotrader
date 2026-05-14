@@ -137,6 +137,15 @@ WHITELIST = {
     'Signing is out of scope and blocked.': "Phase 65 invalid transition blocker text for prohibited signing",
     'Wallet material handling is out of scope and blocked.': "Phase 65 invalid transition blocker text for prohibited wallet-material usage",
     'No payload/API/signing/submission authorization': "Phase 65 blocker title declaring prohibited execution capabilities",
+    # Phase 66 consent UX contract spec safety text (non-executing blocked-language contracts)
+    'No wallet material entry, handling, or use is permitted.': "Phase 66 required disclosure text preserving wallet-material block",
+    'Signing and submission are unavailable and out of scope.': "Phase 66 required disclosure text preserving blocked capabilities",
+    'no_wallet_material_disclosure': "Phase 66 consent-UX required disclosure identifier for blocked wallet-material handling",
+    'Confirms wallet material handling remains blocked in this phase.': "Phase 66 disclosure rationale preserving blocked wallet-material handling",
+    'Operator must acknowledge no payload, signing, or submission is available.': "Phase 66 acknowledgement text preserving blocked signing/submission",
+    'Operator must acknowledge no wallet material is requested or accepted.': "Phase 66 acknowledgement text preserving blocked wallet-material handling",
+    'has_no_wallet_material_disclosure': "Phase 66 fixture/model field for required wallet-material disclosure",
+    'missing_no_wallet_material_disclosure': "Phase 66 validation error key for required wallet-material disclosure",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

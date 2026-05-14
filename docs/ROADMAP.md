@@ -280,6 +280,21 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 66 - Xaman Testnet Operator Consent UX Contract Spec
+
+- Define deterministic operator consent UX contract requirements.
+- Define mandatory disclosures, acknowledgement contracts, confirmation phrase
+  requirements, and rejection/cancellation requirements as design outputs only.
+- Define operator identity and audit-binding checklist requirements.
+- Define fail-closed blocked markers for auto-approval, one-click execution,
+  and prohibited runtime/API/payload/signing/wallet paths.
+- Keep all outputs non-executing and spec-only.
+- No UI implementation, no API/runtime consent service, no persistence/DB
+  writes, no callback runtime, and no payload/API/signing/submission/autofill/
+  wallet handling.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.

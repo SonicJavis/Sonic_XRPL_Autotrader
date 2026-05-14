@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-14 (Phase 65 Xaman approval state machine spec)
+**Last updated**: 2026-05-14 (Phase 66 Xaman operator consent UX contract spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -713,5 +713,43 @@ The following phase numbers have partial evidence only:
   remain design-only; runtime implementation remains blocked.
 - **Rollback notes**: Revert the Phase 65 merge commit if needed; no DB
   migrations, live config changes, or execution-surface mutation introduced.
-- **Next recommended step**: Phase 66 - Xaman testnet operator consent UX
-  contract spec (still non-executing/spec-only).
+- **Next recommended step**: Phase 67 - Xaman testnet operator consent evidence
+  pack spec (still non-executing/spec-only).
+
+---
+
+## Phase 66 - Xaman Testnet Operator Consent UX Contract Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic operator consent UX contract
+  design-spec outputs with explicit fail-closed disclosure and acknowledgement
+  rules.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_operator_consent_ux_spec/`
+  - `tests/fixtures/xaman_operator_consent_ux_spec/`
+  - `tests/unit/test_phase66_xaman_operator_consent_ux_spec.py`
+  - `tests/safety/test_phase66_xaman_operator_consent_ux_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE66_XAMAN_OPERATOR_CONSENT_UX_SPEC.md`
+  - `docs/research/PHASE66_XAMAN_OPERATOR_CONSENT_UX_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `scripts/safety_grep.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 66 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No UI implementation, no dashboard changes, no API
+  routes, no runtime consent services, no persistence/DB writes, no callback
+  runtime, no payload creation, no Xaman API/SDK integration, no signing/
+  submission/autofill/wallet handling, no testnet execution, and no live
+  execution.
+- **Accuracy notes**: Consent outputs remain design-only and non-executing;
+  missing disclosures and unsafe markers fail closed.
+- **Rollback notes**: Revert the Phase 66 merge commit if needed; no DB
+  migrations, live config changes, or execution-surface mutation introduced.
