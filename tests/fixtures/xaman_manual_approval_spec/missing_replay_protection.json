@@ -1,0 +1,12 @@
+{
+  "fixture_id": "phase61_missing_replay_protection",
+  "candidate_id": "cand_missing_replay",
+  "issuer": "rIssuerReplay",
+  "symbol": "REPL",
+  "intelligence_verdict": "WATCH",
+  "paper_simulation_reference": "phase60_sim_replay_1",
+  "risk_disclosure_present": true,
+  "replay_protection_present": false,
+  "expiry_ttl_present": true,
+  "audit_trail_present": true
+}

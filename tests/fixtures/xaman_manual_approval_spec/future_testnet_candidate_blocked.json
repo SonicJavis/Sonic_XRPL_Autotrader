@@ -1,0 +1,13 @@
+{
+  "fixture_id": "phase61_future_testnet_blocked",
+  "candidate_id": "cand_testnet",
+  "issuer": "rIssuerTestnet",
+  "symbol": "TNET",
+  "intelligence_verdict": "PAPER_ONLY_CANDIDATE",
+  "paper_simulation_reference": "phase60_sim_testnet_1",
+  "risk_disclosure_present": true,
+  "replay_protection_present": true,
+  "expiry_ttl_present": true,
+  "audit_trail_present": true,
+  "future_testnet_requested": true
+}

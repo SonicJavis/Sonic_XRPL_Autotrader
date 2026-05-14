@@ -15,6 +15,7 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Phase 58C migration readiness matrix: `docs/MIGRATION_READINESS_MATRIX.md`
 - Phase 59 FirstLedger intelligence scope: `docs/PHASE59_FIRSTLEDGER_SNIPER_INTELLIGENCE.md`
 - Phase 60 paper-sniper simulation scope: `docs/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS.md`
+- Phase 61 Xaman manual approval design-spec scope: `docs/PHASE61_XAMAN_MANUAL_APPROVAL_DESIGN_SPEC.md`
 
 ## Program tracking
 

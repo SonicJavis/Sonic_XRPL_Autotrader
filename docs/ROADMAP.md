@@ -213,6 +213,18 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 61 - Xaman Manual Approval Design Spec Only
+
+- Define deterministic manual-approval design contracts only.
+- Add consent UX, replay-protection, expiry/TTL, cancellation, and audit-trail
+  requirements as spec outputs.
+- Add deterministic threat model and implementation blocker register outputs.
+- Keep future testnet and mainnet execution gates blocked.
+- No Xaman payload/API/SDK implementation, no signing/submission/autofill/wallet
+  handling, and no runtime mutation.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.

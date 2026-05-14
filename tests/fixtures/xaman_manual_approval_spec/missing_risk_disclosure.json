@@ -1,0 +1,12 @@
+{
+  "fixture_id": "phase61_missing_risk_disclosure",
+  "candidate_id": "cand_missing_risk",
+  "issuer": "rIssuerRisk",
+  "symbol": "RISK",
+  "intelligence_verdict": "WATCH",
+  "paper_simulation_reference": "phase60_sim_risk_1",
+  "risk_disclosure_present": false,
+  "replay_protection_present": true,
+  "expiry_ttl_present": true,
+  "audit_trail_present": true
+}

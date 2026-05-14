@@ -53,3 +53,9 @@ All existing fail-closed safety boundaries remain authoritative.
 Phase 60 adds a paper-only sniper simulation harness and does not authorize
 live ingestion, live execution, signing, submission, autofill, wallet handling,
 or Xaman payload workflows.
+
+## Phase 61 continuity note
+
+Phase 61 adds a design-spec-only Xaman manual approval layer and does not
+authorize payload creation, signing, submission, autofill, wallet handling,
+testnet execution, or mainnet live execution.

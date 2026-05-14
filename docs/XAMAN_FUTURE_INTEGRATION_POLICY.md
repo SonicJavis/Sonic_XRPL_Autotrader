@@ -29,3 +29,12 @@ The design spec must define:
 ## Approval boundary
 
 No Xaman signing/submission path may be implemented without explicit future human approval in a dedicated live-enablement phase.
+
+## Phase 61 continuity note
+
+Phase 61 adds design-spec-only contracts under
+`src/sonic_xrpl/xaman_manual_approval_spec/`.
+
+Phase 61 does not create payloads, call Xaman APIs, add Xaman SDK
+dependencies, implement signing/submission/autofill, use wallet material, or
+authorize testnet/mainnet execution.

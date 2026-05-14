@@ -16,6 +16,8 @@ Usage:
   python -m sonic_xrpl.cli.main firstledger-intelligence-report --fixture tests/fixtures/firstledger_intelligence/source_backed_healthy.json
   python -m sonic_xrpl.cli.main paper-sniper-simulation --fixture tests/fixtures/paper_sniper_simulation/healthy_candidate_simulated.json
   python -m sonic_xrpl.cli.main paper-sniper-simulation-report --fixture tests/fixtures/paper_sniper_simulation/healthy_candidate_simulated.json
+  python -m sonic_xrpl.cli.main xaman-manual-approval-spec --fixture tests/fixtures/xaman_manual_approval_spec/healthy_design_only.json
+  python -m sonic_xrpl.cli.main xaman-manual-approval-spec-report --fixture tests/fixtures/xaman_manual_approval_spec/healthy_design_only.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -180,6 +182,11 @@ def main(argv: list[str] | None = None) -> int:
     pss_parser.add_argument("--json", action="store_true", help="Output as JSON")
     pssr_parser = subparsers.add_parser("paper-sniper-simulation-report", help="Render Phase 60 paper-sniper simulation markdown summary")
     pssr_parser.add_argument("--fixture", required=True, help="Path to paper-sniper simulation fixture JSON")
+    xms_parser = subparsers.add_parser("xaman-manual-approval-spec", help="Run Phase 61 Xaman manual-approval design spec")
+    xms_parser.add_argument("--fixture", required=True, help="Path to xaman manual-approval fixture JSON")
+    xms_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xmsr_parser = subparsers.add_parser("xaman-manual-approval-spec-report", help="Render Phase 61 Xaman manual-approval markdown summary")
+    xmsr_parser.add_argument("--fixture", required=True, help="Path to xaman manual-approval fixture JSON")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -320,6 +327,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_paper_sniper_simulation(args)
     if args.command == "paper-sniper-simulation-report":
         return _cmd_paper_sniper_simulation_report(args)
+    if args.command == "xaman-manual-approval-spec":
+        return _cmd_xaman_manual_approval_spec(args)
+    if args.command == "xaman-manual-approval-spec-report":
+        return _cmd_xaman_manual_approval_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -980,6 +991,47 @@ def _cmd_paper_sniper_simulation_report(args) -> int:
 
     report = _phase60_paper_sniper(args)
     print(render_paper_sniper_report_markdown(report))
+    return 0
+
+
+def _phase61_xaman_spec(args):
+    from sonic_xrpl.xaman_manual_approval_spec import build_manual_approval_spec, load_manual_approval_spec_fixture
+
+    return build_manual_approval_spec(load_manual_approval_spec_fixture(args.fixture))
+
+
+def _cmd_xaman_manual_approval_spec(args) -> int:
+    """Run Phase 61 design-spec-only Xaman manual approval workflow."""
+    from sonic_xrpl.xaman_manual_approval_spec.reporting import (
+        render_manual_approval_spec_json,
+        render_manual_approval_spec_payload,
+    )
+
+    report = _phase61_xaman_spec(args)
+    if getattr(args, "json", False):
+        print(render_manual_approval_spec_json(report))
+        return 0
+
+    payload = render_manual_approval_spec_payload(report)
+    print("=== Phase 61 Xaman Manual Approval Design Spec ===")
+    print(f"  Fixture                  : {payload['fixture_id']}")
+    print(f"  design_spec_only         : {payload['design_spec_only']}")
+    print(f"  manual_approval_required : {payload['manual_approval_required']}")
+    print(f"  payload_creation_allowed : {payload['payload_creation_allowed']}")
+    print(f"  signing_allowed          : {payload['signing_allowed']}")
+    print(f"  submission_allowed       : {payload['submission_allowed']}")
+    print(f"  live_execution_allowed   : {payload['live_execution_allowed']}")
+    print(f"  valid_design_spec        : {payload['valid_design_spec']}")
+    for item in payload["validation_errors"]:
+        print(f"  - error: {item}")
+    return 0
+
+
+def _cmd_xaman_manual_approval_spec_report(args) -> int:
+    """Render Phase 61 design-spec-only Xaman manual approval markdown report."""
+    from sonic_xrpl.xaman_manual_approval_spec.reporting import render_manual_approval_spec_markdown
+
+    print(render_manual_approval_spec_markdown(_phase61_xaman_spec(args)))
     return 0
 
 

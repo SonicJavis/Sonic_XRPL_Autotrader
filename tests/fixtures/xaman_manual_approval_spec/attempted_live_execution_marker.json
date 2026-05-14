@@ -1,0 +1,13 @@
+{
+  "fixture_id": "phase61_attempt_live",
+  "candidate_id": "cand_live",
+  "issuer": "rIssuerLive",
+  "symbol": "LIVE",
+  "intelligence_verdict": "REVIEW_REQUIRED",
+  "paper_simulation_reference": "phase60_sim_live_1",
+  "risk_disclosure_present": true,
+  "replay_protection_present": true,
+  "expiry_ttl_present": true,
+  "audit_trail_present": true,
+  "attempted_live_execution": true
+}

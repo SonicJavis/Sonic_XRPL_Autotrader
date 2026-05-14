@@ -1,0 +1,12 @@
+{
+  "fixture_id": "phase61_missing_expiry_ttl",
+  "candidate_id": "cand_missing_ttl",
+  "issuer": "rIssuerTTL",
+  "symbol": "TTLS",
+  "intelligence_verdict": "WATCH",
+  "paper_simulation_reference": "phase60_sim_ttl_1",
+  "risk_disclosure_present": true,
+  "replay_protection_present": true,
+  "expiry_ttl_present": false,
+  "audit_trail_present": true
+}

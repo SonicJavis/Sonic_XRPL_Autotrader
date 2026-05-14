@@ -129,6 +129,10 @@ WHITELIST = {
     'no_wallet_material_allowed': "Phase 57 conformance check id for wallet-material blocking",
     'wallet material is allowed by profile': "Phase 57 conformance fail message string",
     'wallet material remains blocked': "Phase 57 conformance pass message string",
+    # Phase 61 Xaman manual-approval design-spec safety flags/markers (non-executing)
+    'autofill_allowed': "Phase 61 design-spec safety flag (must remain false)",
+    'attempted_wallet_material': "Phase 61 fixture/safety marker for blocked wallet-material attempts",
+    'no signing/submission approval': "Phase 61 blocker wording for explicitly blocked capabilities",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

@@ -1,0 +1,13 @@
+{
+  "fixture_id": "phase61_attempt_wallet",
+  "candidate_id": "cand_wallet",
+  "issuer": "rIssuerWallet",
+  "symbol": "WALT",
+  "intelligence_verdict": "REVIEW_REQUIRED",
+  "paper_simulation_reference": "phase60_sim_wallet_1",
+  "risk_disclosure_present": true,
+  "replay_protection_present": true,
+  "expiry_ttl_present": true,
+  "audit_trail_present": true,
+  "attempted_wallet_material": true
+}
