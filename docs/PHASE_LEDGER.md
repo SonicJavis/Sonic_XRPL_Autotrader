@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-14 (Phase 60 paper-only sniper simulation harness)
+**Last updated**: 2026-05-14 (Phase 61 Xaman manual approval design spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -531,3 +531,40 @@ The following phase numbers have partial evidence only:
 - **Rollback notes**: Revert the Phase 60 merge commit if needed; no DB
   migrations, live config changes, or execution-surface mutation introduced.
 - **Next recommended step**: Phase 61 - Xaman Manual Approval Design Spec Only.
+
+---
+
+## Phase 61 - Xaman Manual Approval Design Spec Only
+
+- **Status**: Implemented (design/spec/docs/tests only).
+- **Objective completed**: Added deterministic design-spec-only Xaman manual
+  approval contracts, lifecycle model, threat-model output, blocker register,
+  fixtures, safety tests, and offline CLI render commands.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_manual_approval_spec/`
+  - `tests/fixtures/xaman_manual_approval_spec/`
+  - `tests/unit/test_phase61_xaman_manual_approval_spec.py`
+  - `tests/safety/test_phase61_xaman_manual_approval_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE61_XAMAN_MANUAL_APPROVAL_DESIGN_SPEC.md`
+  - `docs/research/PHASE61_XAMAN_MANUAL_APPROVAL_DESIGN_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 61 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No payload creation, no Xaman API calls, no SDK
+  dependency add, no signing/submission/autofill/wallet handling, no live
+  ingestion, no live execution enablement, and no runtime mutation.
+- **Accuracy notes**: Future testnet/mainnet paths remain blocked by explicit
+  gate markers; attempted unsafe markers fail closed.
+- **Rollback notes**: Revert the Phase 61 merge commit if needed; no DB
+  migrations, live config changes, or execution-surface mutation introduced.
+- **Next recommended step**: Phase 62 - Testnet-only Xaman payload schema and
+  verification design review (still non-submitting).

@@ -75,6 +75,16 @@ Phase 60 adds deterministic paper-sniper simulation under
 - Rejection paths for unsafe or insufficient-evidence candidates.
 - No live ingestion, no execution path, and no wallet/signing/submission.
 
+## Phase 61 Xaman Manual Approval Design Spec Only
+
+Phase 61 adds deterministic design-spec contracts under
+`src/sonic_xrpl/xaman_manual_approval_spec/` using offline fixtures only.
+
+- Spec-only and non-executing.
+- Defines consent UX, replay-protection, audit-trail, and blocker contracts.
+- Explicitly blocks payload creation, signing, submission, autofill, wallet
+  material handling, and live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

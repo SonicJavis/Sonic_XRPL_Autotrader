@@ -1,0 +1,12 @@
+{
+  "fixture_id": "phase61_missing_audit_trail",
+  "candidate_id": "cand_missing_audit",
+  "issuer": "rIssuerAudit",
+  "symbol": "AUDT",
+  "intelligence_verdict": "WATCH",
+  "paper_simulation_reference": "phase60_sim_audit_1",
+  "risk_disclosure_present": true,
+  "replay_protection_present": true,
+  "expiry_ttl_present": true,
+  "audit_trail_present": false
+}

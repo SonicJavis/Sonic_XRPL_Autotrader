@@ -1,0 +1,12 @@
+{
+  "fixture_id": "phase61_healthy_design_only",
+  "candidate_id": "cand_healthy_1",
+  "issuer": "rIssuerHealthy",
+  "symbol": "SAFE",
+  "intelligence_verdict": "PAPER_ONLY_CANDIDATE",
+  "paper_simulation_reference": "phase60_sim_healthy_1",
+  "risk_disclosure_present": true,
+  "replay_protection_present": true,
+  "expiry_ttl_present": true,
+  "audit_trail_present": true
+}
