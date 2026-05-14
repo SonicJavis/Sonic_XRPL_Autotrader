@@ -52,22 +52,25 @@ def load_paper_sniper_batch(path: str | Path) -> PaperSniperBatch:
         notes = row.get("notes", [])
         if not isinstance(notes, list):
             notes = []
-        scenarios.append(
-            PaperSniperScenario(
-                candidate_id=str(row.get("candidate_id") or ""),
-                allow_watch_entry=_to_bool(row.get("allow_watch_entry", False)),
-                allow_missing_holder_simulation=_to_bool(row.get("allow_missing_holder_simulation", False)),
-                stale_policy=str(row.get("stale_policy") or "reduce_confidence"),
-                entry_price_xrp=_to_float(row.get("entry_price_xrp")),
-                exit_price_xrp=_to_float(row.get("exit_price_xrp")),
-                slippage_bps_assumption=_to_int(row.get("slippage_bps_assumption"), 50),
-                latency_seconds_assumption=_to_int(row.get("latency_seconds_assumption"), 4),
-                ledger_window_seconds_assumption=_to_int(row.get("ledger_window_seconds_assumption"), 10),
-                liquidity_available_pct_assumption=_to_float(row.get("liquidity_available_pct_assumption")),
-                outcome_window=str(row.get("outcome_window") or "5m"),
-                notes=tuple(str(item) for item in notes),
+        scenario_kwargs = {
+            "candidate_id": str(row.get("candidate_id") or ""),
+            "allow_watch_entry": _to_bool(row.get("allow_watch_entry", False)),
+            "allow_missing_holder_simulation": _to_bool(row.get("allow_missing_holder_simulation", False)),
+            "stale_policy": str(row.get("stale_policy") or "reduce_confidence"),
+            "entry_price_xrp": _to_float(row.get("entry_price_xrp")),
+            "exit_price_xrp": _to_float(row.get("exit_price_xrp")),
+            "slippage_bps_assumption": _to_int(row.get("slippage_bps_assumption"), 50),
+            "latency_seconds_assumption": _to_int(row.get("latency_seconds_assumption"), 4),
+            "ledger_window_seconds_assumption": _to_int(row.get("ledger_window_seconds_assumption"), 10),
+            "outcome_window": str(row.get("outcome_window") or "5m"),
+            "notes": tuple(str(item) for item in notes),
+        }
+        # Preserve PaperSniperScenario default when key is omitted.
+        if "liquidity_available_pct_assumption" in row:
+            scenario_kwargs["liquidity_available_pct_assumption"] = _to_float(
+                row.get("liquidity_available_pct_assumption")
             )
-        )
+        scenarios.append(PaperSniperScenario(**scenario_kwargs))
 
     if not scenarios:
         scenarios = [

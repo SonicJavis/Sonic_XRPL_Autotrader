@@ -1,3 +1,5 @@
+import json
+
 from sonic_xrpl.paper_sniper_simulation import load_paper_sniper_batch, run_paper_sniper_simulation
 from sonic_xrpl.paper_sniper_simulation.models import FillAssumptionLabel, SimulationDecision
 from sonic_xrpl.paper_sniper_simulation.reporting import (
@@ -81,3 +83,54 @@ def test_reporting_outputs_are_non_executing():
     markdown = render_paper_sniper_report_markdown(report)
     assert '"live_execution_allowed": false' in payload
     assert "Paper-only simulation output" in markdown
+
+
+def test_loader_omitted_liquidity_uses_default(tmp_path):
+    fixture = tmp_path / "omitted_liquidity.json"
+    fixture.write_text(
+        json.dumps(
+            {
+                "intelligence_fixture": "tests/fixtures/firstledger_intelligence/source_backed_healthy.json",
+                "simulations": [
+                    {
+                        "candidate_id": "phase59_source_backed_healthy",
+                        "entry_price_xrp": 0.5,
+                        "exit_price_xrp": 0.6,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    batch = load_paper_sniper_batch(fixture)
+    assert batch.scenarios[0].liquidity_available_pct_assumption == 1.0
+    report = run_paper_sniper_simulation(batch)
+    row = report.results[0]
+    assert row.fill_assumption.label == FillAssumptionLabel.FILLED
+    assert "missing_liquidity_assumption" not in row.limitations
+
+
+def test_loader_explicit_null_liquidity_remains_missing(tmp_path):
+    fixture = tmp_path / "null_liquidity.json"
+    fixture.write_text(
+        json.dumps(
+            {
+                "intelligence_fixture": "tests/fixtures/firstledger_intelligence/source_backed_healthy.json",
+                "simulations": [
+                    {
+                        "candidate_id": "phase59_source_backed_healthy",
+                        "entry_price_xrp": 0.5,
+                        "exit_price_xrp": 0.6,
+                        "liquidity_available_pct_assumption": None,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    batch = load_paper_sniper_batch(fixture)
+    assert batch.scenarios[0].liquidity_available_pct_assumption is None
+    report = run_paper_sniper_simulation(batch)
+    row = report.results[0]
+    assert row.fill_assumption.label == FillAssumptionLabel.NO_FILL
+    assert row.fill_assumption.no_fill_reason == "missing_liquidity_assumption"

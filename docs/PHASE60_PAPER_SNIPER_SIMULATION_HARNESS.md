@@ -29,6 +29,9 @@ models hypothetical paper outcomes only.
 - Explicit fill-assumption labels (`FILLED`, `PARTIAL_FILL`, `NO_FILL`,
   `REJECTED`).
 - Explicit slippage, latency, ledger-window, and liquidity assumptions.
+- Loader default handling: omitted `liquidity_available_pct_assumption` keeps
+  the scenario default (`1.0`); explicit null/empty remains a missing-liquidity
+  assumption and fails closed.
 - Explicit reject/fail-closed reasons for unsafe or insufficient evidence.
 - Deterministic JSON/Markdown report renderers.
 
