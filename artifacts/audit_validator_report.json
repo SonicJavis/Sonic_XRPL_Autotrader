@@ -2,9 +2,9 @@
   "checks": {
     "branch_hygiene": {
       "details": {
-        "git_log": "3535346 Phase 60: add paper-only sniper simulation harness (#67)\n7a0faa9 Phase 59: expand FirstLedger source-backed sniper intelligence (#66)\nd5de798 Phase 58C: Migration-Safe Control Checks (#65)\nd913b0d Phase 58B: Policy and live-readiness spec hardening (#64)\n7c13216 Phase 58A: Guard Hardening and Safety Review Triage (#63)\n38a7f1b Phase 57: consolidate runtime profiles and drift checks (#62)\n7acee83 security: update urllib3 dependency floor (#61)\n9c7350c fix: correct dashboard safety artifact interpretation (#60)\n20787e3 Merge pull request #59 from SonicJavis/production-hardening-task4-dashboard-rebuild-fix\n93c1556 fix: stabilize operator dashboard navigation and safety evidence",
-        "git_status": "M README.md\n M docs/LIVE_READINESS_POLICY.md\n M docs/PHASE_LEDGER.md\n M docs/POLICY_INDEX.md\n M docs/ROADMAP.md\n M docs/XAMAN_FUTURE_INTEGRATION_POLICY.md\n M scripts/guard_critical_changes.py\n M scripts/safety_grep.py\n M src/sonic_xrpl/audit/docs_check.py\n M src/sonic_xrpl/cli/main.py\n?? docs/PHASE61_XAMAN_MANUAL_APPROVAL_DESIGN_SPEC.md\n?? docs/research/PHASE61_XAMAN_MANUAL_APPROVAL_DESIGN_SPEC_RESEARCH.md\n?? src/sonic_xrpl/xaman_manual_approval_spec/\n?? tests/fixtures/xaman_manual_approval_spec/\n?? tests/safety/test_phase61_xaman_manual_approval_safety.py\n?? tests/unit/test_phase61_xaman_manual_approval_spec.py",
-        "uncommitted_files": 16
+        "git_log": "2029b30 Phase 61: Xaman Manual Approval Design Spec Only (#68)\n3535346 Phase 60: add paper-only sniper simulation harness (#67)\n7a0faa9 Phase 59: expand FirstLedger source-backed sniper intelligence (#66)\nd5de798 Phase 58C: Migration-Safe Control Checks (#65)\nd913b0d Phase 58B: Policy and live-readiness spec hardening (#64)\n7c13216 Phase 58A: Guard Hardening and Safety Review Triage (#63)\n38a7f1b Phase 57: consolidate runtime profiles and drift checks (#62)\n7acee83 security: update urllib3 dependency floor (#61)\n9c7350c fix: correct dashboard safety artifact interpretation (#60)\n20787e3 Merge pull request #59 from SonicJavis/production-hardening-task4-dashboard-rebuild-fix",
+        "git_status": "M artifacts/audit_validator_report.json\n M docs/PHASE60_PAPER_SNIPER_SIMULATION_HARNESS.md\n M docs/audit/latest_dependency_audit.json\n M docs/audit/latest_dependency_audit.md\n M src/sonic_xrpl/paper_sniper_simulation/loader.py\n M tests/unit/test_phase60_paper_sniper_simulation.py",
+        "uncommitted_files": 6
       },
       "passed": true
     },
@@ -108,7 +108,7 @@
       "passed": true
     }
   },
-  "generated_at": "2026-05-14T11:34:44.066984+00:00",
+  "generated_at": "2026-05-14T18:42:10.610308+00:00",
   "overall_passed": true,
   "phase": "42.2+",
   "schema_version": "1.0"
