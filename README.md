@@ -95,6 +95,19 @@ Phase 62 adds deterministic schema/verification review contracts under
 - Explicitly blocks payload creation, Xaman API calls, signing, submission,
   wallet material handling, and live execution.
 
+## Phase 63 Xaman Callback Verification Spec
+
+Phase 63 adds deterministic callback authenticity and replay-verification
+design contracts under `src/sonic_xrpl/xaman_callback_verification_spec/`
+using offline fixtures only.
+
+- Callback-spec-only and non-executing.
+- Defines authenticity, nonce/TTL/replay, idempotency, duplicate-callback,
+  audit-trail, consent-linkage, and gate checklist requirements.
+- Explicitly blocks callback handlers, webhook runtime, API routes, payload
+  creation, Xaman API/SDK integration, signing, submission, wallet material
+  handling, testnet execution, and live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

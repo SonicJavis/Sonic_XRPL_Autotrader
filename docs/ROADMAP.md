@@ -236,6 +236,21 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 63 - Xaman Testnet Callback Authenticity + Replay Verification Spec
+
+- Define deterministic callback authenticity and replay-verification contracts.
+- Define required callback/prohibited field checklists, nonce/TTL/replay
+  windows, idempotency expectations, duplicate callback handling, and callback
+  ordering requirements as design outputs only.
+- Define threat model and blocker register for future callback runtime
+  implementation phases.
+- Keep all outputs non-executing and callback-spec-only.
+- No callback handlers, no webhook runtime verification, no API routes, no
+  payload creation, no Xaman API calls or SDK integration, and no
+  signing/submission/autofill/wallet handling.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.

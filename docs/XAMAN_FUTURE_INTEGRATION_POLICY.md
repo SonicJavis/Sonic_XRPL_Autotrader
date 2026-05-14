@@ -47,3 +47,13 @@ only under `src/sonic_xrpl/xaman_testnet_payload_spec/`.
 Phase 62 does not create payloads, call Xaman APIs, add Xaman SDK
 dependencies, implement signing/submission/autofill, or authorize testnet or
 mainnet execution.
+
+## Phase 63 continuity note
+
+Phase 63 adds callback authenticity and replay-verification design contracts
+only under `src/sonic_xrpl/xaman_callback_verification_spec/`.
+
+Phase 63 does not add callback handlers, webhook runtime verification, API
+routes, payload creation, Xaman API calls, SDK dependencies, signing,
+submission, autofill, wallet material handling, testnet execution, or mainnet
+execution.
