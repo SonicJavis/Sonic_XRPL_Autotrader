@@ -38,3 +38,12 @@ Phase 61 adds design-spec-only contracts under
 Phase 61 does not create payloads, call Xaman APIs, add Xaman SDK
 dependencies, implement signing/submission/autofill, use wallet material, or
 authorize testnet/mainnet execution.
+
+## Phase 62 continuity note
+
+Phase 62 adds testnet payload schema and verification design-review contracts
+only under `src/sonic_xrpl/xaman_testnet_payload_spec/`.
+
+Phase 62 does not create payloads, call Xaman APIs, add Xaman SDK
+dependencies, implement signing/submission/autofill, or authorize testnet or
+mainnet execution.

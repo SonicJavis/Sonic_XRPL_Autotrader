@@ -59,3 +59,10 @@ or Xaman payload workflows.
 Phase 61 adds a design-spec-only Xaman manual approval layer and does not
 authorize payload creation, signing, submission, autofill, wallet handling,
 testnet execution, or mainnet live execution.
+
+## Phase 62 continuity note
+
+Phase 62 adds a design-review-only Xaman testnet payload schema and
+verification layer and does not authorize payload creation, Xaman API calls,
+signing, submission, autofill, wallet handling, testnet execution, or mainnet
+live execution.

@@ -1,0 +1,14 @@
+{
+  "fixture_id": "phase62_attempted_submission",
+  "candidate_id": "cand_phase62_7",
+  "requested_network": "xrpl-testnet",
+  "payload_ttl_seconds": 180,
+  "nonce_present": true,
+  "deterministic_reference_id_present": true,
+  "callback_signature_present": true,
+  "callback_replay_cache_present": true,
+  "account_txn_id_present": true,
+  "pre_submit_verification_present": true,
+  "post_submit_verification_present": true,
+  "attempted_submission": true
+}

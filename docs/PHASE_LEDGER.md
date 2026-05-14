@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-14 (Phase 61 Xaman manual approval design spec)
+**Last updated**: 2026-05-14 (Phase 62 Xaman testnet payload schema review)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -568,3 +568,39 @@ The following phase numbers have partial evidence only:
   migrations, live config changes, or execution-surface mutation introduced.
 - **Next recommended step**: Phase 62 - Testnet-only Xaman payload schema and
   verification design review (still non-submitting).
+
+---
+
+## Phase 62 - Xaman Testnet Payload Schema + Verification Design Review
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic testnet payload schema and
+  verification design-review contracts with explicit fail-closed blockers.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_testnet_payload_spec/`
+  - `tests/fixtures/xaman_testnet_payload_spec/`
+  - `tests/unit/test_phase62_xaman_testnet_payload_spec.py`
+  - `tests/safety/test_phase62_xaman_testnet_payload_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE62_XAMAN_TESTNET_PAYLOAD_SCHEMA_REVIEW.md`
+  - `docs/research/PHASE62_XAMAN_TESTNET_PAYLOAD_SCHEMA_REVIEW_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 62 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No payload creation, no Xaman API calls, no SDK
+  dependency add, no signing/submission/autofill/wallet handling, no testnet
+  execution implementation, no mainnet execution, and no runtime mutation.
+- **Accuracy notes**: Testnet-only gating and callback verification remain
+  design-review artifacts; implementation remains blocked.
+- **Rollback notes**: Revert the Phase 62 merge commit if needed; no DB
+  migrations, live config changes, or execution-surface mutation introduced.
+- **Next recommended step**: Phase 63 - Xaman callback authenticity and replay
+  verification implementation design preflight (still non-executing).
