@@ -68,6 +68,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE66_XAMAN_OPERATOR_CONSENT_UX_SPEC_RESEARCH.md",
     "docs/PHASE67_XAMAN_CONSENT_EVIDENCE_PACK_SPEC.md",
     "docs/research/PHASE67_XAMAN_CONSENT_EVIDENCE_PACK_SPEC_RESEARCH.md",
+    "docs/PHASE68_XAMAN_PREFLIGHT_SAFETY_CHECKLIST_SPEC.md",
+    "docs/research/PHASE68_XAMAN_PREFLIGHT_SAFETY_CHECKLIST_SPEC_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -157,6 +159,12 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/xaman_consent_evidence_pack_spec/validation.py",
     "src/sonic_xrpl/xaman_consent_evidence_pack_spec/reporting.py",
     "src/sonic_xrpl/xaman_consent_evidence_pack_spec/loader.py",
+    "src/sonic_xrpl/xaman_preflight_safety_checklist_spec/models.py",
+    "src/sonic_xrpl/xaman_preflight_safety_checklist_spec/checklist.py",
+    "src/sonic_xrpl/xaman_preflight_safety_checklist_spec/gates.py",
+    "src/sonic_xrpl/xaman_preflight_safety_checklist_spec/validation.py",
+    "src/sonic_xrpl/xaman_preflight_safety_checklist_spec/reporting.py",
+    "src/sonic_xrpl/xaman_preflight_safety_checklist_spec/loader.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -231,6 +239,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase66_xaman_operator_consent_ux_safety.py",
     "tests/unit/test_phase67_xaman_consent_evidence_pack_spec.py",
     "tests/safety/test_phase67_xaman_consent_evidence_pack_safety.py",
+    "tests/unit/test_phase68_xaman_preflight_safety_checklist_spec.py",
+    "tests/safety/test_phase68_xaman_preflight_safety_checklist_safety.py",
     "scripts/migration_safe_check.py",
 ]
 

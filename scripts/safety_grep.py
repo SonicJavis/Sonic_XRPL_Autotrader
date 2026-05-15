@@ -158,6 +158,21 @@ WHITELIST = {
     'invalid_wallet_material_marker': "Phase 67 blocked marker for prohibited wallet-material inclusion",
     'invalid_signing_submission_marker': "Phase 67 blocked marker for prohibited signing/submission inclusion",
     'No payload/API/signing/submission authorization': "Phase 67 blocker title declaring prohibited execution capabilities",
+    # Phase 68 preflight safety checklist spec safety text (non-executing blocked-language contracts)
+    'has_no_secrets_gate': "Phase 68 preflight gate key requiring no secret/key material",
+    'missing_no_secrets_gate': "Phase 68 validation key for required no-secrets gate",
+    'has_no_wallet_material_gate': "Phase 68 preflight gate key requiring blocked wallet-material handling",
+    'missing_no_wallet_material_gate': "Phase 68 validation key for required no-wallet-material gate",
+    'has_no_signing_submission_gate': "Phase 68 preflight gate key requiring blocked signing/submission",
+    'missing_no_signing_submission_gate': "Phase 68 validation key for required no-signing/submission gate",
+    'invalid_runtime_runner_marker': "Phase 68 blocked marker for prohibited runtime checklist runner implementation",
+    'invalid_persistence_db_write_marker': "Phase 68 blocked marker for prohibited persistence/DB-write implementation",
+    'No payload/API/signing/submission authorization.': "Phase 68 completeness requirement preserving blocked capabilities",
+    'No-secrets gate': "Phase 68 preflight checklist label requiring no secret/key material",
+    'Confirms no secret/key material inclusion.': "Phase 68 preflight checklist rationale preserving secret/key exclusion",
+    'No-signing/submission gate': "Phase 68 preflight checklist label preserving blocked signing/submission capabilities",
+    'Confirms signing/submission remain blocked.': "Phase 68 preflight checklist rationale preserving blocked signing/submission capabilities",
+    'All no-execution/no-wallet/no-api/no-signing gates must remain explicit.': "Phase 68 completeness requirement preserving blocked wallet/signing capabilities",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

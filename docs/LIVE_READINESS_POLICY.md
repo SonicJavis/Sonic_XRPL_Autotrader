@@ -107,3 +107,12 @@ implementation, persistence implementation, database writes, callback handlers,
 webhook runtime verification, payload creation, Xaman API calls, signing,
 submission, autofill, wallet handling, testnet execution, or mainnet live
 execution.
+
+## Phase 68 continuity note
+
+Phase 68 adds a preflight safety checklist contract design layer and does not
+authorize runtime checklist runner implementation, UI/dashboard/API/runtime
+services, export/download/file-write implementation, persistence
+implementation, database writes, callback handlers, webhook runtime
+verification, payload creation, Xaman API calls, signing, submission, autofill,
+wallet handling, testnet execution, or mainnet live execution.
