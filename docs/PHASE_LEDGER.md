@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-14 (Phase 67 Xaman consent evidence pack spec)
+**Last updated**: 2026-05-15 (Phase 68 Xaman preflight safety checklist spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -791,3 +791,40 @@ The following phase numbers have partial evidence only:
   non-executing; missing evidence and unsafe markers fail closed.
 - **Rollback notes**: Revert the Phase 67 merge commit if needed; no DB
   migrations, live config changes, or execution-surface mutation introduced.
+
+---
+
+## Phase 68 - Xaman Testnet Preflight Safety Checklist Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic preflight checklist contract
+  outputs with explicit required-gate and blocker requirements.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_preflight_safety_checklist_spec/`
+  - `tests/fixtures/xaman_preflight_safety_checklist_spec/`
+  - `tests/unit/test_phase68_xaman_preflight_safety_checklist_spec.py`
+  - `tests/safety/test_phase68_xaman_preflight_safety_checklist_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE68_XAMAN_PREFLIGHT_SAFETY_CHECKLIST_SPEC.md`
+  - `docs/research/PHASE68_XAMAN_PREFLIGHT_SAFETY_CHECKLIST_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `scripts/safety_grep.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 68 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No runtime checklist runner, no UI/API/runtime
+  implementation, no export/file-write implementation, no persistence/DB
+  writes, no callback runtime, no payload creation, no Xaman API/SDK
+  integration, no signing/submission/autofill/wallet handling, no testnet
+  execution, and no live execution.
+- **Accuracy notes**: Preflight checklist outputs remain design-only and
+  non-executing; missing gates and unsafe markers fail closed.
+- **Rollback notes**: Revert the Phase 68 commit if needed; no DB migrations,
+  live config changes, or execution-surface mutation introduced.

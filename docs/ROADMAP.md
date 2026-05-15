@@ -280,6 +280,21 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 68 - Xaman Testnet Preflight Safety Checklist Spec
+
+- Define deterministic preflight checklist contracts and required safety gates.
+- Require evidence-pack, payload schema, callback verification,
+  audit/idempotency, approval-state, and consent-UX prerequisite gates.
+- Require dependency/safety/audit/migration/guard-critical check gates.
+- Require no-secrets/no-wallet-material/no-Xaman-API/no-payload/no-signing/
+  submission/no-testnet/no-live gates.
+- Keep all outputs non-executing and spec-only.
+- No runtime checklist runner, no UI/API/runtime implementation, no
+  export/file-write implementation, no persistence/database writes, and no
+  payload/API/signing/submission/wallet handling.
+
+---
+
 ## Phase 66 - Xaman Testnet Operator Consent UX Contract Spec
 
 - Define deterministic operator consent UX contract requirements.

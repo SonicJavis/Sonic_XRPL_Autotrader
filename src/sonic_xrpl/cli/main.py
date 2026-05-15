@@ -30,6 +30,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-operator-consent-ux-spec-report --fixture tests/fixtures/xaman_operator_consent_ux_spec/healthy_consent_ux_contract.json
   python -m sonic_xrpl.cli.main xaman-consent-evidence-pack-spec --fixture tests/fixtures/xaman_consent_evidence_pack_spec/healthy_evidence_pack.json
   python -m sonic_xrpl.cli.main xaman-consent-evidence-pack-spec-report --fixture tests/fixtures/xaman_consent_evidence_pack_spec/healthy_evidence_pack.json
+  python -m sonic_xrpl.cli.main xaman-preflight-safety-checklist-spec --fixture tests/fixtures/xaman_preflight_safety_checklist_spec/healthy_preflight_checklist_spec.json
+  python -m sonic_xrpl.cli.main xaman-preflight-safety-checklist-spec-report --fixture tests/fixtures/xaman_preflight_safety_checklist_spec/healthy_preflight_checklist_spec.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -229,6 +231,11 @@ def main(argv: list[str] | None = None) -> int:
     xceps_parser.add_argument("--json", action="store_true", help="Output as JSON")
     xcepsr_parser = subparsers.add_parser("xaman-consent-evidence-pack-spec-report", help="Render Phase 67 consent evidence-pack markdown summary")
     xcepsr_parser.add_argument("--fixture", required=True, help="Path to xaman consent evidence-pack fixture JSON")
+    xpscs_parser = subparsers.add_parser("xaman-preflight-safety-checklist-spec", help="Run Phase 68 preflight safety checklist contract spec")
+    xpscs_parser.add_argument("--fixture", required=True, help="Path to xaman preflight safety checklist fixture JSON")
+    xpscs_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xpscsr_parser = subparsers.add_parser("xaman-preflight-safety-checklist-spec-report", help="Render Phase 68 preflight safety checklist markdown summary")
+    xpscsr_parser.add_argument("--fixture", required=True, help="Path to xaman preflight safety checklist fixture JSON")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -397,6 +404,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_consent_evidence_pack_spec(args)
     if args.command == "xaman-consent-evidence-pack-spec-report":
         return _cmd_xaman_consent_evidence_pack_spec_report(args)
+    if args.command == "xaman-preflight-safety-checklist-spec":
+        return _cmd_xaman_preflight_safety_checklist_spec(args)
+    if args.command == "xaman-preflight-safety-checklist-spec-report":
+        return _cmd_xaman_preflight_safety_checklist_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -1891,6 +1902,66 @@ def _cmd_xaman_consent_evidence_pack_spec_report(args) -> int:
     from sonic_xrpl.xaman_consent_evidence_pack_spec.reporting import render_xaman_consent_evidence_pack_markdown
 
     print(render_xaman_consent_evidence_pack_markdown(_phase67_xaman_consent_evidence_pack_spec(args)))
+    return 0
+
+
+def _phase68_xaman_preflight_safety_checklist_spec(args):
+    from sonic_xrpl.xaman_preflight_safety_checklist_spec import (
+        build_xaman_preflight_safety_checklist_spec,
+        load_xaman_preflight_safety_checklist_fixture,
+    )
+
+    return build_xaman_preflight_safety_checklist_spec(
+        load_xaman_preflight_safety_checklist_fixture(args.fixture)
+    )
+
+
+def _cmd_xaman_preflight_safety_checklist_spec(args) -> int:
+    """Run Phase 68 preflight safety checklist contract design-spec review."""
+    from sonic_xrpl.xaman_preflight_safety_checklist_spec.reporting import (
+        render_xaman_preflight_safety_checklist_json,
+        render_xaman_preflight_safety_checklist_payload,
+    )
+
+    report = _phase68_xaman_preflight_safety_checklist_spec(args)
+    if getattr(args, "json", False):
+        print(render_xaman_preflight_safety_checklist_json(report))
+        return 0
+    payload = render_xaman_preflight_safety_checklist_payload(report)
+    print("=== Phase 68 Xaman Preflight Safety Checklist Spec ===")
+    print(f"  Fixture ID                        : {payload['fixture_id']}")
+    print(f"  Outcome                           : {payload['outcome']}")
+    print(f"  preflight_spec_only               : {payload['preflight_spec_only']}")
+    print(f"  runtime_checklist_runner_allowed  : {payload['runtime_checklist_runner_allowed']}")
+    print(f"  export_implementation_allowed     : {payload['export_implementation_allowed']}")
+    print(f"  file_write_allowed                : {payload['file_write_allowed']}")
+    print(f"  ui_implementation_allowed         : {payload['ui_implementation_allowed']}")
+    print(f"  api_route_allowed                 : {payload['api_route_allowed']}")
+    print(f"  runtime_service_allowed           : {payload['runtime_service_allowed']}")
+    print(f"  payload_creation_allowed          : {payload['payload_creation_allowed']}")
+    print(f"  xaman_api_calls_allowed           : {payload['xaman_api_calls_allowed']}")
+    print(f"  testnet_execution_allowed         : {payload['testnet_execution_allowed']}")
+    print(f"  live_execution_allowed            : {payload['live_execution_allowed']}")
+    if payload["validation_errors"]:
+        print("  Validation errors:")
+        for item in payload["validation_errors"]:
+            print(f"    - {item}")
+    else:
+        print("  Validation errors                 : none")
+    return 0
+
+
+def _cmd_xaman_preflight_safety_checklist_spec_report(args) -> int:
+    """Render Phase 68 preflight safety checklist markdown report."""
+    from sonic_xrpl.xaman_preflight_safety_checklist_spec.reporting import (
+        render_xaman_preflight_safety_checklist_markdown,
+    )
+
+    print(
+        render_xaman_preflight_safety_checklist_markdown(
+            _phase68_xaman_preflight_safety_checklist_spec(args)
+        )
+    )
     return 0
 
 

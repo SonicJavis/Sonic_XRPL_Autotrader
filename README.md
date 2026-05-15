@@ -159,6 +159,19 @@ fixtures only.
   implementation, persistence/DB writes, callback runtime, payload/API/
   signing/submission/wallet handling, and testnet/live execution.
 
+## Phase 68 Xaman Preflight Safety Checklist Spec
+
+Phase 68 adds deterministic preflight safety checklist contract outputs under
+`src/sonic_xrpl/xaman_preflight_safety_checklist_spec/` using offline fixtures
+only.
+
+- Spec-only and non-executing.
+- Defines required preflight gates, blocker checks, and checklist outcomes for
+  future approval readiness reviews.
+- Explicitly blocks runtime checklist runners, UI/API/runtime implementation,
+  export/file-write implementation, persistence/DB writes, callback runtime,
+  payload/API/signing/submission/wallet handling, and testnet/live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

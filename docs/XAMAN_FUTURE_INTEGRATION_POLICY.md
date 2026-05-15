@@ -97,3 +97,14 @@ Phase 67 does not implement UI/dashboard/API/runtime services, export/download/
 file-write implementation, persistence/database writes, callback runtime,
 payload creation, Xaman API calls, SDK dependencies, signing, submission,
 autofill, wallet material handling, testnet execution, or mainnet execution.
+
+## Phase 68 continuity note
+
+Phase 68 adds preflight safety checklist contract design outputs only under
+`src/sonic_xrpl/xaman_preflight_safety_checklist_spec/`.
+
+Phase 68 does not implement runtime checklist runners, UI/dashboard/API/runtime
+services, export/download/file-write implementation, persistence/database
+writes, callback runtime, payload creation, Xaman API calls, SDK dependencies,
+signing, submission, autofill, wallet material handling, testnet execution, or
+mainnet execution.
