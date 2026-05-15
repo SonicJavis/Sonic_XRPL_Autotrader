@@ -172,6 +172,20 @@ only.
   export/file-write implementation, persistence/DB writes, callback runtime,
   payload/API/signing/submission/wallet handling, and testnet/live execution.
 
+## Phase 69 Xaman Dry-Run Readiness Review Pack Spec
+
+Phase 69 adds deterministic dry-run readiness review pack outputs under
+`src/sonic_xrpl/xaman_dry_run_readiness_review_spec/` using offline fixtures
+only.
+
+- Spec-only and non-executing.
+- Defines prerequisite-reference completeness and safety-gate status contracts
+  for future dry-run readiness reviews.
+- Explicitly blocks runtime dry-run/checklist runners, UI/API/runtime
+  implementation, export/file-write implementation, persistence/DB writes,
+  callback runtime, payload/API/signing/submission/wallet handling, and
+  testnet/live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

@@ -173,6 +173,16 @@ WHITELIST = {
     'No-signing/submission gate': "Phase 68 preflight checklist label preserving blocked signing/submission capabilities",
     'Confirms signing/submission remain blocked.': "Phase 68 preflight checklist rationale preserving blocked signing/submission capabilities",
     'All no-execution/no-wallet/no-api/no-signing gates must remain explicit.': "Phase 68 completeness requirement preserving blocked wallet/signing capabilities",
+    # Phase 69 dry-run readiness review spec safety text (non-executing blocked-language contracts)
+    'has_no_secrets_status': "Phase 69 readiness status key requiring no secret/key material",
+    'missing_no_secrets_status': "Phase 69 validation key for required no-secrets status",
+    'has_no_wallet_material_status': "Phase 69 readiness status key requiring blocked wallet-material handling",
+    'missing_no_wallet_material_status': "Phase 69 validation key for required no-wallet-material status",
+    'has_no_signing_submission_status': "Phase 69 readiness status key requiring blocked signing/submission",
+    'missing_no_signing_submission_status': "Phase 69 validation key for required no-signing/submission status",
+    'invalid_testnet_approved_marker': "Phase 69 blocked marker for prohibited testnet approval claim",
+    'invalid_live_approved_marker': "Phase 69 blocked marker for prohibited live approval claim",
+    'All no-execution/no-wallet/no-api/no-signing statuses must remain explicit.': "Phase 69 completeness requirement preserving blocked wallet/signing capabilities",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:
