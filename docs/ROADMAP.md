@@ -295,6 +295,21 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 67 - Xaman Testnet Operator Consent Evidence Pack Spec
+
+- Define deterministic evidence-pack envelope and completeness contracts.
+- Define required candidate/provenance/intelligence/simulation/callback/audit/
+  state-machine/consent-UX references for future operator review.
+- Define explicit risk disclosure, stale/missing evidence, and blocker-status
+  requirements as design outputs only.
+- Define traceability matrix requirements across Phase 59-66 artifacts.
+- Keep all outputs non-executing and spec-only.
+- No UI/API/runtime implementation, no export/file-write implementation, no
+  persistence/DB writes, no callback runtime, and no payload/API/signing/
+  submission/autofill/wallet handling.
+
+---
+
 ## Roadmap Reconciliation Notes
 
 - **Phase 48**: Accurate FirstLedger discovery boundary plus dependency audit addendum. This phase established the strict parser boundary and kept missing `observed_at` missing instead of inventing launch times.

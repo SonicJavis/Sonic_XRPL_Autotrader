@@ -146,6 +146,19 @@ Phase 66 adds deterministic operator consent UX contract design outputs under
   writes, callback runtime, payload/API/signing/submission/wallet handling,
   and testnet/live execution.
 
+## Phase 67 Xaman Consent Evidence Pack Spec
+
+Phase 67 adds deterministic operator consent evidence-pack contract outputs
+under `src/sonic_xrpl/xaman_consent_evidence_pack_spec/` using offline
+fixtures only.
+
+- Spec-only and non-executing.
+- Defines evidence completeness, traceability, risk disclosure, and blocker
+  status requirements for future operator consent reviews.
+- Explicitly blocks UI/API/runtime implementation, export/file-write
+  implementation, persistence/DB writes, callback runtime, payload/API/
+  signing/submission/wallet handling, and testnet/live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

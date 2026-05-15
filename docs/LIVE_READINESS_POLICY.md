@@ -98,3 +98,12 @@ services, persistence implementation, database writes, callback handlers,
 webhook runtime verification, payload creation, Xaman API calls, signing,
 submission, autofill, wallet handling, testnet execution, or mainnet live
 execution.
+
+## Phase 67 continuity note
+
+Phase 67 adds an operator-consent evidence-pack contract design layer and does
+not authorize UI/dashboard/API/runtime services, export/download/file-write
+implementation, persistence implementation, database writes, callback handlers,
+webhook runtime verification, payload creation, Xaman API calls, signing,
+submission, autofill, wallet handling, testnet execution, or mainnet live
+execution.
