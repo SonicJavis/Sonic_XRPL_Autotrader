@@ -354,6 +354,22 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 73 - Xaman Testnet Governance Escalation Resolution SLA Spec
+
+- Define deterministic escalation-resolution SLA contracts for owner
+  accountability, due policy, overdue/expiry classification, and blocker
+  handling.
+- Define resolution-evidence linkage and traceability across Phase 70-72
+  governance artifacts.
+- Define conservative readiness classifications:
+  `NOT_READY`, `REVIEW_REQUIRED`, `SPEC_REVIEW_READY`, `OVERDUE`, `BLOCKED`.
+- Keep all outputs non-executing and SLA-spec-only.
+- No runtime SLA engine, no scheduler, no notifications, no callback/webhook
+  runtime, no payload/API/SDK usage, no signing/submission/autofill/wallet
+  handling, no testnet execution, and no live execution.
+
+---
+
 ## Phase 66 - Xaman Testnet Operator Consent UX Contract Spec
 
 - Define deterministic operator consent UX contract requirements.

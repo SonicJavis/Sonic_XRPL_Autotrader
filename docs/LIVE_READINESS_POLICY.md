@@ -152,3 +152,12 @@ UI/dashboard/API/runtime services, persistence implementation, database writes,
 callback handlers, webhook runtime verification, payload creation, Xaman API
 calls, signing, submission, autofill, wallet handling, testnet execution, or
 mainnet live execution.
+
+## Phase 73 continuity note
+
+Phase 73 adds a governance escalation-resolution SLA contract design layer and
+does not authorize runtime SLA engines, schedulers, notification senders,
+runtime services, UI/dashboard/API/runtime services, persistence
+implementation, database writes, callback handlers, webhook runtime
+verification, payload creation, Xaman API calls, signing, submission, autofill,
+wallet handling, testnet execution, or mainnet live execution.

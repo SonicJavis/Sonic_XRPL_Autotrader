@@ -1,0 +1,32 @@
+{
+  "fixture_id": "missing_resolution_evidence",
+  "sla_bundle_id": "bundle-73-missing_resolution_evidence",
+  "sla_records": [
+    {
+      "sla_id": "sla-001",
+      "escalation_id": "esc-001",
+      "workflow_step_id": "wf-001",
+      "attestation_id": "att-001",
+      "signoff_domain": "SAFETY_GUARDS",
+      "governance_domain": "EVIDENCE_INTEGRITY_ESCALATION",
+      "severity": "MEDIUM",
+      "owner_role": "SECURITY_ESCALATION_OWNER",
+      "opened_at": "2026-05-16T00:00:00Z",
+      "due_at": "2026-05-17T00:00:00Z",
+      "due_policy": "one_business_day",
+      "required_resolution_evidence": "evidence-pack-001",
+      "current_status": "RESOLVED_FOR_SPEC_REVIEW",
+      "overdue_classification": "ON_TIME",
+      "expiry_classification": "ACTIVE",
+      "blocker_severity_if_unresolved": "MEDIUM",
+      "limitation_notes": "none"
+    }
+  ],
+  "resolution_evidence_records": [],
+  "has_dependency_audit_resolution": true,
+  "has_safety_scan_triage_resolution": true,
+  "invalid_payload_testnet_live_marker": false,
+  "invalid_wallet_material_ambiguity_marker": false,
+  "invalid_runtime_sla_scheduler_marker": false,
+  "invalid_runtime_notification_marker": false
+}
