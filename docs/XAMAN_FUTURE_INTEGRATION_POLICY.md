@@ -130,3 +130,14 @@ services, export/download/file-write implementation, persistence/database
 writes, callback runtime, payload creation, Xaman API calls, SDK dependencies,
 signing, submission, autofill, wallet material handling, testnet execution, or
 mainnet execution.
+
+## Phase 71 continuity note
+
+Phase 71 adds governance evidence integrity and attestation contract design
+outputs only under
+`src/sonic_xrpl/xaman_governance_evidence_attestation_spec/`.
+
+Phase 71 does not implement runtime attestation services, runtime runners,
+UI/dashboard/API/runtime services, callback runtime, payload creation, Xaman
+API calls, SDK dependencies, signing, submission, autofill, wallet material
+handling, testnet execution, or mainnet execution.

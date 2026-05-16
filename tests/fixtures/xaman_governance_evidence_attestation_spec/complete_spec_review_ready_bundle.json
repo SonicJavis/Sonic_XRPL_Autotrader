@@ -1,0 +1,54 @@
+{
+  "fixture_id": "complete_spec_review_ready_bundle",
+  "bundle_id": "phase71_bundle_001",
+  "evidence_artifacts": [
+    {
+      "evidence_id": "ev_policy_001",
+      "source_path": "docs/XAMAN_FUTURE_INTEGRATION_POLICY.md",
+      "evidence_type": "policy_document",
+      "governance_domain": "XAMAN_PAYLOAD_BOUNDARY",
+      "linked_signoff_domain": "XAMAN_PAYLOAD_BOUNDARY",
+      "deterministic_hash": "sha256:policy001",
+      "provenance_label": "source_backed",
+      "synthetic_only": false,
+      "owner_role": "SECURITY_REVIEWER",
+      "reviewed_at": "2026-05-16T00:00:00Z",
+      "limitation_notes": "spec-only boundary"
+    },
+    {
+      "evidence_id": "ev_safety_001",
+      "source_path": "artifacts/audit_validator_report.json",
+      "evidence_type": "audit_report",
+      "governance_domain": "SAFETY_GUARDS",
+      "linked_signoff_domain": "SAFETY_GUARDS",
+      "deterministic_hash": "sha256:safety001",
+      "provenance_label": "source_backed",
+      "synthetic_only": false,
+      "owner_role": "AUDIT_REVIEWER",
+      "reviewed_at": "2026-05-16T00:00:00Z",
+      "limitation_notes": "green local evidence"
+    }
+  ],
+  "attestations": [
+    {
+      "attestation_id": "att_001",
+      "evidence_id": "ev_policy_001",
+      "reviewer_role": "SECURITY_REVIEWER",
+      "attestation_status": "ATTESTED_FOR_SPEC_REVIEW",
+      "notes": "policy reviewed"
+    },
+    {
+      "attestation_id": "att_002",
+      "evidence_id": "ev_safety_001",
+      "reviewer_role": "AUDIT_REVIEWER",
+      "attestation_status": "ATTESTED_FOR_SPEC_REVIEW",
+      "notes": "audit reviewed"
+    }
+  ],
+  "has_dependency_report": true,
+  "has_safety_scan_triage": true,
+  "has_rollback_evidence": true,
+  "has_incident_response_evidence": true,
+  "invalid_payload_or_execution_approval_marker": false,
+  "invalid_wallet_material_ambiguity_marker": false
+}
