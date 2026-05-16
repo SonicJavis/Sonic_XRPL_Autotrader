@@ -151,3 +151,13 @@ Phase 72 does not implement runtime workflow engines, runtime services,
 UI/dashboard/API/runtime services, callback/webhook runtime, payload creation,
 Xaman API calls, SDK dependencies, signing, submission, autofill, wallet
 material handling, testnet execution, or mainnet execution.
+
+## Phase 73 continuity note
+
+Phase 73 adds governance escalation-resolution SLA contract design outputs only
+under `src/sonic_xrpl/xaman_governance_escalation_resolution_sla_spec/`.
+
+Phase 73 does not implement runtime SLA engines, schedulers, notification
+senders, callback/webhook runtime, UI/dashboard/API/runtime services, payload
+creation, Xaman API calls, SDK dependencies, signing, submission, autofill,
+wallet material handling, testnet execution, or mainnet execution.

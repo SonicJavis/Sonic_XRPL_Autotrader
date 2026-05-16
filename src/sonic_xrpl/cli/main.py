@@ -40,6 +40,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-governance-evidence-attestation-spec-report --fixture tests/fixtures/xaman_governance_evidence_attestation_spec/complete_spec_review_ready_bundle.json
   python -m sonic_xrpl.cli.main xaman-governance-evidence-review-workflow-spec --fixture tests/fixtures/xaman_governance_evidence_review_workflow_spec/complete_spec_review_ready_workflow.json
   python -m sonic_xrpl.cli.main xaman-governance-evidence-review-workflow-spec-report --fixture tests/fixtures/xaman_governance_evidence_review_workflow_spec/complete_spec_review_ready_workflow.json
+  python -m sonic_xrpl.cli.main xaman-governance-escalation-resolution-sla-spec --fixture tests/fixtures/xaman_governance_escalation_resolution_sla_spec/complete_spec_review_ready_sla_bundle.json
+  python -m sonic_xrpl.cli.main xaman-governance-escalation-resolution-sla-spec-report --fixture tests/fixtures/xaman_governance_escalation_resolution_sla_spec/complete_spec_review_ready_sla_bundle.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -267,6 +269,12 @@ def main(argv: list[str] | None = None) -> int:
     xgerwr_parser = subparsers.add_parser("xaman-governance-evidence-review-workflow-spec-report", help="Render Phase 72 governance evidence review workflow markdown summary")
     xgerwr_parser.add_argument("--fixture", required=True, help="Path to xaman governance evidence review workflow fixture JSON")
     xgerwr_parser.add_argument("--output-dir", default="reports/phase72", help="Output directory for report files")
+    xgers_parser = subparsers.add_parser("xaman-governance-escalation-resolution-sla-spec", help="Run Phase 73 governance escalation resolution SLA contract spec")
+    xgers_parser.add_argument("--fixture", required=True, help="Path to xaman governance escalation resolution SLA fixture JSON")
+    xgers_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xgersr_parser = subparsers.add_parser("xaman-governance-escalation-resolution-sla-spec-report", help="Render Phase 73 governance escalation resolution SLA markdown summary")
+    xgersr_parser.add_argument("--fixture", required=True, help="Path to xaman governance escalation resolution SLA fixture JSON")
+    xgersr_parser.add_argument("--output-dir", default="reports/phase73", help="Output directory for report files")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -455,6 +463,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_governance_evidence_review_workflow_spec(args)
     if args.command == "xaman-governance-evidence-review-workflow-spec-report":
         return _cmd_xaman_governance_evidence_review_workflow_spec_report(args)
+    if args.command == "xaman-governance-escalation-resolution-sla-spec":
+        return _cmd_xaman_governance_escalation_resolution_sla_spec(args)
+    if args.command == "xaman-governance-escalation-resolution-sla-spec-report":
+        return _cmd_xaman_governance_escalation_resolution_sla_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -2260,6 +2272,73 @@ def _cmd_xaman_governance_evidence_review_workflow_spec_report(args) -> int:
         report, output_dir=getattr(args, "output_dir", "reports/phase72")
     )
     print(render_xaman_governance_evidence_review_workflow_markdown(report))
+    print(f"\nWrote: {json_path}")
+    print(f"Wrote: {md_path}")
+    return 0
+
+
+def _phase73_xaman_governance_escalation_resolution_sla_spec(args):
+    from sonic_xrpl.xaman_governance_escalation_resolution_sla_spec import (
+        build_xaman_governance_escalation_resolution_sla_spec,
+        load_xaman_governance_escalation_resolution_sla_fixture,
+    )
+
+    return build_xaman_governance_escalation_resolution_sla_spec(
+        load_xaman_governance_escalation_resolution_sla_fixture(args.fixture)
+    )
+
+
+def _cmd_xaman_governance_escalation_resolution_sla_spec(args) -> int:
+    """Run Phase 73 governance escalation resolution SLA contract design-spec review."""
+    from sonic_xrpl.xaman_governance_escalation_resolution_sla_spec.report_writer import (
+        render_xaman_governance_escalation_resolution_sla_json,
+        render_xaman_governance_escalation_resolution_sla_payload,
+    )
+
+    report = _phase73_xaman_governance_escalation_resolution_sla_spec(args)
+    if getattr(args, "json", False):
+        print(render_xaman_governance_escalation_resolution_sla_json(report))
+        return 0
+    payload = render_xaman_governance_escalation_resolution_sla_payload(report)
+    print("=== Phase 73 Xaman Governance Escalation Resolution SLA Spec ===")
+    print(f"  Fixture ID                        : {payload['fixture_id']}")
+    print(f"  Readiness classification          : {payload['readiness_classification']}")
+    print(f"  spec_only                         : {payload['spec_only']}")
+    print(f"  sla_spec_only                     : {payload['sla_spec_only']}")
+    print(f"  runtime_sla_engine_allowed        : {payload['runtime_sla_engine_allowed']}")
+    print(f"  scheduler_allowed                 : {payload['scheduler_allowed']}")
+    print(f"  notification_allowed              : {payload['notification_allowed']}")
+    print(f"  testnet_execution_allowed         : {payload['testnet_execution_allowed']}")
+    print(f"  xaman_payload_creation_allowed    : {payload['xaman_payload_creation_allowed']}")
+    print(f"  xaman_api_calls_allowed           : {payload['xaman_api_calls_allowed']}")
+    print(f"  xaman_sdk_dependency_allowed      : {payload['xaman_sdk_dependency_allowed']}")
+    print(f"  signing_allowed                   : {payload['signing_allowed']}")
+    print(f"  submission_allowed                : {payload['submission_allowed']}")
+    print(f"  autofill_allowed                  : {payload['autofill_allowed']}")
+    print(f"  wallet_material_allowed           : {payload['wallet_material_allowed']}")
+    print(f"  live_execution_allowed            : {payload['live_execution_allowed']}")
+    print(f"  runtime_mutation_allowed          : {payload['runtime_mutation_allowed']}")
+    if payload["validation_errors"]:
+        print("  Validation errors:")
+        for item in payload["validation_errors"]:
+            print(f"    - {item}")
+    else:
+        print("  Validation errors                 : none")
+    return 0
+
+
+def _cmd_xaman_governance_escalation_resolution_sla_spec_report(args) -> int:
+    """Render and write Phase 73 governance escalation resolution SLA reports."""
+    from sonic_xrpl.xaman_governance_escalation_resolution_sla_spec.report_writer import (
+        render_xaman_governance_escalation_resolution_sla_markdown,
+        write_xaman_governance_escalation_resolution_sla_reports,
+    )
+
+    report = _phase73_xaman_governance_escalation_resolution_sla_spec(args)
+    json_path, md_path = write_xaman_governance_escalation_resolution_sla_reports(
+        report, output_dir=getattr(args, "output_dir", "reports/phase73")
+    )
+    print(render_xaman_governance_escalation_resolution_sla_markdown(report))
     print(f"\nWrote: {json_path}")
     print(f"Wrote: {md_path}")
     return 0

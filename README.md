@@ -348,3 +348,22 @@ This phase remains spec-only and non-executing:
 - no signing/submission/autofill/wallet handling
 - no testnet execution
 - no live execution
+
+## Phase 73 Xaman Governance Escalation Resolution SLA Spec
+
+Phase 73 adds deterministic governance escalation-resolution SLA contracts
+under
+`src/sonic_xrpl/xaman_governance_escalation_resolution_sla_spec/`
+with fixture-backed overdue/expiry classification, accountability records, and
+traceability outputs.
+
+This phase remains spec-only and non-executing:
+
+- no runtime SLA engine
+- no scheduler
+- no notification sender
+- no callback/webhook runtime
+- no Xaman payload creation/API/SDK usage
+- no signing/submission/autofill/wallet handling
+- no testnet execution
+- no live execution

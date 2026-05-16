@@ -27,6 +27,7 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Phase 70 Xaman governance sign-off matrix scope: `docs/PHASE70_XAMAN_TESTNET_GOVERNANCE_SIGNOFF_MATRIX_SPEC.md`
 - Phase 71 Xaman governance evidence/attestation scope: `docs/PHASE71_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_INTEGRITY_ATTESTATION_SPEC.md`
 - Phase 72 Xaman governance evidence review workflow scope: `docs/PHASE72_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_REVIEW_WORKFLOW_SPEC.md`
+- Phase 73 Xaman governance escalation resolution SLA scope: `docs/PHASE73_XAMAN_TESTNET_GOVERNANCE_ESCALATION_RESOLUTION_SLA_SPEC.md`
 
 ## Program tracking
 

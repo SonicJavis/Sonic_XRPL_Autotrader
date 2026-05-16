@@ -1,0 +1,45 @@
+{
+  "fixture_id": "rejected_escalation",
+  "sla_bundle_id": "bundle-73-rejected_escalation",
+  "sla_records": [
+    {
+      "sla_id": "sla-001",
+      "escalation_id": "esc-001",
+      "workflow_step_id": "wf-001",
+      "attestation_id": "att-001",
+      "signoff_domain": "SAFETY_GUARDS",
+      "governance_domain": "EVIDENCE_INTEGRITY_ESCALATION",
+      "severity": "MEDIUM",
+      "owner_role": "SECURITY_ESCALATION_OWNER",
+      "opened_at": "2026-05-16T00:00:00Z",
+      "due_at": "2026-05-17T00:00:00Z",
+      "due_policy": "one_business_day",
+      "required_resolution_evidence": "evidence-pack-001",
+      "current_status": "REJECTED",
+      "overdue_classification": "ON_TIME",
+      "expiry_classification": "ACTIVE",
+      "blocker_severity_if_unresolved": "MEDIUM",
+      "limitation_notes": "none"
+    }
+  ],
+  "resolution_evidence_records": [
+    {
+      "resolution_evidence_id": "res-001",
+      "escalation_id": "esc-001",
+      "evidence_artifact_id": "artifact-001",
+      "reviewer_role": "AUDIT_ESCALATION_OWNER",
+      "resolution_reason": "sufficient_spec_evidence",
+      "evidence_integrity_status": "VERIFIED",
+      "attestation_linkage_status": "LINKED",
+      "workflow_linkage_status": "LINKED",
+      "accepted_for_spec_review": true,
+      "limitation_notes": "none"
+    }
+  ],
+  "has_dependency_audit_resolution": true,
+  "has_safety_scan_triage_resolution": true,
+  "invalid_payload_testnet_live_marker": false,
+  "invalid_wallet_material_ambiguity_marker": false,
+  "invalid_runtime_sla_scheduler_marker": false,
+  "invalid_runtime_notification_marker": false
+}
