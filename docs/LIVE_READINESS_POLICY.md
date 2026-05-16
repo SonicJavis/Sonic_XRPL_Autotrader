@@ -134,3 +134,12 @@ export/download/file-write implementation, persistence implementation, database
 writes, callback handlers, webhook runtime verification, payload creation,
 Xaman API calls, signing, submission, autofill, wallet handling, testnet
 execution, or mainnet live execution.
+
+## Phase 71 continuity note
+
+Phase 71 adds a governance evidence-integrity and attestation contract design
+layer and does not authorize runtime attestation services, runtime runners,
+UI/dashboard/API/runtime services, persistence implementation, database writes,
+callback handlers, webhook runtime verification, payload creation, Xaman API
+calls, signing, submission, autofill, wallet handling, testnet execution, or
+mainnet live execution.

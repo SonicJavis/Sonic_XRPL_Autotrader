@@ -198,6 +198,18 @@ only.
 - Explicitly blocks runtime runners, callback runtime, payload/API/SDK usage,
   signing/submission/autofill/wallet handling, and testnet/live execution.
 
+## Phase 71 Xaman Governance Evidence Integrity + Attestation Spec
+
+Phase 71 adds deterministic governance evidence integrity and attestation
+outputs under `src/sonic_xrpl/xaman_governance_evidence_attestation_spec/`
+using offline fixtures only.
+
+- Spec-only and attestation-only.
+- Defines evidence artifact records, attestation records, integrity findings,
+  traceability mapping, and conservative readiness classifications.
+- Explicitly blocks payload/API/SDK usage, signing/submission/autofill/wallet
+  handling, and testnet/live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

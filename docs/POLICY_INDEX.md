@@ -25,6 +25,7 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Phase 68 Xaman preflight safety checklist scope: `docs/PHASE68_XAMAN_PREFLIGHT_SAFETY_CHECKLIST_SPEC.md`
 - Phase 69 Xaman dry-run readiness review scope: `docs/PHASE69_XAMAN_DRY_RUN_READINESS_REVIEW_SPEC.md`
 - Phase 70 Xaman governance sign-off matrix scope: `docs/PHASE70_XAMAN_TESTNET_GOVERNANCE_SIGNOFF_MATRIX_SPEC.md`
+- Phase 71 Xaman governance evidence/attestation scope: `docs/PHASE71_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_INTEGRITY_ATTESTATION_SPEC.md`
 
 ## Program tracking
 

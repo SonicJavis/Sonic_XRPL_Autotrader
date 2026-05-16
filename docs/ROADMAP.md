@@ -323,6 +323,22 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 71 - Xaman Testnet Governance Evidence Integrity + Attestation Spec
+
+- Define deterministic governance evidence artifact records and attestation
+  contracts with explicit owner/reviewer linkage.
+- Define integrity findings for missing artifacts, hash/provenance issues,
+  stale/synthetic evidence, ambiguous sign-off linkage, and missing safety
+  evidence.
+- Define conservative readiness classifications:
+  `NOT_READY`, `REVIEW_REQUIRED`, `SPEC_REVIEW_READY`, `BLOCKED`.
+- Keep all outputs non-executing and spec-only.
+- No runtime attestation service, no callback/webhook runtime, no payload/API/
+  SDK usage, no signing/submission/autofill/wallet handling, no testnet
+  execution, and no live execution.
+
+---
+
 ## Phase 66 - Xaman Testnet Operator Consent UX Contract Spec
 
 - Define deterministic operator consent UX contract requirements.
