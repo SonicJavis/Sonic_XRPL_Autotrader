@@ -141,3 +141,13 @@ Phase 71 does not implement runtime attestation services, runtime runners,
 UI/dashboard/API/runtime services, callback runtime, payload creation, Xaman
 API calls, SDK dependencies, signing, submission, autofill, wallet material
 handling, testnet execution, or mainnet execution.
+
+## Phase 72 continuity note
+
+Phase 72 adds governance evidence review workflow contract design outputs only
+under `src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/`.
+
+Phase 72 does not implement runtime workflow engines, runtime services,
+UI/dashboard/API/runtime services, callback/webhook runtime, payload creation,
+Xaman API calls, SDK dependencies, signing, submission, autofill, wallet
+material handling, testnet execution, or mainnet execution.

@@ -1,0 +1,58 @@
+{
+  "fixture_id": "stale_evidence_escalation",
+  "workflow_id": "phase72_workflow_001",
+  "steps": [
+    {
+      "step_id": "wf1",
+      "stage_type": "INTAKE",
+      "role": "AUDIT_REVIEWER",
+      "status": "READY_FOR_REVIEW",
+      "linked_evidence_id": "ev1",
+      "linked_attestation_id": "att1",
+      "notes": "intake complete"
+    },
+    {
+      "step_id": "wf2",
+      "stage_type": "EVIDENCE_INTEGRITY_REVIEW",
+      "role": "SECURITY_REVIEWER",
+      "status": "IN_REVIEW",
+      "linked_evidence_id": "ev1",
+      "linked_attestation_id": "att1",
+      "notes": "review in progress"
+    }
+  ],
+  "handoffs": [
+    {
+      "handoff_id": "h1",
+      "from_role": "AUDIT_REVIEWER",
+      "to_role": "SECURITY_REVIEWER",
+      "evidence_id": "ev1",
+      "attestation_id": "att1",
+      "governance_domain": "SAFETY_GUARDS",
+      "handoff_reason": "integrity review",
+      "required_action": "review evidence",
+      "blocker_severity_if_unresolved": "HIGH",
+      "limitation_notes": "spec only"
+    }
+  ],
+  "escalations": [
+    {
+      "escalation_id": "e1",
+      "source_step_id": "wf2",
+      "escalation_reason": "stale evidence",
+      "severity": "HIGH",
+      "escalation_owner": "ESCALATION_OWNER",
+      "required_resolution_evidence": "ev_missing_fix",
+      "resolution_status": "OPEN",
+      "limitation_notes": "spec only"
+    }
+  ],
+  "has_evidence_intake": true,
+  "has_dependency_report": true,
+  "has_safety_scan_triage": true,
+  "has_rollback_evidence": true,
+  "has_incident_response_evidence": true,
+  "invalid_payload_testnet_live_marker": false,
+  "invalid_wallet_material_ambiguity_marker": false,
+  "invalid_runtime_workflow_marker": false
+}

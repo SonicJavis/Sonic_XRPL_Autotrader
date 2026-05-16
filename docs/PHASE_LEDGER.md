@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-16 (Phase 71 Xaman governance evidence integrity attestation spec)
+**Last updated**: 2026-05-16 (Phase 72 Xaman governance evidence review workflow spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -938,4 +938,40 @@ The following phase numbers have partial evidence only:
 - **Accuracy notes**: Attestation outputs remain design-only and non-executing;
   missing evidence and unsafe approval markers fail closed.
 - **Rollback notes**: Revert the Phase 71 commit if needed; no DB migrations,
+  live config changes, or execution-surface mutation introduced.
+
+---
+
+## Phase 72 - Xaman Testnet Governance Evidence Review Workflow Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic governance evidence review
+  workflow contract outputs with explicit workflow stages, conservative
+  transition behavior, evidence handoff, escalation, and traceability mapping.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/`
+  - `tests/fixtures/xaman_governance_evidence_review_workflow_spec/`
+  - `tests/unit/test_phase72_xaman_governance_evidence_review_workflow_spec.py`
+  - `tests/safety/test_phase72_xaman_governance_evidence_review_workflow_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE72_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_REVIEW_WORKFLOW_SPEC.md`
+  - `docs/research/PHASE72_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_REVIEW_WORKFLOW_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 72 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No runtime workflow engine, no callback/webhook
+  runtime, no payload creation, no Xaman API/SDK integration, no
+  signing/submission/autofill/wallet handling, no testnet execution, and no
+  live execution.
+- **Accuracy notes**: Workflow outputs remain design-only and non-executing;
+  stale/missing/unsafe markers fail closed.
+- **Rollback notes**: Revert the Phase 72 commit if needed; no DB migrations,
   live config changes, or execution-surface mutation introduced.
