@@ -186,6 +186,18 @@ only.
   callback runtime, payload/API/signing/submission/wallet handling, and
   testnet/live execution.
 
+## Phase 70 Xaman Testnet Governance Sign-Off Matrix Spec
+
+Phase 70 adds deterministic governance sign-off matrix outputs under
+`src/sonic_xrpl/xaman_governance_signoff_matrix_spec/` using offline fixtures
+only.
+
+- Spec-only and non-executing.
+- Defines governance roles, sign-off domains/statuses, evidence requirements,
+  blocker categories, and conservative readiness classifications.
+- Explicitly blocks runtime runners, callback runtime, payload/API/SDK usage,
+  signing/submission/autofill/wallet handling, and testnet/live execution.
+
 ## Phase 58B Policy / Spec Hardening
 
 Phase 58B is documentation/policy/spec hardening only.

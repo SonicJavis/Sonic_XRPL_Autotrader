@@ -1,0 +1,261 @@
+{
+  "autofill_allowed": false,
+  "blockers": [],
+  "fixture_id": "healthy_governance_signoff_matrix",
+  "live_execution_allowed": false,
+  "readiness_classification": "SPEC_ONLY_READY",
+  "runtime_mutation_allowed": false,
+  "signing_allowed": false,
+  "spec": {
+    "blockers": [
+      {
+        "blocker_id": "P7001",
+        "category": "missing_evidence",
+        "detail": "Mandatory sign-off evidence is missing.",
+        "severity": "CRITICAL",
+        "title": "Missing mandatory governance evidence"
+      },
+      {
+        "blocker_id": "P7002",
+        "category": "unsafe_runtime_path",
+        "detail": "Runtime/testnet/live execution authorization is out of scope.",
+        "severity": "CRITICAL",
+        "title": "Runtime authorization blocked"
+      },
+      {
+        "blocker_id": "P7003",
+        "category": "xaman_payload_ambiguity",
+        "detail": "Payload creation must remain explicitly blocked.",
+        "severity": "CRITICAL",
+        "title": "Xaman payload boundary ambiguity"
+      },
+      {
+        "blocker_id": "P7004",
+        "category": "wallet_material_ambiguity",
+        "detail": "Wallet material must remain explicitly blocked.",
+        "severity": "CRITICAL",
+        "title": "Wallet material boundary ambiguity"
+      },
+      {
+        "blocker_id": "P7005",
+        "category": "dependency_risk",
+        "detail": "Dependency risk must be resolved before future implementation.",
+        "severity": "HIGH",
+        "title": "Dependency/supply-chain risk"
+      }
+    ],
+    "evidence_requirements": [
+      {
+        "blocker_severity_if_missing": "CRITICAL",
+        "key": "safety_guards_evidence",
+        "label": "Safety guards evidence",
+        "limitation_notes": "Must preserve fail-closed runtime boundaries.",
+        "mandatory_for_future_testnet_consideration": true,
+        "owner_role": "SECURITY_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "CRITICAL",
+        "key": "xaman_payload_boundary_evidence",
+        "label": "Xaman payload boundary evidence",
+        "limitation_notes": "Phase 70 does not authorize payload creation.",
+        "mandatory_for_future_testnet_consideration": true,
+        "owner_role": "XAMAN_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "CRITICAL",
+        "key": "testnet_boundary_evidence",
+        "label": "Testnet boundary evidence",
+        "limitation_notes": "No testnet execution permitted.",
+        "mandatory_for_future_testnet_consideration": true,
+        "owner_role": "XRPL_PROTOCOL_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "CRITICAL",
+        "key": "wallet_material_boundary_evidence",
+        "label": "Wallet-material boundary evidence",
+        "limitation_notes": "No wallet seed/private-key handling.",
+        "mandatory_for_future_testnet_consideration": true,
+        "owner_role": "SECURITY_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "HIGH",
+        "key": "dependency_supply_chain_evidence",
+        "label": "Dependency supply-chain evidence",
+        "limitation_notes": "No unaudited dependency changes.",
+        "mandatory_for_future_testnet_consideration": true,
+        "owner_role": "AUDIT_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "MEDIUM",
+        "key": "firstledger_data_boundary_evidence",
+        "label": "FirstLedger data boundary evidence",
+        "limitation_notes": "No live ingestion coupling.",
+        "mandatory_for_future_testnet_consideration": true,
+        "owner_role": "RISK_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "HIGH",
+        "key": "operator_consent_evidence",
+        "label": "Operator consent evidence",
+        "limitation_notes": "Must preserve manual approval contract.",
+        "mandatory_for_future_testnet_consideration": true,
+        "owner_role": "OPERATOR",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "HIGH",
+        "key": "rollback_readiness_evidence",
+        "label": "Rollback readiness evidence",
+        "limitation_notes": "Rollback and kill-switch references required.",
+        "mandatory_for_future_testnet_consideration": true,
+        "owner_role": "RELEASE_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "MEDIUM",
+        "key": "observability_evidence",
+        "label": "Observability evidence",
+        "limitation_notes": "Spec-only observability traceability.",
+        "mandatory_for_future_testnet_consideration": false,
+        "owner_role": "AUDIT_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "MEDIUM",
+        "key": "incident_response_evidence",
+        "label": "Incident response evidence",
+        "limitation_notes": "Incident process references required.",
+        "mandatory_for_future_testnet_consideration": false,
+        "owner_role": "SECURITY_REVIEWER",
+        "spec_only": true
+      },
+      {
+        "blocker_severity_if_missing": "LOW",
+        "key": "legal_policy_review_evidence",
+        "label": "Legal/policy review evidence",
+        "limitation_notes": "Policy index alignment and constraints.",
+        "mandatory_for_future_testnet_consideration": false,
+        "owner_role": "RISK_REVIEWER",
+        "spec_only": true
+      }
+    ],
+    "matrix_id": "phase70_matrix_001",
+    "objective": "Xaman testnet governance sign-off matrix contract spec",
+    "phase": "70",
+    "safety_flags": {
+      "autofill_allowed": false,
+      "live_execution_allowed": false,
+      "runtime_mutation_allowed": false,
+      "signing_allowed": false,
+      "spec_only": true,
+      "submission_allowed": false,
+      "testnet_execution_allowed": false,
+      "wallet_material_allowed": false,
+      "xaman_api_calls_allowed": false,
+      "xaman_payload_creation_allowed": false,
+      "xaman_sdk_dependency_allowed": false
+    },
+    "signoff_domains": [
+      "SAFETY_GUARDS",
+      "XAMAN_PAYLOAD_BOUNDARY",
+      "TESTNET_BOUNDARY",
+      "WALLET_MATERIAL_BOUNDARY",
+      "DEPENDENCY_SUPPLY_CHAIN",
+      "FIRSTLEDGER_DATA_BOUNDARY",
+      "OPERATOR_CONSENT",
+      "ROLLBACK_READINESS",
+      "OBSERVABILITY",
+      "INCIDENT_RESPONSE",
+      "LEGAL_POLICY_REVIEW"
+    ],
+    "signoff_roles": [
+      "SECURITY_REVIEWER",
+      "XRPL_PROTOCOL_REVIEWER",
+      "XAMAN_REVIEWER",
+      "OPERATOR",
+      "RISK_REVIEWER",
+      "RELEASE_REVIEWER",
+      "AUDIT_REVIEWER"
+    ],
+    "signoff_statuses": [
+      "NOT_STARTED",
+      "EVIDENCE_PENDING",
+      "READY_FOR_REVIEW",
+      "APPROVED_FOR_SPEC_ONLY",
+      "REJECTED",
+      "BLOCKED",
+      "DEFERRED"
+    ]
+  },
+  "spec_only": true,
+  "submission_allowed": false,
+  "testnet_execution_allowed": false,
+  "traceability_matrix": [
+    {
+      "owner_role": "SECURITY_REVIEWER",
+      "requirement_key": "safety_guards_evidence",
+      "severity_if_missing": "CRITICAL"
+    },
+    {
+      "owner_role": "XAMAN_REVIEWER",
+      "requirement_key": "xaman_payload_boundary_evidence",
+      "severity_if_missing": "CRITICAL"
+    },
+    {
+      "owner_role": "XRPL_PROTOCOL_REVIEWER",
+      "requirement_key": "testnet_boundary_evidence",
+      "severity_if_missing": "CRITICAL"
+    },
+    {
+      "owner_role": "SECURITY_REVIEWER",
+      "requirement_key": "wallet_material_boundary_evidence",
+      "severity_if_missing": "CRITICAL"
+    },
+    {
+      "owner_role": "AUDIT_REVIEWER",
+      "requirement_key": "dependency_supply_chain_evidence",
+      "severity_if_missing": "HIGH"
+    },
+    {
+      "owner_role": "RISK_REVIEWER",
+      "requirement_key": "firstledger_data_boundary_evidence",
+      "severity_if_missing": "MEDIUM"
+    },
+    {
+      "owner_role": "OPERATOR",
+      "requirement_key": "operator_consent_evidence",
+      "severity_if_missing": "HIGH"
+    },
+    {
+      "owner_role": "RELEASE_REVIEWER",
+      "requirement_key": "rollback_readiness_evidence",
+      "severity_if_missing": "HIGH"
+    },
+    {
+      "owner_role": "AUDIT_REVIEWER",
+      "requirement_key": "observability_evidence",
+      "severity_if_missing": "MEDIUM"
+    },
+    {
+      "owner_role": "SECURITY_REVIEWER",
+      "requirement_key": "incident_response_evidence",
+      "severity_if_missing": "MEDIUM"
+    },
+    {
+      "owner_role": "RISK_REVIEWER",
+      "requirement_key": "legal_policy_review_evidence",
+      "severity_if_missing": "LOW"
+    }
+  ],
+  "validation_errors": [],
+  "wallet_material_allowed": false,
+  "xaman_api_calls_allowed": false,
+  "xaman_payload_creation_allowed": false,
+  "xaman_sdk_dependency_allowed": false
+}

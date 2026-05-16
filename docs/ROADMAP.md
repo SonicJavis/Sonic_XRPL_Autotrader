@@ -308,6 +308,21 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 70 - Xaman Testnet Governance Sign-Off Matrix Spec
+
+- Define deterministic governance roles, sign-off domains, statuses, and
+  evidence requirements for future non-executing review controls.
+- Define conservative readiness classifications:
+  `NOT_READY`, `REVIEW_REQUIRED`, `SPEC_ONLY_READY`, `BLOCKED`.
+- Define fail-closed blockers for payload ambiguity, wallet-material ambiguity,
+  dependency risk, and prohibited testnet/live approval markers.
+- Keep all outputs non-executing and governance/spec-only.
+- No runtime runner, no payload creation, no API/SDK usage, no signing/
+  submission/autofill/wallet handling, no testnet execution, and no live
+  execution.
+
+---
+
 ## Phase 66 - Xaman Testnet Operator Consent UX Contract Spec
 
 - Define deterministic operator consent UX contract requirements.

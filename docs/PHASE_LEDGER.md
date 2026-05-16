@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-15 (Phase 69 Xaman dry-run readiness review spec)
+**Last updated**: 2026-05-16 (Phase 70 Xaman governance sign-off matrix spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -865,4 +865,40 @@ The following phase numbers have partial evidence only:
 - **Accuracy notes**: Dry-run readiness outputs remain design-only and
   non-executing; missing references/gates and unsafe markers fail closed.
 - **Rollback notes**: Revert the Phase 69 commit if needed; no DB migrations,
+  live config changes, or execution-surface mutation introduced.
+
+---
+
+## Phase 70 - Xaman Testnet Governance Sign-Off Matrix Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic governance sign-off matrix
+  contract outputs with explicit roles, domains, evidence requirements, blocker
+  categories, and conservative readiness classifications.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_governance_signoff_matrix_spec/`
+  - `tests/fixtures/xaman_governance_signoff_matrix_spec/`
+  - `tests/unit/test_phase70_xaman_governance_signoff_matrix_spec.py`
+  - `tests/safety/test_phase70_xaman_governance_signoff_matrix_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE70_XAMAN_TESTNET_GOVERNANCE_SIGNOFF_MATRIX_SPEC.md`
+  - `docs/research/PHASE70_XAMAN_TESTNET_GOVERNANCE_SIGNOFF_MATRIX_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `scripts/safety_grep.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 70 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No runtime runner, callback/webhook runtime, payload
+  creation, Xaman API/SDK integration, signing/submission/autofill/wallet
+  handling, testnet execution, or live execution.
+- **Accuracy notes**: Governance matrix outputs remain design-only and
+  non-executing; missing evidence and unsafe approval markers fail closed.
+- **Rollback notes**: Revert the Phase 70 commit if needed; no DB migrations,
   live config changes, or execution-surface mutation introduced.

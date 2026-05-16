@@ -34,6 +34,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-preflight-safety-checklist-spec-report --fixture tests/fixtures/xaman_preflight_safety_checklist_spec/healthy_preflight_checklist_spec.json
   python -m sonic_xrpl.cli.main xaman-dry-run-readiness-review-spec --fixture tests/fixtures/xaman_dry_run_readiness_review_spec/healthy_readiness_review_pack.json
   python -m sonic_xrpl.cli.main xaman-dry-run-readiness-review-spec-report --fixture tests/fixtures/xaman_dry_run_readiness_review_spec/healthy_readiness_review_pack.json
+  python -m sonic_xrpl.cli.main xaman-governance-signoff-matrix-spec --fixture tests/fixtures/xaman_governance_signoff_matrix_spec/healthy_governance_signoff_matrix.json
+  python -m sonic_xrpl.cli.main xaman-governance-signoff-matrix-spec-report --fixture tests/fixtures/xaman_governance_signoff_matrix_spec/healthy_governance_signoff_matrix.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -243,6 +245,12 @@ def main(argv: list[str] | None = None) -> int:
     xdr_parser.add_argument("--json", action="store_true", help="Output as JSON")
     xdrr_parser = subparsers.add_parser("xaman-dry-run-readiness-review-spec-report", help="Render Phase 69 dry-run readiness review markdown summary")
     xdrr_parser.add_argument("--fixture", required=True, help="Path to xaman dry-run readiness review fixture JSON")
+    xgsm_parser = subparsers.add_parser("xaman-governance-signoff-matrix-spec", help="Run Phase 70 governance sign-off matrix contract spec")
+    xgsm_parser.add_argument("--fixture", required=True, help="Path to xaman governance sign-off matrix fixture JSON")
+    xgsm_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xgsmr_parser = subparsers.add_parser("xaman-governance-signoff-matrix-spec-report", help="Render Phase 70 governance sign-off matrix markdown summary")
+    xgsmr_parser.add_argument("--fixture", required=True, help="Path to xaman governance sign-off matrix fixture JSON")
+    xgsmr_parser.add_argument("--output-dir", default="reports/phase70", help="Output directory for report files")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -419,6 +427,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_dry_run_readiness_review_spec(args)
     if args.command == "xaman-dry-run-readiness-review-spec-report":
         return _cmd_xaman_dry_run_readiness_review_spec_report(args)
+    if args.command == "xaman-governance-signoff-matrix-spec":
+        return _cmd_xaman_governance_signoff_matrix_spec(args)
+    if args.command == "xaman-governance-signoff-matrix-spec-report":
+        return _cmd_xaman_governance_signoff_matrix_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -2034,6 +2046,69 @@ def _cmd_xaman_dry_run_readiness_review_spec_report(args) -> int:
             _phase69_xaman_dry_run_readiness_review_spec(args)
         )
     )
+    return 0
+
+
+def _phase70_xaman_governance_signoff_matrix_spec(args):
+    from sonic_xrpl.xaman_governance_signoff_matrix_spec import (
+        build_xaman_governance_signoff_matrix_spec,
+        load_xaman_governance_signoff_matrix_fixture,
+    )
+
+    return build_xaman_governance_signoff_matrix_spec(
+        load_xaman_governance_signoff_matrix_fixture(args.fixture)
+    )
+
+
+def _cmd_xaman_governance_signoff_matrix_spec(args) -> int:
+    """Run Phase 70 governance sign-off matrix contract design-spec review."""
+    from sonic_xrpl.xaman_governance_signoff_matrix_spec.reporting import (
+        render_xaman_governance_signoff_matrix_json,
+        render_xaman_governance_signoff_matrix_payload,
+    )
+
+    report = _phase70_xaman_governance_signoff_matrix_spec(args)
+    if getattr(args, "json", False):
+        print(render_xaman_governance_signoff_matrix_json(report))
+        return 0
+    payload = render_xaman_governance_signoff_matrix_payload(report)
+    print("=== Phase 70 Xaman Governance Sign-Off Matrix Spec ===")
+    print(f"  Fixture ID                        : {payload['fixture_id']}")
+    print(f"  Readiness classification          : {payload['readiness_classification']}")
+    print(f"  spec_only                         : {payload['spec_only']}")
+    print(f"  testnet_execution_allowed         : {payload['testnet_execution_allowed']}")
+    print(f"  xaman_payload_creation_allowed    : {payload['xaman_payload_creation_allowed']}")
+    print(f"  xaman_api_calls_allowed           : {payload['xaman_api_calls_allowed']}")
+    print(f"  xaman_sdk_dependency_allowed      : {payload['xaman_sdk_dependency_allowed']}")
+    print(f"  signing_allowed                   : {payload['signing_allowed']}")
+    print(f"  submission_allowed                : {payload['submission_allowed']}")
+    print(f"  autofill_allowed                  : {payload['autofill_allowed']}")
+    print(f"  wallet_material_allowed           : {payload['wallet_material_allowed']}")
+    print(f"  live_execution_allowed            : {payload['live_execution_allowed']}")
+    print(f"  runtime_mutation_allowed          : {payload['runtime_mutation_allowed']}")
+    if payload["validation_errors"]:
+        print("  Validation errors:")
+        for item in payload["validation_errors"]:
+            print(f"    - {item}")
+    else:
+        print("  Validation errors                 : none")
+    return 0
+
+
+def _cmd_xaman_governance_signoff_matrix_spec_report(args) -> int:
+    """Render and write Phase 70 governance sign-off matrix reports."""
+    from sonic_xrpl.xaman_governance_signoff_matrix_spec.reporting import (
+        render_xaman_governance_signoff_matrix_markdown,
+        write_xaman_governance_signoff_matrix_reports,
+    )
+
+    report = _phase70_xaman_governance_signoff_matrix_spec(args)
+    json_path, md_path = write_xaman_governance_signoff_matrix_reports(
+        report, output_dir=getattr(args, "output_dir", "reports/phase70")
+    )
+    print(render_xaman_governance_signoff_matrix_markdown(report))
+    print(f"\nWrote: {json_path}")
+    print(f"Wrote: {md_path}")
     return 0
 
 
