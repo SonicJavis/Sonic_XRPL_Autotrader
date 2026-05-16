@@ -339,6 +339,21 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 72 - Xaman Testnet Governance Evidence Review Workflow Spec
+
+- Define deterministic governance evidence review workflow roles, stages,
+  statuses, transitions, handoffs, and escalation records.
+- Define conservative workflow readiness classifications:
+  `NOT_READY`, `REVIEW_REQUIRED`, `SPEC_REVIEW_READY`, `BLOCKED`.
+- Define fail-closed blocked/review-required outcomes for stale/missing/
+  synthetic/ambiguous evidence and unsafe markers.
+- Keep all outputs non-executing and review-workflow-spec-only.
+- No runtime workflow engine, no callback/webhook runtime, no payload/API/SDK
+  usage, no signing/submission/autofill/wallet handling, no testnet execution,
+  and no live execution.
+
+---
+
 ## Phase 66 - Xaman Testnet Operator Consent UX Contract Spec
 
 - Define deterministic operator consent UX contract requirements.

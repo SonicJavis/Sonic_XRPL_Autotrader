@@ -333,3 +333,18 @@ The Streamlit dashboard includes live shadow surfaces for:
 
 - Live trading is not implemented.
 - Live shadow mode is read-only, shadow-only, and non-executing.
+
+## Phase 72 Xaman Governance Evidence Review Workflow Spec
+
+Phase 72 adds deterministic governance evidence review workflow contracts under
+`src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/` with
+fixture-backed review, handoff, escalation, and traceability outputs.
+
+This phase remains spec-only and non-executing:
+
+- no runtime workflow engine
+- no callback/webhook runtime
+- no Xaman payload creation/API/SDK usage
+- no signing/submission/autofill/wallet handling
+- no testnet execution
+- no live execution

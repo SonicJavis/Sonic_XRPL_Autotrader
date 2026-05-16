@@ -143,3 +143,12 @@ UI/dashboard/API/runtime services, persistence implementation, database writes,
 callback handlers, webhook runtime verification, payload creation, Xaman API
 calls, signing, submission, autofill, wallet handling, testnet execution, or
 mainnet live execution.
+
+## Phase 72 continuity note
+
+Phase 72 adds a governance evidence review workflow contract design layer and
+does not authorize runtime workflow engines, runtime services,
+UI/dashboard/API/runtime services, persistence implementation, database writes,
+callback handlers, webhook runtime verification, payload creation, Xaman API
+calls, signing, submission, autofill, wallet handling, testnet execution, or
+mainnet live execution.

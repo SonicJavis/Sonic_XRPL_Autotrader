@@ -38,6 +38,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-governance-signoff-matrix-spec-report --fixture tests/fixtures/xaman_governance_signoff_matrix_spec/healthy_governance_signoff_matrix.json
   python -m sonic_xrpl.cli.main xaman-governance-evidence-attestation-spec --fixture tests/fixtures/xaman_governance_evidence_attestation_spec/complete_spec_review_ready_bundle.json
   python -m sonic_xrpl.cli.main xaman-governance-evidence-attestation-spec-report --fixture tests/fixtures/xaman_governance_evidence_attestation_spec/complete_spec_review_ready_bundle.json
+  python -m sonic_xrpl.cli.main xaman-governance-evidence-review-workflow-spec --fixture tests/fixtures/xaman_governance_evidence_review_workflow_spec/complete_spec_review_ready_workflow.json
+  python -m sonic_xrpl.cli.main xaman-governance-evidence-review-workflow-spec-report --fixture tests/fixtures/xaman_governance_evidence_review_workflow_spec/complete_spec_review_ready_workflow.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -259,6 +261,12 @@ def main(argv: list[str] | None = None) -> int:
     xgear_parser = subparsers.add_parser("xaman-governance-evidence-attestation-spec-report", help="Render Phase 71 governance evidence attestation markdown summary")
     xgear_parser.add_argument("--fixture", required=True, help="Path to xaman governance evidence attestation fixture JSON")
     xgear_parser.add_argument("--output-dir", default="reports/phase71", help="Output directory for report files")
+    xgerw_parser = subparsers.add_parser("xaman-governance-evidence-review-workflow-spec", help="Run Phase 72 governance evidence review workflow contract spec")
+    xgerw_parser.add_argument("--fixture", required=True, help="Path to xaman governance evidence review workflow fixture JSON")
+    xgerw_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xgerwr_parser = subparsers.add_parser("xaman-governance-evidence-review-workflow-spec-report", help="Render Phase 72 governance evidence review workflow markdown summary")
+    xgerwr_parser.add_argument("--fixture", required=True, help="Path to xaman governance evidence review workflow fixture JSON")
+    xgerwr_parser.add_argument("--output-dir", default="reports/phase72", help="Output directory for report files")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -443,6 +451,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_governance_evidence_attestation_spec(args)
     if args.command == "xaman-governance-evidence-attestation-spec-report":
         return _cmd_xaman_governance_evidence_attestation_spec_report(args)
+    if args.command == "xaman-governance-evidence-review-workflow-spec":
+        return _cmd_xaman_governance_evidence_review_workflow_spec(args)
+    if args.command == "xaman-governance-evidence-review-workflow-spec-report":
+        return _cmd_xaman_governance_evidence_review_workflow_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -2183,6 +2195,71 @@ def _cmd_xaman_governance_evidence_attestation_spec_report(args) -> int:
         report, output_dir=getattr(args, "output_dir", "reports/phase71")
     )
     print(render_xaman_governance_evidence_attestation_markdown(report))
+    print(f"\nWrote: {json_path}")
+    print(f"Wrote: {md_path}")
+    return 0
+
+
+def _phase72_xaman_governance_evidence_review_workflow_spec(args):
+    from sonic_xrpl.xaman_governance_evidence_review_workflow_spec import (
+        build_xaman_governance_evidence_review_workflow_spec,
+        load_xaman_governance_evidence_review_workflow_fixture,
+    )
+
+    return build_xaman_governance_evidence_review_workflow_spec(
+        load_xaman_governance_evidence_review_workflow_fixture(args.fixture)
+    )
+
+
+def _cmd_xaman_governance_evidence_review_workflow_spec(args) -> int:
+    """Run Phase 72 governance evidence review workflow contract design-spec review."""
+    from sonic_xrpl.xaman_governance_evidence_review_workflow_spec.report_writer import (
+        render_xaman_governance_evidence_review_workflow_json,
+        render_xaman_governance_evidence_review_workflow_payload,
+    )
+
+    report = _phase72_xaman_governance_evidence_review_workflow_spec(args)
+    if getattr(args, "json", False):
+        print(render_xaman_governance_evidence_review_workflow_json(report))
+        return 0
+    payload = render_xaman_governance_evidence_review_workflow_payload(report)
+    print("=== Phase 72 Xaman Governance Evidence Review Workflow Spec ===")
+    print(f"  Fixture ID                        : {payload['fixture_id']}")
+    print(f"  Readiness classification          : {payload['readiness_classification']}")
+    print(f"  spec_only                         : {payload['spec_only']}")
+    print(f"  workflow_spec_only                : {payload['workflow_spec_only']}")
+    print(f"  runtime_workflow_allowed          : {payload['runtime_workflow_allowed']}")
+    print(f"  testnet_execution_allowed         : {payload['testnet_execution_allowed']}")
+    print(f"  xaman_payload_creation_allowed    : {payload['xaman_payload_creation_allowed']}")
+    print(f"  xaman_api_calls_allowed           : {payload['xaman_api_calls_allowed']}")
+    print(f"  xaman_sdk_dependency_allowed      : {payload['xaman_sdk_dependency_allowed']}")
+    print(f"  signing_allowed                   : {payload['signing_allowed']}")
+    print(f"  submission_allowed                : {payload['submission_allowed']}")
+    print(f"  autofill_allowed                  : {payload['autofill_allowed']}")
+    print(f"  wallet_material_allowed           : {payload['wallet_material_allowed']}")
+    print(f"  live_execution_allowed            : {payload['live_execution_allowed']}")
+    print(f"  runtime_mutation_allowed          : {payload['runtime_mutation_allowed']}")
+    if payload["validation_errors"]:
+        print("  Validation errors:")
+        for item in payload["validation_errors"]:
+            print(f"    - {item}")
+    else:
+        print("  Validation errors                 : none")
+    return 0
+
+
+def _cmd_xaman_governance_evidence_review_workflow_spec_report(args) -> int:
+    """Render and write Phase 72 governance evidence review workflow reports."""
+    from sonic_xrpl.xaman_governance_evidence_review_workflow_spec.report_writer import (
+        render_xaman_governance_evidence_review_workflow_markdown,
+        write_xaman_governance_evidence_review_workflow_reports,
+    )
+
+    report = _phase72_xaman_governance_evidence_review_workflow_spec(args)
+    json_path, md_path = write_xaman_governance_evidence_review_workflow_reports(
+        report, output_dir=getattr(args, "output_dir", "reports/phase72")
+    )
+    print(render_xaman_governance_evidence_review_workflow_markdown(report))
     print(f"\nWrote: {json_path}")
     print(f"Wrote: {md_path}")
     return 0

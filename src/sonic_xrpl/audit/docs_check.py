@@ -76,6 +76,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE70_XAMAN_TESTNET_GOVERNANCE_SIGNOFF_MATRIX_SPEC_RESEARCH.md",
     "docs/PHASE71_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_INTEGRITY_ATTESTATION_SPEC.md",
     "docs/research/PHASE71_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_INTEGRITY_ATTESTATION_SPEC_RESEARCH.md",
+    "docs/PHASE72_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_REVIEW_WORKFLOW_SPEC.md",
+    "docs/research/PHASE72_XAMAN_TESTNET_GOVERNANCE_EVIDENCE_REVIEW_WORKFLOW_SPEC_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -189,6 +191,12 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/xaman_governance_evidence_attestation_spec/validation.py",
     "src/sonic_xrpl/xaman_governance_evidence_attestation_spec/report_writer.py",
     "src/sonic_xrpl/xaman_governance_evidence_attestation_spec/loader.py",
+    "src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/models.py",
+    "src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/builder.py",
+    "src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/traceability.py",
+    "src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/validation.py",
+    "src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/report_writer.py",
+    "src/sonic_xrpl/xaman_governance_evidence_review_workflow_spec/loader.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -271,6 +279,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase70_xaman_governance_signoff_matrix_safety.py",
     "tests/unit/test_phase71_xaman_governance_evidence_attestation_spec.py",
     "tests/safety/test_phase71_xaman_governance_evidence_attestation_safety.py",
+    "tests/unit/test_phase72_xaman_governance_evidence_review_workflow_spec.py",
+    "tests/safety/test_phase72_xaman_governance_evidence_review_workflow_safety.py",
     "scripts/migration_safe_check.py",
 ]
 
