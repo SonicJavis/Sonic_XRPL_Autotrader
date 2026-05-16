@@ -125,3 +125,12 @@ UI/dashboard/API/runtime services, export/download/file-write implementation,
 persistence implementation, database writes, callback handlers, webhook runtime
 verification, payload creation, Xaman API calls, signing, submission, autofill,
 wallet handling, testnet execution, or mainnet live execution.
+
+## Phase 70 continuity note
+
+Phase 70 adds a governance sign-off matrix contract design layer and does not
+authorize runtime runners, UI/dashboard/API/runtime services,
+export/download/file-write implementation, persistence implementation, database
+writes, callback handlers, webhook runtime verification, payload creation,
+Xaman API calls, signing, submission, autofill, wallet handling, testnet
+execution, or mainnet live execution.

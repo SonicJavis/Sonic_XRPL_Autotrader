@@ -1,0 +1,23 @@
+{
+  "fixture_id": "healthy_governance_signoff_matrix",
+  "matrix_id": "phase70_matrix_001",
+  "has_safety_guards_evidence": true,
+  "has_xaman_payload_boundary_evidence": true,
+  "has_testnet_boundary_evidence": true,
+  "has_wallet_material_boundary_evidence": true,
+  "has_dependency_supply_chain_evidence": true,
+  "has_firstledger_data_boundary_evidence": true,
+  "has_operator_consent_evidence": true,
+  "has_rollback_readiness_evidence": true,
+  "has_observability_evidence": true,
+  "has_incident_response_evidence": true,
+  "has_legal_policy_review_evidence": true,
+  "has_safety_scan_review_triage": true,
+  "has_guard_critical_approval": true,
+  "invalid_xaman_payload_ambiguity_marker": false,
+  "invalid_wallet_material_ambiguity_marker": false,
+  "invalid_dependency_risk_marker": false,
+  "invalid_testnet_approved_marker": false,
+  "invalid_live_approved_marker": false,
+  "invalid_runtime_execution_marker": false
+}

@@ -119,3 +119,14 @@ UI/dashboard/API/runtime services, export/download/file-write implementation,
 persistence/database writes, callback runtime, payload creation, Xaman API
 calls, SDK dependencies, signing, submission, autofill, wallet material
 handling, testnet execution, or mainnet execution.
+
+## Phase 70 continuity note
+
+Phase 70 adds governance sign-off matrix contract design outputs only under
+`src/sonic_xrpl/xaman_governance_signoff_matrix_spec/`.
+
+Phase 70 does not implement runtime runners, UI/dashboard/API/runtime
+services, export/download/file-write implementation, persistence/database
+writes, callback runtime, payload creation, Xaman API calls, SDK dependencies,
+signing, submission, autofill, wallet material handling, testnet execution, or
+mainnet execution.
