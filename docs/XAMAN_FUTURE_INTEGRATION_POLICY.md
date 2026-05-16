@@ -108,3 +108,14 @@ services, export/download/file-write implementation, persistence/database
 writes, callback runtime, payload creation, Xaman API calls, SDK dependencies,
 signing, submission, autofill, wallet material handling, testnet execution, or
 mainnet execution.
+
+## Phase 69 continuity note
+
+Phase 69 adds dry-run readiness review pack contract design outputs only under
+`src/sonic_xrpl/xaman_dry_run_readiness_review_spec/`.
+
+Phase 69 does not implement runtime dry-run runners, runtime checklist runners,
+UI/dashboard/API/runtime services, export/download/file-write implementation,
+persistence/database writes, callback runtime, payload creation, Xaman API
+calls, SDK dependencies, signing, submission, autofill, wallet material
+handling, testnet execution, or mainnet execution.

@@ -295,6 +295,19 @@ and CLI. All existing tests preserved. Live trading blocked.
 
 ---
 
+## Phase 69 - Xaman Testnet Dry-Run Readiness Review Pack Spec
+
+- Define deterministic dry-run readiness review pack contracts and outcomes.
+- Compose prerequisite references from Phase 61-68 spec layers.
+- Require explicit safety-gate and no-execution status completeness.
+- Define fail-closed blocked markers for invalid testnet/live approval claims.
+- Keep all outputs non-executing and spec-only.
+- No runtime dry-run/checklist runner, no UI/API/runtime implementation, no
+  export/file-write implementation, no persistence/database writes, and no
+  payload/API/signing/submission/wallet handling.
+
+---
+
 ## Phase 66 - Xaman Testnet Operator Consent UX Contract Spec
 
 - Define deterministic operator consent UX contract requirements.

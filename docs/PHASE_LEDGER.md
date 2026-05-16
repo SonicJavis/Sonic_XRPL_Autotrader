@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-15 (Phase 68 Xaman preflight safety checklist spec)
+**Last updated**: 2026-05-15 (Phase 69 Xaman dry-run readiness review spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -827,4 +827,42 @@ The following phase numbers have partial evidence only:
 - **Accuracy notes**: Preflight checklist outputs remain design-only and
   non-executing; missing gates and unsafe markers fail closed.
 - **Rollback notes**: Revert the Phase 68 commit if needed; no DB migrations,
+  live config changes, or execution-surface mutation introduced.
+
+---
+
+## Phase 69 - Xaman Testnet Dry-Run Readiness Review Pack Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic dry-run readiness review pack
+  contract outputs with explicit prerequisite-reference and safety-gate status
+  requirements.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_dry_run_readiness_review_spec/`
+  - `tests/fixtures/xaman_dry_run_readiness_review_spec/`
+  - `tests/unit/test_phase69_xaman_dry_run_readiness_review_spec.py`
+  - `tests/safety/test_phase69_xaman_dry_run_readiness_review_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE69_XAMAN_DRY_RUN_READINESS_REVIEW_SPEC.md`
+  - `docs/research/PHASE69_XAMAN_DRY_RUN_READINESS_REVIEW_SPEC_RESEARCH.md`
+  - `src/sonic_xrpl/audit/docs_check.py`
+  - `scripts/guard_critical_changes.py`
+  - `scripts/safety_grep.py`
+  - `README.md`
+  - `docs/ROADMAP.md`
+  - `docs/PHASE_LEDGER.md`
+  - `docs/POLICY_INDEX.md`
+  - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
+  - `docs/LIVE_READINESS_POLICY.md`
+- **Validation target**: Run Phase 69 unit/safety tests, full pytest, safety
+  grep, audit validator, dependency audit strict, migration-safe check, CLI
+  safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No runtime dry-run/checklist runner implementation, no
+  UI/API/runtime implementation, no export/file-write implementation, no
+  persistence/DB writes, no callback runtime, no payload creation, no Xaman
+  API/SDK integration, no signing/submission/autofill/wallet handling, no
+  testnet execution, and no live execution.
+- **Accuracy notes**: Dry-run readiness outputs remain design-only and
+  non-executing; missing references/gates and unsafe markers fail closed.
+- **Rollback notes**: Revert the Phase 69 commit if needed; no DB migrations,
   live config changes, or execution-surface mutation introduced.

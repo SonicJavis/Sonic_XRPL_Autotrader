@@ -23,6 +23,7 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Phase 66 Xaman operator consent UX scope: `docs/PHASE66_XAMAN_OPERATOR_CONSENT_UX_SPEC.md`
 - Phase 67 Xaman consent evidence pack scope: `docs/PHASE67_XAMAN_CONSENT_EVIDENCE_PACK_SPEC.md`
 - Phase 68 Xaman preflight safety checklist scope: `docs/PHASE68_XAMAN_PREFLIGHT_SAFETY_CHECKLIST_SPEC.md`
+- Phase 69 Xaman dry-run readiness review scope: `docs/PHASE69_XAMAN_DRY_RUN_READINESS_REVIEW_SPEC.md`
 
 ## Program tracking
 
