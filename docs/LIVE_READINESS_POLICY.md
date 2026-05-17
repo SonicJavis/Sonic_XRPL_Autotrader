@@ -175,3 +175,7 @@ signing, submission, autofill, wallet handling, testnet execution, or mainnet li
 Phase 75 adds a governance final readiness bundle contract design layer and does not
 authorize runtime readiness services, safety bypasses, payload creation, Xaman API calls,
 signing, submission, autofill, wallet handling, testnet execution, or mainnet live execution.
+
+## Phase 76 review export non-authorization
+
+A Phase 76 export packet is not live-readiness evidence and does not authorize runtime export services, downloadable archives, API/UI export routes, payload creation, Xaman API calls, signing, submission, autofill, wallet handling, testnet execution, or live execution.

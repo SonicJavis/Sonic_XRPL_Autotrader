@@ -84,6 +84,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE74_XAMAN_TESTNET_GOVERNANCE_EXCEPTION_WAIVER_REGISTER_SPEC_RESEARCH.md",
     "docs/PHASE75_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_BUNDLE_SPEC.md",
     "docs/research/PHASE75_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_BUNDLE_SPEC_RESEARCH.md",
+    "docs/PHASE76_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_REVIEW_EXPORT_SPEC.md",
+    "docs/research/PHASE76_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_REVIEW_EXPORT_SPEC_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -311,6 +313,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase74_xaman_governance_exception_waiver_register_safety.py",
     "tests/unit/test_phase75_xaman_governance_final_readiness_bundle_spec.py",
     "tests/safety/test_phase75_xaman_governance_final_readiness_bundle_safety.py",
+    "tests/unit/test_phase76_xaman_governance_final_readiness_review_export_spec.py",
+    "tests/safety/test_phase76_xaman_governance_final_readiness_review_export_safety.py",
     "scripts/migration_safe_check.py",
 ]
 

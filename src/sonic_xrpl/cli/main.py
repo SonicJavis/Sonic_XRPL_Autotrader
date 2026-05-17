@@ -46,6 +46,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-governance-exception-waiver-register-spec-report --fixture tests/fixtures/xaman_governance_exception_waiver_register_spec/complete_spec_review_ready_waiver_register.json
   python -m sonic_xrpl.cli.main xaman-governance-final-readiness-bundle-spec --fixture tests/fixtures/xaman_governance_final_readiness_bundle_spec/complete_spec_review_ready_final_bundle.json
   python -m sonic_xrpl.cli.main xaman-governance-final-readiness-bundle-spec-report --fixture tests/fixtures/xaman_governance_final_readiness_bundle_spec/complete_spec_review_ready_final_bundle.json
+  python -m sonic_xrpl.cli.main xaman-governance-final-readiness-review-export-spec --fixture tests/fixtures/xaman_governance_final_readiness_review_export_spec/complete_spec_review_ready_export_package.json
+  python -m sonic_xrpl.cli.main xaman-governance-final-readiness-review-export-spec-report --fixture tests/fixtures/xaman_governance_final_readiness_review_export_spec/complete_spec_review_ready_export_package.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -291,6 +293,12 @@ def main(argv: list[str] | None = None) -> int:
     xgfrbr_parser = subparsers.add_parser("xaman-governance-final-readiness-bundle-spec-report", help="Render Phase 75 governance final readiness bundle markdown summary")
     xgfrbr_parser.add_argument("--fixture", required=True, help="Path to xaman governance final readiness bundle fixture JSON")
     xgfrbr_parser.add_argument("--output-dir", default="reports/phase75", help="Output directory for report files")
+    xgfrre_parser = subparsers.add_parser("xaman-governance-final-readiness-review-export-spec", help="Run Phase 76 governance final readiness review export contract spec")
+    xgfrre_parser.add_argument("--fixture", required=True, help="Path to xaman governance final readiness review export fixture JSON")
+    xgfrre_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xgfrres_parser = subparsers.add_parser("xaman-governance-final-readiness-review-export-spec-report", help="Render Phase 76 governance final readiness review export markdown summary")
+    xgfrres_parser.add_argument("--fixture", required=True, help="Path to xaman governance final readiness review export fixture JSON")
+    xgfrres_parser.add_argument("--output-dir", default="reports/phase76", help="Output directory for report files")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -491,6 +499,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_governance_final_readiness_bundle_spec(args)
     if args.command == "xaman-governance-final-readiness-bundle-spec-report":
         return _cmd_xaman_governance_final_readiness_bundle_spec_report(args)
+    if args.command == "xaman-governance-final-readiness-review-export-spec":
+        return _cmd_xaman_governance_final_readiness_review_export_spec(args)
+    if args.command == "xaman-governance-final-readiness-review-export-spec-report":
+        return _cmd_xaman_governance_final_readiness_review_export_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -2495,6 +2507,75 @@ def _cmd_xaman_governance_final_readiness_bundle_spec_report(args) -> int:
         report, output_dir=getattr(args, "output_dir", "reports/phase75")
     )
     print(render_xaman_governance_final_readiness_bundle_markdown(report))
+    print(f"\nWrote: {json_path}")
+    print(f"Wrote: {md_path}")
+    return 0
+
+
+def _phase76_xaman_governance_final_readiness_review_export_spec(args):
+    from sonic_xrpl.xaman_governance_final_readiness_review_export_spec import (
+        build_xaman_governance_final_readiness_review_export_spec,
+        load_xaman_governance_final_readiness_review_export_fixture,
+    )
+
+    return build_xaman_governance_final_readiness_review_export_spec(
+        load_xaman_governance_final_readiness_review_export_fixture(args.fixture)
+    )
+
+
+def _cmd_xaman_governance_final_readiness_review_export_spec(args) -> int:
+    """Run Phase 76 governance final readiness review export contract spec."""
+    from sonic_xrpl.xaman_governance_final_readiness_review_export_spec.report_writer import (
+        render_xaman_governance_final_readiness_review_export_json,
+        render_xaman_governance_final_readiness_review_export_payload,
+    )
+
+    report = _phase76_xaman_governance_final_readiness_review_export_spec(args)
+    if getattr(args, "json", False):
+        print(render_xaman_governance_final_readiness_review_export_json(report))
+        return 0
+    payload = render_xaman_governance_final_readiness_review_export_payload(report)
+    print("=== Phase 76 Xaman Governance Final Readiness Review Export Spec ===")
+    print(f"  Fixture ID                        : {payload['fixture_id']}")
+    print(f"  Export readiness classification   : {payload['export_readiness_classification']}")
+    print(f"  spec_only                         : {payload['spec_only']}")
+    print(f"  review_export_spec_only           : {payload['review_export_spec_only']}")
+    print(f"  runtime_export_service_allowed    : {payload['runtime_export_service_allowed']}")
+    print(f"  download_service_allowed          : {payload['download_service_allowed']}")
+    print(f"  api_route_allowed                 : {payload['api_route_allowed']}")
+    print(f"  dashboard_ui_allowed              : {payload['dashboard_ui_allowed']}")
+    print(f"  safety_bypass_allowed             : {payload['safety_bypass_allowed']}")
+    print(f"  testnet_execution_allowed         : {payload['testnet_execution_allowed']}")
+    print(f"  xaman_payload_creation_allowed    : {payload['xaman_payload_creation_allowed']}")
+    print(f"  xaman_api_calls_allowed           : {payload['xaman_api_calls_allowed']}")
+    print(f"  xaman_sdk_dependency_allowed      : {payload['xaman_sdk_dependency_allowed']}")
+    print(f"  signing_allowed                   : {payload['signing_allowed']}")
+    print(f"  submission_allowed                : {payload['submission_allowed']}")
+    print(f"  autofill_allowed                  : {payload['autofill_allowed']}")
+    print(f"  wallet_material_allowed           : {payload['wallet_material_allowed']}")
+    print(f"  live_execution_allowed            : {payload['live_execution_allowed']}")
+    print(f"  runtime_mutation_allowed          : {payload['runtime_mutation_allowed']}")
+    if payload["validation_errors"]:
+        print("  Validation errors:")
+        for item in payload["validation_errors"]:
+            print(f"    - {item}")
+    else:
+        print("  Validation errors                 : none")
+    return 0
+
+
+def _cmd_xaman_governance_final_readiness_review_export_spec_report(args) -> int:
+    """Render and write Phase 76 governance final readiness review export reports."""
+    from sonic_xrpl.xaman_governance_final_readiness_review_export_spec.report_writer import (
+        render_xaman_governance_final_readiness_review_export_markdown,
+        write_xaman_governance_final_readiness_review_export_reports,
+    )
+
+    report = _phase76_xaman_governance_final_readiness_review_export_spec(args)
+    json_path, md_path = write_xaman_governance_final_readiness_review_export_reports(
+        report, output_dir=getattr(args, "output_dir", "reports/phase76")
+    )
+    print(render_xaman_governance_final_readiness_review_export_markdown(report))
     print(f"\nWrote: {json_path}")
     print(f"Wrote: {md_path}")
     return 0

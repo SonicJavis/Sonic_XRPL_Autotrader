@@ -248,3 +248,7 @@ Phase 75 final-bundle tooling is fixture-backed and spec-only. It composes prior
 artifacts, preserves unresolved limitations, and reports conservative final readiness without
 creating a runtime readiness service or any safety bypass path. All outputs keep payload/API/
 signing/submission/autofill/wallet, testnet, live, and runtime-mutation surfaces blocked.
+
+## Phase 76 review export safety boundary
+
+Phase 76 remains a synthetic review-packaging specification only. It does not create a runtime export service, downloadable archives, API/UI export routes, transaction surface, or safety bypass path.

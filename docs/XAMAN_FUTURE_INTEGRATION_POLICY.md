@@ -181,3 +181,7 @@ Phase 75 adds governance final readiness bundle contract design outputs only und
 Phase 75 does not implement runtime readiness services, safety bypasses, payload creation,
 Xaman API calls, SDK dependencies, signing, submission, autofill, wallet material handling,
 testnet execution, or mainnet execution.
+
+## Phase 76 review export boundary
+
+Phase 76 may package deterministic synthetic review evidence for spec review only. It does not authorize runtime export services, downloadable archives, API/UI export routes, payload creation, Xaman API/SDK usage, signing, submission, autofill, wallet handling, testnet execution, or live execution.
