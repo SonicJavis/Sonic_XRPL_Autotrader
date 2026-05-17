@@ -1,0 +1,248 @@
+{
+  "fixture_id": "missing_security_acknowledgement",
+  "approval_packet_id": "packet-78-missing_security_acknowledgement",
+  "source_export_package_id": "export-76-complete",
+  "source_manifest_audit_id": "audit-77-complete",
+  "deterministic_timestamp": "2026-05-17T00:00:00Z",
+  "export_package_present": true,
+  "manifest_audit_present": true,
+  "export_classification": "EXPORT_SPEC_REVIEW_READY",
+  "manifest_audit_classification": "AUDIT_SPEC_REVIEW_READY",
+  "artifact_references": [
+    {
+      "approval_artifact_id": "art-76",
+      "source_phase_number": "76",
+      "source_artifact_type": "EXPORT_PACKAGE",
+      "source_reference": "EXPORT_PACKAGE",
+      "source_hash": "hash-art-76",
+      "required_classification": "REQUIRED",
+      "inclusion_status": "INCLUDED",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "approval_artifact_id": "art-77",
+      "source_phase_number": "77",
+      "source_artifact_type": "MANIFEST_AUDIT",
+      "source_reference": "MANIFEST_AUDIT",
+      "source_hash": "hash-art-77",
+      "required_classification": "REQUIRED",
+      "inclusion_status": "INCLUDED",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "approval_artifact_id": "art-75",
+      "source_phase_number": "75",
+      "source_artifact_type": "FINAL_READINESS_BUNDLE",
+      "source_reference": "FINAL_READINESS_BUNDLE",
+      "source_hash": "hash-art-75",
+      "required_classification": "REQUIRED",
+      "inclusion_status": "INCLUDED",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "approval_artifact_id": "art-70",
+      "source_phase_number": "70",
+      "source_artifact_type": "SIGNOFF_MATRIX",
+      "source_reference": "SIGNOFF_MATRIX",
+      "source_hash": "hash-art-70",
+      "required_classification": "REQUIRED",
+      "inclusion_status": "INCLUDED",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "approval_artifact_id": "art-71",
+      "source_phase_number": "71",
+      "source_artifact_type": "EVIDENCE_ATTESTATION",
+      "source_reference": "EVIDENCE_ATTESTATION",
+      "source_hash": "hash-art-71",
+      "required_classification": "REQUIRED",
+      "inclusion_status": "INCLUDED",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "approval_artifact_id": "art-72",
+      "source_phase_number": "72",
+      "source_artifact_type": "REVIEW_WORKFLOW",
+      "source_reference": "REVIEW_WORKFLOW",
+      "source_hash": "hash-art-72",
+      "required_classification": "REQUIRED",
+      "inclusion_status": "INCLUDED",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "approval_artifact_id": "art-73",
+      "source_phase_number": "73",
+      "source_artifact_type": "ESCALATION_SLA",
+      "source_reference": "ESCALATION_SLA",
+      "source_hash": "hash-art-73",
+      "required_classification": "REQUIRED",
+      "inclusion_status": "INCLUDED",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "approval_artifact_id": "art-74",
+      "source_phase_number": "74",
+      "source_artifact_type": "EXCEPTION_WAIVER_REGISTER",
+      "source_reference": "EXCEPTION_WAIVER_REGISTER",
+      "source_hash": "hash-art-74",
+      "required_classification": "REQUIRED",
+      "inclusion_status": "INCLUDED",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "reviewer_acknowledgements": [
+    {
+      "acknowledgement_id": "ack-xrpl_protocol_reviewer",
+      "reviewer_role": "XRPL_PROTOCOL_REVIEWER",
+      "reviewer_domain": "XRPL_PROTOCOL",
+      "related_artifact_id": "art-77",
+      "acknowledgement_status": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "acknowledgement_limitation": "none",
+      "non_authorization_statement": "spec review only; no execution authorization",
+      "required_evidence_references": [
+        "art-77"
+      ],
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "acknowledgement_id": "ack-xaman_reviewer",
+      "reviewer_role": "XAMAN_REVIEWER",
+      "reviewer_domain": "XAMAN",
+      "related_artifact_id": "art-77",
+      "acknowledgement_status": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "acknowledgement_limitation": "none",
+      "non_authorization_statement": "spec review only; no execution authorization",
+      "required_evidence_references": [
+        "art-77"
+      ],
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "acknowledgement_id": "ack-supply_chain_reviewer",
+      "reviewer_role": "SUPPLY_CHAIN_REVIEWER",
+      "reviewer_domain": "SUPPLY_CHAIN",
+      "related_artifact_id": "art-77",
+      "acknowledgement_status": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "acknowledgement_limitation": "none",
+      "non_authorization_statement": "spec review only; no execution authorization",
+      "required_evidence_references": [
+        "art-77"
+      ],
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "acknowledgement_id": "ack-risk_reviewer",
+      "reviewer_role": "RISK_REVIEWER",
+      "reviewer_domain": "RISK",
+      "related_artifact_id": "art-77",
+      "acknowledgement_status": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "acknowledgement_limitation": "none",
+      "non_authorization_statement": "spec review only; no execution authorization",
+      "required_evidence_references": [
+        "art-77"
+      ],
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "acknowledgement_id": "ack-audit_reviewer",
+      "reviewer_role": "AUDIT_REVIEWER",
+      "reviewer_domain": "AUDIT",
+      "related_artifact_id": "art-77",
+      "acknowledgement_status": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "acknowledgement_limitation": "none",
+      "non_authorization_statement": "spec review only; no execution authorization",
+      "required_evidence_references": [
+        "art-77"
+      ],
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "acknowledgement_id": "ack-operator_reviewer",
+      "reviewer_role": "OPERATOR_REVIEWER",
+      "reviewer_domain": "OPERATOR",
+      "related_artifact_id": "art-77",
+      "acknowledgement_status": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "acknowledgement_limitation": "none",
+      "non_authorization_statement": "spec review only; no execution authorization",
+      "required_evidence_references": [
+        "art-77"
+      ],
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "acknowledgement_id": "ack-final_governance_owner",
+      "reviewer_role": "FINAL_GOVERNANCE_OWNER",
+      "reviewer_domain": "FINAL_GOVERNANCE_OWNER",
+      "related_artifact_id": "art-77",
+      "acknowledgement_status": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "acknowledgement_limitation": "none",
+      "non_authorization_statement": "spec review only; no execution authorization",
+      "required_evidence_references": [
+        "art-77"
+      ],
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "unresolved_blocker_hidden": false,
+  "unresolved_limitation_hidden": false,
+  "expired_waiver_unresolved": false,
+  "revoked_waiver_unresolved": false,
+  "overdue_sla_unresolved": false,
+  "unsafe_waiver_attempt_unresolved": false,
+  "dependency_audit_unresolved": false,
+  "safety_review_unresolved": false,
+  "invalid_xaman_payload_approval_marker": false,
+  "invalid_wallet_material_approval_marker": false,
+  "invalid_signing_submission_autofill_approval_marker": false,
+  "invalid_testnet_live_execution_approval_marker": false,
+  "invalid_runtime_approval_service_marker": false,
+  "invalid_download_service_marker": false,
+  "invalid_api_ui_approval_route_marker": false,
+  "invalid_safety_bypass_marker": false
+}
