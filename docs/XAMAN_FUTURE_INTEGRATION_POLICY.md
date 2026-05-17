@@ -171,3 +171,13 @@ Phase 74 adds governance exception waiver register contract design outputs only 
 Phase 74 does not implement runtime waiver services, safety bypasses, payload creation,
 Xaman API calls, SDK dependencies, signing, submission, autofill, wallet material handling,
 testnet execution, or mainnet execution.
+
+
+## Phase 75 continuity note
+
+Phase 75 adds governance final readiness bundle contract design outputs only under
+`src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/`.
+
+Phase 75 does not implement runtime readiness services, safety bypasses, payload creation,
+Xaman API calls, SDK dependencies, signing, submission, autofill, wallet material handling,
+testnet execution, or mainnet execution.

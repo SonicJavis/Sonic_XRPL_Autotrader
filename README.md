@@ -383,3 +383,19 @@ This phase remains spec-only and non-executing:
 - no signing/submission/autofill/wallet handling
 - no testnet execution
 - no live execution
+
+
+## Phase 75 Xaman Governance Final Readiness Bundle Spec
+
+Phase 75 adds deterministic final governance bundle contracts under
+`src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/` with artifact references,
+completeness checks, limitation register entries, and final fail-closed readiness outputs.
+
+This phase remains spec-only and non-executing:
+
+- no runtime readiness service
+- no safety bypass
+- no Xaman payload creation/API/SDK usage
+- no signing/submission/autofill/wallet handling
+- no testnet execution
+- no live execution

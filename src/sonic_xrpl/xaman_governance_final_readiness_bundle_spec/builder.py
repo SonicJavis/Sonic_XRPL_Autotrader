@@ -1,0 +1,3 @@
+from sonic_xrpl.xaman_governance_final_readiness_bundle_spec.validation import build_xaman_governance_final_readiness_bundle_spec
+
+__all__=["build_xaman_governance_final_readiness_bundle_spec"]
