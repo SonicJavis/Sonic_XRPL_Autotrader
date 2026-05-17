@@ -236,3 +236,7 @@ Phase 76 adds a deterministic final-readiness review export layer for future con
 ## Phase 77 manifest audit layer
 
 Phase 77 adds a deterministic review-export manifest audit layer for future consideration only. It does not create a runtime manifest audit service, downloadable archive, API/UI audit route, safety bypass, or execution path.
+
+## Phase 78 approval packet layer
+
+Phase 78 adds a deterministic review-export approval packet layer for future consideration only. It does not create a runtime approval service, downloadable archive, API/UI approval route, safety bypass, or execution path.

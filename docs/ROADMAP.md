@@ -445,3 +445,9 @@ and CLI. All existing tests preserved. Live trading blocked.
 - Audit Phase 76 manifest consistency, declared-versus-observed hashes, redaction labels, reviewer summaries, limitation coverage, and traceability.
 - Preserve hidden-blocker detection and fail-closed audit classifications.
 - No runtime manifest audit service, no download service, no API/UI audit route, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.
+
+## Phase 78 - Xaman Testnet Governance Review Export Approval Packet Spec
+
+- Compose reviewed export and manifest-audit outputs into a deterministic approval-facing packet for spec review only.
+- Preserve reviewer acknowledgements, explicit non-authorization notices, limitations, and traceability.
+- No runtime approval service, no download service, no API/UI approval route, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.

@@ -189,3 +189,7 @@ Phase 76 may package deterministic synthetic review evidence for spec review onl
 ## Phase 77 manifest audit boundary
 
 Phase 77 may audit deterministic synthetic review-export manifests for spec review only. It does not authorize runtime manifest audit services, downloadable archives, API/UI audit routes, payload creation, Xaman API/SDK usage, signing, submission, autofill, wallet handling, testnet execution, or live execution.
+
+## Phase 78 approval packet boundary
+
+Phase 78 may compose deterministic synthetic approval packets for spec review only. It does not authorize runtime approval services, downloadable archives, API/UI approval routes, payload creation, Xaman API/SDK usage, signing, submission, autofill, wallet handling, testnet execution, or live execution.

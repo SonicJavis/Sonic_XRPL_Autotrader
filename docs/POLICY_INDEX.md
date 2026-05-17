@@ -41,3 +41,5 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - `docs/PHASE76_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_REVIEW_EXPORT_SPEC.md` - deterministic review-export packaging spec only; no runtime export/download/API/UI route.
 
 - `docs/PHASE77_XAMAN_TESTNET_GOVERNANCE_REVIEW_EXPORT_MANIFEST_AUDIT_SPEC.md` - deterministic manifest-audit spec only; no runtime manifest audit/download/API/UI route.
+
+- `docs/PHASE78_XAMAN_TESTNET_GOVERNANCE_REVIEW_EXPORT_APPROVAL_PACKET_SPEC.md` - deterministic approval-packet spec only; approved for spec review only, never execution.

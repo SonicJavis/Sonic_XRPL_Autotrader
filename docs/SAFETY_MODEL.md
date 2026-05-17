@@ -256,3 +256,7 @@ Phase 76 remains a synthetic review-packaging specification only. It does not cr
 ## Phase 77 manifest audit safety boundary
 
 Phase 77 remains a synthetic manifest-audit specification only. It does not create a runtime manifest audit service, downloadable archives, API/UI audit routes, transaction surface, or safety bypass path.
+
+## Phase 78 approval packet safety boundary
+
+Phase 78 remains a synthetic approval-packet specification only. It does not create a runtime approval service, downloadable archives, API/UI approval routes, transaction surface, or safety bypass path.
