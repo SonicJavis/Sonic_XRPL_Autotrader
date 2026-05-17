@@ -200,6 +200,15 @@ WHITELIST = {
     'invalid_testnet_approved_marker': "Phase 69 blocked marker for prohibited testnet approval claim",
     'invalid_live_approved_marker': "Phase 69 blocked marker for prohibited live approval claim",
     'All no-execution/no-wallet/no-api/no-signing statuses must remain explicit.': "Phase 69 completeness requirement preserving blocked wallet/signing capabilities",
+    # Phase 74 governance exception-waiver register spec safety text (non-executing blocked-language contracts)
+    'WALLET_MATERIAL_WAIVER': "Phase 74 waiver-domain identifier for blocked wallet-material exceptions",
+    'WALLET_MATERIAL_WAIVER_ATTEMPT': "Phase 74 blocker identifier for prohibited wallet-material waiver attempts",
+    'SIGNING_SUBMISSION_AUTOFILL_WAIVER_ATTEMPT': "Phase 74 blocker identifier for prohibited signing/submission/autofill waiver attempts",
+    'signing_submission_autofill_waivers_are_blocked': "Phase 74 rule declaring prohibited signing/submission/autofill waivers",
+    'invalid_wallet_material_waiver_marker': "Phase 74 blocked marker for prohibited wallet-material waiver attempts",
+    'invalid_signing_submission_autofill_waiver_marker': "Phase 74 blocked marker for prohibited signing/submission/autofill waiver attempts",
+    'wallet_material_waiver_attempt': "Phase 74 blocker key for prohibited wallet-material waiver attempts",
+    'signing_submission_autofill_waiver_attempt': "Phase 74 blocker key for prohibited signing/submission/autofill waiver attempts",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

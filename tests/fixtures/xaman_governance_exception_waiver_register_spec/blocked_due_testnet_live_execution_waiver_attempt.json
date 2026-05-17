@@ -1,0 +1,47 @@
+{
+  "fixture_id": "blocked_due_testnet_live_execution_waiver_attempt",
+  "waiver_register_id": "bundle-74-blocked_due_testnet_live_execution_waiver_attempt",
+  "deterministic_timestamp": "2026-05-17T00:00:00Z",
+  "waiver_records": [
+    {
+      "waiver_id": "waiver-001",
+      "waiver_domain": "DOCS_DRIFT_WAIVER",
+      "severity": "LOW",
+      "requester_role": "WAIVER_REQUESTER",
+      "reviewer_role": "AUDIT_WAIVER_REVIEWER",
+      "related_phase70_signoff_domain": "SAFETY_GUARDS",
+      "related_phase71_attestation_id": "att-001",
+      "related_phase72_workflow_step_id": "wf-001",
+      "related_phase73_sla_escalation_id": "esc-001",
+      "requested_exception_summary": "temporary documentation drift accepted for spec review only",
+      "required_evidence_ids": [
+        "evidence-001"
+      ],
+      "supplied_evidence_ids": [
+        "evidence-001"
+      ],
+      "stale_evidence_ids": [],
+      "risk_acceptance_rationale": "bounded spec-only exception with explicit remediation",
+      "compensating_control_references": [
+        "control-docs-review"
+      ],
+      "expiry_policy": "expires_on_next_phase_review",
+      "revocation_policy": "revoke_on_material_scope_change",
+      "current_status": "ACCEPTED_FOR_SPEC_REVIEW",
+      "limitation_notes": "spec review only; not execution readiness",
+      "docs_only_spec_only": true,
+      "replacement_waiver_id": "",
+      "safety_flags": [],
+      "dependency_risk_classification": ""
+    }
+  ],
+  "has_dependency_audit_resolution": true,
+  "has_safety_scan_triage_resolution": true,
+  "invalid_xaman_payload_waiver_marker": false,
+  "invalid_wallet_material_waiver_marker": false,
+  "invalid_signing_submission_autofill_waiver_marker": false,
+  "invalid_testnet_live_execution_waiver_marker": true,
+  "invalid_runtime_mutation_waiver_marker": false,
+  "invalid_guard_weakening_waiver_marker": false,
+  "invalid_safety_bypass_marker": false
+}

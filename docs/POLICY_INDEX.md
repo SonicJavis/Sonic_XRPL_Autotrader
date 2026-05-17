@@ -33,3 +33,5 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 
 - Roadmap: `docs/ROADMAP.md`
 - Phase ledger: `docs/PHASE_LEDGER.md`
+
+- Phase 74 Xaman governance exception waiver register scope: `docs/PHASE74_XAMAN_TESTNET_GOVERNANCE_EXCEPTION_WAIVER_REGISTER_SPEC.md`

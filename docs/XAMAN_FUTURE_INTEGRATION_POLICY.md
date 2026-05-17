@@ -161,3 +161,13 @@ Phase 73 does not implement runtime SLA engines, schedulers, notification
 senders, callback/webhook runtime, UI/dashboard/API/runtime services, payload
 creation, Xaman API calls, SDK dependencies, signing, submission, autofill,
 wallet material handling, testnet execution, or mainnet execution.
+
+
+## Phase 74 continuity note
+
+Phase 74 adds governance exception waiver register contract design outputs only under
+`src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/`.
+
+Phase 74 does not implement runtime waiver services, safety bypasses, payload creation,
+Xaman API calls, SDK dependencies, signing, submission, autofill, wallet material handling,
+testnet execution, or mainnet execution.

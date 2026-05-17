@@ -411,3 +411,15 @@ and CLI. All existing tests preserved. Live trading blocked.
 - **Phase 54**: Human-reviewed calibration proposal packs. This phase creates exact proposed before/after values for review only; it does not apply changes or enable live execution.
 - **Phase 55**: The earlier roadmap placeholder listed "Reconciliation V2 and Execution Quality Reports." Repository evidence now shows the implemented Phase 55 is the Human Review Approval Ledger + Calibration Change Request Workflow.
 - **Phase 56**: Existing continuation evidence is present, but Phase 56 remains outside the requested Phase 1-55 migration classification timeline until explicitly reconciled.
+
+
+---
+
+## Phase 74 - Xaman Testnet Governance Exception Waiver Register Spec
+
+- Define deterministic waiver roles, domains, severities, statuses, expiry/revocation rules, and blocker categories.
+- Define waiver traceability across Phase 70-73 governance artifacts.
+- Define conservative readiness classifications:
+  `NOT_READY`, `REVIEW_REQUIRED`, `SPEC_REVIEW_READY`, `EXPIRED`, `REVOKED`, `BLOCKED`.
+- Keep all outputs non-executing and waiver-register-spec-only.
+- No runtime waiver service, no safety bypass, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.

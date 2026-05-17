@@ -232,3 +232,11 @@ Authoritative policy documents for this boundary:
 - `docs/XAMAN_FUTURE_INTEGRATION_POLICY.md`
 - `docs/FIRSTLEDGER_FUTURE_INGESTION_POLICY.md`
 - `docs/POLICY_INDEX.md`
+
+
+## Phase 74 governance exception waiver register safety boundary
+
+Phase 74 waiver-register tooling is fixture-backed and spec-only. It records bounded waiver
+contracts, expiry/revocation rules, and unsafe-waiver blockers without creating a runtime waiver
+service or any safety bypass path. All outputs keep payload/API/signing/submission/autofill/wallet,
+testnet, live, and runtime-mutation surfaces blocked.
