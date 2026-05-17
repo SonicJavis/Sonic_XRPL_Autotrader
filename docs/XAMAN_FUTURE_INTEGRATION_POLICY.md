@@ -185,3 +185,7 @@ testnet execution, or mainnet execution.
 ## Phase 76 review export boundary
 
 Phase 76 may package deterministic synthetic review evidence for spec review only. It does not authorize runtime export services, downloadable archives, API/UI export routes, payload creation, Xaman API/SDK usage, signing, submission, autofill, wallet handling, testnet execution, or live execution.
+
+## Phase 77 manifest audit boundary
+
+Phase 77 may audit deterministic synthetic review-export manifests for spec review only. It does not authorize runtime manifest audit services, downloadable archives, API/UI audit routes, payload creation, Xaman API/SDK usage, signing, submission, autofill, wallet handling, testnet execution, or live execution.

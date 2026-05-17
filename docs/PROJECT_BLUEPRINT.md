@@ -232,3 +232,7 @@ not create a runtime readiness service, safety bypass, or execution path.
 ## Phase 76 review export packaging
 
 Phase 76 adds a deterministic final-readiness review export layer for future consideration only. It does not create a runtime export service, downloadable archive, API/UI export route, safety bypass, or execution path.
+
+## Phase 77 manifest audit layer
+
+Phase 77 adds a deterministic review-export manifest audit layer for future consideration only. It does not create a runtime manifest audit service, downloadable archive, API/UI audit route, safety bypass, or execution path.

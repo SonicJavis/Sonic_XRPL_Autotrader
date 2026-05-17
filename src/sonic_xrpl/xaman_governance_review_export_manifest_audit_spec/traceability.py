@@ -1,0 +1,4 @@
+from sonic_xrpl.xaman_governance_review_export_manifest_audit_spec.models import XamanGovernanceReviewExportManifestAuditReport
+
+def render_traceability_audit_map(report:XamanGovernanceReviewExportManifestAuditReport):
+    return {'package_links':[{'source_package_id':report.spec.source_package_id,'source_manifest_id':report.spec.source_manifest_id,'audit_bundle_id':report.spec.audit_bundle_id}], 'record_links':[{'audit_record_id':r.audit_record_id,'source_artifact_id':r.source_artifact_id,'source_phase_number':r.source_phase_number,'audit_status':r.audit_status} for r in report.spec.manifest_audit_records], 'finding_links':[{'finding_id':f.finding_id,'category':f.category,'related_record_id':f.related_record_id} for f in report.spec.audit_findings], 'outcome_links':[{'final_audit_classification':report.final_audit_classification,'finding_count':str(len(report.spec.audit_findings)),'limitation_count':str(len(report.spec.audit_limitation_register))}]}

@@ -179,3 +179,7 @@ signing, submission, autofill, wallet handling, testnet execution, or mainnet li
 ## Phase 76 review export non-authorization
 
 A Phase 76 export packet is not live-readiness evidence and does not authorize runtime export services, downloadable archives, API/UI export routes, payload creation, Xaman API calls, signing, submission, autofill, wallet handling, testnet execution, or live execution.
+
+## Phase 77 manifest audit non-authorization
+
+A Phase 77 manifest audit is not live-readiness evidence and does not authorize runtime manifest audit services, downloadable archives, API/UI audit routes, payload creation, Xaman API calls, signing, submission, autofill, wallet handling, testnet execution, or live execution.

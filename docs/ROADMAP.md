@@ -439,3 +439,9 @@ and CLI. All existing tests preserved. Live trading blocked.
 - Package Phase 75 plus Phase 70-74 support evidence into a deterministic reviewer export spec.
 - Preserve inclusion/redaction state, manifest references, reviewer summaries, limitations, and traceability.
 - No runtime export service, no download service, no API/UI export route, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.
+
+## Phase 77 - Xaman Testnet Governance Review Export Manifest Audit Spec
+
+- Audit Phase 76 manifest consistency, declared-versus-observed hashes, redaction labels, reviewer summaries, limitation coverage, and traceability.
+- Preserve hidden-blocker detection and fail-closed audit classifications.
+- No runtime manifest audit service, no download service, no API/UI audit route, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.
