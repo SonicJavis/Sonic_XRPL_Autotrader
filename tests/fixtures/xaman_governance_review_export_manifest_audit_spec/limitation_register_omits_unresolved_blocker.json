@@ -1,0 +1,186 @@
+{
+  "fixture_id": "limitation_register_omits_unresolved_blocker",
+  "audit_bundle_id": "audit-77-limitation_register_omits_unresolved_blocker",
+  "source_manifest_id": "manifest-76-complete",
+  "source_package_id": "export-76-complete",
+  "deterministic_timestamp": "2026-05-17T00:00:00Z",
+  "manifest_present": true,
+  "manifest_audit_records": [
+    {
+      "audit_record_id": "rec-art-75",
+      "audit_domain": "PHASE75_FINAL_READINESS_BUNDLE_REPORT",
+      "source_manifest_id": "manifest-76-complete",
+      "source_artifact_id": "art-75",
+      "source_phase_number": "75",
+      "declared_source_reference": "reports/phase75/latest_xaman_governance_final_readiness_bundle_spec.json",
+      "declared_content_hash": "hash-art-75",
+      "observed_content_hash": "hash-art-75",
+      "inclusion_status": "INCLUDED",
+      "redaction_status": "NO_REDACTION_REQUIRED",
+      "reviewer_visibility": "VISIBLE",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "NONE",
+      "limitation_notes": "covered",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "audit_record_id": "rec-art-70",
+      "audit_domain": "PHASE70_SIGNOFF_MATRIX_REPORT",
+      "source_manifest_id": "manifest-76-complete",
+      "source_artifact_id": "art-70",
+      "source_phase_number": "70",
+      "declared_source_reference": "reports/phase70/latest_xaman_governance_signoff_matrix_spec.json",
+      "declared_content_hash": "hash-art-70",
+      "observed_content_hash": "hash-art-70",
+      "inclusion_status": "INCLUDED",
+      "redaction_status": "NO_REDACTION_REQUIRED",
+      "reviewer_visibility": "VISIBLE",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "NONE",
+      "limitation_notes": "covered",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "audit_record_id": "rec-art-71",
+      "audit_domain": "PHASE71_ATTESTATION_BUNDLE_REPORT",
+      "source_manifest_id": "manifest-76-complete",
+      "source_artifact_id": "art-71",
+      "source_phase_number": "71",
+      "declared_source_reference": "reports/phase71/latest_xaman_governance_evidence_attestation_spec.json",
+      "declared_content_hash": "hash-art-71",
+      "observed_content_hash": "hash-art-71",
+      "inclusion_status": "INCLUDED",
+      "redaction_status": "NO_REDACTION_REQUIRED",
+      "reviewer_visibility": "VISIBLE",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "NONE",
+      "limitation_notes": "covered",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "audit_record_id": "rec-art-72",
+      "audit_domain": "PHASE72_REVIEW_WORKFLOW_REPORT",
+      "source_manifest_id": "manifest-76-complete",
+      "source_artifact_id": "art-72",
+      "source_phase_number": "72",
+      "declared_source_reference": "reports/phase72/latest_xaman_governance_evidence_review_workflow_spec.json",
+      "declared_content_hash": "hash-art-72",
+      "observed_content_hash": "hash-art-72",
+      "inclusion_status": "INCLUDED",
+      "redaction_status": "NO_REDACTION_REQUIRED",
+      "reviewer_visibility": "VISIBLE",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "NONE",
+      "limitation_notes": "covered",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "audit_record_id": "rec-art-73",
+      "audit_domain": "PHASE73_SLA_BUNDLE_REPORT",
+      "source_manifest_id": "manifest-76-complete",
+      "source_artifact_id": "art-73",
+      "source_phase_number": "73",
+      "declared_source_reference": "reports/phase73/latest_xaman_governance_escalation_resolution_sla_spec.json",
+      "declared_content_hash": "hash-art-73",
+      "observed_content_hash": "hash-art-73",
+      "inclusion_status": "INCLUDED",
+      "redaction_status": "NO_REDACTION_REQUIRED",
+      "reviewer_visibility": "VISIBLE",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "NONE",
+      "limitation_notes": "covered",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "audit_record_id": "rec-art-74",
+      "audit_domain": "PHASE74_WAIVER_REGISTER_REPORT",
+      "source_manifest_id": "manifest-76-complete",
+      "source_artifact_id": "art-74",
+      "source_phase_number": "74",
+      "declared_source_reference": "reports/phase74/latest_xaman_governance_exception_waiver_register_spec.json",
+      "declared_content_hash": "hash-art-74",
+      "observed_content_hash": "hash-art-74",
+      "inclusion_status": "INCLUDED",
+      "redaction_status": "NO_REDACTION_REQUIRED",
+      "reviewer_visibility": "VISIBLE",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "NONE",
+      "limitation_notes": "covered",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "audit_record_id": "rec-art-dep",
+      "audit_domain": "DEPENDENCY_AUDIT_SUMMARY",
+      "source_manifest_id": "manifest-76-complete",
+      "source_artifact_id": "art-dep",
+      "source_phase_number": "48",
+      "declared_source_reference": "docs/audit/latest_dependency_audit.json",
+      "declared_content_hash": "hash-art-dep",
+      "observed_content_hash": "hash-art-dep",
+      "inclusion_status": "INCLUDED",
+      "redaction_status": "NO_REDACTION_REQUIRED",
+      "reviewer_visibility": "VISIBLE",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "NONE",
+      "limitation_notes": "covered",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "audit_record_id": "rec-art-safety",
+      "audit_domain": "SAFETY_SCAN_SUMMARY",
+      "source_manifest_id": "manifest-76-complete",
+      "source_artifact_id": "art-safety",
+      "source_phase_number": "58A",
+      "declared_source_reference": "docs/PHASE58A_SAFETY_REVIEW_TRIAGE.md",
+      "declared_content_hash": "hash-art-safety",
+      "observed_content_hash": "hash-art-safety",
+      "inclusion_status": "INCLUDED",
+      "redaction_status": "NO_REDACTION_REQUIRED",
+      "reviewer_visibility": "VISIBLE",
+      "audit_status": "AUDIT_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "NONE",
+      "limitation_notes": "covered",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "reviewer_summary_types": [
+    "EXECUTIVE_SUMMARY",
+    "INCLUDED_ARTIFACT_SUMMARY",
+    "BLOCKER_SUMMARY",
+    "LIMITATION_SUMMARY",
+    "FINAL_CLASSIFICATION_SUMMARY"
+  ],
+  "limitation_ids": [],
+  "traceability_refs": [
+    "PHASE75_FINAL_READINESS_BUNDLE_REPORT",
+    "PHASE70_SIGNOFF_MATRIX_REPORT"
+  ],
+  "hidden_expired_waiver": false,
+  "hidden_revoked_waiver": false,
+  "hidden_overdue_critical_sla": false,
+  "hidden_unsafe_waiver_attempt": false,
+  "invalid_xaman_payload_approval_marker": false,
+  "invalid_wallet_material_approval_marker": false,
+  "invalid_signing_submission_autofill_approval_marker": false,
+  "invalid_testnet_live_execution_approval_marker": false,
+  "invalid_runtime_manifest_audit_service_marker": false,
+  "invalid_download_service_marker": false,
+  "invalid_api_ui_audit_route_marker": false,
+  "invalid_safety_bypass_marker": false
+}

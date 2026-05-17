@@ -252,3 +252,7 @@ signing/submission/autofill/wallet, testnet, live, and runtime-mutation surfaces
 ## Phase 76 review export safety boundary
 
 Phase 76 remains a synthetic review-packaging specification only. It does not create a runtime export service, downloadable archives, API/UI export routes, transaction surface, or safety bypass path.
+
+## Phase 77 manifest audit safety boundary
+
+Phase 77 remains a synthetic manifest-audit specification only. It does not create a runtime manifest audit service, downloadable archives, API/UI audit routes, transaction surface, or safety bypass path.

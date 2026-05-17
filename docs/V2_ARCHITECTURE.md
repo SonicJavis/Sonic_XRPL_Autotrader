@@ -319,3 +319,7 @@ implement runtime readiness services, network calls, persistence, or any executi
 ## Phase 76 governance review export layer
 
 `xaman_governance_final_readiness_review_export_spec/` adds deterministic export-package, manifest, reviewer-summary, limitation, and traceability models only. It does not add a runtime export service, downloadable archive, API/UI export route, or execution surface.
+
+## Phase 77 governance manifest audit layer
+
+`xaman_governance_review_export_manifest_audit_spec/` adds deterministic manifest-audit records, findings, limitation tracking, and traceability audit outputs only. It does not add a runtime manifest audit service, downloadable archive, API/UI audit route, or execution surface.
