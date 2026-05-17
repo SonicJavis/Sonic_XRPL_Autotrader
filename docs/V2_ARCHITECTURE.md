@@ -315,3 +315,7 @@ a runtime waiver service, safety bypass, network calls, persistence, or any exec
 governance layers. It composes local artifact references, completeness checks, limitation
 register entries, and traceability into one deterministic final spec-review bundle. It does not
 implement runtime readiness services, network calls, persistence, or any execution surface.
+
+## Phase 76 governance review export layer
+
+`xaman_governance_final_readiness_review_export_spec/` adds deterministic export-package, manifest, reviewer-summary, limitation, and traceability models only. It does not add a runtime export service, downloadable archive, API/UI export route, or execution surface.

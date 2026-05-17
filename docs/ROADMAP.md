@@ -433,3 +433,9 @@ and CLI. All existing tests preserved. Live trading blocked.
 - Define artifact references, completeness checks, limitation register entries, traceability, and conservative final readiness classifications.
 - Keep all outputs non-executing and final-readiness-bundle-spec-only.
 - No runtime readiness service, no safety bypass, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.
+
+## Phase 76 - Xaman Testnet Governance Final Readiness Review Export Spec
+
+- Package Phase 75 plus Phase 70-74 support evidence into a deterministic reviewer export spec.
+- Preserve inclusion/redaction state, manifest references, reviewer summaries, limitations, and traceability.
+- No runtime export service, no download service, no API/UI export route, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.

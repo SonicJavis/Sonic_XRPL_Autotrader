@@ -1,0 +1,331 @@
+{
+  "api_route_allowed": false,
+  "autofill_allowed": false,
+  "blockers": [],
+  "dashboard_ui_allowed": false,
+  "deterministic_timestamp": "2026-05-17T00:00:00Z",
+  "download_service_allowed": false,
+  "export_package_id": "export-76-complete_spec_review_ready_export_package",
+  "export_readiness_classification": "EXPORT_SPEC_REVIEW_READY",
+  "fixture_id": "complete_spec_review_ready_export_package",
+  "live_execution_allowed": false,
+  "manifest_id": "manifest-76-complete_spec_review_ready_export_package",
+  "phase": "76",
+  "review_export_spec_only": true,
+  "runtime_export_service_allowed": false,
+  "runtime_mutation_allowed": false,
+  "safety_bypass_allowed": false,
+  "signing_allowed": false,
+  "spec": {
+    "deterministic_timestamp": "2026-05-17T00:00:00Z",
+    "export_artifacts": [
+      {
+        "declared_hash": "hashart-75",
+        "export_artifact_id": "art-75",
+        "inclusion_status": "INCLUDED",
+        "limitation_notes": "none",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "required_classification": "REQUIRED",
+        "reviewer_visibility": "VISIBLE",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "source_artifact_type": "PHASE75_FINAL_READINESS_BUNDLE_REPORT",
+        "source_phase_number": "75",
+        "source_reference": "reports/phase75/latest_xaman_governance_final_readiness_bundle_spec.json"
+      },
+      {
+        "declared_hash": "hashart-70",
+        "export_artifact_id": "art-70",
+        "inclusion_status": "INCLUDED",
+        "limitation_notes": "none",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "required_classification": "REQUIRED",
+        "reviewer_visibility": "VISIBLE",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "source_artifact_type": "PHASE70_SIGNOFF_MATRIX_REPORT",
+        "source_phase_number": "70",
+        "source_reference": "reports/phase70/latest_xaman_governance_signoff_matrix_spec.json"
+      },
+      {
+        "declared_hash": "hashart-71",
+        "export_artifact_id": "art-71",
+        "inclusion_status": "INCLUDED",
+        "limitation_notes": "none",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "required_classification": "REQUIRED",
+        "reviewer_visibility": "VISIBLE",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "source_artifact_type": "PHASE71_ATTESTATION_BUNDLE_REPORT",
+        "source_phase_number": "71",
+        "source_reference": "reports/phase71/latest_xaman_governance_evidence_attestation_spec.json"
+      },
+      {
+        "declared_hash": "hashart-72",
+        "export_artifact_id": "art-72",
+        "inclusion_status": "INCLUDED",
+        "limitation_notes": "none",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "required_classification": "REQUIRED",
+        "reviewer_visibility": "VISIBLE",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "source_artifact_type": "PHASE72_REVIEW_WORKFLOW_REPORT",
+        "source_phase_number": "72",
+        "source_reference": "reports/phase72/latest_xaman_governance_evidence_review_workflow_spec.json"
+      },
+      {
+        "declared_hash": "hashart-73",
+        "export_artifact_id": "art-73",
+        "inclusion_status": "INCLUDED",
+        "limitation_notes": "none",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "required_classification": "REQUIRED",
+        "reviewer_visibility": "VISIBLE",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "source_artifact_type": "PHASE73_SLA_BUNDLE_REPORT",
+        "source_phase_number": "73",
+        "source_reference": "reports/phase73/latest_xaman_governance_escalation_resolution_sla_spec.json"
+      },
+      {
+        "declared_hash": "hashart-74",
+        "export_artifact_id": "art-74",
+        "inclusion_status": "INCLUDED",
+        "limitation_notes": "none",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "required_classification": "REQUIRED",
+        "reviewer_visibility": "VISIBLE",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "source_artifact_type": "PHASE74_WAIVER_REGISTER_REPORT",
+        "source_phase_number": "74",
+        "source_reference": "reports/phase74/latest_xaman_governance_exception_waiver_register_spec.json"
+      }
+    ],
+    "export_domains": [
+      "FINAL_READINESS_BUNDLE",
+      "SIGNOFF_MATRIX",
+      "EVIDENCE_ATTESTATION",
+      "REVIEW_WORKFLOW",
+      "ESCALATION_SLA",
+      "EXCEPTION_WAIVER_REGISTER",
+      "SAFETY_GUARDS",
+      "DEPENDENCY_AUDIT",
+      "RUNTIME_PROFILE",
+      "POLICY_DOCS",
+      "ROLLBACK_READINESS",
+      "INCIDENT_RESPONSE",
+      "LIMITATION_REGISTER",
+      "TRACEABILITY_MAP"
+    ],
+    "export_package_id": "export-76-complete_spec_review_ready_export_package",
+    "limitation_register": [],
+    "manifest": {
+      "artifact_hashes": [
+        "hashart-75",
+        "hashart-70",
+        "hashart-71",
+        "hashart-72",
+        "hashart-73",
+        "hashart-74"
+      ],
+      "artifact_ids": [
+        "art-75",
+        "art-70",
+        "art-71",
+        "art-72",
+        "art-73",
+        "art-74"
+      ],
+      "blockers": [],
+      "cross_phase_traceability_refs": [
+        "PHASE75_FINAL_READINESS_BUNDLE_REPORT",
+        "PHASE70_SIGNOFF_MATRIX_REPORT",
+        "PHASE71_ATTESTATION_BUNDLE_REPORT",
+        "PHASE72_REVIEW_WORKFLOW_REPORT",
+        "PHASE73_SLA_BUNDLE_REPORT",
+        "PHASE74_WAIVER_REGISTER_REPORT"
+      ],
+      "deterministic_timestamp": "2026-05-17T00:00:00Z",
+      "limitation_ids": [],
+      "manifest_id": "manifest-76-complete_spec_review_ready_export_package",
+      "package_id": "export-76-complete_spec_review_ready_export_package",
+      "phase_number": "76",
+      "redaction_labels": [
+        "NO_REDACTION_REQUIRED",
+        "NO_REDACTION_REQUIRED",
+        "NO_REDACTION_REQUIRED",
+        "NO_REDACTION_REQUIRED",
+        "NO_REDACTION_REQUIRED",
+        "NO_REDACTION_REQUIRED"
+      ],
+      "reviewer_summary_types": [
+        "EXECUTIVE_SUMMARY",
+        "INCLUDED_ARTIFACT_SUMMARY",
+        "BLOCKER_SUMMARY",
+        "LIMITATION_SUMMARY",
+        "FINAL_CLASSIFICATION_SUMMARY"
+      ]
+    },
+    "objective": "Xaman governance final readiness review export contract spec",
+    "phase": "76",
+    "reviewer_summaries": [
+      {
+        "related_artifact_ids": [
+          "art-75",
+          "art-70",
+          "art-71",
+          "art-72",
+          "art-73",
+          "art-74"
+        ],
+        "summary_type": "EXECUTIVE_SUMMARY",
+        "text": "Export package classification: EXPORT_SPEC_REVIEW_READY."
+      },
+      {
+        "related_artifact_ids": [
+          "art-75",
+          "art-70",
+          "art-71",
+          "art-72",
+          "art-73",
+          "art-74"
+        ],
+        "summary_type": "INCLUDED_ARTIFACT_SUMMARY",
+        "text": "Included artifact count: 6."
+      },
+      {
+        "related_artifact_ids": [],
+        "summary_type": "BLOCKER_SUMMARY",
+        "text": "Blocker count: 0."
+      },
+      {
+        "related_artifact_ids": [],
+        "summary_type": "LIMITATION_SUMMARY",
+        "text": "Limitation count: 0."
+      },
+      {
+        "related_artifact_ids": [],
+        "summary_type": "FINAL_CLASSIFICATION_SUMMARY",
+        "text": "Spec review packaging only; never execution readiness."
+      }
+    ],
+    "safety_flags": {
+      "api_route_allowed": false,
+      "autofill_allowed": false,
+      "dashboard_ui_allowed": false,
+      "download_service_allowed": false,
+      "live_execution_allowed": false,
+      "review_export_spec_only": true,
+      "runtime_export_service_allowed": false,
+      "runtime_mutation_allowed": false,
+      "safety_bypass_allowed": false,
+      "signing_allowed": false,
+      "spec_only": true,
+      "submission_allowed": false,
+      "testnet_execution_allowed": false,
+      "wallet_material_allowed": false,
+      "xaman_api_calls_allowed": false,
+      "xaman_payload_creation_allowed": false,
+      "xaman_sdk_dependency_allowed": false
+    }
+  },
+  "spec_only": true,
+  "submission_allowed": false,
+  "testnet_execution_allowed": false,
+  "traceability_map": {
+    "artifact_links": [
+      {
+        "export_artifact_id": "art-75",
+        "inclusion_status": "INCLUDED",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "source_artifact_type": "PHASE75_FINAL_READINESS_BUNDLE_REPORT",
+        "source_phase_number": "75"
+      },
+      {
+        "export_artifact_id": "art-70",
+        "inclusion_status": "INCLUDED",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "source_artifact_type": "PHASE70_SIGNOFF_MATRIX_REPORT",
+        "source_phase_number": "70"
+      },
+      {
+        "export_artifact_id": "art-71",
+        "inclusion_status": "INCLUDED",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "source_artifact_type": "PHASE71_ATTESTATION_BUNDLE_REPORT",
+        "source_phase_number": "71"
+      },
+      {
+        "export_artifact_id": "art-72",
+        "inclusion_status": "INCLUDED",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "source_artifact_type": "PHASE72_REVIEW_WORKFLOW_REPORT",
+        "source_phase_number": "72"
+      },
+      {
+        "export_artifact_id": "art-73",
+        "inclusion_status": "INCLUDED",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "source_artifact_type": "PHASE73_SLA_BUNDLE_REPORT",
+        "source_phase_number": "73"
+      },
+      {
+        "export_artifact_id": "art-74",
+        "inclusion_status": "INCLUDED",
+        "redaction_status": "NO_REDACTION_REQUIRED",
+        "source_artifact_type": "PHASE74_WAIVER_REGISTER_REPORT",
+        "source_phase_number": "74"
+      }
+    ],
+    "limitation_links": [],
+    "outcome_links": [
+      {
+        "blocker_count": "0",
+        "export_readiness_classification": "EXPORT_SPEC_REVIEW_READY",
+        "limitation_count": "0"
+      }
+    ],
+    "package_links": [
+      {
+        "export_package_id": "export-76-complete_spec_review_ready_export_package",
+        "manifest_id": "manifest-76-complete_spec_review_ready_export_package"
+      }
+    ],
+    "summary_links": [
+      {
+        "related_artifact_count": "6",
+        "summary_type": "EXECUTIVE_SUMMARY"
+      },
+      {
+        "related_artifact_count": "6",
+        "summary_type": "INCLUDED_ARTIFACT_SUMMARY"
+      },
+      {
+        "related_artifact_count": "0",
+        "summary_type": "BLOCKER_SUMMARY"
+      },
+      {
+        "related_artifact_count": "0",
+        "summary_type": "LIMITATION_SUMMARY"
+      },
+      {
+        "related_artifact_count": "0",
+        "summary_type": "FINAL_CLASSIFICATION_SUMMARY"
+      }
+    ]
+  },
+  "validation_errors": [],
+  "wallet_material_allowed": false,
+  "xaman_api_calls_allowed": false,
+  "xaman_payload_creation_allowed": false,
+  "xaman_sdk_dependency_allowed": false
+}

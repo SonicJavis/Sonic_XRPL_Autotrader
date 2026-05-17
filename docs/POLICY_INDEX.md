@@ -37,3 +37,5 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - Phase 74 Xaman governance exception waiver register scope: `docs/PHASE74_XAMAN_TESTNET_GOVERNANCE_EXCEPTION_WAIVER_REGISTER_SPEC.md`
 
 - Phase 75 Xaman governance final readiness bundle scope: `docs/PHASE75_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_BUNDLE_SPEC.md`
+
+- `docs/PHASE76_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_REVIEW_EXPORT_SPEC.md` - deterministic review-export packaging spec only; no runtime export/download/API/UI route.

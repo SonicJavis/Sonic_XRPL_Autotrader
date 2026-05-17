@@ -228,3 +228,7 @@ Phase 75 adds an offline final governance readiness bundle layer under
 `src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/`. It composes prior governance
 artifacts into one conservative spec-review packet while preserving unresolved limitations. It does
 not create a runtime readiness service, safety bypass, or execution path.
+
+## Phase 76 review export packaging
+
+Phase 76 adds a deterministic final-readiness review export layer for future consideration only. It does not create a runtime export service, downloadable archive, API/UI export route, safety bypass, or execution path.
