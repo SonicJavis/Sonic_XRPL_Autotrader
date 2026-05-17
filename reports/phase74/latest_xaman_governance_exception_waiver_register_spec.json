@@ -1,0 +1,186 @@
+{
+  "autofill_allowed": false,
+  "blockers": [],
+  "deterministic_timestamp": "2026-05-17T00:00:00Z",
+  "fixture_id": "complete_spec_review_ready_waiver_register",
+  "limitations": [
+    "accepted_for_spec_review_never_implies_execution_readiness",
+    "waiver_register_is_non_executing"
+  ],
+  "live_execution_allowed": false,
+  "phase": "74",
+  "readiness_classification": "SPEC_REVIEW_READY",
+  "runtime_mutation_allowed": false,
+  "runtime_waiver_service_allowed": false,
+  "safety_bypass_allowed": false,
+  "signing_allowed": false,
+  "spec": {
+    "blocker_categories": [
+      "UNSAFE_WAIVER_TARGET",
+      "MISSING_WAIVER_EVIDENCE",
+      "STALE_WAIVER_EVIDENCE",
+      "MISSING_REVIEWER",
+      "MISSING_EXPIRY_POLICY",
+      "MISSING_REVOCATION_POLICY",
+      "MISSING_COMPENSATING_CONTROL",
+      "DEPENDENCY_AUDIT_WAIVER_RISK",
+      "UNTRIAGED_SAFETY_REVIEW_WAIVER_RISK",
+      "XAMAN_PAYLOAD_WAIVER_ATTEMPT",
+      "WALLET_MATERIAL_WAIVER_ATTEMPT",
+      "TESTNET_LIVE_EXECUTION_WAIVER_ATTEMPT",
+      "SIGNING_SUBMISSION_AUTOFILL_WAIVER_ATTEMPT",
+      "RUNTIME_MUTATION_WAIVER_ATTEMPT",
+      "GUARD_WEAKENING_WAIVER_ATTEMPT",
+      "SAFETY_BYPASS_MARKER"
+    ],
+    "deterministic_timestamp": "2026-05-17T00:00:00Z",
+    "expiry_revocation_rules": [
+      "waivers_cannot_be_indefinite_unless_docs_only_spec_only",
+      "critical_and_blocking_waivers_require_expiry",
+      "wallet_material_ambiguity_waivers_are_blocked",
+      "xaman_payload_ambiguity_waivers_are_blocked",
+      "testnet_or_live_execution_waivers_are_blocked",
+      "signing_submission_autofill_waivers_are_blocked",
+      "runtime_mutation_waivers_are_blocked",
+      "missing_evidence_cannot_be_waived_for_execution_readiness",
+      "stale_evidence_requires_review_or_expiry",
+      "dependency_audit_waivers_require_explicit_risk_classification",
+      "revoked_waivers_cannot_become_accepted",
+      "expired_waivers_require_renewed_evidence_before_acceptance",
+      "superseded_waivers_require_replacement_waiver_id",
+      "accepted_for_spec_review_never_implies_execution_readiness"
+    ],
+    "limitations": [
+      "accepted_for_spec_review_never_implies_execution_readiness",
+      "waiver_register_is_non_executing"
+    ],
+    "objective": "Xaman governance exception waiver register contract spec",
+    "phase": "74",
+    "safety_flags": {
+      "autofill_allowed": false,
+      "live_execution_allowed": false,
+      "runtime_mutation_allowed": false,
+      "runtime_waiver_service_allowed": false,
+      "safety_bypass_allowed": false,
+      "signing_allowed": false,
+      "spec_only": true,
+      "submission_allowed": false,
+      "testnet_execution_allowed": false,
+      "waiver_register_spec_only": true,
+      "wallet_material_allowed": false,
+      "xaman_api_calls_allowed": false,
+      "xaman_payload_creation_allowed": false,
+      "xaman_sdk_dependency_allowed": false
+    },
+    "waiver_domains": [
+      "SAFETY_GUARD_WAIVER",
+      "EVIDENCE_INTEGRITY_WAIVER",
+      "ATTESTATION_WAIVER",
+      "SIGNOFF_MATRIX_WAIVER",
+      "REVIEW_WORKFLOW_WAIVER",
+      "ESCALATION_SLA_WAIVER",
+      "DEPENDENCY_RISK_WAIVER",
+      "XAMAN_BOUNDARY_WAIVER",
+      "WALLET_MATERIAL_WAIVER",
+      "TESTNET_BOUNDARY_WAIVER",
+      "LIVE_BOUNDARY_WAIVER",
+      "ROLLBACK_READINESS_WAIVER",
+      "INCIDENT_RESPONSE_WAIVER",
+      "DOCS_DRIFT_WAIVER"
+    ],
+    "waiver_records": [
+      {
+        "compensating_control_references": [
+          "control-docs-review"
+        ],
+        "current_status": "ACCEPTED_FOR_SPEC_REVIEW",
+        "dependency_risk_classification": "",
+        "docs_only_spec_only": true,
+        "expiry_policy": "expires_on_next_phase_review",
+        "limitation_notes": "spec review only; not execution readiness",
+        "related_phase70_signoff_domain": "SAFETY_GUARDS",
+        "related_phase71_attestation_id": "att-001",
+        "related_phase72_workflow_step_id": "wf-001",
+        "related_phase73_sla_escalation_id": "esc-001",
+        "replacement_waiver_id": "",
+        "requested_exception_summary": "temporary documentation drift accepted for spec review only",
+        "requester_role": "WAIVER_REQUESTER",
+        "required_evidence_ids": [
+          "evidence-001"
+        ],
+        "reviewer_role": "AUDIT_WAIVER_REVIEWER",
+        "revocation_policy": "revoke_on_material_scope_change",
+        "risk_acceptance_rationale": "bounded spec-only exception with explicit remediation",
+        "safety_flags": [],
+        "severity": "LOW",
+        "stale_evidence_ids": [],
+        "supplied_evidence_ids": [
+          "evidence-001"
+        ],
+        "waiver_domain": "DOCS_DRIFT_WAIVER",
+        "waiver_id": "waiver-001"
+      }
+    ],
+    "waiver_register_id": "bundle-74-complete_spec_review_ready_waiver_register",
+    "waiver_roles": [
+      "WAIVER_REQUESTER",
+      "SECURITY_WAIVER_REVIEWER",
+      "XRPL_PROTOCOL_WAIVER_REVIEWER",
+      "XAMAN_WAIVER_REVIEWER",
+      "SUPPLY_CHAIN_WAIVER_REVIEWER",
+      "RISK_WAIVER_REVIEWER",
+      "AUDIT_WAIVER_REVIEWER",
+      "FINAL_GOVERNANCE_OWNER"
+    ],
+    "waiver_severities": [
+      "LOW",
+      "MEDIUM",
+      "HIGH",
+      "CRITICAL",
+      "BLOCKING"
+    ],
+    "waiver_statuses": [
+      "REQUESTED",
+      "EVIDENCE_PENDING",
+      "IN_REVIEW",
+      "ACCEPTED_FOR_SPEC_REVIEW",
+      "REJECTED",
+      "REVOKED",
+      "EXPIRED",
+      "SUPERSEDED",
+      "BLOCKED"
+    ]
+  },
+  "spec_only": true,
+  "submission_allowed": false,
+  "testnet_execution_allowed": false,
+  "traceability_map": {
+    "blocker_links": [],
+    "status_links": [
+      {
+        "limitation_notes": "spec review only; not execution readiness",
+        "required_evidence_ids": "evidence-001",
+        "status": "ACCEPTED_FOR_SPEC_REVIEW",
+        "waiver_id": "waiver-001"
+      }
+    ],
+    "waiver_links": [
+      {
+        "phase70_signoff_domain": "SAFETY_GUARDS",
+        "phase71_attestation_id": "att-001",
+        "phase72_workflow_step_id": "wf-001",
+        "phase73_sla_escalation_id": "esc-001",
+        "status": "ACCEPTED_FOR_SPEC_REVIEW",
+        "waiver_domain": "DOCS_DRIFT_WAIVER",
+        "waiver_id": "waiver-001"
+      }
+    ]
+  },
+  "validation_errors": [],
+  "waiver_register_id": "bundle-74-complete_spec_review_ready_waiver_register",
+  "waiver_register_spec_only": true,
+  "wallet_material_allowed": false,
+  "xaman_api_calls_allowed": false,
+  "xaman_payload_creation_allowed": false,
+  "xaman_sdk_dependency_allowed": false
+}

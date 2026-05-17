@@ -212,3 +212,11 @@ Phase 57 adds an offline runtime-profile consolidation layer under
 conformance outputs that compare app/V2/Docker safety invariants and detect
 drift. It does not mutate runtime configuration, does not enable execution, and
 does not add signing/submission/wallet paths.
+
+
+## Phase 74 blueprint addendum
+
+Phase 74 adds an offline governance exception waiver register layer under
+`src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/`. It records bounded, traceable,
+non-executing waiver contracts for future review and explicitly blocks unsafe waiver categories.
+It does not create a runtime waiver service, safety bypass, or execution path.

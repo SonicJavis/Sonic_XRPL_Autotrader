@@ -1011,3 +1011,23 @@ The following phase numbers have partial evidence only:
   overdue/missing/unsafe markers fail closed.
 - **Rollback notes**: Revert the Phase 73 commit if needed; no DB migrations,
   live config changes, or execution-surface mutation introduced.
+
+
+---
+
+## Phase 74 - Xaman Testnet Governance Exception Waiver Register Spec
+
+- **Status**: Implemented (spec/docs/tests only).
+- **Objective completed**: Added deterministic governance exception waiver register contract outputs with explicit waiver records, expiry/revocation rules, unsafe-waiver blockers, and traceability mapping.
+- **Files changed**:
+  - `src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/`
+  - `tests/fixtures/xaman_governance_exception_waiver_register_spec/`
+  - `tests/unit/test_phase74_xaman_governance_exception_waiver_register_spec.py`
+  - `tests/safety/test_phase74_xaman_governance_exception_waiver_register_safety.py`
+  - `src/sonic_xrpl/cli/main.py`
+  - `docs/PHASE74_XAMAN_TESTNET_GOVERNANCE_EXCEPTION_WAIVER_REGISTER_SPEC.md`
+  - `docs/research/PHASE74_XAMAN_TESTNET_GOVERNANCE_EXCEPTION_WAIVER_REGISTER_SPEC_RESEARCH.md`
+- **Validation target**: Run Phase 74 unit/safety tests, full pytest, safety grep, audit validator, dependency audit strict, migration-safe check, CLI safety/runtime-profile checks, and guard-critical scan.
+- **Safety/risk notes**: No runtime waiver service, no safety bypass, no payload creation, no Xaman API/SDK integration, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.
+- **Accuracy notes**: Waiver outputs remain design-only and non-executing; unsafe waiver markers fail closed.
+- **Rollback notes**: Revert the Phase 74 commit if needed; no DB migrations, live config changes, or execution-surface mutation introduced.

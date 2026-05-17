@@ -299,3 +299,11 @@ checks across app settings, V2 config assumptions, and Docker defaults.
 
 This layer is read-only: it reports drift and safety status, writes JSON/Markdown
 artifacts, and does not mutate runtime configuration or enable execution.
+
+
+## Phase 74 waiver register layer
+
+`src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/` sits after the Phase 70-73
+governance layers. It consumes local synthetic fixtures and produces deterministic waiver-register
+records, blocker classifications, and traceability outputs for future review. It does not implement
+a runtime waiver service, safety bypass, network calls, persistence, or any execution surface.

@@ -367,3 +367,19 @@ This phase remains spec-only and non-executing:
 - no signing/submission/autofill/wallet handling
 - no testnet execution
 - no live execution
+
+
+## Phase 74 Xaman Governance Exception Waiver Register Spec
+
+Phase 74 adds deterministic governance exception-waiver register contracts under
+`src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/` with fixture-backed
+waiver records, expiry/revocation rules, blocker categories, and traceability outputs.
+
+This phase remains spec-only and non-executing:
+
+- no runtime waiver service
+- no safety bypass
+- no Xaman payload creation/API/SDK usage
+- no signing/submission/autofill/wallet handling
+- no testnet execution
+- no live execution
