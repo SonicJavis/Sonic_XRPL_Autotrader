@@ -240,3 +240,7 @@ Phase 77 adds a deterministic review-export manifest audit layer for future cons
 ## Phase 78 approval packet layer
 
 Phase 78 adds a deterministic review-export approval packet layer for future consideration only. It does not create a runtime approval service, downloadable archive, API/UI approval route, safety bypass, or execution path.
+
+## Phase 79 review checklist layer
+
+Phase 79 adds a deterministic approval-packet review checklist layer for future consideration only. It does not create a runtime checklist service, downloadable archive, API/UI checklist route, safety bypass, or execution path.

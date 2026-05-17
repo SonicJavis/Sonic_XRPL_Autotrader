@@ -52,6 +52,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-governance-review-export-manifest-audit-spec-report --fixture tests/fixtures/xaman_governance_review_export_manifest_audit_spec/complete_spec_review_ready_manifest_audit.json
   python -m sonic_xrpl.cli.main xaman-governance-review-export-approval-packet-spec --fixture tests/fixtures/xaman_governance_review_export_approval_packet_spec/complete_spec_review_ready_approval_packet.json
   python -m sonic_xrpl.cli.main xaman-governance-review-export-approval-packet-spec-report --fixture tests/fixtures/xaman_governance_review_export_approval_packet_spec/complete_spec_review_ready_approval_packet.json
+  python -m sonic_xrpl.cli.main xaman-governance-approval-packet-review-checklist-spec --fixture tests/fixtures/xaman_governance_approval_packet_review_checklist_spec/complete_spec_review_ready_checklist.json
+  python -m sonic_xrpl.cli.main xaman-governance-approval-packet-review-checklist-spec-report --fixture tests/fixtures/xaman_governance_approval_packet_review_checklist_spec/complete_spec_review_ready_checklist.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -315,6 +317,12 @@ def main(argv: list[str] | None = None) -> int:
     xgreapsr_parser = subparsers.add_parser("xaman-governance-review-export-approval-packet-spec-report", help="Render Phase 78 governance review export approval packet markdown summary")
     xgreapsr_parser.add_argument("--fixture", required=True, help="Path to xaman governance review export approval packet fixture JSON")
     xgreapsr_parser.add_argument("--output-dir", default="reports/phase78", help="Output directory for report files")
+    xgaprcs_parser = subparsers.add_parser("xaman-governance-approval-packet-review-checklist-spec", help="Run Phase 79 governance approval packet review checklist contract spec")
+    xgaprcs_parser.add_argument("--fixture", required=True, help="Path to xaman governance approval packet review checklist fixture JSON")
+    xgaprcs_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xgaprcsr_parser = subparsers.add_parser("xaman-governance-approval-packet-review-checklist-spec-report", help="Render Phase 79 governance approval packet review checklist markdown summary")
+    xgaprcsr_parser.add_argument("--fixture", required=True, help="Path to xaman governance approval packet review checklist fixture JSON")
+    xgaprcsr_parser.add_argument("--output-dir", default="reports/phase79", help="Output directory for report files")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -527,6 +535,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_governance_review_export_approval_packet_spec(args)
     if args.command == "xaman-governance-review-export-approval-packet-spec-report":
         return _cmd_xaman_governance_review_export_approval_packet_spec_report(args)
+    if args.command == "xaman-governance-approval-packet-review-checklist-spec":
+        return _cmd_xaman_governance_approval_packet_review_checklist_spec(args)
+    if args.command == "xaman-governance-approval-packet-review-checklist-spec-report":
+        return _cmd_xaman_governance_approval_packet_review_checklist_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -2722,6 +2734,22 @@ def _cmd_xaman_governance_review_export_approval_packet_spec_report(args) -> int
     print(f"Wrote: {md_path}")
     return 0
 
+
+
+def _cmd_xaman_governance_approval_packet_review_checklist_spec(args):
+    from sonic_xrpl.xaman_governance_approval_packet_review_checklist_spec import build_xaman_governance_approval_packet_review_checklist_spec, load_xaman_governance_approval_packet_review_checklist_fixture, render_xaman_governance_approval_packet_review_checklist_json, render_xaman_governance_approval_packet_review_checklist_markdown
+    report = build_xaman_governance_approval_packet_review_checklist_spec(load_xaman_governance_approval_packet_review_checklist_fixture(args.fixture))
+    print(render_xaman_governance_approval_packet_review_checklist_json(report) if args.json else render_xaman_governance_approval_packet_review_checklist_markdown(report))
+    return 0
+
+def _cmd_xaman_governance_approval_packet_review_checklist_spec_report(args):
+    from sonic_xrpl.xaman_governance_approval_packet_review_checklist_spec import build_xaman_governance_approval_packet_review_checklist_spec, load_xaman_governance_approval_packet_review_checklist_fixture, render_xaman_governance_approval_packet_review_checklist_markdown, write_xaman_governance_approval_packet_review_checklist_reports
+    report = build_xaman_governance_approval_packet_review_checklist_spec(load_xaman_governance_approval_packet_review_checklist_fixture(args.fixture))
+    print(render_xaman_governance_approval_packet_review_checklist_markdown(report))
+    json_path, md_path = write_xaman_governance_approval_packet_review_checklist_reports(report, args.output_dir)
+    print(f"\nWrote: {json_path}")
+    print(f"Wrote: {md_path}")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

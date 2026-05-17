@@ -411,3 +411,7 @@ Phase 77 adds a deterministic, fixture-backed review export manifest audit spec 
 ## Phase 78 Xaman Review Export Approval Packet Spec
 
 Phase 78 adds a deterministic review-export approval packet spec under `src/sonic_xrpl/xaman_governance_review_export_approval_packet_spec/`. ?Approval packet? means approved for spec review only, never approved for execution; there is still no runtime approval service, download service, API/UI approval route, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
+
+## Phase 79 Xaman Approval Packet Review Checklist Spec
+
+Phase 79 adds a deterministic review-checklist spec under `src/sonic_xrpl/xaman_governance_approval_packet_review_checklist_spec/`. ?Checklist pass? means pass for spec review only, never approved for execution; there is still no runtime checklist service, download service, API/UI checklist route, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
