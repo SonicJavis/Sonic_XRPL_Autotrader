@@ -1,0 +1,183 @@
+{
+  "fixture_id": "missing_incident_response_evidence",
+  "final_bundle_id": "bundle-75-missing_incident_response_evidence",
+  "deterministic_timestamp": "2026-05-17T00:00:00Z",
+  "artifact_references": [
+    {
+      "artifact_id": "art-70",
+      "phase_number": "70",
+      "artifact_type": "PHASE70_SIGNOFF_MATRIX_REPORT",
+      "source_path": "reports/phase70/latest_xaman_governance_signoff_matrix_spec.json",
+      "declared_hash": "hash70",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-71",
+      "phase_number": "71",
+      "artifact_type": "PHASE71_ATTESTATION_BUNDLE_REPORT",
+      "source_path": "reports/phase71/latest_xaman_governance_evidence_attestation_spec.json",
+      "declared_hash": "hash71",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-72",
+      "phase_number": "72",
+      "artifact_type": "PHASE72_REVIEW_WORKFLOW_REPORT",
+      "source_path": "reports/phase72/latest_xaman_governance_evidence_review_workflow_spec.json",
+      "declared_hash": "hash72",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-73",
+      "phase_number": "73",
+      "artifact_type": "PHASE73_SLA_BUNDLE_REPORT",
+      "source_path": "reports/phase73/latest_xaman_governance_escalation_resolution_sla_spec.json",
+      "declared_hash": "hash73",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-74",
+      "phase_number": "74",
+      "artifact_type": "PHASE74_WAIVER_REGISTER_REPORT",
+      "source_path": "reports/phase74/latest_xaman_governance_exception_waiver_register_spec.json",
+      "declared_hash": "hash74",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-safety",
+      "phase_number": "58A",
+      "artifact_type": "SAFETY_SCAN_SUMMARY",
+      "source_path": "docs/PHASE58A_SAFETY_REVIEW_TRIAGE.md",
+      "declared_hash": "hashsafety",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-dep",
+      "phase_number": "48",
+      "artifact_type": "DEPENDENCY_AUDIT_SUMMARY",
+      "source_path": "docs/audit/latest_dependency_audit.json",
+      "declared_hash": "hashdep",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-runtime",
+      "phase_number": "57",
+      "artifact_type": "RUNTIME_PROFILE_CONFORMANCE_SUMMARY",
+      "source_path": "reports/phase57/latest_runtime_profile_conformance.json",
+      "declared_hash": "hashruntime",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-live-policy",
+      "phase_number": "58B",
+      "artifact_type": "LIVE_READINESS_POLICY_REFERENCE",
+      "source_path": "docs/LIVE_READINESS_POLICY.md",
+      "declared_hash": "hashlive",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-xaman-policy",
+      "phase_number": "58B",
+      "artifact_type": "XAMAN_BOUNDARY_POLICY_REFERENCE",
+      "source_path": "docs/XAMAN_FUTURE_INTEGRATION_POLICY.md",
+      "declared_hash": "hashxaman",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-rollback",
+      "phase_number": "58B",
+      "artifact_type": "ROLLBACK_READINESS_REFERENCE",
+      "source_path": "docs/LIVE_READINESS_POLICY.md",
+      "declared_hash": "hashrollback",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "artifact_id": "art-incident",
+      "phase_number": "58B",
+      "artifact_type": "INCIDENT_RESPONSE_REFERENCE",
+      "source_path": "docs/LIVE_READINESS_POLICY.md",
+      "declared_hash": "hashincident",
+      "required_classification": "REQUIRED",
+      "artifact_status": "CURRENT",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "phase70_present": true,
+  "phase71_present": true,
+  "phase72_present": true,
+  "phase73_present": true,
+  "phase74_present": true,
+  "unresolved_safety_review": false,
+  "unresolved_dependency_risk": false,
+  "expired_waiver": false,
+  "revoked_waiver": false,
+  "overdue_critical_sla": false,
+  "unsafe_waiver_attempt": false,
+  "ambiguous_signoff_linkage": false,
+  "missing_rollback_evidence": false,
+  "missing_incident_response_evidence": true,
+  "invalid_xaman_payload_approval_marker": false,
+  "invalid_wallet_material_approval_marker": false,
+  "invalid_signing_submission_autofill_approval_marker": false,
+  "invalid_testnet_live_execution_approval_marker": false,
+  "invalid_runtime_readiness_service_marker": false,
+  "invalid_safety_bypass_marker": false
+}

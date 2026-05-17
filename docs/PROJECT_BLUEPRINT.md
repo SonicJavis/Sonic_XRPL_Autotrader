@@ -220,3 +220,11 @@ Phase 74 adds an offline governance exception waiver register layer under
 `src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/`. It records bounded, traceable,
 non-executing waiver contracts for future review and explicitly blocks unsafe waiver categories.
 It does not create a runtime waiver service, safety bypass, or execution path.
+
+
+## Phase 75 blueprint addendum
+
+Phase 75 adds an offline final governance readiness bundle layer under
+`src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/`. It composes prior governance
+artifacts into one conservative spec-review packet while preserving unresolved limitations. It does
+not create a runtime readiness service, safety bypass, or execution path.

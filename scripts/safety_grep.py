@@ -209,6 +209,11 @@ WHITELIST = {
     'invalid_signing_submission_autofill_waiver_marker': "Phase 74 blocked marker for prohibited signing/submission/autofill waiver attempts",
     'wallet_material_waiver_attempt': "Phase 74 blocker key for prohibited wallet-material waiver attempts",
     'signing_submission_autofill_waiver_attempt': "Phase 74 blocker key for prohibited signing/submission/autofill waiver attempts",
+    # Phase 75 final-readiness bundle spec safety text (non-executing blocked-language contracts)
+    'invalid_wallet_material_approval_marker': "Phase 75 blocked marker for prohibited wallet-material approval wording",
+    'invalid_signing_submission_autofill_approval_marker': "Phase 75 blocked marker for prohibited signing/submission/autofill approval wording",
+    'signing_submission_autofill_approval_marker': "Phase 75 blocker key for prohibited signing/submission/autofill approval wording",
+    'no_signing_submission_autofill_wallet_approval_wording': "Phase 75 completeness check requiring blocked execution wording",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:

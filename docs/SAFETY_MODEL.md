@@ -240,3 +240,11 @@ Phase 74 waiver-register tooling is fixture-backed and spec-only. It records bou
 contracts, expiry/revocation rules, and unsafe-waiver blockers without creating a runtime waiver
 service or any safety bypass path. All outputs keep payload/API/signing/submission/autofill/wallet,
 testnet, live, and runtime-mutation surfaces blocked.
+
+
+## Phase 75 governance final readiness bundle safety boundary
+
+Phase 75 final-bundle tooling is fixture-backed and spec-only. It composes prior governance
+artifacts, preserves unresolved limitations, and reports conservative final readiness without
+creating a runtime readiness service or any safety bypass path. All outputs keep payload/API/
+signing/submission/autofill/wallet, testnet, live, and runtime-mutation surfaces blocked.

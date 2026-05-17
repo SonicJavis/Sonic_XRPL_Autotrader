@@ -82,6 +82,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE73_XAMAN_TESTNET_GOVERNANCE_ESCALATION_RESOLUTION_SLA_SPEC_RESEARCH.md",
     "docs/PHASE74_XAMAN_TESTNET_GOVERNANCE_EXCEPTION_WAIVER_REGISTER_SPEC.md",
     "docs/research/PHASE74_XAMAN_TESTNET_GOVERNANCE_EXCEPTION_WAIVER_REGISTER_SPEC_RESEARCH.md",
+    "docs/PHASE75_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_BUNDLE_SPEC.md",
+    "docs/research/PHASE75_XAMAN_TESTNET_GOVERNANCE_FINAL_READINESS_BUNDLE_SPEC_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -213,6 +215,12 @@ REQUIRED_V2_MODULES = [
     "src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/validation.py",
     "src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/report_writer.py",
     "src/sonic_xrpl/xaman_governance_exception_waiver_register_spec/loader.py",
+    "src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/models.py",
+    "src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/builder.py",
+    "src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/traceability.py",
+    "src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/validation.py",
+    "src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/report_writer.py",
+    "src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/loader.py",
 ]
 
 REQUIRED_TEST_FILES = [
@@ -301,6 +309,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase73_xaman_governance_escalation_resolution_sla_safety.py",
     "tests/unit/test_phase74_xaman_governance_exception_waiver_register_spec.py",
     "tests/safety/test_phase74_xaman_governance_exception_waiver_register_safety.py",
+    "tests/unit/test_phase75_xaman_governance_final_readiness_bundle_spec.py",
+    "tests/safety/test_phase75_xaman_governance_final_readiness_bundle_safety.py",
     "scripts/migration_safe_check.py",
 ]
 

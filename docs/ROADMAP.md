@@ -423,3 +423,13 @@ and CLI. All existing tests preserved. Live trading blocked.
   `NOT_READY`, `REVIEW_REQUIRED`, `SPEC_REVIEW_READY`, `EXPIRED`, `REVOKED`, `BLOCKED`.
 - Keep all outputs non-executing and waiver-register-spec-only.
 - No runtime waiver service, no safety bypass, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.
+
+
+---
+
+## Phase 75 - Xaman Testnet Governance Final Readiness Bundle Spec
+
+- Compose Phase 70-74 governance artifacts into one deterministic final spec-review packet.
+- Define artifact references, completeness checks, limitation register entries, traceability, and conservative final readiness classifications.
+- Keep all outputs non-executing and final-readiness-bundle-spec-only.
+- No runtime readiness service, no safety bypass, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.

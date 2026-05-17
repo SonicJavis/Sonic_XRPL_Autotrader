@@ -307,3 +307,11 @@ artifacts, and does not mutate runtime configuration or enable execution.
 governance layers. It consumes local synthetic fixtures and produces deterministic waiver-register
 records, blocker classifications, and traceability outputs for future review. It does not implement
 a runtime waiver service, safety bypass, network calls, persistence, or any execution surface.
+
+
+## Phase 75 final readiness bundle layer
+
+`src/sonic_xrpl/xaman_governance_final_readiness_bundle_spec/` sits after the Phase 70-74
+governance layers. It composes local artifact references, completeness checks, limitation
+register entries, and traceability into one deterministic final spec-review bundle. It does not
+implement runtime readiness services, network calls, persistence, or any execution surface.
