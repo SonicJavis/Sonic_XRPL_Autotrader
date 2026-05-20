@@ -1,0 +1,165 @@
+{
+  "fixture_id": "traceability_gap",
+  "response_bundle_id": "response-82-complete",
+  "source_digest_bundle_id": "digest-81-complete",
+  "source_snapshot_id": "snapshot-80-complete",
+  "deterministic_timestamp": "2026-05-20T00:00:00Z",
+  "digest_classification": "DIGEST_SPEC_REVIEW_READY",
+  "snapshot_classification": "SNAPSHOT_SPEC_REVIEW_READY",
+  "non_authorization_notices": [
+    "no payload creation authorized",
+    "no Xaman API call authorized",
+    "no signing authorized",
+    "no submission authorized",
+    "no autofill authorized",
+    "no wallet material handling authorized",
+    "no testnet execution authorized",
+    "no live execution authorized",
+    "no runtime response service authorized",
+    "no download/API/UI route authorized",
+    "no safety bypass authorized"
+  ],
+  "response_records": [
+    {
+      "response_id": "resp-findings",
+      "response_domain": "DIGEST_FINDINGS",
+      "related_digest_id": "finding-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-1",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-70",
+        "art-71"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "response_summary": "Findings acknowledged for spec review only.",
+      "follow_up_evidence_reference": "evidence://digest/finding-1",
+      "resolution_intent": "FOLLOW_UP_REVIEW_RECOMMENDED",
+      "non_authorization_confirmation": true,
+      "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "response_id": "resp-sections",
+      "response_domain": "DIGEST_SECTIONS",
+      "related_digest_id": "section-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-2",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-72"
+      ],
+      "reviewer_role": "AUDIT_REVIEWER",
+      "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "response_summary": "Sections remain non-executing.",
+      "follow_up_evidence_reference": "evidence://digest/section-1",
+      "resolution_intent": "NO_RUNTIME_ACTION",
+      "non_authorization_confirmation": true,
+      "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "response_id": "resp-blockers",
+      "response_domain": "UNRESOLVED_BLOCKERS",
+      "related_digest_id": "blocker-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-3",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-73"
+      ],
+      "reviewer_role": "RISK_REVIEWER",
+      "response_category": "RESPONSE_REVIEW_REQUIRED",
+      "response_summary": "Blockers require follow-up review.",
+      "follow_up_evidence_reference": "evidence://digest/blocker-1",
+      "resolution_intent": "BLOCKER_TRIAGE_RECOMMENDED",
+      "non_authorization_confirmation": true,
+      "response_status": "RESPONSE_IN_REVIEW",
+      "severity": "MEDIUM",
+      "limitation_notes": "tracked",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "response_id": "resp-limits",
+      "response_domain": "UNRESOLVED_LIMITATIONS",
+      "related_digest_id": "lim-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-4",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-74"
+      ],
+      "reviewer_role": "FINAL_GOVERNANCE_OWNER",
+      "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "response_summary": "Limitations preserved.",
+      "follow_up_evidence_reference": "evidence://digest/lim-1",
+      "resolution_intent": "FUTURE_SPEC_PHASE_RECOMMENDED",
+      "non_authorization_confirmation": true,
+      "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "response_id": "resp-notices",
+      "response_domain": "NON_AUTHORIZATION_NOTICES",
+      "related_digest_id": "notice-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-5",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-75"
+      ],
+      "reviewer_role": "OPERATOR_REVIEWER",
+      "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "response_summary": "Non-authorization notices confirmed.",
+      "follow_up_evidence_reference": "evidence://digest/notice-1",
+      "resolution_intent": "NO_RUNTIME_ACTION",
+      "non_authorization_confirmation": true,
+      "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "response_id": "resp-acks",
+      "response_domain": "REVIEWER_ACKNOWLEDGEMENTS",
+      "related_digest_id": "ack-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-6",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-76",
+        "art-77"
+      ],
+      "reviewer_role": "XRPL_PROTOCOL_REVIEWER",
+      "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "response_summary": "Reviewer acknowledgement coverage preserved.",
+      "follow_up_evidence_reference": "evidence://digest/ack-1",
+      "resolution_intent": "FOLLOW_UP_REVIEW_RECOMMENDED",
+      "non_authorization_confirmation": true,
+      "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "traceability_gap": true
+}
