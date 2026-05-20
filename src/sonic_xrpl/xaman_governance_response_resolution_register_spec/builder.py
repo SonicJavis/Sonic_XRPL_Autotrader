@@ -1,0 +1,1 @@
+from sonic_xrpl.xaman_governance_response_resolution_register_spec.validation import build_xaman_governance_response_resolution_register_spec
