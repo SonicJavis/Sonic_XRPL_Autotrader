@@ -1106,3 +1106,14 @@ The following phase numbers have partial evidence only:
 - **Safety/risk notes**: Still no runtime snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
 - **Rollback notes**: Revert the Phase 80 commit; no runtime migrations or persistence changes are involved.
 - **Next recommended step**: Phase 81 - Xaman Testnet Governance Snapshot Review Digest Spec.
+
+
+## Phase 81 - Xaman Testnet Governance Snapshot Review Digest Spec
+
+- **Objective completed**: Added deterministic snapshot-review digest contracts for spec review only.
+- **Files changed**: Phase 81 spec module, fixtures, reports, docs, tests, CLI wiring, and audit/doc registries.
+- **Commands run**: Phase 81 targeted tests, full pytest, migration-safe, safety-grep, audit-validator, dependency-audit strict, CLI smoke/help, guard-critical, and git diff checks.
+- **Validation results**: pending final run.
+- **Safety/risk notes**: Still no runtime digest/snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
+- **Rollback notes**: Revert the Phase 81 commit; no runtime migrations or persistence changes are involved.
+- **Next recommended step**: Phase 82 - Xaman Testnet Governance Digest Review Response Spec.

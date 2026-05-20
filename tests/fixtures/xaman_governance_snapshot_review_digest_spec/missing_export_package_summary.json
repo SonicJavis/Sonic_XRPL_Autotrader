@@ -1,0 +1,90 @@
+{
+  "fixture_id": "missing_export_package_summary",
+  "digest_bundle_id": "digest-81-complete",
+  "source_snapshot_id": "snapshot-80-complete",
+  "source_checklist_id": "checklist-79-complete",
+  "source_approval_packet_id": "packet-78-complete",
+  "deterministic_timestamp": "2026-05-20T00:00:00Z",
+  "snapshot_present": true,
+  "snapshot_classification": "SNAPSHOT_SPEC_REVIEW_READY",
+  "checklist_present": true,
+  "checklist_classification": "CHECKLIST_SPEC_REVIEW_READY",
+  "non_authorization_notices": [
+    "no payload creation authorized",
+    "no Xaman API call authorized",
+    "no signing authorized",
+    "no submission authorized",
+    "no autofill authorized",
+    "no wallet material handling authorized",
+    "no testnet execution authorized",
+    "no live execution authorized",
+    "no runtime digest service authorized",
+    "no download/API/UI route authorized",
+    "no safety bypass authorized"
+  ],
+  "reviewer_ack_summary_present": true,
+  "digest_sections": [
+    {
+      "digest_section_id": "sec-snapshot",
+      "digest_domain": "EVIDENCE_SNAPSHOT",
+      "related_snapshot_record_id": "ev-checklist",
+      "related_checklist_item_id": "item-packet",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "snapshot-80-complete"
+      ],
+      "section_title": "Snapshot Status",
+      "section_summary": "Phase 80 snapshot is spec-review-ready and non-executing.",
+      "evidence_count": 2,
+      "blocker_count": 0,
+      "limitation_count": 0,
+      "reviewer_visibility": "ALL_REVIEWERS",
+      "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "digest_section_id": "sec-notices",
+      "digest_domain": "NON_AUTHORIZATION_NOTICES",
+      "related_snapshot_record_id": "ev-checklist",
+      "related_checklist_item_id": "item-notices",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-70",
+        "art-74"
+      ],
+      "section_title": "Non-Authorization Coverage",
+      "section_summary": "All non-authorization notices remain explicit.",
+      "evidence_count": 11,
+      "blocker_count": 0,
+      "limitation_count": 0,
+      "reviewer_visibility": "ALL_REVIEWERS",
+      "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "hidden_unresolved_blocker": false,
+  "hidden_unresolved_limitation": false,
+  "dependency_audit_summary_gap": false,
+  "safety_review_summary_gap": false,
+  "traceability_gap": false,
+  "stale_evidence_summary_gap": false,
+  "redacted_evidence_summary_gap": false,
+  "reference_only_evidence_summary_gap": false,
+  "synthetic_only_evidence_summary_gap": false,
+  "invalid_xaman_payload_approval_marker": false,
+  "invalid_wallet_material_approval_marker": false,
+  "invalid_signing_submission_autofill_approval_marker": false,
+  "invalid_testnet_live_execution_approval_marker": false,
+  "invalid_runtime_digest_service_marker": false,
+  "invalid_download_service_marker": false,
+  "invalid_api_ui_digest_route_marker": false,
+  "invalid_safety_bypass_marker": false
+}
