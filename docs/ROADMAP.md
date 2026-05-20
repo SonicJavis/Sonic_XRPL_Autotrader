@@ -467,3 +467,7 @@ Add deterministic snapshot-review digest contracts that summarize evidence quali
 ## Phase 82 - Xaman Testnet Governance Digest Review Response Spec
 
 Add deterministic digest review-response contracts for reviewer-owned responses to digest findings and sections, with required non-authorization confirmations, unresolved blocker/limitation mapping, and fail-closed classifications for spec review only. No runtime response/digest/snapshot/checklist/approval/export services, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.
+
+## Phase 83 - Xaman Testnet Governance Response Resolution Register Spec
+
+Add deterministic response-resolution register contracts mapping Phase 82 responses to unresolved blockers/limitations, ownership, evidence follow-up, and closure/deferral/supersession state for spec review only. No runtime resolution/response/digest/snapshot/checklist/approval/export services, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.
