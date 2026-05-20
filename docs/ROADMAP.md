@@ -463,3 +463,7 @@ Add deterministic evidence-snapshot contracts for checklist evidence coverage, f
 ## Phase 81 - Xaman Testnet Governance Snapshot Review Digest Spec
 
 Add deterministic snapshot-review digest contracts that summarize evidence quality, blockers, limitations, notice coverage, acknowledgement coverage, and cross-phase traceability for spec review only. No runtime digest/snapshot/checklist/approval/export services, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.
+
+## Phase 82 - Xaman Testnet Governance Digest Review Response Spec
+
+Add deterministic digest review-response contracts for reviewer-owned responses to digest findings and sections, with required non-authorization confirmations, unresolved blocker/limitation mapping, and fail-closed classifications for spec review only. No runtime response/digest/snapshot/checklist/approval/export services, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.

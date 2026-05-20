@@ -1,0 +1,280 @@
+{
+  "api_route_allowed": false,
+  "autofill_allowed": false,
+  "blockers": [],
+  "dashboard_ui_allowed": false,
+  "deterministic_timestamp": "2026-05-20T00:00:00Z",
+  "digest_review_response_spec_only": true,
+  "download_service_allowed": false,
+  "final_response_classification": "RESPONSE_BUNDLE_SPEC_REVIEW_READY",
+  "fixture_id": "complete_spec_review_ready_response_bundle",
+  "live_execution_allowed": false,
+  "phase": "82",
+  "response_bundle_id": "response-82-complete",
+  "runtime_mutation_allowed": false,
+  "runtime_response_service_allowed": false,
+  "safety_bypass_allowed": false,
+  "signing_allowed": false,
+  "source_digest_bundle_id": "digest-81-complete",
+  "source_snapshot_id": "snapshot-80-complete",
+  "spec": {
+    "deterministic_timestamp": "2026-05-20T00:00:00Z",
+    "non_authorization_notices": [
+      "no payload creation authorized",
+      "no Xaman API call authorized",
+      "no signing authorized",
+      "no submission authorized",
+      "no autofill authorized",
+      "no wallet material handling authorized",
+      "no testnet execution authorized",
+      "no live execution authorized",
+      "no runtime response service authorized",
+      "no download/API/UI route authorized",
+      "no safety bypass authorized"
+    ],
+    "objective": "Xaman governance digest review response contract spec",
+    "phase": "82",
+    "response_bundle_id": "response-82-complete",
+    "response_domains": [
+      "DIGEST_FINDINGS",
+      "DIGEST_SECTIONS",
+      "UNRESOLVED_BLOCKERS",
+      "UNRESOLVED_LIMITATIONS",
+      "EVIDENCE_QUALITY",
+      "NON_AUTHORIZATION_NOTICES",
+      "REVIEWER_ACKNOWLEDGEMENTS",
+      "APPROVAL_CHECKLIST",
+      "APPROVAL_PACKET",
+      "MANIFEST_AUDIT",
+      "EXPORT_PACKAGE",
+      "FINAL_READINESS_BUNDLE",
+      "EXCEPTION_WAIVER_REGISTER",
+      "ESCALATION_SLA",
+      "DEPENDENCY_AUDIT",
+      "SAFETY_REVIEW",
+      "POLICY_DOCS",
+      "TRACEABILITY_MAP"
+    ],
+    "response_findings": [],
+    "response_limitation_register": [],
+    "response_records": [
+      {
+        "follow_up_evidence_reference": "evidence://digest/finding-1",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "check-79-1",
+        "related_digest_id": "finding-1",
+        "related_snapshot_id": "snapshot-80-complete",
+        "related_support_artifact_ids": [
+          "art-70",
+          "art-71"
+        ],
+        "resolution_intent": "FOLLOW_UP_REVIEW_RECOMMENDED",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "DIGEST_FINDINGS",
+        "response_id": "resp-findings",
+        "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Findings acknowledged for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW"
+      },
+      {
+        "follow_up_evidence_reference": "evidence://digest/section-1",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "check-79-2",
+        "related_digest_id": "section-1",
+        "related_snapshot_id": "snapshot-80-complete",
+        "related_support_artifact_ids": [
+          "art-72"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "DIGEST_SECTIONS",
+        "response_id": "resp-sections",
+        "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Sections remain non-executing.",
+        "reviewer_role": "AUDIT_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW"
+      },
+      {
+        "follow_up_evidence_reference": "evidence://digest/blocker-1",
+        "limitation_notes": "tracked",
+        "non_authorization_confirmation": true,
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "check-79-3",
+        "related_digest_id": "blocker-1",
+        "related_snapshot_id": "snapshot-80-complete",
+        "related_support_artifact_ids": [
+          "art-73"
+        ],
+        "resolution_intent": "BLOCKER_TRIAGE_RECOMMENDED",
+        "response_category": "RESPONSE_REVIEW_REQUIRED",
+        "response_domain": "UNRESOLVED_BLOCKERS",
+        "response_id": "resp-blockers",
+        "response_status": "RESPONSE_IN_REVIEW",
+        "response_summary": "Blockers require follow-up review.",
+        "reviewer_role": "RISK_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "MEDIUM"
+      },
+      {
+        "follow_up_evidence_reference": "evidence://digest/lim-1",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "check-79-4",
+        "related_digest_id": "lim-1",
+        "related_snapshot_id": "snapshot-80-complete",
+        "related_support_artifact_ids": [
+          "art-74"
+        ],
+        "resolution_intent": "FUTURE_SPEC_PHASE_RECOMMENDED",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "UNRESOLVED_LIMITATIONS",
+        "response_id": "resp-limits",
+        "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Limitations preserved.",
+        "reviewer_role": "FINAL_GOVERNANCE_OWNER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW"
+      },
+      {
+        "follow_up_evidence_reference": "evidence://digest/notice-1",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "check-79-5",
+        "related_digest_id": "notice-1",
+        "related_snapshot_id": "snapshot-80-complete",
+        "related_support_artifact_ids": [
+          "art-75"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "NON_AUTHORIZATION_NOTICES",
+        "response_id": "resp-notices",
+        "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Non-authorization notices confirmed.",
+        "reviewer_role": "OPERATOR_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW"
+      },
+      {
+        "follow_up_evidence_reference": "evidence://digest/ack-1",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "check-79-6",
+        "related_digest_id": "ack-1",
+        "related_snapshot_id": "snapshot-80-complete",
+        "related_support_artifact_ids": [
+          "art-76",
+          "art-77"
+        ],
+        "resolution_intent": "FOLLOW_UP_REVIEW_RECOMMENDED",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "REVIEWER_ACKNOWLEDGEMENTS",
+        "response_id": "resp-acks",
+        "response_status": "RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Reviewer acknowledgement coverage preserved.",
+        "reviewer_role": "XRPL_PROTOCOL_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW"
+      }
+    ],
+    "safety_flags": {
+      "api_route_allowed": false,
+      "autofill_allowed": false,
+      "dashboard_ui_allowed": false,
+      "digest_review_response_spec_only": true,
+      "download_service_allowed": false,
+      "live_execution_allowed": false,
+      "runtime_mutation_allowed": false,
+      "runtime_response_service_allowed": false,
+      "safety_bypass_allowed": false,
+      "signing_allowed": false,
+      "spec_only": true,
+      "submission_allowed": false,
+      "testnet_execution_allowed": false,
+      "wallet_material_allowed": false,
+      "xaman_api_calls_allowed": false,
+      "xaman_payload_creation_allowed": false,
+      "xaman_sdk_dependency_allowed": false
+    },
+    "source_digest_bundle_id": "digest-81-complete",
+    "source_snapshot_id": "snapshot-80-complete"
+  },
+  "spec_only": true,
+  "submission_allowed": false,
+  "testnet_execution_allowed": false,
+  "traceability_map": {
+    "missing_non_authorization_confirmation_fail_closed": false,
+    "missing_response_records_fail_closed": false,
+    "response_bundle_to_phase70_77_support_artifacts": [
+      "art-70",
+      "art-71",
+      "art-72",
+      "art-73",
+      "art-74",
+      "art-75",
+      "art-76",
+      "art-77"
+    ],
+    "response_bundle_to_phase78_approval_packet": [
+      "packet-78-complete",
+      "packet-78-complete",
+      "packet-78-complete",
+      "packet-78-complete",
+      "packet-78-complete",
+      "packet-78-complete"
+    ],
+    "response_bundle_to_phase79_checklist": [
+      "check-79-1",
+      "check-79-2",
+      "check-79-3",
+      "check-79-4",
+      "check-79-5",
+      "check-79-6"
+    ],
+    "response_bundle_to_phase80_snapshot": "snapshot-80-complete",
+    "response_bundle_to_phase81_digest": "digest-81-complete",
+    "response_records_to_digest_ids": {
+      "resp-acks": "ack-1",
+      "resp-blockers": "blocker-1",
+      "resp-findings": "finding-1",
+      "resp-limits": "lim-1",
+      "resp-notices": "notice-1",
+      "resp-sections": "section-1"
+    },
+    "response_records_to_limitations_or_blockers": {
+      "resp-acks": "none",
+      "resp-blockers": "tracked",
+      "resp-findings": "none",
+      "resp-limits": "none",
+      "resp-notices": "none",
+      "resp-sections": "none"
+    }
+  },
+  "validation_errors": [],
+  "wallet_material_allowed": false,
+  "xaman_api_calls_allowed": false,
+  "xaman_payload_creation_allowed": false,
+  "xaman_sdk_dependency_allowed": false
+}

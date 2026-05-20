@@ -96,6 +96,8 @@ REQUIRED_DOCS = [
     "docs/research/PHASE80_XAMAN_TESTNET_GOVERNANCE_APPROVAL_CHECKLIST_EVIDENCE_SNAPSHOT_SPEC_RESEARCH.md",
     "docs/PHASE81_XAMAN_TESTNET_GOVERNANCE_SNAPSHOT_REVIEW_DIGEST_SPEC.md",
     "docs/research/PHASE81_XAMAN_TESTNET_GOVERNANCE_SNAPSHOT_REVIEW_DIGEST_SPEC_RESEARCH.md",
+    "docs/PHASE82_XAMAN_TESTNET_GOVERNANCE_DIGEST_REVIEW_RESPONSE_SPEC.md",
+    "docs/research/PHASE82_XAMAN_TESTNET_GOVERNANCE_DIGEST_REVIEW_RESPONSE_SPEC_RESEARCH.md",
 ]
 
 REQUIRED_V2_MODULES = [
@@ -335,6 +337,8 @@ REQUIRED_TEST_FILES = [
     "tests/safety/test_phase80_xaman_governance_approval_checklist_evidence_snapshot_safety.py",
     "tests/unit/test_phase81_xaman_governance_snapshot_review_digest_spec.py",
     "tests/safety/test_phase81_xaman_governance_snapshot_review_digest_safety.py",
+    "tests/unit/test_phase82_xaman_governance_digest_review_response_spec.py",
+    "tests/safety/test_phase82_xaman_governance_digest_review_response_safety.py",
     "scripts/migration_safe_check.py",
 ]
 
