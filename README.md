@@ -415,3 +415,7 @@ Phase 78 adds a deterministic review-export approval packet spec under `src/soni
 ## Phase 79 Xaman Approval Packet Review Checklist Spec
 
 Phase 79 adds a deterministic review-checklist spec under `src/sonic_xrpl/xaman_governance_approval_packet_review_checklist_spec/`. ?Checklist pass? means pass for spec review only, never approved for execution; there is still no runtime checklist service, download service, API/UI checklist route, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
+
+## Phase 80 Xaman Approval Checklist Evidence Snapshot Spec
+
+Phase 80 adds a deterministic evidence-snapshot spec under `src/sonic_xrpl/xaman_governance_approval_checklist_evidence_snapshot_spec/`. ?Snapshot pass? means pass for spec review only, never approved for execution; there is still no runtime snapshot service, download service, API/UI snapshot route, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.

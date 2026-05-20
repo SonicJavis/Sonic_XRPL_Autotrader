@@ -1,0 +1,2 @@
+from sonic_xrpl.xaman_governance_approval_checklist_evidence_snapshot_spec.validation import build_xaman_governance_approval_checklist_evidence_snapshot_spec
+__all__=['build_xaman_governance_approval_checklist_evidence_snapshot_spec']

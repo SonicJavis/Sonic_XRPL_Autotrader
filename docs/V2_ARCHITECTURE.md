@@ -331,3 +331,7 @@ implement runtime readiness services, network calls, persistence, or any executi
 ## Phase 79 governance review checklist layer
 
 Phase 79 adds a deterministic checklist layer over the Phase 78 approval packet for fixture-backed spec review only. It remains non-executing and does not add runtime checklist services, downloadable archives, API/UI checklist routes, or execution authority.
+
+## Phase 80 governance evidence snapshot layer
+
+Phase 80 adds a deterministic evidence snapshot layer over the Phase 79 checklist for fixture-backed spec review only. It remains non-executing and does not add runtime snapshot services, downloadable archives, API/UI snapshot routes, or execution authority.

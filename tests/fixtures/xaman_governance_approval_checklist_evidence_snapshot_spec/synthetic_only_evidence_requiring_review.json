@@ -1,0 +1,95 @@
+{
+  "fixture_id": "synthetic_only_evidence_requiring_review",
+  "snapshot_bundle_id": "snapshot-80-complete",
+  "source_checklist_id": "checklist-79-complete",
+  "source_approval_packet_id": "packet-78-complete",
+  "source_manifest_audit_id": "audit-77-complete",
+  "source_export_package_id": "export-76-complete",
+  "source_final_readiness_bundle_id": "bundle-75-complete",
+  "deterministic_timestamp": "2026-05-20T00:00:00Z",
+  "checklist_present": true,
+  "checklist_classification": "CHECKLIST_SPEC_REVIEW_READY",
+  "approval_packet_present": true,
+  "approval_packet_classification": "APPROVAL_PACKET_SPEC_REVIEW_READY",
+  "manifest_audit_present": true,
+  "export_package_present": true,
+  "final_readiness_bundle_present": true,
+  "non_authorization_notices": [
+    "no payload creation authorized",
+    "no Xaman API call authorized",
+    "no signing authorized",
+    "no submission authorized",
+    "no autofill authorized",
+    "no wallet material handling authorized",
+    "no testnet execution authorized",
+    "no live execution authorized",
+    "no runtime snapshot service authorized",
+    "no download/API/UI route authorized",
+    "no safety bypass authorized"
+  ],
+  "reviewer_acknowledgement_present": true,
+  "snapshot_evidence_records": [
+    {
+      "snapshot_evidence_id": "ev-checklist",
+      "snapshot_domain": "APPROVAL_CHECKLIST",
+      "related_checklist_item_id": "item-packet",
+      "related_approval_packet_artifact_id": "packet-78-complete",
+      "related_manifest_audit_id": "audit-77-complete",
+      "related_export_package_id": "export-76-complete",
+      "related_support_artifact_ids": [
+        "bundle-75-complete"
+      ],
+      "evidence_source_reference": "reports/phase79/latest_xaman_governance_approval_packet_review_checklist_spec.json",
+      "evidence_kind": "CHECKLIST_REPORT",
+      "evidence_hash": "hash-ev-checklist",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "snapshot_inclusion_status": "SNAPSHOT_INCLUDED",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "snapshot_evidence_id": "ev-approval",
+      "snapshot_domain": "APPROVAL_PACKET",
+      "related_checklist_item_id": "item-packet",
+      "related_approval_packet_artifact_id": "packet-78-complete",
+      "related_manifest_audit_id": "audit-77-complete",
+      "related_export_package_id": "export-76-complete",
+      "related_support_artifact_ids": [
+        "art-70",
+        "art-74"
+      ],
+      "evidence_source_reference": "reports/phase78/latest_xaman_governance_review_export_approval_packet_spec.json",
+      "evidence_kind": "APPROVAL_PACKET_REPORT",
+      "evidence_hash": "hash-ev-approval",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "snapshot_inclusion_status": "SNAPSHOT_INCLUDED",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "hidden_unresolved_blocker": false,
+  "hidden_unresolved_limitation": false,
+  "expired_waiver_unresolved": false,
+  "revoked_waiver_unresolved": false,
+  "overdue_sla_unresolved": false,
+  "dependency_audit_unresolved": false,
+  "safety_review_unresolved": false,
+  "traceability_gap": false,
+  "stale_evidence": false,
+  "redacted_evidence_requires_review": false,
+  "reference_only_evidence_missing_limitation": false,
+  "synthetic_only_evidence_requires_review": true,
+  "unsafe_waiver_attempt_unresolved": false,
+  "invalid_xaman_payload_approval_marker": false,
+  "invalid_wallet_material_approval_marker": false,
+  "invalid_signing_submission_autofill_approval_marker": false,
+  "invalid_testnet_live_execution_approval_marker": false,
+  "invalid_runtime_snapshot_service_marker": false,
+  "invalid_download_service_marker": false,
+  "invalid_api_ui_snapshot_route_marker": false,
+  "invalid_safety_bypass_marker": false
+}

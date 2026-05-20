@@ -264,3 +264,7 @@ Phase 78 remains a synthetic approval-packet specification only. It does not cre
 ## Phase 79 review checklist safety boundary
 
 Phase 79 remains a synthetic checklist specification only. It does not create a runtime checklist service, downloadable archives, API/UI checklist routes, transaction surface, or safety bypass path.
+
+## Phase 80 evidence snapshot safety boundary
+
+Phase 80 remains a synthetic evidence-snapshot specification only. It does not create a runtime snapshot service, downloadable archives, API/UI snapshot routes, transaction surface, or safety bypass path.

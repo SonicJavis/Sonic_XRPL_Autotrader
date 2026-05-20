@@ -455,3 +455,7 @@ and CLI. All existing tests preserved. Live trading blocked.
 ## Phase 79 - Xaman Testnet Governance Approval Packet Review Checklist Spec
 
 Add deterministic approval-packet review checklist contracts, findings, limitation registers, and cross-phase traceability for spec review only. No runtime checklist service, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.
+
+## Phase 80 - Xaman Testnet Governance Approval Checklist Evidence Snapshot Spec
+
+Add deterministic evidence-snapshot contracts for checklist evidence coverage, findings, limitation registers, and cross-phase traceability for spec review only. No runtime snapshot/checklist/approval services, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.
