@@ -1,0 +1,2 @@
+from sonic_xrpl.xaman_governance_snapshot_review_digest_spec.validation import build_xaman_governance_snapshot_review_digest_spec
+__all__=['build_xaman_governance_snapshot_review_digest_spec']

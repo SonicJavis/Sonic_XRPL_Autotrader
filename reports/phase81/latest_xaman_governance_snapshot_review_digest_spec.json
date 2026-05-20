@@ -1,0 +1,412 @@
+{
+  "api_route_allowed": false,
+  "autofill_allowed": false,
+  "blockers": [],
+  "dashboard_ui_allowed": false,
+  "deterministic_timestamp": "2026-05-20T00:00:00Z",
+  "digest_bundle_id": "digest-81-complete",
+  "download_service_allowed": false,
+  "final_digest_classification": "DIGEST_SPEC_REVIEW_READY",
+  "fixture_id": "complete_spec_review_ready_digest",
+  "live_execution_allowed": false,
+  "phase": "81",
+  "runtime_digest_service_allowed": false,
+  "runtime_mutation_allowed": false,
+  "safety_bypass_allowed": false,
+  "signing_allowed": false,
+  "snapshot_review_digest_spec_only": true,
+  "source_checklist_id": "checklist-79-complete",
+  "source_snapshot_id": "snapshot-80-complete",
+  "spec": {
+    "deterministic_timestamp": "2026-05-20T00:00:00Z",
+    "digest_bundle_id": "digest-81-complete",
+    "digest_domains": [
+      "EVIDENCE_SNAPSHOT",
+      "APPROVAL_CHECKLIST",
+      "APPROVAL_PACKET",
+      "MANIFEST_AUDIT",
+      "EXPORT_PACKAGE",
+      "FINAL_READINESS_BUNDLE",
+      "NON_AUTHORIZATION_NOTICES",
+      "REVIEWER_ACKNOWLEDGEMENTS",
+      "UNRESOLVED_BLOCKERS",
+      "UNRESOLVED_LIMITATIONS",
+      "EVIDENCE_QUALITY",
+      "WAIVER_STATUS",
+      "SLA_STATUS",
+      "DEPENDENCY_AUDIT",
+      "SAFETY_REVIEW",
+      "TRACEABILITY_MAP",
+      "POLICY_DOCS"
+    ],
+    "digest_findings": [],
+    "digest_limitation_register": [],
+    "digest_sections": [
+      {
+        "blocker_count": 0,
+        "digest_domain": "EVIDENCE_SNAPSHOT",
+        "digest_section_id": "sec-snapshot",
+        "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+        "evidence_count": 2,
+        "limitation_count": 0,
+        "limitation_notes": "none",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-snapshot",
+        "related_snapshot_record_id": "ev-snapshot",
+        "related_support_artifact_ids": [
+          "snapshot-80-complete"
+        ],
+        "reviewer_visibility": "ALL_REVIEWERS",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "section_summary": "Phase 80 snapshot is spec-review-ready and non-executing.",
+        "section_title": "Snapshot Status",
+        "severity": "LOW"
+      },
+      {
+        "blocker_count": 0,
+        "digest_domain": "APPROVAL_CHECKLIST",
+        "digest_section_id": "sec-checklist",
+        "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+        "evidence_count": 1,
+        "limitation_count": 0,
+        "limitation_notes": "none",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-checklist",
+        "related_snapshot_record_id": "ev-checklist",
+        "related_support_artifact_ids": [
+          "checklist-79-complete"
+        ],
+        "reviewer_visibility": "ALL_REVIEWERS",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "section_summary": "Checklist remains spec-review-ready.",
+        "section_title": "Checklist Status",
+        "severity": "LOW"
+      },
+      {
+        "blocker_count": 0,
+        "digest_domain": "APPROVAL_PACKET",
+        "digest_section_id": "sec-packet",
+        "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+        "evidence_count": 1,
+        "limitation_count": 0,
+        "limitation_notes": "none",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-packet",
+        "related_snapshot_record_id": "ev-packet",
+        "related_support_artifact_ids": [
+          "packet-78-complete"
+        ],
+        "reviewer_visibility": "ALL_REVIEWERS",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "section_summary": "Approval packet is present for spec review only.",
+        "section_title": "Approval Packet Status",
+        "severity": "LOW"
+      },
+      {
+        "blocker_count": 0,
+        "digest_domain": "MANIFEST_AUDIT",
+        "digest_section_id": "sec-audit",
+        "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+        "evidence_count": 1,
+        "limitation_count": 0,
+        "limitation_notes": "none",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-audit",
+        "related_snapshot_record_id": "ev-audit",
+        "related_support_artifact_ids": [
+          "audit-77-complete"
+        ],
+        "reviewer_visibility": "ALL_REVIEWERS",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "section_summary": "Manifest audit evidence remains traceable.",
+        "section_title": "Manifest Audit Status",
+        "severity": "LOW"
+      },
+      {
+        "blocker_count": 0,
+        "digest_domain": "EXPORT_PACKAGE",
+        "digest_section_id": "sec-export",
+        "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+        "evidence_count": 1,
+        "limitation_count": 0,
+        "limitation_notes": "none",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-export",
+        "related_snapshot_record_id": "ev-export",
+        "related_support_artifact_ids": [
+          "export-76-complete"
+        ],
+        "reviewer_visibility": "ALL_REVIEWERS",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "section_summary": "Export package remains deterministic and non-executing.",
+        "section_title": "Export Package Status",
+        "severity": "LOW"
+      },
+      {
+        "blocker_count": 0,
+        "digest_domain": "FINAL_READINESS_BUNDLE",
+        "digest_section_id": "sec-final",
+        "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+        "evidence_count": 1,
+        "limitation_count": 0,
+        "limitation_notes": "none",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-final",
+        "related_snapshot_record_id": "ev-final",
+        "related_support_artifact_ids": [
+          "final-75-complete"
+        ],
+        "reviewer_visibility": "ALL_REVIEWERS",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "section_summary": "Final readiness bundle remains spec-review-ready only.",
+        "section_title": "Final Readiness Status",
+        "severity": "LOW"
+      },
+      {
+        "blocker_count": 0,
+        "digest_domain": "NON_AUTHORIZATION_NOTICES",
+        "digest_section_id": "sec-notices",
+        "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+        "evidence_count": 11,
+        "limitation_count": 0,
+        "limitation_notes": "none",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-notices",
+        "related_snapshot_record_id": "ev-notices",
+        "related_support_artifact_ids": [
+          "art-70",
+          "art-74"
+        ],
+        "reviewer_visibility": "ALL_REVIEWERS",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "section_summary": "All non-authorization notices remain explicit.",
+        "section_title": "Non-Authorization Coverage",
+        "severity": "LOW"
+      },
+      {
+        "blocker_count": 0,
+        "digest_domain": "REVIEWER_ACKNOWLEDGEMENTS",
+        "digest_section_id": "sec-acks",
+        "digest_status": "DIGEST_PASS_FOR_SPEC_REVIEW",
+        "evidence_count": 8,
+        "limitation_count": 0,
+        "limitation_notes": "none",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-acks",
+        "related_snapshot_record_id": "ev-acks",
+        "related_support_artifact_ids": [
+          "ack-roles"
+        ],
+        "reviewer_visibility": "ALL_REVIEWERS",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "section_summary": "Required reviewer acknowledgements remain visible.",
+        "section_title": "Acknowledgement Coverage",
+        "severity": "LOW"
+      }
+    ],
+    "non_authorization_notices": [
+      "no payload creation authorized",
+      "no Xaman API call authorized",
+      "no signing authorized",
+      "no submission authorized",
+      "no autofill authorized",
+      "no wallet material handling authorized",
+      "no testnet execution authorized",
+      "no live execution authorized",
+      "no runtime digest service authorized",
+      "no download/API/UI route authorized",
+      "no safety bypass authorized"
+    ],
+    "objective": "Xaman governance snapshot review digest contract spec",
+    "phase": "81",
+    "safety_flags": {
+      "api_route_allowed": false,
+      "autofill_allowed": false,
+      "dashboard_ui_allowed": false,
+      "download_service_allowed": false,
+      "live_execution_allowed": false,
+      "runtime_digest_service_allowed": false,
+      "runtime_mutation_allowed": false,
+      "safety_bypass_allowed": false,
+      "signing_allowed": false,
+      "snapshot_review_digest_spec_only": true,
+      "spec_only": true,
+      "submission_allowed": false,
+      "testnet_execution_allowed": false,
+      "wallet_material_allowed": false,
+      "xaman_api_calls_allowed": false,
+      "xaman_payload_creation_allowed": false,
+      "xaman_sdk_dependency_allowed": false
+    },
+    "source_checklist_id": "checklist-79-complete",
+    "source_snapshot_id": "snapshot-80-complete"
+  },
+  "spec_only": true,
+  "submission_allowed": false,
+  "testnet_execution_allowed": false,
+  "traceability_map": {
+    "bundle_links": [
+      {
+        "digest_bundle_id": "digest-81-complete",
+        "source_checklist_id": "checklist-79-complete",
+        "source_snapshot_id": "snapshot-80-complete"
+      }
+    ],
+    "notice_links": [
+      {
+        "boundary": "non-authorization",
+        "notice": "no payload creation authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no Xaman API call authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no signing authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no submission authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no autofill authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no wallet material handling authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no testnet execution authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no live execution authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no runtime digest service authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no download/API/UI route authorized"
+      },
+      {
+        "boundary": "non-authorization",
+        "notice": "no safety bypass authorized"
+      }
+    ],
+    "outcome_links": [
+      {
+        "final_digest_classification": "DIGEST_SPEC_REVIEW_READY",
+        "limitation_count": "0"
+      }
+    ],
+    "section_links": [
+      {
+        "digest_domain": "EVIDENCE_SNAPSHOT",
+        "digest_section_id": "sec-snapshot",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-snapshot",
+        "related_snapshot_record_id": "ev-snapshot",
+        "related_support_artifact_ids": [
+          "snapshot-80-complete"
+        ]
+      },
+      {
+        "digest_domain": "APPROVAL_CHECKLIST",
+        "digest_section_id": "sec-checklist",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-checklist",
+        "related_snapshot_record_id": "ev-checklist",
+        "related_support_artifact_ids": [
+          "checklist-79-complete"
+        ]
+      },
+      {
+        "digest_domain": "APPROVAL_PACKET",
+        "digest_section_id": "sec-packet",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-packet",
+        "related_snapshot_record_id": "ev-packet",
+        "related_support_artifact_ids": [
+          "packet-78-complete"
+        ]
+      },
+      {
+        "digest_domain": "MANIFEST_AUDIT",
+        "digest_section_id": "sec-audit",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-audit",
+        "related_snapshot_record_id": "ev-audit",
+        "related_support_artifact_ids": [
+          "audit-77-complete"
+        ]
+      },
+      {
+        "digest_domain": "EXPORT_PACKAGE",
+        "digest_section_id": "sec-export",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-export",
+        "related_snapshot_record_id": "ev-export",
+        "related_support_artifact_ids": [
+          "export-76-complete"
+        ]
+      },
+      {
+        "digest_domain": "FINAL_READINESS_BUNDLE",
+        "digest_section_id": "sec-final",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-final",
+        "related_snapshot_record_id": "ev-final",
+        "related_support_artifact_ids": [
+          "final-75-complete"
+        ]
+      },
+      {
+        "digest_domain": "NON_AUTHORIZATION_NOTICES",
+        "digest_section_id": "sec-notices",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-notices",
+        "related_snapshot_record_id": "ev-notices",
+        "related_support_artifact_ids": [
+          "art-70",
+          "art-74"
+        ]
+      },
+      {
+        "digest_domain": "REVIEWER_ACKNOWLEDGEMENTS",
+        "digest_section_id": "sec-acks",
+        "related_approval_packet_id": "packet-78-complete",
+        "related_checklist_item_id": "item-acks",
+        "related_snapshot_record_id": "ev-acks",
+        "related_support_artifact_ids": [
+          "ack-roles"
+        ]
+      }
+    ]
+  },
+  "validation_errors": [],
+  "wallet_material_allowed": false,
+  "xaman_api_calls_allowed": false,
+  "xaman_payload_creation_allowed": false,
+  "xaman_sdk_dependency_allowed": false
+}
