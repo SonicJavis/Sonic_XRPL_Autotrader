@@ -260,3 +260,7 @@ Phase 77 remains a synthetic manifest-audit specification only. It does not crea
 ## Phase 78 approval packet safety boundary
 
 Phase 78 remains a synthetic approval-packet specification only. It does not create a runtime approval service, downloadable archives, API/UI approval routes, transaction surface, or safety bypass path.
+
+## Phase 79 review checklist safety boundary
+
+Phase 79 remains a synthetic checklist specification only. It does not create a runtime checklist service, downloadable archives, API/UI checklist routes, transaction surface, or safety bypass path.

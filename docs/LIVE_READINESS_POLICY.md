@@ -187,3 +187,7 @@ A Phase 77 manifest audit is not live-readiness evidence and does not authorize 
 ## Phase 78 approval packet non-authorization
 
 A Phase 78 approval packet is not live-readiness evidence and does not authorize runtime approval services, downloadable archives, API/UI approval routes, payload creation, Xaman API calls, signing, submission, autofill, wallet handling, testnet execution, or live execution.
+
+## Phase 79 checklist non-authorization
+
+A Phase 79 checklist pass is not live-readiness evidence and does not authorize runtime checklist services, downloadable archives, API/UI checklist routes, payload creation, Xaman API calls, signing, submission, autofill, wallet handling, testnet execution, or live execution.

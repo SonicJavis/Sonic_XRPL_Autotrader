@@ -451,3 +451,7 @@ and CLI. All existing tests preserved. Live trading blocked.
 - Compose reviewed export and manifest-audit outputs into a deterministic approval-facing packet for spec review only.
 - Preserve reviewer acknowledgements, explicit non-authorization notices, limitations, and traceability.
 - No runtime approval service, no download service, no API/UI approval route, no payload/API/SDK usage, no signing/submission/autofill/wallet handling, no testnet execution, and no live execution.
+
+## Phase 79 - Xaman Testnet Governance Approval Packet Review Checklist Spec
+
+Add deterministic approval-packet review checklist contracts, findings, limitation registers, and cross-phase traceability for spec review only. No runtime checklist service, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.

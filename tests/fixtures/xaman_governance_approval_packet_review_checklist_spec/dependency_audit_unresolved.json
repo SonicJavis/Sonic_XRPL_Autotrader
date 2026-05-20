@@ -1,0 +1,101 @@
+{
+  "fixture_id": "dependency_audit_unresolved",
+  "checklist_bundle_id": "checklist-79-complete",
+  "source_approval_packet_id": "packet-78-complete",
+  "source_manifest_audit_id": "audit-77-complete",
+  "source_export_package_id": "export-76-complete",
+  "source_final_readiness_bundle_id": "bundle-75-complete",
+  "deterministic_timestamp": "2026-05-17T00:00:00Z",
+  "approval_packet_present": true,
+  "approval_packet_classification": "APPROVAL_PACKET_SPEC_REVIEW_READY",
+  "manifest_audit_present": true,
+  "manifest_audit_classification": "AUDIT_SPEC_REVIEW_READY",
+  "export_package_present": true,
+  "final_readiness_bundle_present": true,
+  "reviewer_roles": [
+    "SECURITY_REVIEWER",
+    "XRPL_PROTOCOL_REVIEWER",
+    "XAMAN_REVIEWER",
+    "SUPPLY_CHAIN_REVIEWER",
+    "RISK_REVIEWER",
+    "AUDIT_REVIEWER",
+    "OPERATOR_REVIEWER",
+    "FINAL_GOVERNANCE_OWNER"
+  ],
+  "non_authorization_notices": [
+    "no payload creation authorized",
+    "no Xaman API call authorized",
+    "no signing authorized",
+    "no submission authorized",
+    "no autofill authorized",
+    "no wallet material handling authorized",
+    "no testnet execution authorized",
+    "no live execution authorized",
+    "no runtime checklist service authorized",
+    "no download/API/UI route authorized",
+    "no safety bypass authorized"
+  ],
+  "checklist_items": [
+    {
+      "checklist_item_id": "item-packet",
+      "checklist_domain": "APPROVAL_PACKET_COMPLETENESS",
+      "related_approval_packet_artifact_id": "packet-78-complete",
+      "related_manifest_audit_id": "audit-77-complete",
+      "related_export_package_id": "export-76-complete",
+      "related_support_artifact_ids": [
+        "art-75"
+      ],
+      "reviewer_role": "AUDIT_REVIEWER",
+      "required_evidence_reference": "packet-78-complete",
+      "checklist_question": "Is the approval packet present and complete for spec review only?",
+      "expected_safe_answer": "yes, spec review only",
+      "actual_fixture_answer": "yes, spec review only",
+      "checklist_status": "CHECK_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "checklist_item_id": "item-notices",
+      "checklist_domain": "NON_AUTHORIZATION_NOTICES",
+      "related_approval_packet_artifact_id": "packet-78-complete",
+      "related_manifest_audit_id": "audit-77-complete",
+      "related_export_package_id": "export-76-complete",
+      "related_support_artifact_ids": [
+        "art-70",
+        "art-74"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "required_evidence_reference": "packet-78-complete",
+      "checklist_question": "Are all non-authorization notices explicit?",
+      "expected_safe_answer": "yes",
+      "actual_fixture_answer": "yes",
+      "checklist_status": "CHECK_PASS_FOR_SPEC_REVIEW",
+      "finding_severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "hidden_unresolved_blocker": false,
+  "hidden_unresolved_limitation": false,
+  "expired_waiver_unresolved": false,
+  "revoked_waiver_unresolved": false,
+  "overdue_sla_unresolved": false,
+  "dependency_audit_unresolved": true,
+  "safety_review_unresolved": false,
+  "traceability_gap": false,
+  "ambiguous_non_authorization_wording": false,
+  "unsafe_waiver_attempt_unresolved": false,
+  "invalid_xaman_payload_approval_marker": false,
+  "invalid_wallet_material_approval_marker": false,
+  "invalid_signing_submission_autofill_approval_marker": false,
+  "invalid_testnet_live_execution_approval_marker": false,
+  "invalid_runtime_checklist_service_marker": false,
+  "invalid_download_service_marker": false,
+  "invalid_api_ui_checklist_route_marker": false,
+  "invalid_safety_bypass_marker": false
+}

@@ -327,3 +327,7 @@ implement runtime readiness services, network calls, persistence, or any executi
 ## Phase 78 governance approval packet layer
 
 `xaman_governance_review_export_approval_packet_spec/` adds deterministic approval-packet artifacts, reviewer acknowledgements, non-authorization notices, limitations, and traceability only. It does not add a runtime approval service, downloadable archive, API/UI approval route, or execution surface.
+
+## Phase 79 governance review checklist layer
+
+Phase 79 adds a deterministic checklist layer over the Phase 78 approval packet for fixture-backed spec review only. It remains non-executing and does not add runtime checklist services, downloadable archives, API/UI checklist routes, or execution authority.
