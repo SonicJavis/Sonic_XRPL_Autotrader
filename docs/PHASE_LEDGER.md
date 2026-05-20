@@ -1,7 +1,7 @@
 # Phase Ledger
 
 **Repository**: Sonic XRPL Autotrader  
-**Last updated**: 2026-05-17 (Phase 79 Xaman governance approval packet review checklist spec)
+**Last updated**: 2026-05-20 (Phase 80 Xaman governance approval checklist evidence snapshot spec)
 
 This ledger records verified phases. Entries are based on repository evidence only.
 Phases with no code/docs evidence are not recorded.
@@ -1095,3 +1095,14 @@ The following phase numbers have partial evidence only:
 - **Safety/risk notes**: Still no runtime checklist service, downloads, API/UI checklist routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
 - **Rollback notes**: Revert the Phase 79 commit; no runtime migrations or persistence changes are involved.
 - **Next recommended step**: Phase 80 - Xaman Testnet Governance Approval Checklist Evidence Snapshot Spec.
+
+
+## Phase 80 - Xaman Testnet Governance Approval Checklist Evidence Snapshot Spec
+
+- **Objective completed**: Added deterministic approval-checklist evidence snapshot contracts for spec review only.
+- **Files changed**: Phase 80 spec module, fixtures, reports, docs, tests, CLI wiring, and audit/doc registries.
+- **Commands run**: Phase 80 targeted tests, full pytest, migration-safe, safety-grep, audit-validator, dependency-audit strict, CLI smoke/help, guard-critical, and git diff checks.
+- **Validation results**: pending final run.
+- **Safety/risk notes**: Still no runtime snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
+- **Rollback notes**: Revert the Phase 80 commit; no runtime migrations or persistence changes are involved.
+- **Next recommended step**: Phase 81 - Xaman Testnet Governance Snapshot Review Digest Spec.

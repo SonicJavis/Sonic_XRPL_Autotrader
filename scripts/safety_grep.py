@@ -206,6 +206,7 @@ WHITELIST = {
     'SIGNING_SUBMISSION_AUTOFILL_WAIVER_ATTEMPT': "Phase 74 blocker identifier for prohibited signing/submission/autofill waiver attempts",
     'NON_AUTHORIZATION_NOTICES': "Phase 78 approval-packet non-authorization notice constant preserving blocked capabilities",
     'REQUIRED_NOTICES': "Phase 79 review-checklist non-authorization notice constant preserving blocked capabilities",
+    'SNAPSHOT_DOMAINS': "Phase 80 evidence-snapshot domain constant preserving blocked capabilities",
     'signing_submission_autofill_waivers_are_blocked': "Phase 74 rule declaring prohibited signing/submission/autofill waivers",
     'invalid_wallet_material_waiver_marker': "Phase 74 blocked marker for prohibited wallet-material waiver attempts",
     'invalid_signing_submission_autofill_waiver_marker': "Phase 74 blocked marker for prohibited signing/submission/autofill waiver attempts",

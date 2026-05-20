@@ -197,3 +197,7 @@ Phase 78 may compose deterministic synthetic approval packets for spec review on
 ## Phase 79 review checklist boundary
 
 Phase 79 may compose deterministic synthetic review checklists for spec review only. It does not authorize runtime checklist services, downloadable archives, API/UI checklist routes, payload creation, Xaman API/SDK usage, signing, submission, autofill, wallet handling, testnet execution, or live execution.
+
+## Phase 80 evidence snapshot boundary
+
+Phase 80 may compose deterministic synthetic evidence snapshots for spec review only. It does not authorize runtime snapshot services, downloadable archives, API/UI snapshot routes, payload creation, Xaman API/SDK usage, signing, submission, autofill, wallet handling, testnet execution, or live execution.

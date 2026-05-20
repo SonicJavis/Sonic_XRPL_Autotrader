@@ -54,6 +54,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-governance-review-export-approval-packet-spec-report --fixture tests/fixtures/xaman_governance_review_export_approval_packet_spec/complete_spec_review_ready_approval_packet.json
   python -m sonic_xrpl.cli.main xaman-governance-approval-packet-review-checklist-spec --fixture tests/fixtures/xaman_governance_approval_packet_review_checklist_spec/complete_spec_review_ready_checklist.json
   python -m sonic_xrpl.cli.main xaman-governance-approval-packet-review-checklist-spec-report --fixture tests/fixtures/xaman_governance_approval_packet_review_checklist_spec/complete_spec_review_ready_checklist.json
+  python -m sonic_xrpl.cli.main xaman-governance-approval-checklist-evidence-snapshot-spec --fixture tests/fixtures/xaman_governance_approval_checklist_evidence_snapshot_spec/complete_spec_review_ready_evidence_snapshot.json
+  python -m sonic_xrpl.cli.main xaman-governance-approval-checklist-evidence-snapshot-spec-report --fixture tests/fixtures/xaman_governance_approval_checklist_evidence_snapshot_spec/complete_spec_review_ready_evidence_snapshot.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -323,6 +325,12 @@ def main(argv: list[str] | None = None) -> int:
     xgaprcsr_parser = subparsers.add_parser("xaman-governance-approval-packet-review-checklist-spec-report", help="Render Phase 79 governance approval packet review checklist markdown summary")
     xgaprcsr_parser.add_argument("--fixture", required=True, help="Path to xaman governance approval packet review checklist fixture JSON")
     xgaprcsr_parser.add_argument("--output-dir", default="reports/phase79", help="Output directory for report files")
+    xgacess_parser = subparsers.add_parser("xaman-governance-approval-checklist-evidence-snapshot-spec", help="Run Phase 80 governance approval checklist evidence snapshot contract spec")
+    xgacess_parser.add_argument("--fixture", required=True, help="Path to xaman governance approval checklist evidence snapshot fixture JSON")
+    xgacess_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xgacessr_parser = subparsers.add_parser("xaman-governance-approval-checklist-evidence-snapshot-spec-report", help="Render Phase 80 governance approval checklist evidence snapshot markdown summary")
+    xgacessr_parser.add_argument("--fixture", required=True, help="Path to xaman governance approval checklist evidence snapshot fixture JSON")
+    xgacessr_parser.add_argument("--output-dir", default="reports/phase80", help="Output directory for report files")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -539,6 +547,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_governance_approval_packet_review_checklist_spec(args)
     if args.command == "xaman-governance-approval-packet-review-checklist-spec-report":
         return _cmd_xaman_governance_approval_packet_review_checklist_spec_report(args)
+    if args.command == "xaman-governance-approval-checklist-evidence-snapshot-spec":
+        return _cmd_xaman_governance_approval_checklist_evidence_snapshot_spec(args)
+    if args.command == "xaman-governance-approval-checklist-evidence-snapshot-spec-report":
+        return _cmd_xaman_governance_approval_checklist_evidence_snapshot_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -2747,6 +2759,22 @@ def _cmd_xaman_governance_approval_packet_review_checklist_spec_report(args):
     report = build_xaman_governance_approval_packet_review_checklist_spec(load_xaman_governance_approval_packet_review_checklist_fixture(args.fixture))
     print(render_xaman_governance_approval_packet_review_checklist_markdown(report))
     json_path, md_path = write_xaman_governance_approval_packet_review_checklist_reports(report, args.output_dir)
+    print(f"\nWrote: {json_path}")
+    print(f"Wrote: {md_path}")
+    return 0
+
+
+def _cmd_xaman_governance_approval_checklist_evidence_snapshot_spec(args):
+    from sonic_xrpl.xaman_governance_approval_checklist_evidence_snapshot_spec import build_xaman_governance_approval_checklist_evidence_snapshot_spec, load_xaman_governance_approval_checklist_evidence_snapshot_fixture, render_xaman_governance_approval_checklist_evidence_snapshot_json, render_xaman_governance_approval_checklist_evidence_snapshot_markdown
+    report = build_xaman_governance_approval_checklist_evidence_snapshot_spec(load_xaman_governance_approval_checklist_evidence_snapshot_fixture(args.fixture))
+    print(render_xaman_governance_approval_checklist_evidence_snapshot_json(report) if args.json else render_xaman_governance_approval_checklist_evidence_snapshot_markdown(report))
+    return 0
+
+def _cmd_xaman_governance_approval_checklist_evidence_snapshot_spec_report(args):
+    from sonic_xrpl.xaman_governance_approval_checklist_evidence_snapshot_spec import build_xaman_governance_approval_checklist_evidence_snapshot_spec, load_xaman_governance_approval_checklist_evidence_snapshot_fixture, render_xaman_governance_approval_checklist_evidence_snapshot_markdown, write_xaman_governance_approval_checklist_evidence_snapshot_reports
+    report = build_xaman_governance_approval_checklist_evidence_snapshot_spec(load_xaman_governance_approval_checklist_evidence_snapshot_fixture(args.fixture))
+    print(render_xaman_governance_approval_checklist_evidence_snapshot_markdown(report))
+    json_path, md_path = write_xaman_governance_approval_checklist_evidence_snapshot_reports(report, args.output_dir)
     print(f"\nWrote: {json_path}")
     print(f"Wrote: {md_path}")
     return 0

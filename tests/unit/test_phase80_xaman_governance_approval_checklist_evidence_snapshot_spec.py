@@ -1,0 +1,17 @@
+from sonic_xrpl.xaman_governance_approval_checklist_evidence_snapshot_spec import build_xaman_governance_approval_checklist_evidence_snapshot_spec,load_xaman_governance_approval_checklist_evidence_snapshot_fixture
+from sonic_xrpl.xaman_governance_approval_checklist_evidence_snapshot_spec.models import SNAPSHOT_BLOCKED,SNAPSHOT_INCOMPLETE,SNAPSHOT_NOT_READY,SNAPSHOT_REVIEW_REQUIRED,SNAPSHOT_SPEC_REVIEW_READY
+from sonic_xrpl.xaman_governance_approval_checklist_evidence_snapshot_spec.report_writer import render_xaman_governance_approval_checklist_evidence_snapshot_json,render_xaman_governance_approval_checklist_evidence_snapshot_markdown
+BASE='tests/fixtures/xaman_governance_approval_checklist_evidence_snapshot_spec'
+def _run(name): return build_xaman_governance_approval_checklist_evidence_snapshot_spec(load_xaman_governance_approval_checklist_evidence_snapshot_fixture(f'{BASE}/{name}'))
+def test_phase80_complete_snapshot_is_spec_review_ready_and_deterministic():
+    first=_run('complete_spec_review_ready_evidence_snapshot.json'); second=_run('complete_spec_review_ready_evidence_snapshot.json'); assert first==second; assert first.final_snapshot_classification==SNAPSHOT_SPEC_REVIEW_READY; f=first.spec.safety_flags; assert f.spec_only is True and f.evidence_snapshot_spec_only is True and f.runtime_snapshot_service_allowed is False
+def test_phase80_missing_inputs_are_incomplete_or_review_required():
+    for name in ['missing_checklist_evidence.json','missing_approval_packet_evidence.json','missing_manifest_audit_evidence.json','missing_export_package_evidence.json','missing_final_readiness_evidence.json']:
+        assert _run(name).final_snapshot_classification==SNAPSHOT_INCOMPLETE
+    for name in ['missing_reviewer_acknowledgement_evidence.json','missing_non_authorization_notice_evidence.json','stale_evidence.json','redacted_evidence_requiring_review.json','reference_only_evidence_lacking_limitation.json','synthetic_only_evidence_requiring_review.json','hidden_unresolved_blocker.json','hidden_unresolved_limitation.json','expired_waiver_evidence_unresolved.json','revoked_waiver_evidence_unresolved.json','dependency_audit_evidence_unresolved.json','safety_review_evidence_unresolved.json','traceability_gap.json']:
+        assert _run(name).final_snapshot_classification in {SNAPSHOT_REVIEW_REQUIRED,SNAPSHOT_NOT_READY}
+def test_phase80_blocked_paths_fail_closed():
+    for name in ['overdue_sla_evidence_unresolved.json','blocked_due_xaman_payload_approval_wording.json','blocked_due_wallet_material_approval_wording.json','blocked_due_signing_submission_autofill_approval_wording.json','blocked_due_testnet_live_execution_approval_wording.json','blocked_due_runtime_snapshot_service_marker.json','blocked_due_download_service_marker.json','blocked_due_api_ui_snapshot_route_marker.json','blocked_due_safety_bypass_marker.json']:
+        r=_run(name); assert r.final_snapshot_classification==SNAPSHOT_BLOCKED; assert r.blockers
+def test_phase80_notices_traceability_and_reports_are_stable():
+    r=_run('complete_spec_review_ready_evidence_snapshot.json'); j=render_xaman_governance_approval_checklist_evidence_snapshot_json(r); m=render_xaman_governance_approval_checklist_evidence_snapshot_markdown(r); assert '"source_checklist_id": "checklist-79-complete"' in j; assert '"evidence_snapshot_spec_only": true' in j; assert 'no runtime snapshot service authorized' in m; assert 'Still no runtime snapshot service.' in m; assert 'Still no API/UI snapshot route.' in m

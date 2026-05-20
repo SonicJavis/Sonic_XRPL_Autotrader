@@ -244,3 +244,7 @@ Phase 78 adds a deterministic review-export approval packet layer for future con
 ## Phase 79 review checklist layer
 
 Phase 79 adds a deterministic approval-packet review checklist layer for future consideration only. It does not create a runtime checklist service, downloadable archive, API/UI checklist route, safety bypass, or execution path.
+
+## Phase 80 evidence snapshot layer
+
+Phase 80 adds a deterministic approval-checklist evidence snapshot layer for future consideration only. It does not create a runtime snapshot service, downloadable archive, API/UI snapshot route, safety bypass, or execution path.

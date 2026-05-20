@@ -45,3 +45,5 @@ This index points to the authoritative safety/policy/spec documents for runtime 
 - `docs/PHASE78_XAMAN_TESTNET_GOVERNANCE_REVIEW_EXPORT_APPROVAL_PACKET_SPEC.md` - deterministic approval-packet spec only; approved for spec review only, never execution.
 
 - Phase 79 approval-packet review checklist spec: `docs/PHASE79_XAMAN_TESTNET_GOVERNANCE_APPROVAL_PACKET_REVIEW_CHECKLIST_SPEC.md`
+
+- Phase 80 approval-checklist evidence snapshot spec: `docs/PHASE80_XAMAN_TESTNET_GOVERNANCE_APPROVAL_CHECKLIST_EVIDENCE_SNAPSHOT_SPEC.md`
