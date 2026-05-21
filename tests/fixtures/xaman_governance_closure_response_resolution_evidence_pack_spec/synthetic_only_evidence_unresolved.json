@@ -1,0 +1,371 @@
+{
+  "closure_digest_response_classification": "CLOSURE_DIGEST_RESPONSE_SPEC_REVIEW_READY",
+  "closure_response_resolution_classification": "CLOSURE_RESPONSE_RESOLUTION_REGISTER_SPEC_REVIEW_READY",
+  "deterministic_timestamp": "2026-05-21T00:00:00Z",
+  "evidence_pack_bundle_id": "evidence-pack-88-synthetic_only_evidence_unresolved",
+  "evidence_pack_records": [
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "CLOSURE_RESPONSE_RESOLUTION_REGISTER",
+      "evidence_pack_id": "ep-88-1",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_SYNTHETIC_ONLY",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-71"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-1",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-1",
+      "related_phase82_response_record_id": "resp-1",
+      "related_phase83_resolution_record_id": "res-1",
+      "related_phase84_closure_evidence_id": "ce-1",
+      "related_phase85_digest_item_id": "cdig-1",
+      "related_phase86_closure_digest_response_id": "cdrsp-1",
+      "related_phase87_closure_response_resolution_id": "cdr-1",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/1"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/1"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": []
+    },
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "CLOSURE_RESPONSE_RESOLUTION_RECORDS",
+      "evidence_pack_id": "ep-88-2",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-72"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-2",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-2",
+      "related_phase82_response_record_id": "resp-2",
+      "related_phase83_resolution_record_id": "res-2",
+      "related_phase84_closure_evidence_id": "ce-2",
+      "related_phase85_digest_item_id": "cdig-2",
+      "related_phase86_closure_digest_response_id": "cdrsp-2",
+      "related_phase87_closure_response_resolution_id": "cdr-2",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/2"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/2"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": []
+    },
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "FOLLOW_UP_EVIDENCE",
+      "evidence_pack_id": "ep-88-3",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-73"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-3",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-3",
+      "related_phase82_response_record_id": "resp-3",
+      "related_phase83_resolution_record_id": "res-3",
+      "related_phase84_closure_evidence_id": "ce-3",
+      "related_phase85_digest_item_id": "cdig-3",
+      "related_phase86_closure_digest_response_id": "cdrsp-3",
+      "related_phase87_closure_response_resolution_id": "cdr-3",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/3"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/3"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": []
+    },
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "EVIDENCE_COMPLETENESS",
+      "evidence_pack_id": "ep-88-4",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-74"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-4",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-4",
+      "related_phase82_response_record_id": "resp-4",
+      "related_phase83_resolution_record_id": "res-4",
+      "related_phase84_closure_evidence_id": "ce-4",
+      "related_phase85_digest_item_id": "cdig-4",
+      "related_phase86_closure_digest_response_id": "cdrsp-4",
+      "related_phase87_closure_response_resolution_id": "cdr-4",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/4"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/4"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": []
+    },
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "EVIDENCE_SUFFICIENCY_RESOLUTION",
+      "evidence_pack_id": "ep-88-5",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-75"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-5",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-5",
+      "related_phase82_response_record_id": "resp-5",
+      "related_phase83_resolution_record_id": "res-5",
+      "related_phase84_closure_evidence_id": "ce-5",
+      "related_phase85_digest_item_id": "cdig-5",
+      "related_phase86_closure_digest_response_id": "cdrsp-5",
+      "related_phase87_closure_response_resolution_id": "cdr-5",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/5"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/5"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": []
+    },
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "UNRESOLVED_BLOCKERS",
+      "evidence_pack_id": "ep-88-6",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-76"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-6",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-6",
+      "related_phase82_response_record_id": "resp-6",
+      "related_phase83_resolution_record_id": "res-6",
+      "related_phase84_closure_evidence_id": "ce-6",
+      "related_phase85_digest_item_id": "cdig-6",
+      "related_phase86_closure_digest_response_id": "cdrsp-6",
+      "related_phase87_closure_response_resolution_id": "cdr-6",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/6"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/6"
+      ],
+      "unresolved_blocker_references": [
+        "blocker-1"
+      ],
+      "unresolved_limitation_references": []
+    },
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "UNRESOLVED_LIMITATIONS",
+      "evidence_pack_id": "ep-88-7",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-77"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-7",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-7",
+      "related_phase82_response_record_id": "resp-7",
+      "related_phase83_resolution_record_id": "res-7",
+      "related_phase84_closure_evidence_id": "ce-7",
+      "related_phase85_digest_item_id": "cdig-7",
+      "related_phase86_closure_digest_response_id": "cdrsp-7",
+      "related_phase87_closure_response_resolution_id": "cdr-7",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/7"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/7"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": [
+        "limitation-1"
+      ]
+    },
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "NON_AUTHORIZATION_CONFIRMATIONS",
+      "evidence_pack_id": "ep-88-8",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-78"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-8",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-8",
+      "related_phase82_response_record_id": "resp-8",
+      "related_phase83_resolution_record_id": "res-8",
+      "related_phase84_closure_evidence_id": "ce-8",
+      "related_phase85_digest_item_id": "cdig-8",
+      "related_phase86_closure_digest_response_id": "cdrsp-8",
+      "related_phase87_closure_response_resolution_id": "cdr-8",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/8"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/8"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": []
+    },
+    {
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_completeness_status": "COMPLETE_FOR_SPEC_REVIEW",
+      "evidence_pack_domain": "OWNER_REVIEWER_MAPPING",
+      "evidence_pack_id": "ep-88-9",
+      "evidence_pack_limitation_notes": "Synthetic fixture only; no runtime action.",
+      "evidence_status": "EVIDENCE_PRESENT",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Synthetic evidence reference accepted for spec review only.",
+      "non_authorization_confirmation": true,
+      "owner_role": "GOVERNANCE_OWNER",
+      "related_phase70_77_support_artifact_ids": [
+        "art-79"
+      ],
+      "related_phase78_approval_packet_id": "packet-78",
+      "related_phase79_checklist_item_id": "check-9",
+      "related_phase80_snapshot_id": "snapshot-80",
+      "related_phase81_digest_id": "dig-9",
+      "related_phase82_response_record_id": "resp-9",
+      "related_phase83_resolution_record_id": "res-9",
+      "related_phase84_closure_evidence_id": "ce-9",
+      "related_phase85_digest_item_id": "cdig-9",
+      "related_phase86_closure_digest_response_id": "cdrsp-9",
+      "related_phase87_closure_response_resolution_id": "cdr-9",
+      "required_follow_up_evidence_references": [
+        "evidence://phase88/follow-up/9"
+      ],
+      "reviewer_role": "SECURITY_REVIEWER",
+      "safety_flags": [
+        "spec_only"
+      ],
+      "severity": "LOW",
+      "source_evidence_references": [
+        "evidence://phase88/source/9"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": []
+    }
+  ],
+  "fixture_id": "synthetic_only_evidence_unresolved",
+  "non_authorization_notices": [
+    "no payload creation authorized",
+    "no Xaman API call authorized",
+    "no signing authorized",
+    "no submission authorized",
+    "no autofill authorized",
+    "no wallet material handling authorized",
+    "no testnet execution authorized",
+    "no live execution authorized",
+    "no runtime closure response resolution evidence pack service authorized",
+    "no download/API/UI route authorized",
+    "no safety bypass authorized"
+  ],
+  "source_closure_digest_response_bundle_id": "closure-digest-response-86-complete",
+  "source_closure_response_resolution_register_id": "closure-response-resolution-register-87-complete",
+  "synthetic_only_evidence_unresolved": true
+}

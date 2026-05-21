@@ -487,3 +487,7 @@ Add deterministic closure-digest response contracts mapping reviewer responses t
 ## Phase 87 - Xaman Testnet Governance Closure Response Resolution Register Spec
 
 Add deterministic closure-response-resolution register contracts mapping Phase 86 response records to resolution states, unresolved blockers/limitations, evidence sufficiency resolution states, ownership/reviewer accountability, non-authorization confirmations, and cross-phase traceability for spec review only. No runtime closure-response-resolution/closure-digest-response/closure-digest/closure/resolution/response/digest/snapshot/checklist/approval/export services, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.
+
+## Phase 88 - Xaman Testnet Governance Closure Response Resolution Evidence Pack Spec
+
+Add deterministic closure-response-resolution evidence-pack contracts mapping Phase 87 resolution records to source/follow-up evidence references, evidence completeness/sufficiency states, unresolved blockers/limitations, owner/reviewer accountability, non-authorization confirmations, and cross-phase traceability for spec review only. No runtime closure-response-resolution-evidence-pack/closure-response-resolution/closure-digest-response/closure-digest/closure/resolution/response/digest/snapshot/checklist/approval/export services, downloads, API/UI routes, payloads, signing, testnet/live execution, or safety bypass.
