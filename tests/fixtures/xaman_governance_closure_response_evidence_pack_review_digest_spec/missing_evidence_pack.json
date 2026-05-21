@@ -1,0 +1,26 @@
+{
+  "closure_response_resolution_classification": "CLOSURE_RESPONSE_RESOLUTION_REGISTER_SPEC_REVIEW_READY",
+  "deterministic_timestamp": "2026-05-21T00:00:00Z",
+  "evidence_pack_classification": "EVIDENCE_PACK_SPEC_REVIEW_READY",
+  "fixture_id": "missing_evidence_pack",
+  "missing_evidence_pack": true,
+  "non_authorization_notices": [
+    "no payload creation authorized",
+    "no Xaman API call authorized",
+    "no signing authorized",
+    "no submission authorized",
+    "no autofill authorized",
+    "no wallet material handling authorized",
+    "no testnet execution authorized",
+    "no live execution authorized",
+    "no runtime evidence-pack review digest service authorized",
+    "no download/API/UI route authorized",
+    "no safety bypass authorized"
+  ],
+  "review_digest_bundle_id": "P89-REVIEW-DIGEST-BUNDLE-001",
+  "review_digest_sections": [],
+  "source_closure_response_resolution_register_id": "P87-CLOSURE-RESPONSE-RESOLUTION-REGISTER-001",
+  "source_phase88_evidence_pack_bundle_id": "P88-EVIDENCE-PACK-BUNDLE-001",
+  "spec_only": true,
+  "synthetic_fixture": true
+}
