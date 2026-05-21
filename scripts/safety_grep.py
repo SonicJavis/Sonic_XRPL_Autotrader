@@ -217,6 +217,10 @@ WHITELIST = {
     'invalid_signing_submission_autofill_approval_marker': "Phase 75 blocked marker for prohibited signing/submission/autofill approval wording",
     'signing_submission_autofill_approval_marker': "Phase 75 blocker key for prohibited signing/submission/autofill approval wording",
     'no_signing_submission_autofill_wallet_approval_wording': "Phase 75 completeness check requiring blocked execution wording",
+    # Phase 88 closure response resolution evidence-pack spec safety text (non-executing blocked-language contracts)
+    'no signing authorized': "Phase 88 evidence-pack non-authorization notice preserving blocked signing",
+    'no autofill authorized': "Phase 88 evidence-pack non-authorization notice preserving blocked autofill",
+    'no wallet material handling authorized': "Phase 88 evidence-pack non-authorization notice preserving blocked wallet-material handling",
 }
 
 def is_allowed_dir(file_path: Path) -> bool:
