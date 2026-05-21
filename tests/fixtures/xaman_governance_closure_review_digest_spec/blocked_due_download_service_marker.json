@@ -1,0 +1,223 @@
+{
+  "fixture_id": "blocked_due_download_service_marker",
+  "closure_digest_bundle_id": "closure-digest-85-complete",
+  "source_closure_bundle_id": "closure-84-complete",
+  "source_resolution_register_id": "resolution-83-complete",
+  "deterministic_timestamp": "2026-05-21T00:00:00Z",
+  "closure_bundle_present": true,
+  "closure_bundle_classification": "CLOSURE_BUNDLE_SPEC_REVIEW_READY",
+  "resolution_register_classification": "RESOLUTION_REGISTER_SPEC_REVIEW_READY",
+  "non_authorization_notices": [
+    "no payload creation authorized",
+    "no Xaman API call authorized",
+    "no signing authorized",
+    "no submission authorized",
+    "no autofill authorized",
+    "no wallet material handling authorized",
+    "no testnet execution authorized",
+    "no live execution authorized",
+    "no runtime closure digest service authorized",
+    "no download/API/UI route authorized",
+    "no safety bypass authorized"
+  ],
+  "reviewer_ownership_summary_present": true,
+  "closure_digest_sections": [
+    {
+      "closure_digest_section_id": "sec-closure",
+      "digest_domain": "RESOLUTION_EVIDENCE_CLOSURE",
+      "related_closure_evidence_id": "ce-main",
+      "related_resolution_record_id": "res-main",
+      "related_response_record_id": "resp-main",
+      "related_digest_id": "dig-main",
+      "related_snapshot_id": "snapshot-80",
+      "related_checklist_item_id": "check-79",
+      "related_approval_packet_id": "packet-78",
+      "related_support_artifact_ids": [
+        "art-70"
+      ],
+      "section_title": "Closure Bundle",
+      "section_summary": "Closure bundle reviewed for spec-only governance digest.",
+      "evidence_count": 5,
+      "sufficient_evidence_count": 5,
+      "insufficient_evidence_count": 0,
+      "blocker_count": 0,
+      "limitation_count": 1,
+      "reviewer_visibility": "VISIBLE",
+      "digest_status": "CLOSURE_DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "tracked",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_digest_section_id": "sec-evidence",
+      "digest_domain": "CLOSURE_EVIDENCE",
+      "related_closure_evidence_id": "ce-evidence",
+      "related_resolution_record_id": "res-evidence",
+      "related_response_record_id": "resp-evidence",
+      "related_digest_id": "dig-evidence",
+      "related_snapshot_id": "snapshot-80",
+      "related_checklist_item_id": "check-79-2",
+      "related_approval_packet_id": "packet-78",
+      "related_support_artifact_ids": [
+        "art-71"
+      ],
+      "section_title": "Closure Evidence",
+      "section_summary": "Evidence sufficiency preserved with fail-closed semantics.",
+      "evidence_count": 4,
+      "sufficient_evidence_count": 4,
+      "insufficient_evidence_count": 0,
+      "blocker_count": 0,
+      "limitation_count": 1,
+      "reviewer_visibility": "VISIBLE",
+      "digest_status": "CLOSURE_DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_digest_section_id": "sec-suff",
+      "digest_domain": "EVIDENCE_SUFFICIENCY",
+      "related_closure_evidence_id": "ce-suff",
+      "related_resolution_record_id": "res-suff",
+      "related_response_record_id": "resp-suff",
+      "related_digest_id": "dig-suff",
+      "related_snapshot_id": "snapshot-80",
+      "related_checklist_item_id": "check-79-3",
+      "related_approval_packet_id": "packet-78",
+      "related_support_artifact_ids": [
+        "art-72"
+      ],
+      "section_title": "Evidence Sufficiency",
+      "section_summary": "Sufficiency counts are deterministic and review-only.",
+      "evidence_count": 3,
+      "sufficient_evidence_count": 3,
+      "insufficient_evidence_count": 0,
+      "blocker_count": 0,
+      "limitation_count": 0,
+      "reviewer_visibility": "VISIBLE",
+      "digest_status": "CLOSURE_DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_digest_section_id": "sec-block",
+      "digest_domain": "UNRESOLVED_BLOCKERS",
+      "related_closure_evidence_id": "ce-block",
+      "related_resolution_record_id": "res-block",
+      "related_response_record_id": "resp-block",
+      "related_digest_id": "dig-block",
+      "related_snapshot_id": "snapshot-80",
+      "related_checklist_item_id": "check-79-4",
+      "related_approval_packet_id": "packet-78",
+      "related_support_artifact_ids": [
+        "art-73"
+      ],
+      "section_title": "Unresolved Blockers",
+      "section_summary": "Unresolved blockers remain visible.",
+      "evidence_count": 2,
+      "sufficient_evidence_count": 2,
+      "insufficient_evidence_count": 0,
+      "blocker_count": 1,
+      "limitation_count": 0,
+      "reviewer_visibility": "VISIBLE",
+      "digest_status": "CLOSURE_DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "MEDIUM",
+      "limitation_notes": "tracked",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_digest_section_id": "sec-limit",
+      "digest_domain": "UNRESOLVED_LIMITATIONS",
+      "related_closure_evidence_id": "ce-limit",
+      "related_resolution_record_id": "res-limit",
+      "related_response_record_id": "resp-limit",
+      "related_digest_id": "dig-limit",
+      "related_snapshot_id": "snapshot-80",
+      "related_checklist_item_id": "check-79-5",
+      "related_approval_packet_id": "packet-78",
+      "related_support_artifact_ids": [
+        "art-74"
+      ],
+      "section_title": "Unresolved Limitations",
+      "section_summary": "Unresolved limitations remain visible.",
+      "evidence_count": 2,
+      "sufficient_evidence_count": 2,
+      "insufficient_evidence_count": 0,
+      "blocker_count": 0,
+      "limitation_count": 1,
+      "reviewer_visibility": "VISIBLE",
+      "digest_status": "CLOSURE_DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "MEDIUM",
+      "limitation_notes": "tracked",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_digest_section_id": "sec-notice",
+      "digest_domain": "NON_AUTHORIZATION_CONFIRMATIONS",
+      "related_closure_evidence_id": "ce-notice",
+      "related_resolution_record_id": "res-notice",
+      "related_response_record_id": "resp-notice",
+      "related_digest_id": "dig-notice",
+      "related_snapshot_id": "snapshot-80",
+      "related_checklist_item_id": "check-79-6",
+      "related_approval_packet_id": "packet-78",
+      "related_support_artifact_ids": [
+        "art-75"
+      ],
+      "section_title": "Non-Authorization",
+      "section_summary": "No authorization for execution actions.",
+      "evidence_count": 1,
+      "sufficient_evidence_count": 1,
+      "insufficient_evidence_count": 0,
+      "blocker_count": 0,
+      "limitation_count": 0,
+      "reviewer_visibility": "VISIBLE",
+      "digest_status": "CLOSURE_DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_digest_section_id": "sec-owner",
+      "digest_domain": "REVIEWER_OWNERSHIP",
+      "related_closure_evidence_id": "ce-owner",
+      "related_resolution_record_id": "res-owner",
+      "related_response_record_id": "resp-owner",
+      "related_digest_id": "dig-owner",
+      "related_snapshot_id": "snapshot-80",
+      "related_checklist_item_id": "check-79-7",
+      "related_approval_packet_id": "packet-78",
+      "related_support_artifact_ids": [
+        "art-76"
+      ],
+      "section_title": "Reviewer Ownership",
+      "section_summary": "Ownership and visibility preserved.",
+      "evidence_count": 1,
+      "sufficient_evidence_count": 1,
+      "insufficient_evidence_count": 0,
+      "blocker_count": 0,
+      "limitation_count": 0,
+      "reviewer_visibility": "VISIBLE",
+      "digest_status": "CLOSURE_DIGEST_PASS_FOR_SPEC_REVIEW",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "invalid_download_service_marker": true
+}
