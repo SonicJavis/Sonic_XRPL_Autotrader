@@ -1161,3 +1161,14 @@ The following phase numbers have partial evidence only:
 - **Safety/risk notes**: Still no runtime closure-digest/closure/resolution/response/digest/snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
 - **Rollback notes**: Revert the Phase 85 commit; no runtime migrations or persistence changes are involved.
 - **Next recommended step**: Phase 86 - Xaman Testnet Governance Closure Digest Response Spec.
+
+
+## Phase 86 - Xaman Testnet Governance Closure Digest Response Spec
+
+- **Objective completed**: Added deterministic closure-digest response contracts for spec review only.
+- **Files changed**: Phase 86 spec module, fixtures, reports, docs, tests, CLI wiring, and audit/doc registries.
+- **Commands run**: Phase 86 targeted tests, full pytest, migration-safe, safety-grep, audit-validator, dependency-audit strict, CLI smoke/help, guard-critical, and git diff checks.
+- **Validation results**: pending final run.
+- **Safety/risk notes**: Still no runtime closure-digest-response/closure-digest/closure/resolution/response/digest/snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
+- **Rollback notes**: Revert the Phase 86 commit; no runtime migrations or persistence changes are involved.
+- **Next recommended step**: Phase 87 - Xaman Testnet Governance Closure Response Resolution Register Spec.

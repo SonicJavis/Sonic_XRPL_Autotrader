@@ -1,0 +1,497 @@
+{
+  "api_route_allowed": false,
+  "autofill_allowed": false,
+  "blockers": [],
+  "closure_digest_response_bundle_id": "closure-digest-response-86-complete",
+  "closure_digest_response_spec_only": true,
+  "dashboard_ui_allowed": false,
+  "deterministic_timestamp": "2026-05-21T00:00:00Z",
+  "download_service_allowed": false,
+  "final_response_classification": "CLOSURE_DIGEST_RESPONSE_SPEC_REVIEW_READY",
+  "fixture_id": "complete_spec_review_ready_closure_digest_response_bundle",
+  "live_execution_allowed": false,
+  "phase": "86",
+  "runtime_closure_digest_response_service_allowed": false,
+  "runtime_mutation_allowed": false,
+  "safety_bypass_allowed": false,
+  "signing_allowed": false,
+  "source_closure_bundle_id": "closure-84-complete",
+  "source_closure_digest_bundle_id": "closure-digest-85-complete",
+  "spec": {
+    "closure_digest_response_bundle_id": "closure-digest-response-86-complete",
+    "deterministic_timestamp": "2026-05-21T00:00:00Z",
+    "non_authorization_notices": [
+      "no payload creation authorized",
+      "no Xaman API call authorized",
+      "no signing authorized",
+      "no submission authorized",
+      "no autofill authorized",
+      "no wallet material handling authorized",
+      "no testnet execution authorized",
+      "no live execution authorized",
+      "no runtime closure digest response service authorized",
+      "no download/API/UI route authorized",
+      "no safety bypass authorized"
+    ],
+    "objective": "Xaman governance closure digest response contract spec",
+    "phase": "86",
+    "response_domains": [
+      "CLOSURE_REVIEW_DIGEST",
+      "CLOSURE_DIGEST_FINDINGS",
+      "CLOSURE_DIGEST_SECTIONS",
+      "EVIDENCE_SUFFICIENCY",
+      "UNRESOLVED_BLOCKERS",
+      "UNRESOLVED_LIMITATIONS",
+      "NON_AUTHORIZATION_CONFIRMATIONS",
+      "REVIEWER_OWNERSHIP",
+      "DEFERRALS",
+      "REJECTIONS",
+      "SUPERSESSIONS",
+      "DEPENDENCY_AUDIT",
+      "SAFETY_REVIEW",
+      "EXCEPTION_WAIVER_REGISTER",
+      "ESCALATION_SLA",
+      "RESOLUTION_EVIDENCE_CLOSURE",
+      "RESPONSE_RESOLUTION_REGISTER",
+      "DIGEST_REVIEW_RESPONSE",
+      "SNAPSHOT_REVIEW_DIGEST",
+      "POLICY_DOCS",
+      "TRACEABILITY_MAP"
+    ],
+    "response_findings": [],
+    "response_limitation_register": [],
+    "response_records": [
+      {
+        "closure_digest_response_id": "cdr-1",
+        "deferral_reason": "",
+        "evidence_sufficiency_response": "SUFFICIENCY_ACCEPTED_FOR_SPEC_REVIEW",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "rejection_reason": "",
+        "related_phase70_77_support_artifact_ids": [
+          "art-71"
+        ],
+        "related_phase78_approval_packet_id": "packet-78",
+        "related_phase79_checklist_item_id": "check-1",
+        "related_phase80_snapshot_id": "snapshot-80",
+        "related_phase81_digest_id": "dig-1",
+        "related_phase82_response_record_id": "resp-1",
+        "related_phase83_resolution_record_id": "res-1",
+        "related_phase84_closure_evidence_id": "ce-1",
+        "related_phase85_digest_item_id": "sec-1",
+        "required_follow_up_evidence_references": [
+          "evidence://cdr/1"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "CLOSURE_REVIEW_DIGEST",
+        "response_status": "CLOSURE_DIGEST_RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Accepted for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW",
+        "superseded_by_response_id": "",
+        "unresolved_blocker_references": [],
+        "unresolved_limitation_references": []
+      },
+      {
+        "closure_digest_response_id": "cdr-2",
+        "deferral_reason": "",
+        "evidence_sufficiency_response": "SUFFICIENCY_ACCEPTED_FOR_SPEC_REVIEW",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "rejection_reason": "",
+        "related_phase70_77_support_artifact_ids": [
+          "art-72"
+        ],
+        "related_phase78_approval_packet_id": "packet-78",
+        "related_phase79_checklist_item_id": "check-2",
+        "related_phase80_snapshot_id": "snapshot-80",
+        "related_phase81_digest_id": "dig-2",
+        "related_phase82_response_record_id": "resp-2",
+        "related_phase83_resolution_record_id": "res-2",
+        "related_phase84_closure_evidence_id": "ce-2",
+        "related_phase85_digest_item_id": "sec-2",
+        "required_follow_up_evidence_references": [
+          "evidence://cdr/2"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "CLOSURE_DIGEST_FINDINGS",
+        "response_status": "CLOSURE_DIGEST_RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Accepted for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW",
+        "superseded_by_response_id": "",
+        "unresolved_blocker_references": [],
+        "unresolved_limitation_references": []
+      },
+      {
+        "closure_digest_response_id": "cdr-3",
+        "deferral_reason": "",
+        "evidence_sufficiency_response": "SUFFICIENCY_ACCEPTED_FOR_SPEC_REVIEW",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "rejection_reason": "",
+        "related_phase70_77_support_artifact_ids": [
+          "art-73"
+        ],
+        "related_phase78_approval_packet_id": "packet-78",
+        "related_phase79_checklist_item_id": "check-3",
+        "related_phase80_snapshot_id": "snapshot-80",
+        "related_phase81_digest_id": "dig-3",
+        "related_phase82_response_record_id": "resp-3",
+        "related_phase83_resolution_record_id": "res-3",
+        "related_phase84_closure_evidence_id": "ce-3",
+        "related_phase85_digest_item_id": "sec-3",
+        "required_follow_up_evidence_references": [
+          "evidence://cdr/3"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "CLOSURE_DIGEST_SECTIONS",
+        "response_status": "CLOSURE_DIGEST_RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Accepted for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW",
+        "superseded_by_response_id": "",
+        "unresolved_blocker_references": [],
+        "unresolved_limitation_references": []
+      },
+      {
+        "closure_digest_response_id": "cdr-4",
+        "deferral_reason": "",
+        "evidence_sufficiency_response": "SUFFICIENCY_ACCEPTED_FOR_SPEC_REVIEW",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "rejection_reason": "",
+        "related_phase70_77_support_artifact_ids": [
+          "art-74"
+        ],
+        "related_phase78_approval_packet_id": "packet-78",
+        "related_phase79_checklist_item_id": "check-4",
+        "related_phase80_snapshot_id": "snapshot-80",
+        "related_phase81_digest_id": "dig-4",
+        "related_phase82_response_record_id": "resp-4",
+        "related_phase83_resolution_record_id": "res-4",
+        "related_phase84_closure_evidence_id": "ce-4",
+        "related_phase85_digest_item_id": "sec-4",
+        "required_follow_up_evidence_references": [
+          "evidence://cdr/4"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "EVIDENCE_SUFFICIENCY",
+        "response_status": "CLOSURE_DIGEST_RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Accepted for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW",
+        "superseded_by_response_id": "",
+        "unresolved_blocker_references": [],
+        "unresolved_limitation_references": [
+          "lim-1"
+        ]
+      },
+      {
+        "closure_digest_response_id": "cdr-5",
+        "deferral_reason": "",
+        "evidence_sufficiency_response": "SUFFICIENCY_ACCEPTED_FOR_SPEC_REVIEW",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "rejection_reason": "",
+        "related_phase70_77_support_artifact_ids": [
+          "art-75"
+        ],
+        "related_phase78_approval_packet_id": "packet-78",
+        "related_phase79_checklist_item_id": "check-5",
+        "related_phase80_snapshot_id": "snapshot-80",
+        "related_phase81_digest_id": "dig-5",
+        "related_phase82_response_record_id": "resp-5",
+        "related_phase83_resolution_record_id": "res-5",
+        "related_phase84_closure_evidence_id": "ce-5",
+        "related_phase85_digest_item_id": "sec-5",
+        "required_follow_up_evidence_references": [
+          "evidence://cdr/5"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "UNRESOLVED_BLOCKERS",
+        "response_status": "CLOSURE_DIGEST_RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Accepted for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW",
+        "superseded_by_response_id": "",
+        "unresolved_blocker_references": [
+          "blocker-1"
+        ],
+        "unresolved_limitation_references": []
+      },
+      {
+        "closure_digest_response_id": "cdr-6",
+        "deferral_reason": "",
+        "evidence_sufficiency_response": "SUFFICIENCY_ACCEPTED_FOR_SPEC_REVIEW",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "rejection_reason": "",
+        "related_phase70_77_support_artifact_ids": [
+          "art-76"
+        ],
+        "related_phase78_approval_packet_id": "packet-78",
+        "related_phase79_checklist_item_id": "check-6",
+        "related_phase80_snapshot_id": "snapshot-80",
+        "related_phase81_digest_id": "dig-6",
+        "related_phase82_response_record_id": "resp-6",
+        "related_phase83_resolution_record_id": "res-6",
+        "related_phase84_closure_evidence_id": "ce-6",
+        "related_phase85_digest_item_id": "sec-6",
+        "required_follow_up_evidence_references": [
+          "evidence://cdr/6"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "UNRESOLVED_LIMITATIONS",
+        "response_status": "CLOSURE_DIGEST_RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Accepted for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW",
+        "superseded_by_response_id": "",
+        "unresolved_blocker_references": [],
+        "unresolved_limitation_references": [
+          "lim-1"
+        ]
+      },
+      {
+        "closure_digest_response_id": "cdr-7",
+        "deferral_reason": "",
+        "evidence_sufficiency_response": "SUFFICIENCY_ACCEPTED_FOR_SPEC_REVIEW",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "rejection_reason": "",
+        "related_phase70_77_support_artifact_ids": [
+          "art-77"
+        ],
+        "related_phase78_approval_packet_id": "packet-78",
+        "related_phase79_checklist_item_id": "check-7",
+        "related_phase80_snapshot_id": "snapshot-80",
+        "related_phase81_digest_id": "dig-7",
+        "related_phase82_response_record_id": "resp-7",
+        "related_phase83_resolution_record_id": "res-7",
+        "related_phase84_closure_evidence_id": "ce-7",
+        "related_phase85_digest_item_id": "sec-7",
+        "required_follow_up_evidence_references": [
+          "evidence://cdr/7"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "NON_AUTHORIZATION_CONFIRMATIONS",
+        "response_status": "CLOSURE_DIGEST_RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Accepted for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW",
+        "superseded_by_response_id": "",
+        "unresolved_blocker_references": [],
+        "unresolved_limitation_references": []
+      },
+      {
+        "closure_digest_response_id": "cdr-8",
+        "deferral_reason": "",
+        "evidence_sufficiency_response": "SUFFICIENCY_ACCEPTED_FOR_SPEC_REVIEW",
+        "limitation_notes": "none",
+        "non_authorization_confirmation": true,
+        "rejection_reason": "",
+        "related_phase70_77_support_artifact_ids": [
+          "art-78"
+        ],
+        "related_phase78_approval_packet_id": "packet-78",
+        "related_phase79_checklist_item_id": "check-8",
+        "related_phase80_snapshot_id": "snapshot-80",
+        "related_phase81_digest_id": "dig-8",
+        "related_phase82_response_record_id": "resp-8",
+        "related_phase83_resolution_record_id": "res-8",
+        "related_phase84_closure_evidence_id": "ce-8",
+        "related_phase85_digest_item_id": "sec-8",
+        "required_follow_up_evidence_references": [
+          "evidence://cdr/8"
+        ],
+        "resolution_intent": "NO_RUNTIME_ACTION",
+        "response_category": "ACKNOWLEDGED_FOR_SPEC_REVIEW",
+        "response_domain": "REVIEWER_OWNERSHIP",
+        "response_status": "CLOSURE_DIGEST_RESPONSE_ACCEPTED_FOR_SPEC_REVIEW",
+        "response_summary": "Accepted for spec review only.",
+        "reviewer_role": "SECURITY_REVIEWER",
+        "safety_flags": [
+          "spec_only"
+        ],
+        "severity": "LOW",
+        "superseded_by_response_id": "",
+        "unresolved_blocker_references": [],
+        "unresolved_limitation_references": []
+      }
+    ],
+    "safety_flags": {
+      "api_route_allowed": false,
+      "autofill_allowed": false,
+      "closure_digest_response_spec_only": true,
+      "dashboard_ui_allowed": false,
+      "download_service_allowed": false,
+      "live_execution_allowed": false,
+      "runtime_closure_digest_response_service_allowed": false,
+      "runtime_mutation_allowed": false,
+      "safety_bypass_allowed": false,
+      "signing_allowed": false,
+      "spec_only": true,
+      "submission_allowed": false,
+      "testnet_execution_allowed": false,
+      "wallet_material_allowed": false,
+      "xaman_api_calls_allowed": false,
+      "xaman_payload_creation_allowed": false,
+      "xaman_sdk_dependency_allowed": false
+    },
+    "source_closure_bundle_id": "closure-84-complete",
+    "source_closure_digest_bundle_id": "closure-digest-85-complete"
+  },
+  "spec_only": true,
+  "submission_allowed": false,
+  "testnet_execution_allowed": false,
+  "traceability_map": {
+    "closure_digest_response_bundle_to_phase84_closure_bundle": "closure-84-complete",
+    "closure_digest_response_bundle_to_phase85_closure_digest": "closure-digest-85-complete",
+    "missing_non_authorization_confirmation_fail_closed": false,
+    "missing_response_records_fail_closed": false,
+    "response_bundle_to_phase70_77_support_artifacts": [
+      "art-71",
+      "art-72",
+      "art-73",
+      "art-74",
+      "art-75",
+      "art-76",
+      "art-77",
+      "art-78"
+    ],
+    "response_bundle_to_phase78_approval_packet_ids": [
+      "packet-78",
+      "packet-78",
+      "packet-78",
+      "packet-78",
+      "packet-78",
+      "packet-78",
+      "packet-78",
+      "packet-78"
+    ],
+    "response_bundle_to_phase79_checklist_ids": [
+      "check-1",
+      "check-2",
+      "check-3",
+      "check-4",
+      "check-5",
+      "check-6",
+      "check-7",
+      "check-8"
+    ],
+    "response_bundle_to_phase80_snapshot_ids": [
+      "snapshot-80",
+      "snapshot-80",
+      "snapshot-80",
+      "snapshot-80",
+      "snapshot-80",
+      "snapshot-80",
+      "snapshot-80",
+      "snapshot-80"
+    ],
+    "response_bundle_to_phase81_digest_ids": [
+      "dig-1",
+      "dig-2",
+      "dig-3",
+      "dig-4",
+      "dig-5",
+      "dig-6",
+      "dig-7",
+      "dig-8"
+    ],
+    "response_bundle_to_phase82_response_ids": [
+      "resp-1",
+      "resp-2",
+      "resp-3",
+      "resp-4",
+      "resp-5",
+      "resp-6",
+      "resp-7",
+      "resp-8"
+    ],
+    "response_records_to_blockers_limitations": {
+      "cdr-1": {
+        "blockers": [],
+        "limitations": []
+      },
+      "cdr-2": {
+        "blockers": [],
+        "limitations": []
+      },
+      "cdr-3": {
+        "blockers": [],
+        "limitations": []
+      },
+      "cdr-4": {
+        "blockers": [],
+        "limitations": [
+          "lim-1"
+        ]
+      },
+      "cdr-5": {
+        "blockers": [
+          "blocker-1"
+        ],
+        "limitations": []
+      },
+      "cdr-6": {
+        "blockers": [],
+        "limitations": [
+          "lim-1"
+        ]
+      },
+      "cdr-7": {
+        "blockers": [],
+        "limitations": []
+      },
+      "cdr-8": {
+        "blockers": [],
+        "limitations": []
+      }
+    },
+    "response_records_to_phase83_resolution_ids": {
+      "cdr-1": "res-1",
+      "cdr-2": "res-2",
+      "cdr-3": "res-3",
+      "cdr-4": "res-4",
+      "cdr-5": "res-5",
+      "cdr-6": "res-6",
+      "cdr-7": "res-7",
+      "cdr-8": "res-8"
+    }
+  },
+  "validation_errors": [],
+  "wallet_material_allowed": false,
+  "xaman_api_calls_allowed": false,
+  "xaman_payload_creation_allowed": false,
+  "xaman_sdk_dependency_allowed": false
+}

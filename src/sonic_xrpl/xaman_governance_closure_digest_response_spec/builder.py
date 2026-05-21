@@ -1,0 +1,1 @@
+from sonic_xrpl.xaman_governance_closure_digest_response_spec.validation import build_xaman_governance_closure_digest_response_spec\n
