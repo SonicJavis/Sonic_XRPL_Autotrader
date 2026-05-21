@@ -1,0 +1,241 @@
+{
+  "fixture_id": "synthetic_only_evidence_closure_unresolved",
+  "closure_bundle_id": "closure-84-complete",
+  "source_resolution_register_id": "resolution-83-complete",
+  "source_response_bundle_id": "response-82-complete",
+  "deterministic_timestamp": "2026-05-20T00:00:00Z",
+  "resolution_register_classification": "RESOLUTION_REGISTER_SPEC_REVIEW_READY",
+  "response_classification": "RESPONSE_BUNDLE_SPEC_REVIEW_READY",
+  "non_authorization_notices": [
+    "no payload creation authorized",
+    "no Xaman API call authorized",
+    "no signing authorized",
+    "no submission authorized",
+    "no autofill authorized",
+    "no wallet material handling authorized",
+    "no testnet execution authorized",
+    "no live execution authorized",
+    "no runtime closure service authorized",
+    "no download/API/UI route authorized",
+    "no safety bypass authorized"
+  ],
+  "closure_evidence_records": [
+    {
+      "closure_evidence_id": "ce-main",
+      "closure_domain": "RESPONSE_RESOLUTION_REGISTER",
+      "related_resolution_record_id": "res-main",
+      "related_response_record_id": "resp-findings",
+      "related_digest_id": "finding-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-1",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-70"
+      ],
+      "owner_role": "SECURITY_REVIEWER",
+      "reviewer_role": "AUDIT_REVIEWER",
+      "evidence_category": "DOCUMENTATION_EVIDENCE",
+      "evidence_status": "CLOSURE_EVIDENCE_ACCEPTED_FOR_SPEC_REVIEW",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Closure evidence accepted for spec review only.",
+      "source_evidence_references": [
+        "evidence://c/main"
+      ],
+      "unresolved_blocker_references": [
+        "blocker-1"
+      ],
+      "unresolved_limitation_references": [
+        "lim-1"
+      ],
+      "non_authorization_confirmation": true,
+      "closure_condition": "NO_RUNTIME_ACTION",
+      "deferral_reason": "",
+      "rejection_reason": "",
+      "superseded_by_closure_evidence_id": "",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_evidence_id": "ce-blockers",
+      "closure_domain": "UNRESOLVED_BLOCKERS",
+      "related_resolution_record_id": "res-blockers",
+      "related_response_record_id": "resp-blockers",
+      "related_digest_id": "blocker-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-2",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-71"
+      ],
+      "owner_role": "RISK_REVIEWER",
+      "reviewer_role": "FINAL_GOVERNANCE_OWNER",
+      "evidence_category": "BLOCKER_ACKNOWLEDGEMENT_EVIDENCE",
+      "evidence_status": "CLOSURE_EVIDENCE_IN_REVIEW",
+      "evidence_sufficiency_status": "REVIEW_REQUIRED",
+      "evidence_summary": "Blocker evidence under spec review.",
+      "source_evidence_references": [
+        "evidence://c/blockers"
+      ],
+      "unresolved_blocker_references": [
+        "blocker-1"
+      ],
+      "unresolved_limitation_references": [
+        "lim-2"
+      ],
+      "non_authorization_confirmation": true,
+      "closure_condition": "BLOCKER_ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "deferral_reason": "",
+      "rejection_reason": "",
+      "superseded_by_closure_evidence_id": "",
+      "severity": "MEDIUM",
+      "limitation_notes": "tracked",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_evidence_id": "ce-limits",
+      "closure_domain": "UNRESOLVED_LIMITATIONS",
+      "related_resolution_record_id": "res-limits",
+      "related_response_record_id": "resp-limits",
+      "related_digest_id": "lim-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-3",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-72"
+      ],
+      "owner_role": "FINAL_GOVERNANCE_OWNER",
+      "reviewer_role": "AUDIT_REVIEWER",
+      "evidence_category": "LIMITATION_ACKNOWLEDGEMENT_EVIDENCE",
+      "evidence_status": "CLOSURE_EVIDENCE_ACCEPTED_FOR_SPEC_REVIEW",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Limitation evidence acknowledged.",
+      "source_evidence_references": [
+        "evidence://c/limits"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": [
+        "lim-1"
+      ],
+      "non_authorization_confirmation": true,
+      "closure_condition": "LIMITATION_ACKNOWLEDGED_FOR_SPEC_REVIEW",
+      "deferral_reason": "",
+      "rejection_reason": "",
+      "superseded_by_closure_evidence_id": "",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_evidence_id": "ce-followup",
+      "closure_domain": "FOLLOW_UP_EVIDENCE",
+      "related_resolution_record_id": "res-evidence",
+      "related_response_record_id": "resp-evidence",
+      "related_digest_id": "section-2",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-4",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-73"
+      ],
+      "owner_role": "AUDIT_REVIEWER",
+      "reviewer_role": "SECURITY_REVIEWER",
+      "evidence_category": "FOLLOW_UP_EVIDENCE",
+      "evidence_status": "CLOSURE_EVIDENCE_IN_REVIEW",
+      "evidence_sufficiency_status": "REVIEW_REQUIRED",
+      "evidence_summary": "Follow-up evidence pending review.",
+      "source_evidence_references": [
+        "evidence://c/followup"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": [
+        "lim-2"
+      ],
+      "non_authorization_confirmation": true,
+      "closure_condition": "FOLLOW_UP_EVIDENCE_PRESENT",
+      "deferral_reason": "",
+      "rejection_reason": "",
+      "superseded_by_closure_evidence_id": "",
+      "severity": "MEDIUM",
+      "limitation_notes": "pending",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_evidence_id": "ce-notices",
+      "closure_domain": "NON_AUTHORIZATION_CONFIRMATIONS",
+      "related_resolution_record_id": "res-notices",
+      "related_response_record_id": "resp-notices",
+      "related_digest_id": "notice-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-5",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-74"
+      ],
+      "owner_role": "OPERATOR_REVIEWER",
+      "reviewer_role": "AUDIT_REVIEWER",
+      "evidence_category": "NO_RUNTIME_ACTION_EVIDENCE",
+      "evidence_status": "CLOSURE_EVIDENCE_ACCEPTED_FOR_SPEC_REVIEW",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Non-authorization confirmations explicit.",
+      "source_evidence_references": [
+        "evidence://c/notices"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": [],
+      "non_authorization_confirmation": true,
+      "closure_condition": "DOCUMENTATION_EVIDENCE_PRESENT",
+      "deferral_reason": "",
+      "rejection_reason": "",
+      "superseded_by_closure_evidence_id": "",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    },
+    {
+      "closure_evidence_id": "ce-owner",
+      "closure_domain": "REVIEWER_OWNERSHIP",
+      "related_resolution_record_id": "res-owner",
+      "related_response_record_id": "resp-acks",
+      "related_digest_id": "ack-1",
+      "related_snapshot_id": "snapshot-80-complete",
+      "related_checklist_item_id": "check-79-6",
+      "related_approval_packet_id": "packet-78-complete",
+      "related_support_artifact_ids": [
+        "art-75"
+      ],
+      "owner_role": "XRPL_PROTOCOL_REVIEWER",
+      "reviewer_role": "FINAL_GOVERNANCE_OWNER",
+      "evidence_category": "TRACEABILITY_EVIDENCE",
+      "evidence_status": "CLOSURE_EVIDENCE_ACCEPTED_FOR_SPEC_REVIEW",
+      "evidence_sufficiency_status": "SUFFICIENT_FOR_SPEC_REVIEW",
+      "evidence_summary": "Ownership/traceability maintained.",
+      "source_evidence_references": [
+        "evidence://c/owner"
+      ],
+      "unresolved_blocker_references": [],
+      "unresolved_limitation_references": [],
+      "non_authorization_confirmation": true,
+      "closure_condition": "TRACEABILITY_REVIEW_RECORDED",
+      "deferral_reason": "",
+      "rejection_reason": "",
+      "superseded_by_closure_evidence_id": "",
+      "severity": "LOW",
+      "limitation_notes": "none",
+      "safety_flags": [
+        "spec_only"
+      ]
+    }
+  ],
+  "synthetic_only_evidence_closure_unresolved": true
+}

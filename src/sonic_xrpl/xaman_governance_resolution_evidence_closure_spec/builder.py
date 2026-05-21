@@ -1,0 +1,1 @@
+from sonic_xrpl.xaman_governance_resolution_evidence_closure_spec.validation import build_xaman_governance_resolution_evidence_closure_spec

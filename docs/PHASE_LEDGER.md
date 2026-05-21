@@ -1139,3 +1139,14 @@ The following phase numbers have partial evidence only:
 - **Safety/risk notes**: Still no runtime resolution/response/digest/snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
 - **Rollback notes**: Revert the Phase 83 commit; no runtime migrations or persistence changes are involved.
 - **Next recommended step**: Phase 84 - Xaman Testnet Governance Resolution Evidence Closure Spec.
+
+
+## Phase 84 - Xaman Testnet Governance Resolution Evidence Closure Spec
+
+- **Objective completed**: Added deterministic resolution-evidence closure contracts for spec review only.
+- **Files changed**: Phase 84 spec module, fixtures, reports, docs, tests, CLI wiring, and audit/doc registries.
+- **Commands run**: Phase 84 targeted tests, full pytest, migration-safe, safety-grep, audit-validator, dependency-audit strict, CLI smoke/help, guard-critical, and git diff checks.
+- **Validation results**: pending final run.
+- **Safety/risk notes**: Still no runtime closure/resolution/response/digest/snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
+- **Rollback notes**: Revert the Phase 84 commit; no runtime migrations or persistence changes are involved.
+- **Next recommended step**: Phase 85 - Xaman Testnet Governance Closure Review Digest Spec.
