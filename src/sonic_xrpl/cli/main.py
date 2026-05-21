@@ -72,6 +72,8 @@ Usage:
   python -m sonic_xrpl.cli.main xaman-governance-closure-response-resolution-register-spec-report --fixture tests/fixtures/xaman_governance_closure_response_resolution_register_spec/complete_spec_review_ready_closure_digest_response_bundle.json
   python -m sonic_xrpl.cli.main xaman-governance-closure-response-resolution-evidence-pack-spec --fixture tests/fixtures/xaman_governance_closure_response_resolution_evidence_pack_spec/complete_spec_review_ready_evidence_pack.json
   python -m sonic_xrpl.cli.main xaman-governance-closure-response-resolution-evidence-pack-spec-report --fixture tests/fixtures/xaman_governance_closure_response_resolution_evidence_pack_spec/complete_spec_review_ready_evidence_pack.json
+  python -m sonic_xrpl.cli.main xaman-governance-closure-response-evidence-pack-review-digest-spec --fixture tests/fixtures/xaman_governance_closure_response_evidence_pack_review_digest_spec/complete_spec_review_ready_evidence_pack_review_digest.json
+  python -m sonic_xrpl.cli.main xaman-governance-closure-response-evidence-pack-review-digest-spec-report --fixture tests/fixtures/xaman_governance_closure_response_evidence_pack_review_digest_spec/complete_spec_review_ready_evidence_pack_review_digest.json
   python -m sonic_xrpl.cli.main paper-outcomes --signals-fixture tests/fixtures/firstledger/source_backed_candidates.json --outcomes-fixture tests/fixtures/outcomes/paper_observations.json
   python -m sonic_xrpl.cli.main outcome-corpus --fixture tests/fixtures/outcome_corpus/source_backed_multi_window.json
   python -m sonic_xrpl.cli.main calibration-readiness --fixture tests/fixtures/calibration_review/sufficient_source_backed_evidence.json
@@ -395,6 +397,12 @@ def main(argv: list[str] | None = None) -> int:
     xgcrrepsr_parser = subparsers.add_parser("xaman-governance-closure-response-resolution-evidence-pack-spec-report", help="Render Phase 88 governance closure response resolution evidence pack markdown summary")
     xgcrrepsr_parser.add_argument("--fixture", required=True, help="Path to xaman governance closure response resolution evidence pack fixture JSON")
     xgcrrepsr_parser.add_argument("--output-dir", default="reports/phase88", help="Output directory for report files")
+    xgcrepds_parser = subparsers.add_parser("xaman-governance-closure-response-evidence-pack-review-digest-spec", help="Run Phase 89 governance closure response evidence pack review digest contract spec")
+    xgcrepds_parser.add_argument("--fixture", required=True, help="Path to xaman governance closure response evidence pack review digest fixture JSON")
+    xgcrepds_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    xgcrepdsr_parser = subparsers.add_parser("xaman-governance-closure-response-evidence-pack-review-digest-spec-report", help="Render Phase 89 governance closure response evidence pack review digest markdown summary")
+    xgcrepdsr_parser.add_argument("--fixture", required=True, help="Path to xaman governance closure response evidence pack review digest fixture JSON")
+    xgcrepdsr_parser.add_argument("--output-dir", default="reports/phase89", help="Output directory for report files")
 
     # Phase 50: signal review workflow (paper-only)
     sigreview_parser = subparsers.add_parser("signal-review", help="Run Phase 50 signal review from Phase 49 outputs")
@@ -647,6 +655,10 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_xaman_governance_closure_response_resolution_evidence_pack_spec(args)
     if args.command == "xaman-governance-closure-response-resolution-evidence-pack-spec-report":
         return _cmd_xaman_governance_closure_response_resolution_evidence_pack_spec_report(args)
+    if args.command == "xaman-governance-closure-response-evidence-pack-review-digest-spec":
+        return _cmd_xaman_governance_closure_response_evidence_pack_review_digest_spec(args)
+    if args.command == "xaman-governance-closure-response-evidence-pack-review-digest-spec-report":
+        return _cmd_xaman_governance_closure_response_evidence_pack_review_digest_spec_report(args)
 
     if args.command == "signal-review":
         return _cmd_signal_review(args)
@@ -2991,6 +3003,21 @@ def _cmd_xaman_governance_closure_response_resolution_evidence_pack_spec_report(
     report = build_xaman_governance_closure_response_resolution_evidence_pack_spec(load_xaman_governance_closure_response_resolution_evidence_pack_fixture(args.fixture))
     print(render_xaman_governance_closure_response_resolution_evidence_pack_markdown(report))
     json_path, md_path = write_xaman_governance_closure_response_resolution_evidence_pack_reports(report, args.output_dir)
+    print(f"\nWrote: {json_path}")
+    print(f"Wrote: {md_path}")
+    return 0
+
+def _cmd_xaman_governance_closure_response_evidence_pack_review_digest_spec(args):
+    from sonic_xrpl.xaman_governance_closure_response_evidence_pack_review_digest_spec import build_xaman_governance_closure_response_evidence_pack_review_digest_spec, load_xaman_governance_closure_response_evidence_pack_review_digest_fixture, render_xaman_governance_closure_response_evidence_pack_review_digest_json, render_xaman_governance_closure_response_evidence_pack_review_digest_markdown
+    report = build_xaman_governance_closure_response_evidence_pack_review_digest_spec(load_xaman_governance_closure_response_evidence_pack_review_digest_fixture(args.fixture))
+    print(render_xaman_governance_closure_response_evidence_pack_review_digest_json(report) if args.json else render_xaman_governance_closure_response_evidence_pack_review_digest_markdown(report))
+    return 0
+
+def _cmd_xaman_governance_closure_response_evidence_pack_review_digest_spec_report(args):
+    from sonic_xrpl.xaman_governance_closure_response_evidence_pack_review_digest_spec import build_xaman_governance_closure_response_evidence_pack_review_digest_spec, load_xaman_governance_closure_response_evidence_pack_review_digest_fixture, render_xaman_governance_closure_response_evidence_pack_review_digest_markdown, write_xaman_governance_closure_response_evidence_pack_review_digest_reports
+    report = build_xaman_governance_closure_response_evidence_pack_review_digest_spec(load_xaman_governance_closure_response_evidence_pack_review_digest_fixture(args.fixture))
+    print(render_xaman_governance_closure_response_evidence_pack_review_digest_markdown(report))
+    json_path, md_path = write_xaman_governance_closure_response_evidence_pack_review_digest_reports(report, args.output_dir)
     print(f"\nWrote: {json_path}")
     print(f"Wrote: {md_path}")
     return 0

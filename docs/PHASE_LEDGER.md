@@ -1091,7 +1091,7 @@ The following phase numbers have partial evidence only:
 - **Objective completed**: Added deterministic approval-packet review checklist contracts for spec review only.
 - **Files changed**: Phase 79 spec module, fixtures, reports, docs, tests, CLI wiring, and audit/doc registries.
 - **Commands run**: Phase 79 targeted tests, full pytest, migration-safe, safety-grep, audit-validator, dependency-audit strict, CLI smoke/help, guard-critical, and git diff checks.
-- **Validation results**: pending final run.
+- **Validation results**: PASS - targeted Phase 89 unit/safety tests, full pytest, migration-safe check, safety grep, audit validator, dependency audit strict, CLI smoke/help, guard-critical check, BOM check, and git diff check passed.
 - **Safety/risk notes**: Still no runtime checklist service, downloads, API/UI checklist routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
 - **Rollback notes**: Revert the Phase 79 commit; no runtime migrations or persistence changes are involved.
 - **Next recommended step**: Phase 80 - Xaman Testnet Governance Approval Checklist Evidence Snapshot Spec.
@@ -1194,3 +1194,14 @@ The following phase numbers have partial evidence only:
 - **Safety/risk notes**: Still no runtime closure-response-resolution-evidence-pack/closure-response-resolution/closure-digest-response/closure-digest/closure/resolution/response/digest/snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
 - **Rollback notes**: Revert the Phase 88 commit; no runtime migrations or persistence changes are involved.
 - **Next recommended step**: Phase 89 - Xaman Testnet Governance Closure Response Evidence Pack Review Digest Spec.
+
+
+## Phase 89 - Xaman Testnet Governance Closure Response Evidence Pack Review Digest Spec
+
+- **Objective completed**: Added deterministic closure-response evidence-pack review digest contracts for spec review only.
+- **Files changed**: Phase 89 spec module, fixtures, reports, docs, tests, CLI wiring, and audit/doc registries.
+- **Commands run**: Phase 89 targeted tests, full pytest, migration-safe, safety-grep, audit-validator, dependency-audit strict, CLI smoke/help, guard-critical, BOM, and git diff checks.
+- **Validation results**: pending final run.
+- **Safety/risk notes**: Still no runtime evidence-pack-review-digest/evidence-pack/closure-response-resolution/closure-digest-response/closure-digest/closure/resolution/response/digest/snapshot/checklist/approval/export/download services, API/UI routes, payload/API/SDK use, signing/submission/autofill/wallet handling, testnet execution, live execution, or safety bypass.
+- **Rollback notes**: Revert the Phase 89 commit; no runtime migrations or persistence changes are involved.
+- **Next recommended step**: Phase 90 - Xaman Testnet Governance Evidence Pack Digest Response Spec.
